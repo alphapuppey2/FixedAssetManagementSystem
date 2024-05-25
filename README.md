@@ -23,7 +23,7 @@ Installing the dependencies
 # Create a Environment for DB Connection
 create new file name .env then Copy .env.examples to env then run this Command
 ```bash
-php artisan migrate
+php artisan key:generate
 ```
 
 **Migrate from the Database**
