@@ -4,14 +4,14 @@
             <span class="navbar-toggler-icon"></span>
           </button>
 
-       <div class="collapse navbar-collapse navLists" id="navbarSupportedContent">
-         <div class="navbar-nav me-auto mb-2 mb-lg-0" style="display: flex; flex-direction:column; ">
-            <div class="nav-item">
+       <div class="navbar-collapse navLists" id="navbarSupportedContent">
+         <div class="navbar-nav me-auto mb-2 mb-lg-0" style="display: flex; flex-direction:column;z-index:1; ">
+            <div class="nav-item" style>
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
                 </x-nav-link>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" >
                 <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')">
                     {{ __('Asset') }}
                 </x-nav-link>

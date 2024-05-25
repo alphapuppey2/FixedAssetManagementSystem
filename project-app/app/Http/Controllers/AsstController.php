@@ -15,11 +15,15 @@ class AsstController extends Controller
     public function show(){
 
         $departments = array('list' => DB::table('department')->get());
+        $categories = array('ctglist' => DB::table('category')->get());
 
         return view("asset" , $departments);
     }
     public function showForm(){
-        return view('createAsset');
+
+        $departments = array('list' => DB::table('department')->get());
+        $categories = array('ctglist' => DB::table('category')->get());
+        return view('createAsset',$categories);
     }
     public function create(Request $request){
         $request->validate([

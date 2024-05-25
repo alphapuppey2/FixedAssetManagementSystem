@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="topBar">
+<nav x-data="{ open: false }" class="topBar" style="z-index:1">
     <!-- Primary Navigation Menu -->
     <div class="displaylang">
         <div class="navlinks">
