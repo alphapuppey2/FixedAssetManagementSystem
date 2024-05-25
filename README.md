@@ -6,7 +6,7 @@ for Capstone
 # **Installation** 
 
 before you start Coding Laravel, make sure that your local machine has PHP and Composer installed. In addition, we recommend installing Node and NPM.
-## Links are here
+## Links HERE
 [PHP](https://www.php.net/)
 
 [composer](https://getcomposer.org/)
