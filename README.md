@@ -20,10 +20,6 @@ Installing the dependencies
 
     composer install
 
-configuration for environment
-```bash
-    php artisan key:generate
-```
 **Migrate from the Database**
 
 - Before this Make sure to check the DB connection found in .env
