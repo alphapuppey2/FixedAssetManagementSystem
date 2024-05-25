@@ -20,6 +20,12 @@ Installing the dependencies
 
     composer install
 
+# Create a Environment for DB Connection
+create new file name .env then Copy .env.examples to env then run this Command
+```bash
+php artisan migrate
+```
+
 **Migrate from the Database**
 
 - Before this Make sure to check the DB connection found in .env
