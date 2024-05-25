@@ -1,28 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
            create Asset
         </h2>
     </x-slot>
 
     <div class="contents">
-        <form action="" method="post">
+        <form action="{{ route('asset.create') }}" method="post">
             @csrf
-            <x-input-label>asset Name</x-input-label>
-            <x-text-input type="text" name='name' required />
-            <x-dropdown2 align="right" width="48" name='category' required>
-                <x-slot name='trigger'>
-                    Categories
-                </x-slot>
-                <x-slot name="content">
-                    @foreach ($ctglist as $category)
-                        <li value="{{ $category->id }}">
-                            {{ $category->name }}
-                        </li>
+            <div class="form-group">
+                <x-input-label for='name'>asset Name</x-input-label>
+                <x-text-input type="text" id="name" name='name' required />
+            </div>
+            <div class="form-group">
+                <x-input-label for='category'>Category</x-input-label>
+                <select name="category" id="category" class="max-w-100 flex flex-col">
+                    @foreach ($category['ctglist'] as $category)
+                        <option value={{ $category->id }}>{{ $category->name}}</option>
                     @endforeach
-                </x-slot>
-            </x-dropdown2>
-            <x-text-input type="text" required />
+                </select>
+            </div>
+            <x-primary-button>Create Asset</x-primary-button>
         </form>
     </div>
 </x-app-layout>

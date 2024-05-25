@@ -22,11 +22,13 @@
             @include('layouts.TopBar')
             @include('layouts.sideBar')
 
-            <main class="" style="background-color:rgb(233, 230, 255); padding-left: 150px; height:100vh; padding-top:80px">
+            <main class="" style="padding-left: 150px; height:100vh; padding-top:80px ;padding-right:10px;">
                 <div class="header">
                     {{ $header }}
                 </div>
-                {{ $slot }}
+                <div class="contentPage">
+                    {{ $slot }}
+                </div>
             </main>
 
             <!-- Page Content -->

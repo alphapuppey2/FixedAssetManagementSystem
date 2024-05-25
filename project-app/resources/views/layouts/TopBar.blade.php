@@ -16,7 +16,7 @@
             <div class="right" style="display:flex">
                     <x-dropdown2 align="right" width="48">
                         <x-slot name="trigger">
-                            <div class="div" style="margin-right:5px">Asset</div>
+                            <div class="div" style="margin-right:5px">New</div>
                             {{-- <button>
                                 <div>{{  }}</div>
 
@@ -35,8 +35,8 @@
                                 </x-dropdown-link>
                             </li>
                            <li>
-                                <x-dropdown-link :href="route('department')">
-                                    {{ __('department') }}
+                                <x-dropdown-link :href="route('formMaintenance')">
+                                    {{ __('Maintenance') }}
                                 </x-dropdown-link>
                            </li>
                             <li>

@@ -1,3 +1,6 @@
-<button {{ $attributes->merge(['type' => 'submit', 'class' => 'btn btn-outline-info']) }}>
+@props(['status'])
+
+
+<button {{ $attributes->merge(['type' => 'submit', 'class' => 'btn']) }}>
     {{ $slot }}
 </button>

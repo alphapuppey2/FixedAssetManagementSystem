@@ -20,7 +20,7 @@ class departmentCtrl extends Controller
         // dump(departments::all());
         return view('createDepartment' , $departments);
     }
-    public static function retrieve(Request $request){
+    public function retrieve(Request $request){
         $departments = array('list' => DB::table('department')->get());
         return  $departments;
     }

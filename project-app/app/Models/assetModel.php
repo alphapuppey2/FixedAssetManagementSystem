@@ -10,5 +10,9 @@ class assetModel extends Model
     use HasFactory;
     protected $table ='asset';
 
-    protected $hidden= ["asst_code","name","dpt","cate"];
+    protected $fillable = ['id' ,
+                            'name',
+                            'ctg_ID',
+                            'dept_ID',
+                            'status'];
 }

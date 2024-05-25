@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('asset', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->enum('status', ['active','deployed','under Maintenance','dispose'])->default('active');
             $table->unsignedBigInteger('ctg_ID');
             $table->unsignedBigInteger('dept_ID');
             $table->foreign('ctg_ID')->references('id')->on('category')->onDelete('cascade');

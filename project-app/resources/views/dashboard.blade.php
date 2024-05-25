@@ -2,56 +2,67 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-           Dashboard
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+           {{ "Dashboard" }}
         </h2>
     </x-slot>
 
-    <div class="contents">
-        <div class="content1">
-            <div class="CardGroup">
+    <div class="contents relative flex ">
                 {{-- Cards --}}
-                <div class="container text-center">
-                   <div class="row gx-5">
-                    <div class="card col">
+                <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row ">
+                    <div class="card  w-100">
                         <div class="card-header">
-                            Asset
+                            Active
                         </div>
                         <div class="card-body">
-                            500
+                            {{ $asset['active'] }}
                         </div>
                     </div>
-                    <div class="card col">
+                    <div class="card  w-100">
                         <div class="card-header">
-                            Asset
+                            Under Maintenance
                         </div>
                         <div class="card-body">
-                            500
+                            {{ $asset['um'] }}
                         </div>
                     </div>
-                    <div class="card col">
+                    <div class="card  w-100">
                         <div class="card-header">
-                            Asset
+                            deployed
                         </div>
                         <div class="card-body">
-                            500
+                            {{ $asset['deploy'] }}
                         </div>
                     </div>
-                    <div class="card col">
+                    <div class="card  w-100">
                         <div class="card-header">
-                            Asset
+                            disposed
                         </div>
                         <div class="card-body">
-                            500
+                            {{ $asset['dispose'] }}
                         </div>
-                    </div>
-                   </div>
-                </div>
-            </div>
-            {{-- Recent Activity --}}
-            <div class="table">
 
             </div>
         </div>
+        {{-- Recent Activity --}}
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ "Recent Activities" }}
+         </h2>
+        <x-table class="table table-striped">
+            <x-slot name='header'>
+                <th>User</th>
+                <th>Activities</th>
+                <th>Date</th>
+                <th>Action</th>
+            </x-slot>
+            <x-slot name='slot'>
+                <tr>
+                    <td>fakeUser</td>
+                    <td>FakeActivity</td>
+                    <td>NO DDATE</td>
+                    <td></td>
+                </tr>
+            </x-slot>
+        </x-table>
     </div>
 </x-app-layout>

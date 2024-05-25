@@ -14,7 +14,7 @@
 
             @endforeach
         </div>
-        <form action="newdepartment" method="post">
+        <form action="{{ route('newdepartment') }}" method="post">
             @csrf
             <x-input-label>Department Name</x-input-label>
             <x-text-input type="text" name="name" required />
