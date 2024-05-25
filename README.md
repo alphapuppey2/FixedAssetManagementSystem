@@ -3,8 +3,10 @@ for Capstone
 
 **Before you can start**
 
-you need to install
+# **Installation** 
 
+before you start Coding Laravel, make sure that your local machine has PHP and Composer installed. In addition, we recommend installing Node and NPM.
+## Links are here
 [PHP](https://www.php.net/)
 
 [composer](https://getcomposer.org/)
@@ -12,21 +14,28 @@ you need to install
 [node](https://nodejs.org/en)
 
 
-**Run commands**
+# Run commands #
+
+Installing the dependencies	
 
     composer install
-for Installing the dependencies	
 
-    php artisan key:generate
 configuration for environment
-
-    php artisan migrate
+```bash
+    php artisan key:generate
+```
 **Migrate from the Database**
-		- Before this Make sure to check the DB connection found in .env
 
-    php artisan serve
-Run Laravel
-**
+- Before this Make sure to check the DB connection found in .env
 
-    npm run dev
+```bash
+php artisan migrate
+```
+Run Application
+```bash
+php artisan serve
+```
 Run vite to watch for any update from the Frontend
+  ```bash
+npm run dev
+```
