@@ -1,7 +1,7 @@
 # FixedAssetManagementSystem
-For Capstone 
+for Capstone 
 
-**Before you can Start**
+**Before you can start**
 
 you need to install
 
