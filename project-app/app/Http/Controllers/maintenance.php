@@ -9,6 +9,7 @@ class maintenance extends Controller
 {
     //
     public function show(){
+
         return view("maintenance");
     }
     public function showForm(){
