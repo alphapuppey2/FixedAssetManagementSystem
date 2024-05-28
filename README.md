@@ -6,7 +6,7 @@ for Capstone
 # **Installation** 
 
 before you start Coding Laravel, make sure that your local machine has PHP and Composer installed. In addition, we recommend installing Node and NPM.
-## Links HERE
+## Link
 [PHP](https://www.php.net/)
 
 [composer](https://getcomposer.org/)
@@ -16,9 +16,13 @@ before you start Coding Laravel, make sure that your local machine has PHP and C
 
 # Run commands #
 
+# Git Clone
+git Clone https://github.com/alphapuppey2/FixedAssetManagementSystem.git
+
 Installing the dependencies	
 
     composer install
+    npm install
 
 # Create a Environment for DB Connection
 create new file name .env then Copy .env.examples to env then run this Command
