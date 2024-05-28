@@ -1,7 +1,7 @@
 # FixedAssetManagementSystem
 for Capstone 
 
-**Before you can start**
+**Before you start**
 
 # **Installation** 
 
