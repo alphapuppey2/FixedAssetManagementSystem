@@ -33,6 +33,7 @@ php artisan key:generate
 **Migrate from the Database**
 
 - Before this Make sure to check the DB connection found in .env
+- if .env is not found in the project-app create .env and copy paste from .env.example to .env 
 
 ```bash
 php artisan migrate
