@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('contact');
             $table->date('birthdate');
             $table->string('address');
-            $table->enum('gender', ['male','female'])->default('');
+            $table->enum('gender', ['male','female'])->nullable();
 
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

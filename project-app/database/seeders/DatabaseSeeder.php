@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,14 +16,17 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+
         User::factory()->create([
-            'name' => 'joshua loui Soqueno',
             'firstname' => 'joshua loui',
             'lastname' => 'Soqueno',
             'middlename' => 'raboy',
             'contact' => '09123456789',
-            'birthdate' => '09123456789',
-            'email' => 'test@example.com',
+            'address' => 'default St. Address',
+            'gender' => 'male',
+            'dept_id'=> 1,
+            'birthdate' => Carbon::parse('2000-10-04'),
+            'email' => 'alphapuppey@gmail.com',
         ]);
     }
 }

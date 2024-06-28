@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\ModelFactory;
 
-class category extends Model
+
+
+class ModelAsset extends Model
 {
     use HasFactory;
-
-    protected $table = "category";
-
+    protected $table = "model";
     protected $fillable = [
-        "name",
+        'name',
+        'description',
     ];
 }
