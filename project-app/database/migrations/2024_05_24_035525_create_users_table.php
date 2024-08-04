@@ -20,14 +20,16 @@ return new class extends Migration
             $table->string('contact');
             $table->date('birthdate');
             $table->string('address');
-            $table->enum('gender', ['male','female'])->nullable();
+
+            $table->enum('gender', ['male','female'])->default('male');
+            $table->enum('usertype', ['user','dept_head','admin'])->default('user');
 
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedBigInteger('dept_id');
             $table->foreign('dept_id')->references('id')->on('department')->onDelete('cascade');
-            $table->string('status')->default('active');
+            $table->enum('status', ['active','inactive'])->default('active');
             $table->rememberToken();
             $table->timestamps();
         });

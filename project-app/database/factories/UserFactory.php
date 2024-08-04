@@ -24,6 +24,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+
             'firstname' => fake()->name(),
             'lastname' => fake()->name(),
             'middlename' => fake()->name(),
@@ -31,8 +32,16 @@ class UserFactory extends Factory
             'contact' =>'09123456789',
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => Hash::make('password'), // Password hashing
             'remember_token' => Str::random(10),
+            'address' => $this->faker->address,
+            'birthdate' => $this->faker->date,
+            'gender' => $this->faker->randomElement(['male', 'female']),
+            'contact' => $this->faker->phoneNumber,
+            'dept_id' => 1,
+            'status' => 'active',
+            'usertype' => $this->faker->randomElement(['user', 'dept_head', 'admin']),
+            
         ];
     }
 

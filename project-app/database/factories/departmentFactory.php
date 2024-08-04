@@ -19,6 +19,7 @@ class departmentFactory extends Factory
         return [
             //
             "name"=> $this->faker->sentence(2),
+            "description"=> $this->faker->sentence(2),
         ];
     }
 }
