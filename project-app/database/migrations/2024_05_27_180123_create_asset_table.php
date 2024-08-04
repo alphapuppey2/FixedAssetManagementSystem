@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('asset', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->binary('image');
+            $table->blob('image')->nullable();
             $table->enum('status', ['active','deployed','need Repair','under Maintenance','dispose'])->default('active');
             $table->unsignedBigInteger('ctg_ID');
             $table->unsignedBigInteger('dept_ID');

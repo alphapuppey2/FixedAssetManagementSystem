@@ -20,8 +20,10 @@ return new class extends Migration
             $table->string('contact');
             $table->date('birthdate');
             $table->string('address');
+
             $table->enum('gender', ['male','female'])->default('male');
             $table->enum('usertype', ['user','dept_head','admin'])->default('user');
+
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

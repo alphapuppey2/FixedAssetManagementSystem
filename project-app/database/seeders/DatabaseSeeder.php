@@ -3,7 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use Carbon\Carbon;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +22,7 @@ class DatabaseSeeder extends Seeder
         // User::factory()->count(6)->create([
         //     //Optional: you can specify attributes here if needed
         // ]);
+
 
         // For specific records, you can use:
         // test accounts
@@ -115,6 +120,17 @@ class DatabaseSeeder extends Seeder
             'usertype' => 'admin',
             'remember_token' => Str::random(10),
             'email_verified_at' => now(),
+
+        User::factory()->create([
+            'firstname' => 'joshua loui',
+            'lastname' => 'Soqueno',
+            'middlename' => 'raboy',
+            'contact' => '09123456789',
+            'address' => 'default St. Address',
+            'gender' => 'male',
+            'dept_id'=> 1,
+            'birthdate' => Carbon::parse('2000-10-04'),
+            'email' => 'alphapuppey@gmail.com',
         ]);
     }
 }
