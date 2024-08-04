@@ -6,6 +6,7 @@ use App\Http\Controllers\maintenance;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,5 +46,37 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Admin landing page
+Route::get('/admin/home', function () {
+    return view('admin.home');
+})->middleware(['auth', 'verified'])->name('admin.home');
+
+// DeptHead landing pages by department
+Route::get('/dept_head/it/home', function () {
+    return view('dept_head.it.home');
+})->middleware(['auth', 'verified'])->name('dept_head.it.home');
+
+Route::get('/dept_head/sales/home', function () {
+    return view('dept_head.sales.home');
+})->middleware(['auth', 'verified'])->name('dept_head.sales.home');
+
+Route::get('/dept_head/fleet/home', function () {
+    return view('dept_head.fleet.home');
+})->middleware(['auth', 'verified'])->name('dept_head.fleet.home');
+
+Route::get('/dept_head/production/home', function () {
+    return view('dept_head.production.home');
+})->middleware(['auth', 'verified'])->name('dept_head.production.home');
+
+// User landing page
+Route::get('/user/home', function () {
+    return view('user.home');
+})->middleware(['auth', 'verified'])->name('user.home');
+
+// Default landing page for unmatched cases
+Route::get('/default/home', function () {
+    return view('default.home');
+})->middleware(['auth', 'verified'])->name('default.home');
 
 require __DIR__.'/auth.php';
