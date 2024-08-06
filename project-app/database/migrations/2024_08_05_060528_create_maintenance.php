@@ -25,6 +25,26 @@ return new class extends Migration
             $table->foreign('authorized_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('requestor')->references('id')->on('users')->onDelete('cascade');
         });
+
+        Schema::create('predictive', function (Blueprint $table) {
+            $table->id();
+            $table->integer('repair_count');
+            $table->float('average_cost');
+            $table->enum('recommendation',['maintenance','repair','dispose'])->default('maintenance');
+            $table->timestamps();
+            $table->unsignedBigInteger('asset_key');
+            $table->foreign('asset_key')->references('id')->on('assets')->onDelete('cascade');
+
+        });
+        Schema::create('preventive', function (Blueprint $table) {
+            $table->id();
+            $table->float('cost');
+            $table->integer('frequency');
+            $table->integer('ends');
+            $table->timestamps();
+            $table->unsignedBigInteger('asset_key');
+            $table->foreign('asset_key')->references('id')->on('assets')->onDelete('cascade');
+        });
     }
 
     /**
@@ -33,5 +53,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('maintenance');
+        Schema::dropIfExists('preventive');
+        Schema::dropIfExists('predictive');
     }
 };
