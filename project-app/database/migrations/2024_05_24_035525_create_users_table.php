@@ -11,27 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('location');
-            $table->string('departmentCode',8);
-            $table->timestamps();
-        });
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            //change Login Page
+            $table->binary("userPicture")->nullable();
             $table->string('firstname');
-            $table->binary('image')->nullable();
             $table->string('lastname');
+            $table->string('middlename');
             $table->string('contact');
             $table->date('birthdate');
-            $table->enum('gender',['male','female']);
-            $table->enum('acctype',['head','admin','employee'])->default('employee');
+            $table->string('address');
+
+            $table->enum('gender', ['male','female'])->default('male');
+            $table->enum('usertype', ['user','dept_head','admin'])->default('user');
+
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedBigInteger('dept_id');
             $table->foreign('dept_id')->references('id')->on('department')->onDelete('cascade');
+            $table->enum('status', ['active','inactive'])->default('active');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -58,7 +57,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('department');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
