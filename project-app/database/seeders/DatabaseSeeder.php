@@ -120,6 +120,7 @@ class DatabaseSeeder extends Seeder
             'usertype' => 'admin',
             'remember_token' => Str::random(10),
             'email_verified_at' => now(),
+        ]);
 
         User::factory()->create([
             'firstname' => 'joshua loui',
