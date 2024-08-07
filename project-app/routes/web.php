@@ -52,31 +52,15 @@ Route::get('/admin/home', function () {
     return view('admin.home');
 })->middleware(['auth', 'verified'])->name('admin.home');
 
-// DeptHead landing pages by department
-Route::get('/dept_head/it/home', function () {
-    return view('dept_head.it.home');
-})->middleware(['auth', 'verified'])->name('dept_head.it.home');
-
-Route::get('/dept_head/sales/home', function () {
-    return view('dept_head.sales.home');
-})->middleware(['auth', 'verified'])->name('dept_head.sales.home');
-
-Route::get('/dept_head/fleet/home', function () {
-    return view('dept_head.fleet.home');
-})->middleware(['auth', 'verified'])->name('dept_head.fleet.home');
-
-Route::get('/dept_head/production/home', function () {
-    return view('dept_head.production.home');
-})->middleware(['auth', 'verified'])->name('dept_head.production.home');
+// DeptHead landing page
+Route::get('/dept_head/home', function () {
+    return view('dept_head.home');
+})->middleware(['auth', 'verified'])->name('dept_head.home');
 
 // User landing page
 Route::get('/user/home', function () {
     return view('user.home');
 })->middleware(['auth', 'verified'])->name('user.home');
 
-// Default landing page for unmatched cases
-Route::get('/default/home', function () {
-    return view('default.home');
-})->middleware(['auth', 'verified'])->name('default.home');
 
 require __DIR__.'/auth.php';
