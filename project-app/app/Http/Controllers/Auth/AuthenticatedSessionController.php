@@ -34,18 +34,7 @@ class AuthenticatedSessionController extends Controller
         if ($user->usertype === 'admin') {
             return redirect()->route('admin.home');
         } elseif ($user->usertype === 'dept_head') {
-            // Redirect based on department
-            if ($user->dept_id === 1) { // IT department ID
-                return redirect()->route('dept_head.it.home');
-            } elseif ($user->dept_id === 2) { // Sales department ID
-                return redirect()->route('dept_head.sales.home');
-            } elseif ($user->dept_id === 3) { // Fleet department ID
-                return redirect()->route('dept_head.fleet.home');
-            } elseif ($user->dept_id === 4) { // Production department ID
-                return redirect()->route('dept_head.production.home');
-            } else {
-                return redirect()->route('default.home');
-            }
+            return redirect()->route('dept_head.home');
         } else { // 'user' type
             return redirect()->route('user.home');
         }

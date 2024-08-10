@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Department Home</title>
+    <title>Department Head Home</title>
 </head>
 <body>
-    <h1>Welcome, Fleet Department Head!</h1>
-    <p>This is the Fleet department landing page.</p>
+    <h1>Welcome, Department Head!</h1>
+    <p>This is the Department Head landing page.</p>
 </body>
 </html>
