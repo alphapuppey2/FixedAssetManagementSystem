@@ -23,9 +23,9 @@
                 </a>
             </div> -->
 
+            {{ $slot }}
             <!-- <div class="container card">
                 <div class="card-body">
-                    {{ $slot }}
                 </div>
             </div> -->
         </div>

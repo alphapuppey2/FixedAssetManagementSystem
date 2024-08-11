@@ -31,13 +31,24 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         // Redirect based on user type and department
-        if ($user->usertype === 'admin') {
-            return redirect()->route('admin.home');
-        } elseif ($user->usertype === 'dept_head') {
-            return redirect()->route('dept_head.home');
-        } else { // 'user' type
-            return redirect()->route('user.home');
+        switch($user->usertype){
+            case 'admin':
+                return redirect()->route('admin.home');
+            case 'dept_head':
+                return redirect()->route('dept_head.home');
+            case 'user':
+                return redirect()->route('user.home');
+            default:
+                return redirect()->route('login')    ;
         }
+
+        // if ($user->usertype === 'admin') {
+        //     return redirect()->route('admin.home');
+        // } elseif ($user->usertype === 'dept_head') {
+        //     return redirect()->route('dept_head.home');
+        // } else { // 'user' type
+        //     return redirect()->route('user.home');
+        // }
     }
 
     /**

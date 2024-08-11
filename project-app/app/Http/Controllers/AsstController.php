@@ -60,9 +60,9 @@ class AsstController extends Controller
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
 
-        // dd($asset);
 
-        return view('dashboard' , ['asset' => $asset]);
+        //FOR DASHBOARD CARDS
+        return view('dept_head.home' , ['asset' => $asset]);
 
     }
 }
