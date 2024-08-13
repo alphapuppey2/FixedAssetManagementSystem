@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\assetModel;
+use App\Models\assetModel as AssetModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,9 +60,9 @@ class AsstController extends Controller
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
 
-        // dd($asset);
 
-        return view('dashboard' , ['asset' => $asset]);
+        //FOR DASHBOARD CARDS
+        return view('dept_head.Home' , ['asset' => $asset]);
 
     }
 }

@@ -17,17 +17,9 @@
     </head>
     <body class="font-sans antialiased">
         <div class="cc">
-            <!-- <div>
-                <a href="/" class="">
-                    FAMS
-                </a>
-            </div> -->
 
-            <!-- <div class="container card">
-                <div class="card-body">
-                    {{ $slot }}
-                </div>
-            </div> -->
+            {{ $slot }}
+
         </div>
         {{-- <script src="js/form.js"></script> --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

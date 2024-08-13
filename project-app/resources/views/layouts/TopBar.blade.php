@@ -5,7 +5,7 @@
             <div class="nl1">
                 <!-- Logo -->
                 <div class="">
-                    <a href="{{ route('dashboard') }}" class="logoName">
+                    <a href="{{ route('dept_head.home') }}" class="logoName">
                         FAMAS
                     </a>
                 </div>

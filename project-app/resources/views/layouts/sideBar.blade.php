@@ -15,7 +15,7 @@
            <div class="navbar-collapse navLists" id="navbarSupportedContent">
              <div class="navbar-nav me-auto mb-2 mb-lg-0" style="display: flex; flex-direction:column;z-index:1; ">
                 <div class="nav-item" style>
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
