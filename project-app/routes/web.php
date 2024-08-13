@@ -8,20 +8,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-// Route::get('/',[AsstController::class,'assetCount'])->middleware(['auth', 'verified'])->name('dashboard');
-
-    // Route::get('/asset', [AsstController::class,'show'])->middleware(['auth', 'verified'])->name('asset');
-    // Route::get('/asset', [AsstController::class,''])->middleware(['auth', 'verified'])->name('asset');
-
+Route::get('/', [AuthenticatedSessionController::class , 'create'])->name('loginP');
 
 Route::middleware('auth')->group(function () {
-
-    // Route::post('/maintenance', [AsstController::class,'create'])->name('maintenance.create');
-
     Route::get('/asset/department', [departmentCtrl::class,'index'])->name('department');
     Route::post('/asset/newdepartment', [departmentCtrl::class,'create'])->name('newdepartment');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

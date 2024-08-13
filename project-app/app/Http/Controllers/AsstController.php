@@ -62,7 +62,7 @@ class AsstController extends Controller
 
 
         //FOR DASHBOARD CARDS
-        return view('dept_head.home' , ['asset' => $asset]);
+        return view('dept_head.Home' , ['asset' => $asset]);
 
     }
 }

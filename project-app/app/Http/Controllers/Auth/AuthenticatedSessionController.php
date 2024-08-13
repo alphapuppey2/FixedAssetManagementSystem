@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,31 +25,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
-        $request->session()->regenerate();
-
+            $request->authenticate();
+            $request->session()->regenerate();
         // Get the authenticated user
         $user = Auth::user();
 
         // Redirect based on user type and department
         switch($user->usertype){
             case 'admin':
-                return redirect()->route('admin.home');
+                return redirect()->intended('admin/home');
             case 'dept_head':
-                return redirect()->route('dept_head.home');
+                return redirect()->intended('dept_head/home');
             case 'user':
-                return redirect()->route('user.home');
-            default:
-                return redirect()->route('login')    ;
+                return redirect()->intended('user/home');
         }
 
-        // if ($user->usertype === 'admin') {
-        //     return redirect()->route('admin.home');
-        // } elseif ($user->usertype === 'dept_head') {
-        //     return redirect()->route('dept_head.home');
-        // } else { // 'user' type
-        //     return redirect()->route('user.home');
-        // }
+        return redirect()->intended('/login');
+
     }
 
     /**
