@@ -41,14 +41,6 @@ class AuthenticatedSessionController extends Controller
             default:
                 return redirect()->route('login')    ;
         }
-
-        // if ($user->usertype === 'admin') {
-        //     return redirect()->route('admin.home');
-        // } elseif ($user->usertype === 'dept_head') {
-        //     return redirect()->route('dept_head.home');
-        // } else { // 'user' type
-        //     return redirect()->route('user.home');
-        // }
     }
 
     /**
