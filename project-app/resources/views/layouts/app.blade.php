@@ -26,7 +26,6 @@
                 @include('layouts.sideBar')
             @else
             @include('layouts.sideBar')
-
             @endif
 
 
