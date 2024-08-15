@@ -13,11 +13,8 @@ class departmentCtrl extends Controller
     protected $table = "department";
    public static  function index(Request $request)
     {
-        // $departments = new department(['id', 'name']);
-        // $departments->save();
         $departments = array('list' => DB::table('department')->get());
 
-        // dump(departments::all());
         return view('dept_head.createDepartment' , $departments);
     }
     public static function create(Request $request){

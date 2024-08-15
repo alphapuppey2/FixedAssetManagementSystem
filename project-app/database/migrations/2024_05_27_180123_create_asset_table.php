@@ -24,7 +24,6 @@ return new class extends Migration
             $table->unsignedBigInteger('ctg_ID');
             $table->unsignedBigInteger('dept_ID');
             $table->unsignedBigInteger('manufacturer_key');
-            $table->unsignedBigInteger('maintenance_key');
             $table->unsignedBigInteger('model_key');
             $table->unsignedBigInteger('loc_key');
             $table->binary('custom_fields');

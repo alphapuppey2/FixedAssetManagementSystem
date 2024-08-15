@@ -17,7 +17,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-info-subtle">
+        <div class="min-h-screen">
 
             @include('layouts.TopBar')
             @if (Auth::user()->usertype === 'admin')
