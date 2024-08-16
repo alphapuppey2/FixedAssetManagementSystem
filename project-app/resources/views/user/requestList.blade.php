@@ -35,8 +35,8 @@
                     <td class="py-2 px-4 border-b">2024-08-16</td>
                     <td class="py-2 px-4 border-b">Pending</td>
                     <td class="py-2 px-4 border-b">
-                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">View</button>
-                        <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Cancel</button>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</button>
+                        <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
                     </td>
                 </tr>
 
@@ -47,8 +47,8 @@
                     <td class="py-2 px-4 border-b">2024-08-15</td>
                     <td class="py-2 px-4 border-b">Approved</td>
                     <td class="py-2 px-4 border-b">
-                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">View</button>
-                        <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Cancel</button>
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</button>
+                        <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
                     </td>
                 </tr>
 
