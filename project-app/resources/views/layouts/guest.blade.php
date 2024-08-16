@@ -15,8 +15,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     </head>
-    <body class="font-sans antialiased">
-        <div class="cc">
+    <body class="font-sans antialiased w-screen overflow-hidden">
+        <div class="w-screen bg-gradient-to-br from-blue-500 to-blue-500" style="background: linear-gradient(130deg, #ececec 60%, #090342 60%);">
 
             {{ $slot }}
 
