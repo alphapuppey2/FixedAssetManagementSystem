@@ -32,8 +32,8 @@
                         </tr>
                 @endforeach
             @else
-                <tr>
-                    <td col=4>No List</td>
+                <tr class="text-center text-gray-800">
+                    <td colspan='5' style="color: rgb(177, 177, 177)" >No List</td>
                 </tr>
             @endif
         </x-slot>

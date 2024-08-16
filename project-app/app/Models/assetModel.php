@@ -11,19 +11,18 @@ class assetModel extends Model
     use HasFactory;
     protected $table ='asset';
 
-    protected $fillable = ['id' ,
+    protected $fillable = [ 'id' ,
                             'name',
                             'image',
+                            'cost',
+                            'depreciation',
+                            'salvageVal',
+                            'status',
                             'ctg_ID',
+                            'dept_ID',
                             'manufacturer_key',
                             'model_key',
-                            'dept_ID',
-                            'status'
+                            'loc_key',
+                            'custom_fields',
                           ];
-        protected function data(): Attribute{
-            return Attribute::make(
-                get: fn($value) => json_decode($value, true),
-                set: fn($value) => json_encode($value),
-            );
-        }
 }

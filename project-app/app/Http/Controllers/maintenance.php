@@ -10,9 +10,9 @@ class maintenance extends Controller
     //
     public function show(){
 
-        return view("maintenance");
+        return view("dept_head.maintenance");
     }
     public function showForm(){
-        return view("createMaintenance");
+        return view("dept_head.createMaintenance");
     }
 }

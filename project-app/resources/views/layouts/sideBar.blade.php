@@ -7,14 +7,11 @@
             <h1>{{ Auth::user()->name }}</h1>
             admin
         </div>
-        <nav class="nb navbar navbar-expand-lg ">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
+        <nav class="nb ">
 
-           <div class="navbar-collapse navLists" id="navbarSupportedContent">
-             <div class="navbar-nav me-auto mb-2 mb-lg-0" style="display: flex; flex-direction:column;z-index:1; ">
-                <div class="nav-item" style>
+           <div>
+             <div class="">
+                <div>
                     <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
                         {{ __('Dashboard') }}
                     </x-nav-link>

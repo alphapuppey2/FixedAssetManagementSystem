@@ -17,6 +17,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+
+
         return view('auth.login');
     }
 
@@ -27,21 +29,24 @@ class AuthenticatedSessionController extends Controller
     {
             $request->authenticate();
             $request->session()->regenerate();
-        // Get the authenticated user
+        // Get the authenticated use
+
+        return redirect()->intended($this->redirectByUserType());
+    }
+
+    public function redirectByUserType(){
         $user = Auth::user();
+                // Redirect based on user type and department
+                switch($user->usertype){
+                    case 'admin':
+                        return route('admin.home');
+                    case 'dept_head':
+                        return route('dept_head.home');
+                    case 'user':
+                        return route('user.home');
+                }
 
-        // Redirect based on user type and department
-        switch($user->usertype){
-            case 'admin':
-                return redirect()->intended('admin/home');
-            case 'dept_head':
-                return redirect()->intended('dept_head/home');
-            case 'user':
-                return redirect()->intended('user/home');
-        }
-
-        return redirect()->intended('/login');
-
+                return route('login');
     }
 
     /**
