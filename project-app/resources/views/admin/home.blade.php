@@ -1,4 +1,5 @@
 <!-- resources/views/admin/home.blade.php -->
+@include('layouts.adminSideBar')
 <!DOCTYPE html>
 <html lang="en">
 <head>
