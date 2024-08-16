@@ -33,7 +33,6 @@ class assetModelFactory extends Factory
             'ctg_ID'=> 1,
             'dept_ID'=> 1,
             'manufacturer_key'=> 1,
-            'maintenance_key'=> 1,
             'custom_fields' => $fields,
             'model_key'=> 1,
         ];

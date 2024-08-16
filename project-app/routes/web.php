@@ -8,7 +8,19 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
-Route::get('/', [AuthenticatedSessionController::class , 'create'])->name('loginP');
+Route::get('/', function(){
+    if(Auth::check()){
+        switch(Auth::user()->usertype){
+            case 'admin':
+                return redirect()->route('admin.home');
+            case 'dept_head':
+                return redirect()->route('dept_head.home');
+            case 'user':
+                return redirect()->route('user.home');
+        }
+    }
+    return redirect('/login');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/asset/department', [departmentCtrl::class,'index'])->name('department');
@@ -40,13 +52,13 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 
     Route::get('/manufacturer', function () {
-        return view('manufacturer');
+        return view('dept_head.manufacturer');
     })->name('manufacturer');
     Route::get('/setting', function () {
-        return view('setting');
+        return view('dept_head.setting');
     })->name('setting');
     Route::get('/report', function () {
-        return view('reports');
+        return view('dept_head.reports');
     })->name('report');
 
 });

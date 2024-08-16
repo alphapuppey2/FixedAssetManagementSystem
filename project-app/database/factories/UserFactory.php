@@ -28,8 +28,6 @@ class UserFactory extends Factory
             'firstname' => fake()->name(),
             'lastname' => fake()->name(),
             'middlename' => fake()->name(),
-            'gender' => 'male',
-            'contact' =>'09123456789',
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // Password hashing
@@ -41,7 +39,7 @@ class UserFactory extends Factory
             'dept_id' => 1,
             'status' => 'active',
             'usertype' => $this->faker->randomElement(['user', 'dept_head', 'admin']),
-            
+
         ];
     }
 
