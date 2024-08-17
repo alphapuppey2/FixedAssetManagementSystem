@@ -7,5 +7,7 @@
     @yield('requestList-content')
     @yield('notification-content')
     @yield('profile-content')
+    @yield('profile_edit-content')
+    @yield('profile_password-content')
 
 </div>
