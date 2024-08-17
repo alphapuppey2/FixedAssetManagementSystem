@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\sideBarUserController;
+use App\Http\Controllers\Controller;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -37,6 +38,7 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
         return view('admin.home');
     })->name('admin.home');
 
+Route::get('/userList', [Controller::class, 'getUserList'])->name('userList');
 
 
 });

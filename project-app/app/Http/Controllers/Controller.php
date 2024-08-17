@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-abstract class Controller
+use app\Models\User;
+use Illuminate\Support\Facades\DB;
+
+Class Controller
 {
     //
     public $user;
@@ -12,5 +15,10 @@ abstract class Controller
     }
     public function getUser($user){
         return $this->user;
+    }
+
+    public function getUserList(){
+        $users = DB::table('users')->get();
+        return view('admin.userList', $users);
     }
 }
