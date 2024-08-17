@@ -1,5 +1,4 @@
 # FixedAssetManagementSystem
-for Capstone 
 
 **Before you start**
 

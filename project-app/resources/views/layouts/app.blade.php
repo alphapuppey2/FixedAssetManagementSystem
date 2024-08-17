@@ -17,10 +17,17 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-info-subtle">
+        <div class="min-h-screen">
 
             @include('layouts.TopBar')
+            @if (Auth::user()->usertype === 'admin')
+                @include('layouts.sideBar')
+            @elseif(Auth::user()->usertype === 'dept_head')
+                @include('layouts.sideBar')
+            @else
             @include('layouts.sideBar')
+            @endif
+
 
             <main class="" style="padding-left: 150px; height:100vh; padding-top:80px ;padding-right:10px;">
                 <div class="header">

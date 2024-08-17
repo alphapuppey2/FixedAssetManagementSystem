@@ -19,7 +19,7 @@ class AsstController extends Controller
                                                      ->where('asset.dept_ID','=',$userDept)
                                                      ->select('asset.*' ,'asset.id as assetcode','category.name as category','department.name as department')
                                                      ->get());
-        return view("asset" , $asset);
+        return view("dept_head.asset" , $asset);
     }
     public function showForm(){
 
@@ -28,7 +28,7 @@ class AsstController extends Controller
 
         // dd($departments);
 
-        return view('createAsset',['departments' => $departments,'category' => $categories]);
+        return view('dept_head.createAsset',['departments' => $departments,'category' => $categories]);
     }
     public static function create(Request $request){
         $userDept = Auth::user()->dept_id;
@@ -45,7 +45,7 @@ class AsstController extends Controller
         $newAsset->dept_ID = $userDept;
         $newAsset->save();
 
-        return redirect()->route('asset')->withInput();
+        return redirect()->route('dept_head.asset')->withInput();
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;
