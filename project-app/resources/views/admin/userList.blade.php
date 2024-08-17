@@ -21,16 +21,16 @@
                     <th>Birth Date</th>
                 </x-slot>
                 <x-slot name='slot'>
-                    @if(!$users->isEmpty())
-                        @foreach ($users as $item)
+                    @if(!$userList->isEmpty())
+                        @foreach($userList as $item)
                             <tr>
                                 <td>{{ $item->id }}</td>
-                                <td>{{ $item->fName }}</td>
-                                <td>{{ $item->mName }}</td>
-                                <td>{{ $item->lname }}</td>
+                                <td>{{ $item->firstname }}</td>
+                                <td>{{ $item->middlename }}</td>
+                                <td>{{ $item->lastname }}</td>
                                 <td>{{ $item->email }}</td>
-                                <td>{{ $item->created }}</td>
-                                <td>{{ $item->birth }}</td>
+                                <td>{{ $item->email_verified_at }}</td>
+                                <td>{{ $item->birthdate }}</td>
                             </tr>
                         @endforeach
                     @else 

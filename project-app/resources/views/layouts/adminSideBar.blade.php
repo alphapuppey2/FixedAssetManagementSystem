@@ -21,7 +21,8 @@
                         {{ __('User List') }}
                     </x-nav-link>
                 </div>
-                <div class="nav-item">
+
+                <!-- <div class="nav-item">
                     <x-nav-link :href="route('maintenance')" :active="request()->routeIs('maintenance')">
                         {{ __('Maintenance') }}
                     </x-nav-link>
@@ -45,7 +46,7 @@
                     <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                         {{ __('Profile') }}
                     </x-nav-link>
-                </div>
+                </div> -->
              </div>
            </div>
     </nav>
