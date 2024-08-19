@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -74,9 +75,7 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
-    Route::get('/user/requestList', function () {
-        return view('user.requestList');
-    })->name('user.requestList');
+    Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
 
     Route::get('/user/notification', function () {
         return view('user.notification');
@@ -85,6 +84,8 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
     Route::get('/user/profile', function () {
         return view('user.profile');
     })->name('user.profile');
+
+    Route::patch('/user/profile_update', [ProfileController::class, 'update'])->name('user.profile_update');
 
     Route::get('/user/profile_edit', function () {
         return view('user.profile_edit');

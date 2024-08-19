@@ -4,9 +4,12 @@
 <nav class="bg-blue-300 fixed h-full w-64 lg:w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out" id="sidebar">
     <!-- Profile -->
     <div class="flex flex-col items-center mb-6 mt-8">
-        <img src="" alt="" class="w-20 h-20 rounded-full object-cover border-2 border-black-300 mb-2">
+        <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-20 h-20 rounded-full object-cover border-2 border-black-300 mb-2">
         <div class="text-center">
-            <h2 class="text-gray-800 text-2xl font-semibold">Name</h2>
+            <h2 class="text-gray-800 text-2xl font-semibold">{{ auth()->user()->firstname ?? 'Guest' }} 
+                {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+                {{ auth()->user()->lastname ?? '' }}
+            </h2>
         </div>
     </div>
 

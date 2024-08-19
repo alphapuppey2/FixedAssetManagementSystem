@@ -5,12 +5,15 @@
     <div class="max-w-xl mx-auto">
         <!-- Profile Photo -->
         <div class="flex justify-center mb-6">
-            <img src="" alt="" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+            <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
         </div>
 
         <!-- User Name -->
         <div class="text-center mb-4 flex items-center justify-center">
-            <h2 class="text-3xl font-semibold mr-2">Name</h2>
+            <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }} 
+                {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+                {{ auth()->user()->lastname ?? '' }}
+            </h2>
             <a href="{{ route('user.profile_edit') }}" class="text-gray-600 hover:text-blue-500">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
@@ -27,7 +30,7 @@
                 </svg>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700">Location</h3>
-                    <p class="text-gray-600">123 Main Street, Lapu-Lapu City, Cebu</p>
+                    <p class="text-gray-600">{{ auth()->user()->address ?? 'N/A' }}</p>
                 </div>
             </div>
             <div class="mb-4 flex items-center">
@@ -36,7 +39,7 @@
                 </svg>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700">Email</h3>
-                <p class="text-gray-600">tonystark@gmail.com</p>
+                <p class="text-gray-600">{{ auth()->user()->email ?? 'N/A' }}</p>
                 </div>
             </div>
             <div class="mb-4 flex items-center">
@@ -45,7 +48,7 @@
                 </svg>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700">Contact</h3>
-                    <p class="text-gray-600">+123 456 7890</p>
+                    <p class="text-gray-600">{{ formatContactNumber(auth()->user()->contact) ?? 'N/A' }}</p>
                 </div>
                     
             </div>
@@ -55,7 +58,7 @@
                 </svg>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700">ID Number</h3>
-                    <p class="text-gray-600">VFA-123456789</p>
+                    <p class="text-gray-600">{{ auth()->user()->id ?? 'N/A' }}</p>
                 </div>
                 
             </div>
@@ -67,3 +70,16 @@
         </div>
     </div>
 @endsection
+
+@php
+function formatContactNumber($number) {
+   
+    $cleaned = preg_replace('/\D/', '', $number);
+
+    if (substr($cleaned, 0, 1) === '0') {
+        $cleaned = substr($cleaned, 1);
+    }
+
+    return '+63 ' . $cleaned;
+}
+@endphp
