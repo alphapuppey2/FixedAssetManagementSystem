@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->binary('image')->nullable();
+            $table->string('code')->nullable();
 
             $table->decimal("cost",10,2)->default(0);
             $table->decimal("depreciation",10,2)->default(0.00);

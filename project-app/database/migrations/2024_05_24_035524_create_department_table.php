@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('department', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('asesstSequence')->default(0);
             $table->string('description');
-            $table->integerIncrements('description')->default(1);
             $table->timestamps();
         });
     }

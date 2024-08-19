@@ -46,7 +46,7 @@ class AsstController extends Controller
         $userDept = Auth::user()->dept_id;
         // dd($request);
         if(!$request->validate([
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             'name'=> 'required',
             'category'=> 'required',
             'cost'=>'required|numeric|min:0.01',
@@ -101,7 +101,7 @@ class AsstController extends Controller
             'created_at'=>now(),
         ]);
 
-        return redirect()->route('/dept_head.asset');
+        return redirect()->route('asset');
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;

@@ -17,22 +17,18 @@ class category extends Seeder
         //
         CategoryModel::create([
             'name' => 'Category 1',
-            'ctg_code' => 'CT1',
             'dept_ID' => 1
         ]);
         CategoryModel::create([
             'name' => 'Category 2',
-            'ctg_code' => 'CT2',
             'dept_ID' => 1
         ]);
         CategoryModel::create([
             'name' => 'Category 1',
-            'ctg_code' => 'CT1',
             'dept_ID' => 2
         ]);
         CategoryModel::create([
             'name' => 'Category 2',
-            'ctg_code' => 'CT2',
             'dept_ID' => 2
         ]);
     }
