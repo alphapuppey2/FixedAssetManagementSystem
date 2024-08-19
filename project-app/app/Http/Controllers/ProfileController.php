@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
+
 
 class ProfileController extends Controller
 {
@@ -74,6 +76,30 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's password.
+     */
+    public function changePassword(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'old_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = $request->user();
+
+        // Verify the old password
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return Redirect::back()->withErrors(['old_password' => 'The provided password does not match our records.']);
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        return Redirect::route('user.profile')->with('status', 'Password updated successfully.');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
@@ -93,4 +119,5 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
 }

@@ -95,6 +95,10 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.profile_password');
     })->name('user.profile_password');
 
+    Route::patch('/user/password', [ProfileController::class, 'changePassword'])->name('user.changePassword');
+
+
+
 });
 
 
