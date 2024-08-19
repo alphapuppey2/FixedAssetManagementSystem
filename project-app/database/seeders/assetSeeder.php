@@ -17,7 +17,7 @@ class assetSeeder extends Seeder
     {
         //
         ModelAsset::create([
-
+            'code' =>'IT-CT1-0001',
             'ctg_ID'=> 1,
             'dept_ID'=> 1,
             'name' => "nameless",

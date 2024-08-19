@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
+            $table->integerIncrements('description')->default(1);
             $table->timestamps();
         });
     }

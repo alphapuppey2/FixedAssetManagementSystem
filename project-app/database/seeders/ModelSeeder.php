@@ -14,6 +14,21 @@ class ModelSeeder extends Seeder
     public function run(): void
     {
         //
-        ModelAsset::factory()->count(3)->create();
+        ModelAsset::create([
+            'name' => 'model 1',
+            'description' => 'NO CHANCES'
+        ]);
+        ModelAsset::create([
+            'name' => 'model 2',
+            'description' => 'NO CHANCES'
+        ]);
+        ModelAsset::create([
+            'name' => 'model 3',
+            'description' => 'NO CHANCES'
+        ]);
+        ModelAsset::create([
+            'name' => 'model 4',
+            'description' => 'NO CHANCES'
+        ]);
     }
 }

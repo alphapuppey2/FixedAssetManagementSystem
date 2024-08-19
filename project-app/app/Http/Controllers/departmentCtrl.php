@@ -23,6 +23,7 @@ class departmentCtrl extends Controller
         $department->save();
 
         $departments = array('list' => DB::table('department')->get());
+
         return view('dept_head.createDepartment', $departments);
     }
 

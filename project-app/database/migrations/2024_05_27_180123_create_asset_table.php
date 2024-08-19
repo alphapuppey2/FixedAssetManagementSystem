@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal("cost",10,2)->default(0);
             $table->decimal("depreciation",10,2)->default(0.00);
             $table->decimal("salvageVal",10,2)->default(0.00);
+            $table->year('usage_Lifespan')->nullable();
 
             $table->enum('status', ['active','deployed','need Repair','under Maintenance','dispose'])->default('active');
             $table->unsignedBigInteger('ctg_ID');
