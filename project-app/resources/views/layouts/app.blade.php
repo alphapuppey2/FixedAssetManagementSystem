@@ -21,7 +21,7 @@
 
             @include('layouts.TopBar')
             @if (Auth::user()->usertype === 'admin')
-                @include('layouts.adminSideBar')
+                @include('layouts.admin-sideBar')
             @elseif(Auth::user()->usertype === 'dept_head')
                 @include('layouts.sideBar')
             @else

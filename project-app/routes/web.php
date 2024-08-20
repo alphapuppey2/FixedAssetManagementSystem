@@ -39,6 +39,8 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     })->name('admin.home');
 
 Route::get('/userList', [UserController::class, 'getUserList'])->name('userList');
+Route::put('/user/update', [UserController::class, 'update'])->name('user.update');
+Route::delete('/user/{id}', [UserController::class, 'changeStatus'])->name('user.delete');
 
 
 });

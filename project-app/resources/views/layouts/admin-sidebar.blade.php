@@ -1,13 +1,11 @@
-
 <div class="navigationBar fixed h-screen w-[130px] max-w-[130px] flex flex-col justify-center items-center bg-blue-400" style="z-index:2">
-        <div class="headContent w-[80px] text-center text-wrap">
-            <div class="img bg-blue-800">
-                IMG
+        <div class="flex flex-col items-center mb-6 mt-8">
+            <img src="" alt="" class="w-20 h-20 rounded-full object-cover border-2 border-black-300 mb-2">
+            <div class="text-center">
+                <h2 class="text-gray-800 text-2xl font-semibold">{{ Auth::user()->name }}</h2>
             </div>
-            <h1>{{ Auth::user()->name }}</h1>
-            admin
         </div>
-        <nav class="nb ">
+        <nav class="nb">
 
            <div>
              <div class="">
