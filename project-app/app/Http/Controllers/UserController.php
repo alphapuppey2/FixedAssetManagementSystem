@@ -72,13 +72,12 @@ class UserController extends Controller
     }
 
     // SOFT DELETE
-    public function changeStatus($id){
-        // Find the user and update their status to inactive
+    public function delete($id){
+        // Find the user and delete
         $user = User::findOrFail($id);
-        $user->status = 'inactive'; // Set status to inactive
-        $user->save();
+        $user->delete();
     
-        return redirect()->route('userList')->with('success', 'User status updated to inactive.');
+        return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
     
 
