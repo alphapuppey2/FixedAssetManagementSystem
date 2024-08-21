@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('asset', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->binary('image')->nullable();
+            $table->string('image')->nullable();
             $table->string('code')->nullable();
 
             $table->decimal("cost",10,2)->default(0);

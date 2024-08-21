@@ -76,7 +76,8 @@ class AsstController extends Controller
         //image
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $path = $image->store('images', 'public');
+            $filename = $code.'-'.time().'.'.$image->getClientOriginalExtension();
+            $path = $image->storeAs('images', $filename,'public');
         }
 
         department::where('id',$userDept)->increment('assetSequence',1);
@@ -102,7 +103,7 @@ class AsstController extends Controller
             'created_at'=>now(),
         ]);
 
-        return redirect()->route('asset');
+        return view('asset');
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;
