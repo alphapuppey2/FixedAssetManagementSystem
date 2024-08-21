@@ -16,7 +16,7 @@
     @endif
 
 
-        <form action="{{ route('asset.create') }}" method="post">
+        <form action="{{ route('asset.create') }}" method="post"  enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <x-input-label for='image'>Image</x-input-label>

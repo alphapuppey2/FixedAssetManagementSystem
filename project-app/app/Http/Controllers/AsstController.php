@@ -74,9 +74,10 @@ class AsstController extends Controller
         $seq = $lastID ? $lastID + 1 : 1;
         $code = $departmentCode.'-'.str_pad($seq, 4, '0', STR_PAD_LEFT);
         //image
-        $imageName = $code.'.'.$request->image->extension;
-        $request->image->storeAs('public/assets',$imageName);
-
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $path = $image->store('images', 'public');
+        }
 
         department::where('id',$userDept)->increment('assetSequence',1);
 
@@ -85,7 +86,7 @@ class AsstController extends Controller
         $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
 
         DB::table('asset')->insert([
-            'image'=>$request->imageName,
+            'image'=>$path,
             'name' => $request->name,
             'cost' => $request->cost,
             'code' => $code,
