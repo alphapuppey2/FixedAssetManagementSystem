@@ -26,9 +26,13 @@ Route::get('/', function(){
 Route::middleware('auth')->group(function () {
     Route::get('/asset/department', [departmentCtrl::class,'index'])->name('department');
     Route::post('/asset/newdepartment', [departmentCtrl::class,'create'])->name('newdepartment');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
 });
 
 // Admin Routes
@@ -61,6 +65,18 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');
+
+    Route::get('/profile', function () {
+        return view('dept_head.profile');
+    })->name('profile');
+
+    Route::patch('/dept_head/profile_update', [ProfileController::class, 'update'])->name('dept_head.profile_update');
+
+    Route::get('/profile/change_password', function () {
+        return view('dept_head.profile_password');
+    })->name('dept_head.profile_password');
+
+    Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
 });
 

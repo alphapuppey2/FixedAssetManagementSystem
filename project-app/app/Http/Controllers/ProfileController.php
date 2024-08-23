@@ -72,7 +72,16 @@ class ProfileController extends Controller
         // Save changes
         $user->save();
 
-        return Redirect::route('user.profile')->with('status', 'Profile updated successfully.');
+        // Conditional redirect based on user type. Need polishing on routing, temp routing
+        switch ($user->usertype) {
+            case 'admin':
+                return Redirect::route('admin.profile')->with('status', 'Profile updated successfully.');
+            case 'dept_head':
+                return Redirect::route('profile')->with('status', 'Profile updated successfully.');
+            case 'user':
+            default:
+                return Redirect::route('user.profile')->with('status', 'Profile updated successfully.');
+        }
     }
 
     /**
@@ -96,7 +105,16 @@ class ProfileController extends Controller
         $user->password = Hash::make($request->input('new_password'));
         $user->save();
 
-        return Redirect::route('user.profile')->with('status', 'Password updated successfully.');
+        // Conditional redirect based on user type. Need polishing on routing, temp routing
+        switch ($user->usertype) {
+            case 'admin':
+                return Redirect::route('admin.profile')->with('status', 'Password updated successfully.');
+            case 'dept_head':
+                return Redirect::route('profile')->with('status', 'Password updated successfully.');
+            case 'user':
+            default:
+                return Redirect::route('user.profile')->with('status', 'Password updated successfully.');
+        }
     }
 
     /**

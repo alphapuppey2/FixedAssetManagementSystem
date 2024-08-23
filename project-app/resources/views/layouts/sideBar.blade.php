@@ -42,7 +42,7 @@
                     </x-nav-link>
                 </div>
                 <div class="nav-item">
-                    <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
+                    <x-nav-link :href="route('profile')" :active="request()->routeIs('profile')">
                         {{ __('Profile') }}
                     </x-nav-link>
                 </div>

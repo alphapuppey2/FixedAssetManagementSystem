@@ -66,6 +66,7 @@
 </div>
 
 <!-- JavaScript for Image Preview -->
+<!-- Temp -->
 <script>
     function previewImage(event) {
         const input = event.target;
