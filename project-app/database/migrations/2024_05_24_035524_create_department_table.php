@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('department', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('assetSequence')->default(0);
             $table->string('description');
             $table->timestamps();
         });

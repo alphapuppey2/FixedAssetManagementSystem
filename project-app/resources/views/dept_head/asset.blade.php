@@ -11,17 +11,21 @@
                 <th>code</th>
                 <th>name</th>
                 <th>category</th>
+                <th>Salvage Value</th>
+                <th>Depreciation</th>
                 <th>status</th>
                 <th>action</th>
         </x-slot>
 
         <x-slot name='slot'>
-            @if (!$assets->isEmpty())
-                @foreach ($assets as $asst )
-                        <tr>
-                            <th scope="col">{{ $asst->id }}</th>
+            @if (!$asset->isEmpty())
+                @foreach ($asset as $asst )
+                        <tr class="">
+                            <th scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
                             <td>{{ $asst->name }}</td>
                             <td>{{ $asst->category }}</td>
+                            <td>{{ $asst->salvageVal }}</td>
+                            <td>{{ $asst->depreciation }}</td>
                             <td>{{ $asst->status }}</td>
                             <td class=" w-40">
                                 <div class="grp flex justify-between">
