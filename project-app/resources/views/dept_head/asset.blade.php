@@ -4,6 +4,7 @@
        Asset  @yield('assetCode')
     </h2>
     @endsection
+
     @section('content')
     <div class="container">
 

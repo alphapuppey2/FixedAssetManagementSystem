@@ -24,7 +24,7 @@
             @csrf
             <div class="form-group images">
                 <div class="imageField relative w-56 h-56 ">
-                    <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay" class="object-cover rounded-md w-full h-full" alt="default">
+                    <img src="{{ asset('storage/image/defaultICON.png') }}" id="imageDisplay" class="object-cover rounded-md w-full h-full" alt="default">
                     <!-- Overlay with text -->
                     <label for="image" class="cursor-pointer p-[2%] rounded bg-red-200 w-full h-full absolute top-0 left-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                         Add Image
