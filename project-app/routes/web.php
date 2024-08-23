@@ -46,8 +46,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/dept_head/home', [AsstController::class , 'assetCount'])->name('dept_head.home');
 
     Route::get('/asset', [AsstController::class,'show'])->name('asset');
-    Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
+    Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
+    Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
 
     Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
@@ -75,7 +76,9 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
     Route::get('user/profile', [sideBarUserController::class, 'profile'])->name('profile');
 
 });
-
+Route::get('back', function () {
+    return redirect()->back();
+})->name('back');
 
 
 

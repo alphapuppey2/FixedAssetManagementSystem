@@ -130,10 +130,16 @@ class AsstController extends Controller
         $asset['deploy'] = DB::table('asset')->where('status','=' , 'deploy')
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
-
-
         //FOR DASHBOARD CARDS
         return view('dept_head.Home' , ['asset' => $asset]);
 
+    }
+
+    public function showDetails($id){
+
+        $retrieveData = assetModel::where('code' , $id)->get();
+
+
+        return view('dept_head.assetDetail' , compact('retrieveData'));
     }
 }

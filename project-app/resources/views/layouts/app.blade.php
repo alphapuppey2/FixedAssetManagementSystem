@@ -25,16 +25,16 @@
             @elseif(Auth::user()->usertype === 'dept_head')
                 @include('layouts.sideBar')
             @else
-            @include('layouts.sideBar')
+                @include('layouts.sideBar')
             @endif
 
 
             <main class="" style="padding-left: 150px; height:100vh; padding-top:80px ;padding-right:10px;">
-                <div class="header">
-                    {{ $header }}
+                <div class="header flex flex-wrap items-center">
+                    @yield('header')
                 </div>
                 <div class="contentPage">
-                    {{ $slot }}
+                    @yield('content')
                 </div>
             </main>
 
