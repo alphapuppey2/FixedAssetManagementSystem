@@ -47,7 +47,7 @@ class AsstController extends Controller
         // dd($request);
         if(!$request->validate([
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'name'=> 'required',
+            'assetname'=> 'required',
             'category'=> 'required',
             'cost'=>'required|numeric|min:0.01',
             'salvageVal'=> 'required|numeric|min:0.01',
@@ -59,12 +59,23 @@ class AsstController extends Controller
             return redirect()->back()->withError();
         }
 
+        //additional Fields
 
-        $custom = json_encode([
-            'Storage'=> '1TB',
-            'RAM'=> '16GB',
-            'OS'=> 'Window 11',
-        ]);
+        $fields = $request->input('field');
+
+        // Initialize an empty array to hold key-value pairs
+        $additionalInfo = [];
+
+        if (isset($fields['key']) && isset($fields['value'])) {
+            foreach ($fields['key'] as $index => $key) {
+                if (!empty($key) && !empty($fields['value'][$index])) {
+                    $additionalInfo[$key] = $fields['value'][$index];
+                }
+            }
+        }
+
+
+        $customFields = json_encode($additionalInfo);
 
         //code
         $department = DB::table('department')->where('id',$userDept)->get();
@@ -74,28 +85,30 @@ class AsstController extends Controller
         $seq = $lastID ? $lastID + 1 : 1;
         $code = $departmentCode.'-'.str_pad($seq, 4, '0', STR_PAD_LEFT);
         //image
+        $pathFile = NULL;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code.'-'.time().'.'.$image->getClientOriginalExtension();
             $path = $image->storeAs('images', $filename,'public');
+            $pathFile = $path;
         }
-
         department::where('id',$userDept)->increment('assetSequence',1);
 
         //parsing Text to decimal
-        //depreciation Straight line
+        //depreciation method == Straight Line
         $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
 
+
         DB::table('asset')->insert([
-            'image'=>$path,
-            'name' => $request->name,
+            'image'=>$pathFile,
+            'name' => $request->assetname,
             'cost' => $request->cost,
             'code' => $code,
             'ctg_ID' => $request->category,
             'depreciation'=>$depreciation,
             'salvageVal'=>$request->salvageVal,
             'usage_Lifespan'=>$request->usage,
-            'custom_fields' =>$custom,
+            'custom_fields' =>$customFields,
             'dept_ID' => $userDept,
             'loc_key' => $request->loc,
             'model_key' => $request->mod,
@@ -103,7 +116,7 @@ class AsstController extends Controller
             'created_at'=>now(),
         ]);
 
-        return view('asset');
+        return redirect()->to('/asset');
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;

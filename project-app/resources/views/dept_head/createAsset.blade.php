@@ -22,24 +22,21 @@
 
         <form action="{{ route('asset.create') }}" method="post"  enctype="multipart/form-data" >
             @csrf
-            <div class="form-group " class=" images">
-
-                <div class="imageDisplayContainer">
-                    <img src="{{ asset('storage/images/defaultImage.png') }}" id="imageDisplay"  alt="default">
+            <div class="form-group images">
+                <div class="imageField relative w-56 h-56 ">
+                    <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay" class="object-cover rounded-md w-full h-full" alt="default">
+                    <!-- Overlay with text -->
+                    <label for="image" class="cursor-pointer p-[2%] rounded bg-red-200 w-full h-full absolute top-0 left-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                        Add Image
+                    </label>
                 </div>
-
-                <x-input-label for='image' class="pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-700">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
-                    </svg>
-                </x-input-label>
+            </div>
 
                 <x-text-input type="file" id="image" name='image' class="hidden"/>
             </div>
             <div class="form-group">
-                <x-input-label for='name'>asset Name</x-input-label>
-                <x-text-input type="text" id="name" name='name' required />
+                <x-input-label for='assetname'>asset Name</x-input-label>
+                <x-text-input type="text" id="assetname" name='assetname' required />
             </div>
             <div class="group">
                 <div class="form-group">
@@ -89,28 +86,76 @@
                 </select>
             </div>
 
+            <div class="customFields">
+                <x-input-label for="field">Additional Information</x-input-label>
+
+                <div class="addInfoContainer ">
+                    <div class="fieldSet  mt-2">
+                        <input type="text" class="mr-2" name="field[key][]" id="field" placeholder="key">
+                        <input type="text" name="field[value][]" id="field" placeholder="value">
+                    </div>
+                </div>
+                <button id='addMoreFields'>Add more field</button>
+
+
+            </div>
+
             <x-primary-button>Create Asset</x-primary-button>
         </form>
     </div>
+
     <script>
-        document.getElementById('image').addEventListener('change', function(event) {
+        function addNewFields() {
+        // Container
+        let newFieldSet = document.createElement('div');
+        newFieldSet.className = 'fieldSet mt-2';
+
+        // Input Key
+        let newKeyInput = document.createElement('input');
+            newKeyInput.type = 'text';
+            newKeyInput.name = 'field[key][]';
+            newKeyInput.placeholder = 'key';
+            newKeyInput.className = 'mr-2';
+
+        // input value
+        let newValueInput = document.createElement('input');
+            newValueInput.type = 'text';
+            newValueInput.name = 'field[value][]';
+            newValueInput.placeholder = 'value';
+
+        newFieldSet.appendChild(newKeyInput);
+        newFieldSet.appendChild(newValueInput);
+
+        document.querySelector('.addInfoContainer').appendChild(newFieldSet);
+    }
+
+    document.getElementById('addMoreFields').addEventListener('click', function(event) {
+        event.preventDefault();
+        addNewFields();
+    });
+
+    //image eventListener
+    document.getElementById('image').addEventListener('change', function(event) {
     const imagePreview = document.getElementById('imageDisplay');
     const file = event.target.files[0];
 
-    if (file) {
-        const reader = new FileReader();
+        if (file) {
+            const reader = new FileReader();
 
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-        };
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
 
-        reader.readAsDataURL(file);
-    } else {
-        imagePreview.src = '';
-        imagePreview.style.display = 'none';
-    }
-});
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+    });
+
+
 
     </script>
+
 </x-app-layout>
