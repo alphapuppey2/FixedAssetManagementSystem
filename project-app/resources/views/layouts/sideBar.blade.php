@@ -63,7 +63,6 @@
                     <x-gearIcon />
                     <span class="ml-2 sm:hidden lg:block">Setting</span>
                 </x-nav-link>
-
             </li>
             <li class="hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md">
                 <a href="#" class="flex">
