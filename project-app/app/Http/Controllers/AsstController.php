@@ -20,7 +20,7 @@ class AsstController extends Controller
                         ->join('category', 'asset.ctg_ID', '=', 'category.id')
                         ->where('asset.dept_ID', $userDept)
                         ->select('asset.id', 'asset.code' , 'asset.name' ,'asset.image' ,'asset.cost' ,'asset.salvageVal' ,'asset.depreciation' ,'asset.usage_Lifespan','asset.status', 'category.name as category', 'department.name as department')
-                        ->orderBy('asset.code', 'asc') // Group by the 'code' column
+                        ->orderBy('asset.code', 'asc')
                         ->get();
 
 
@@ -130,10 +130,39 @@ class AsstController extends Controller
         $asset['deploy'] = DB::table('asset')->where('status','=' , 'deploy')
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
-
-
         //FOR DASHBOARD CARDS
         return view('dept_head.Home' , ['asset' => $asset]);
 
+    }
+
+    public function showDetails($id ){
+
+        $retrieveData = assetModel::where('asset.code' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+                                    ->join('category','asset.ctg_ID' , '=','category.id')
+                                    ->join('model','asset.model_key' , '=','model.id')
+                                    ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
+                                    ->join('location','asset.loc_key' , '=','location.id')
+                                    ->select(
+                                        'asset.depreciation',
+                                        'asset.image',
+                                        'asset.name',
+                                        'asset.code',
+                                        'asset.cost',
+                                        'asset.salvageVal',
+                                        'asset.usage_Lifespan',
+                                        'asset.status',
+                                        'asset.custom_fields',
+                                        'asset.created_at',
+                                        'asset.updated_at',
+                                        'category.name as category',
+                                        'model.name as model',
+                                        'location.name as location',
+                                        'manufacturer.name as manufacturer',
+                                        )
+                                    ->get();
+        $fields = json_decode($retrieveData[0]->custom_fields,true);
+
+        //  dd($fields);
+        return view('dept_head.assetDetail' , compact('retrieveData' , 'fields'));
     }
 }
