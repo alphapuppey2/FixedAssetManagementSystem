@@ -11,9 +11,12 @@ class bellIcon extends Component
     /**
      * Create a new component instance.
      */
+
+    public $classAttrib;
     public function __construct()
     {
         //
+        $this->classAttrib = '';
     }
 
     /**

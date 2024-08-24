@@ -17,7 +17,7 @@
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Boxicons JS -->
-    <link href='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js' rel='stylesheet'>
+    <link href='https://unpkg.com/boxicons@2.1.4/dist/boxicons.js' rel='javascript'>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -35,14 +35,14 @@
         @endif
 
 
-        <main class="" style="padding-left: 150px; height:100vh; padding-top:80px ;padding-right:10px;">
-            {{-- <div class="header flex flex-wrap items-center ">
+        <main class="h-full relative  lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5">
+            <div class="header flex flex-wrap items-center ">
                 @yield('header')
             </div>
             <div class="contentPage">
                 <div class="divider w-[100%] h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                 @yield('content')
-            </div> --}}
+            </div>
         </main>
 
         <!-- Page Content -->
@@ -53,3 +53,4 @@
 </body>
 
 </html>
+
