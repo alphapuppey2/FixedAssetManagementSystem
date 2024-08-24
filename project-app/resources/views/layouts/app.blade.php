@@ -36,13 +36,13 @@
 
 
         <main class="" style="padding-left: 150px; height:100vh; padding-top:80px ;padding-right:10px;">
-            <div class="header flex flex-wrap items-center ">
+            {{-- <div class="header flex flex-wrap items-center ">
                 @yield('header')
             </div>
             <div class="contentPage">
                 <div class="divider w-[100%] h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                 @yield('content')
-            </div>
+            </div> --}}
         </main>
 
         <!-- Page Content -->
