@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="topBar" style="z-index:1">
     <!-- Primary Navigation Menu -->
-    <div class="displaylang">
+    <div class="display">
         <div class="navlinks">
             <div class="nl1">
                 <!-- Logo -->

@@ -1,53 +1,54 @@
+<aside>
+    <nav>
+        <ul>
+            <li>
+                <a href="#">
+                    <x-dashboardIcon />
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
 
-    <div class="navigationBar fixed h-screen w-[130px] max-w-[130px] flex flex-col justify-center items-center bg-blue-400" style="z-index:2">
-        <div class="headContent w-[80px] text-center text-wrap">
-            <div class="img bg-blue-800">
-                IMG
-            </div>
-            <h1>{{ Auth::user()->name }}</h1>
-            admin
-        </div>
-        <nav class="nb ">
+                    <span>Asset</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
 
-           <div>
-             <div class="">
-                <div>
-                    <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item" >
-                    <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')">
-                        {{ __('Asset') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item">
-                    <x-nav-link :href="route('maintenance')" :active="request()->routeIs('maintenance')">
-                        {{ __('Maintenance') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item">
-                    <x-nav-link :href="route('manufacturer')" :active="request()->routeIs('manufacturer')">
-                        {{ __('Manufacturer') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item">
-                    <x-nav-link :href="route('report')" :active="request()->routeIs('report')">
-                        {{ __('Report') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item">
-                    <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')">
-                        {{ __('Setting') }}
-                    </x-nav-link>
-                </div>
-                <div class="nav-item">
-                    <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
-                        {{ __('Profile') }}
-                    </x-nav-link>
-                </div>
-             </div>
-           </div>
+                    <span>Request</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+
+                    <span>Maintenance</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+
+                    <span>Report</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+
+                    <span>profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+
+                    <span>Setting</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+
+                    <span>Nofitifcation</span>
+                </a>
+            </li>
+        </ul>
     </nav>
-
-    </div>
+</aside>
