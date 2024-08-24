@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class dashIcon extends Component
+class wrenchIcon extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +21,6 @@ class dashIcon extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.icons.dash-icon');
+        return view('components.icons.wrench-icon');
     }
 }
