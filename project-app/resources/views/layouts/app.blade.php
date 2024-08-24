@@ -10,7 +10,6 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -23,30 +22,25 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen">
 
-        {{-- @include('layouts.TopBar') --}}
+        @include('layouts.TopBar')
         @if (Auth::user()->usertype === 'admin')
-            @include('layouts.sideBar')
+        @include('layouts.sideBar')
         @elseif(Auth::user()->usertype === 'dept_head')
-            @include('layouts.sideBar')
+        @include('layouts.sideBar')
         @else
-            @include('layouts.sideBar')
+        @include('layouts.sideBar')
         @endif
-
-
-        <main class="h-full relative  lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5">
-            <div class="header flex flex-wrap items-center ">
-                @yield('header')
-            </div>
-            <div class="contentPage">
-                <div class="divider w-[100%] h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
-                @yield('content')
-            </div>
-        </main>
-
         <!-- Page Content -->
-    </div>
+    <main class="h-full relative lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5 pr-5 md:top-[50px] -z-[10]">
+        <div class="header flex flex-wrap items-center relative">
+            @yield('header')
+        </div>
+        <div class="contentPage relative">
+            <div class="divider w-[100%] h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
+            @yield('content')
+        </div>
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>

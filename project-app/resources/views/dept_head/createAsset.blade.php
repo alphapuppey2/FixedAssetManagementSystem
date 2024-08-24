@@ -1,9 +1,11 @@
 
 @extends('layouts.app')
 @section('header')
-<h2 class="font-semibold text-xl text-gray-800 leading-tight">
-    create Asset
- </h2>
+<div class="headerTitle">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        create Asset
+     </h2>
+</div>
 @endsection
 
 @section('content')
@@ -86,12 +88,12 @@
         </div>
 
         <div class="customFields">
-            <x-input-label for="field">Additional Information</x-input-label>
 
-            <div class="addInfoContainer ">
-                <div class="fieldSet  mt-2">
-                    <input type="text" class="mr-2" name="field[key][]" id="field" placeholder="key">
-                    <input type="text" name="field[value][]" id="field" placeholder="value">
+            <div class="span">Additional Information</div>
+            <div class="addInfoContainer" id="field">
+                <div class="fieldSet mt-2">
+                    <input type="text" class="mr-2" name="field[key][]" placeholder="key">
+                    <input type="text" name="field[value][]" placeholder="value">
                 </div>
             </div>
             <button id='addMoreFields'>Add more field</button>
