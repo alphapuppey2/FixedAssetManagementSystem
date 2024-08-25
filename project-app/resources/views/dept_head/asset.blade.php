@@ -1,14 +1,34 @@
 @extends('layouts.app')
     @section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-       Asset  @yield('assetCode')
-    </h2>
+    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
+        <div class="title">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Asset
+             </h2>
+        </div>
+         <div class="header-R flex items-center">
+            <button>
+                <span>
+                    <x-icons.importIcon />
+                </span>
+            </button>
+            <button>
+                <span>
+                    <x-icons.exportIcon />
+                </span>
+            </button>
+
+            <div class="searchBox">
+                <x-text-input placeholder="Search" />
+            </div>
+         </div>
+
+    </div>
     @endsection
 
     @section('content')
-    <div class="container">
-
-        <table class="table table-hover">
+    <div class="cont">
+        <table class="table table-hover bg-red-500">
             <thead>
                 <th>code</th>
                 <th>name</th>
@@ -45,7 +65,10 @@
             @endif
             </tbody>
         </table>
-    <nav aria-label="Page navigation example">
+        <div class="page">
+            {{ $asset->links() }}
+        </div>
+    {{-- <nav aria-label="Page navigation example">
         <ul class="pagination">
           <li class="page-item"><a class="page-link" href="#">Previous</a></li>
           <li class="page-item"><a class="page-link" href="#">1</a></li>
@@ -53,5 +76,5 @@
           <li class="page-item"><a class="page-link" href="#">3</a></li>
           <li class="page-item"><a class="page-link" href="#">Next</a></li>
         </ul>
-      </nav>
+      </nav> --}}
     @endsection
