@@ -2,7 +2,7 @@
 
 @php
 $classes = ($active ?? false)
-            ? 'nav-link text-bg-info'
+            ? 'nav-link bg-blue-200 text-blue-900 hover:bg-blue-200 hover:text-blue-900'
             : 'nav-link';
 @endphp
 
