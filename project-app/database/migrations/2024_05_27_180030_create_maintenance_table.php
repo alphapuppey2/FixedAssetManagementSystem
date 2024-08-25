@@ -12,16 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('maintenance', function (Blueprint $table) {
-            $table->id();
+            $table->id(); 
             $table->string('description');
-            $table->string('type');
+            $table->enum('type', ['repair','maintenance','upgrade','inspection','replacement','calibration'])->default('repair');
             $table->float('cost');
-            $table->string('requested_at');
-            $table->string('authorized_at');
-            $table->timestamp('completion')->nullable();
+            $table->timestamp('requested_at')->nullable();
+            $table->timestamp('authorized_at')->nullable();
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('completion_date')->nullable();
+            $table->string('reason');
+            $table->enum('status', ['request','approve','deny','preventive','predictive'])->default('request');
+        
             $table->unsignedBigInteger('asset_key');
             $table->unsignedBigInteger('authorized_by');
             $table->unsignedBigInteger('requestor');
+
+            $table->foreign('asset_key')->references('id')->on('asset')->onDelete('cascade');
             $table->foreign('authorized_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('requestor')->references('id')->on('users')->onDelete('cascade');
         });

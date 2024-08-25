@@ -53,7 +53,12 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
 
-    Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');
+    // Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');
+    // Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+    Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
+    Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
+
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 
     Route::get('/manufacturer', function () {
