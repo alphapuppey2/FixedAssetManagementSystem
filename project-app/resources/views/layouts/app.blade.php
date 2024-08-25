@@ -21,30 +21,30 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased">
-
+<body class="font-sans antialiased h-full">
+    <div class="bodyContent h-[100%]">
         @include('layouts.TopBar')
         @if (Auth::user()->usertype === 'admin')
-        @include('layouts.sideBar')
+            @include('layouts.sideBar')
         @elseif(Auth::user()->usertype === 'dept_head')
-        @include('layouts.sideBar')
+            @include('layouts.sideBar')
         @else
-        @include('layouts.sideBar')
+            @include('layouts.sideBar')
         @endif
         <!-- Page Content -->
-    <main class="h-full relative lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5 pr-5 md:top-[50px] -z-[10]">
-        <div class="header flex flex-wrap items-center relative">
-            @yield('header')
-        </div>
-        <div class="contentPage relative">
+        <main class="fixed md:left-[205px] md:w-[calc(100%_-_205px)] md:w-[calc(100%_-_205px)] max-md:left-[50px] pl-5 pr-1 pt-3 pb-1 top-[40px] flex flex-col h-[calc(100%_-_40px)] bg-slate-100/50">
+            <div class="flex flex-wrap items-center w-full">
+                @yield('header')
+            </div>
             <div class="divider w-[100%] h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
-            @yield('content')
-        </div>
-    </main>
+            <div class="contentPage relative p-2 h-full">
+                @yield('content')
+            </div>
+        </main>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
 </body>
 
 </html>
-

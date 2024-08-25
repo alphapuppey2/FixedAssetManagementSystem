@@ -1,163 +1,165 @@
-
 @extends('layouts.app')
 @section('header')
-<div class="headerTitle">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        create Asset
-     </h2>
-</div>
+    <div class="headerTitle">
+        <h2 class="font-semibold text-xl uppercase font-bold text-gray-800 leading-tight">
+            create Asset
+        </h2>
+    </div>
 @endsection
 
 @section('content')
-<div class="contents">
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-
-    <form action="{{ route('asset.create') }}" method="post"  enctype="multipart/form-data" >
-        @csrf
-        <div class="form-group images">
-            <div class="imageField relative w-56 h-56 ">
-                <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay" class="object-cover rounded-md w-full h-full" alt="default">
-                <!-- Overlay with text -->
-                <label for="image" class="cursor-pointer p-[2%] rounded bg-red-200 w-full h-full absolute top-0 left-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    Add Image
-                </label>
+    <div class="contents">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-        </div>
+        @endif
 
-            <x-text-input type="file" id="image" name='image' class="hidden"/>
-        </div>
-        <div class="form-group">
-            <x-input-label for='assetname'>asset Name</x-input-label>
-            <x-text-input type="text" id="assetname" name='assetname' required />
-        </div>
-        <div class="group">
-            <div class="form-group">
-                <x-input-label for='cost'>cost</x-input-label>
-                <x-text-input type="text" inputmode="decimal"
-                id="cost" pattern="[0-9]*[.,]?[0-9]*" id="cost" name='cost' required />
-            </div>
-            <div class="form-group">
-                <x-input-label for='salvageVal'>Salvage Value</x-input-label>
-                <x-text-input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" id="salvageVal" name='salvageVal' required />
-            </div>
-        </div>
-        <div class="form-group">
-            <x-input-label for='usage'>usage lifespan (year)</x-input-label>
-            <x-text-input type="number" id="usage" name='usage' required />
-        </div>
-        <div class="form-group">
-            <x-input-label for='category'>Category</x-input-label>
-            <select name="category" id="category" class="max-w-100 flex flex-col">
-                @foreach ($categories['ctglist'] as $category)
-                    <option value={{ $category->id }}>{{ $category->name}}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group">
-            <x-input-label for='loc'>Location</x-input-label>
-            <select name="loc" id="loc" class="max-w-100 flex flex-col">
-                @foreach ($location['locs'] as $location)
-                    <option value={{ $location->id }}>{{ $location->name}}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group">
-            <x-input-label for='mod'>Model</x-input-label>
-            <select name="mod" id="mod" class="max-w-100 flex flex-col">
-                @foreach ($model['mod'] as $model)
-                    <option value={{ $model->id }}>{{ $model->name}}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group">
-            <x-input-label for='mcft'>Manufacturer</x-input-label>
-            <select name="mcft" id="mcft" class="max-w-100 flex flex-col">
-                @foreach ($manufacturer['mcft'] as $manufacturer)
-                    <option value={{ $manufacturer->id }}>{{ $manufacturer->name}}</option>
-                @endforeach
-            </select>
-        </div>
 
-        <div class="customFields">
-
-            <div class="span">Additional Information</div>
-            <div class="addInfoContainer" id="field">
-                <div class="fieldSet mt-2">
-                    <input type="text" class="mr-2" name="field[key][]" placeholder="key">
-                    <input type="text" name="field[value][]" placeholder="value">
+        <form action="{{ route('asset.create') }}" method="post" class="flex flex-col relative" enctype="multipart/form-data">
+            @csrf
+            <div class="formbox grid md:grid-cols-[1fr_8px_1fr] gap-3 max-md:grid-cols-1">
+                <div class="formInformation">
+                    <div class="form-group">
+                        <x-input-label for='assetname'>asset Name</x-input-label>
+                        <x-text-input id="assetname" name='assetname' required />
+                    </div>
+                    <div class="form-group">
+                        <x-input-label for='cost'>cost</x-input-label>
+                        <x-text-input inputmode="decimal" id="cost" pattern="[0-9]*[.,]?[0-9]*" id="cost"
+                            name='cost' required />
+                    </div>
+                    <div class="form-group">
+                        <x-input-label for='salvageVal'>Salvage Value</x-input-label>
+                        <x-text-input inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" id="salvageVal" name='salvageVal'
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <x-input-label for='usage'>usage lifespan (year)</x-input-label>
+                        <x-text-input type="number" id="usage" name='usage' required />
+                    </div>
+                    <div class="grpInline grid grid-cols-2 gap-2">
+                        <div class="form-group">
+                            <x-input-label for='category'>Category</x-input-label>
+                            <select name="category" id="category" class="w-full">
+                                @foreach ($categories['ctglist'] as $category)
+                                    <option value={{ $category->id }}>{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <x-input-label for='loc'>Location</x-input-label>
+                            <select name="loc" id="loc" class="w-full">
+                                @foreach ($location['locs'] as $location)
+                                    <option value={{ $location->id }}>{{ $location->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grpInline grid grid-cols-2 gap-2">
+                        <div class="form-group">
+                            <x-input-label for='mod'>Model</x-input-label>
+                            <select name="mod" id="mod" class="w-full flex flex-col">
+                                @foreach ($model['mod'] as $model)
+                                    <option value={{ $model->id }}>{{ $model->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <x-input-label for='mcft'>Manufacturer</x-input-label>
+                            <select name="mcft" id="mcft" class="w-full">
+                                @foreach ($manufacturer['mcft'] as $manufacturer)
+                                    <option value={{ $manufacturer->id }}>{{ $manufacturer->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {{-- divider --}}
+                <div class="dvdr h-full w-[3px] bg-blue-950/10 hidden md:block"></div>
+                {{-- divider --}}
+                <div class="form-group images flex items-center flex-col AdditionalInfo">
+                    <div class="imageField w-32 h-32 relative flex justify-center">
+                        <label class="im w-32 h-32 border-3 rounded-md hover:bg-blue-300 hover:border-4 hover:border-blue-400 transition ease-in ease-out" for="image">
+                            <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
+                            class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                            alt="default">
+                        </label>
+                    </div>
+                    <x-text-input type="file" id="image" name='image' class="hidden" />
+                    <div class="customFields flex flex-col w-full mt-4">
+                        <div class="span relative top-0 w-full fixed text-[20px] uppercase font-semibold">Additional Information</div>
+                        <div class="addInfo grid grid-col-2 w-full" id="field">
+                            <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
+                                <div class="fieldSet mt-2 grid grid-cols-2">
+                                    <input type="text" class="mr-2 " name="field[key][]" placeholder="key">
+                                    <input type="text" name="field[value][]" placeholder="value">
+                                </div>
+                            </div>
+                            <div class="flex w-full justify-center">
+                                <button id='addMoreFields' class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add Field</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button id='addMoreFields'>Add more field</button>
-
-
-        </div>
-
-        <x-primary-button>Create Asset</x-primary-button>
+            <div class="butn w-full flex justify-center">
+                <x-primary-button class="mt-3 bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create Asset</x-primary-button>
+            </div>
     </form>
-</div>
+    </div>
 
-<script>
-    function addNewFields() {
-    // Container
-    let newFieldSet = document.createElement('div');
-    newFieldSet.className = 'fieldSet mt-2';
+    <script>
+        function addNewFields() {
+            // Container
+            let newFieldSet = document.createElement('div');
+            newFieldSet.className = 'fieldSet mt-2 grid grid-cols-2';
 
-    // Input Key
-    let newKeyInput = document.createElement('input');
-        newKeyInput.type = 'text';
-        newKeyInput.name = 'field[key][]';
-        newKeyInput.placeholder = 'key';
-        newKeyInput.className = 'mr-2';
+            // Input Key
+            let newKeyInput = document.createElement('input');
+            newKeyInput.type = 'text';
+            newKeyInput.name = 'field[key][]';
+            newKeyInput.placeholder = 'key';
+            newKeyInput.className = 'mr-2';
 
-    // input value
-    let newValueInput = document.createElement('input');
-        newValueInput.type = 'text';
-        newValueInput.name = 'field[value][]';
-        newValueInput.placeholder = 'value';
+            // input value
+            let newValueInput = document.createElement('input');
+            newValueInput.type = 'text';
+            newValueInput.name = 'field[value][]';
+            newValueInput.placeholder = 'value';
 
-    newFieldSet.appendChild(newKeyInput);
-    newFieldSet.appendChild(newValueInput);
+            newFieldSet.appendChild(newKeyInput);
+            newFieldSet.appendChild(newValueInput);
 
-    document.querySelector('.addInfoContainer').appendChild(newFieldSet);
-}
+            document.querySelector('.addInfoContainer').appendChild(newFieldSet);
+        }
 
-document.getElementById('addMoreFields').addEventListener('click', function(event) {
-    event.preventDefault();
-    addNewFields();
-});
+        document.getElementById('addMoreFields').addEventListener('click', function(event) {
+            event.preventDefault();
+            addNewFields();
+        });
 
-//image eventListener
-document.getElementById('image').addEventListener('change', function(event) {
-const imagePreview = document.getElementById('imageDisplay');
-const file = event.target.files[0];
+        //image eventListener
+        document.getElementById('image').addEventListener('change', function(event) {
+            const imagePreview = document.getElementById('imageDisplay');
+            const file = event.target.files[0];
 
-    if (file) {
-        const reader = new FileReader();
+            if (file) {
+                const reader = new FileReader();
 
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-        };
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
 
-        reader.readAsDataURL(file);
-    } else {
-        imagePreview.src = '';
-        imagePreview.style.display = 'none';
-    }
-});
-
-
-
-</script>
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 
 
 @endsection
