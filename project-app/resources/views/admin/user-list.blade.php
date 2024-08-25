@@ -13,13 +13,15 @@
         <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row ">
             <x-table class="table table-striped">
                 <x-slot name='header'>
-                    <th>User ID</th>
+                    <th>ID</th>
+                    <th>Employee ID</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
+                    <th>Department</th>
+                    <th>User Type</th>
                     <th>Status</th>
-                    <th>Created</th>
                     <th>Action</th>
                 </x-slot>
                 <x-slot name='slot'>
@@ -27,10 +29,13 @@
                         @foreach($userList as $item)
                             <tr>
                                 <td>{{ $item->id }}</td>
+                                <td>{{ $item->employee_id }}</td>
                                 <td>{{ $item->firstname }}</td>
                                 <td>{{ $item->middlename }}</td>
                                 <td>{{ $item->lastname }}</td>
                                 <td>{{ $item->email }}</td>
+                                <td>{{ $item->department }}</td>
+                                <td>{{ $item->usertype }}</td>
                                 <td class="items-center space-x-2">
                                     @if($item->status === 'active')
                                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>
@@ -40,10 +45,14 @@
                                         <span>Inactive</span>
                                     @endif
                                 </td>
-                                <td>{{ $item->created_at }}</td>
                                 <td class="text-center flex place-content-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" style="color:#0A5C36;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
                                     <a href="#" class="text-blue-500 editUserBtn" 
                                         data-id="{{ $item->id }}"
+                                        data-employee_id="{{ $item->employee_id }}"
                                         data-photo="{{ $item->userPicture ? asset('uploads/profile_photos/' . $item->userPicture) : asset('images/default_profile.jpg') }}"
                                         data-firstname="{{ $item->firstname }}"
                                         data-middlename="{{ $item->middlename }}"
@@ -94,6 +103,7 @@
 
                 const btn = event.currentTarget;
                 document.getElementById('id').value = btn.getAttribute('data-id');
+                document.getElementById('employee_id').value = btn.getAttribute('data-employee_id');
                 document.getElementById('firstname').value = btn.getAttribute('data-firstname');
                 document.getElementById('middlename').value = btn.getAttribute('data-middlename');
                 document.getElementById('lastname').value = btn.getAttribute('data-lastname');

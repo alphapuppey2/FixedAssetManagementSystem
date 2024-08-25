@@ -37,6 +37,7 @@ class UserController extends Controller
         // Validate the request
         $request->validate([
             'id' => 'required|integer|exists:users,id',
+            'employee_id' => 'required|string|max:255',
             'firstname' => 'required|string|max:255',
             'middlename' => 'nullable|string|max:255',
             'lastname' => 'required|string|max:255',
@@ -63,6 +64,7 @@ class UserController extends Controller
         }
     
         // Update other user details
+        $user->employee_id = $request->employee_id;
         $user->firstname = $request->firstname;
         $user->middlename = $request->middlename;
         $user->lastname = $request->lastname;
