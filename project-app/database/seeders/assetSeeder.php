@@ -271,5 +271,90 @@ class assetSeeder extends Seeder
             'model_key'=> 1,
         ]
         );
+        ModelAsset::create([
+            'code' =>'TST-0016',
+            'ctg_ID'=> 1,
+            'dept_ID'=> 1,
+            'name' => "nameless",
+            'custom_fields' =>json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
+            'manufacturer_key'=> 1,
+            'loc_key' => 1,
+            'model_key'=> 1,
+        ]
+        );
+        ModelAsset::create([
+            'code' =>'TST-0017',
+            'ctg_ID'=> 1,
+            'dept_ID'=> 1,
+            'name' => "nameless",
+            'custom_fields' =>json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
+            'manufacturer_key'=> 1,
+            'loc_key' => 1,
+            'model_key'=> 1,
+        ]
+        );
+        ModelAsset::create([
+            'code' =>'TST-0018',
+            'ctg_ID'=> 1,
+            'dept_ID'=> 1,
+            'name' => "nameless",
+            'custom_fields' =>json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
+            'manufacturer_key'=> 1,
+            'loc_key' => 1,
+            'model_key'=> 1,
+        ]
+        );
+        ModelAsset::create([
+            'code' =>'TST-0019',
+            'ctg_ID'=> 1,
+            'dept_ID'=> 1,
+            'name' => "nameless",
+            'custom_fields' =>json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
+            'manufacturer_key'=> 1,
+            'loc_key' => 1,
+            'model_key'=> 1,
+        ]
+        );
+        ModelAsset::create([
+            'code' =>'TST-0020',
+            'ctg_ID'=> 1,
+            'dept_ID'=> 1,
+            'name' => "nameless",
+            'custom_fields' =>json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
+            'manufacturer_key'=> 1,
+            'loc_key' => 1,
+            'model_key'=> 1,
+        ]
+        );
     }
 }
