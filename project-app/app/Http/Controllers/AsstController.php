@@ -21,7 +21,7 @@ class AsstController extends Controller
                         ->where('asset.dept_ID', $userDept)
                         ->select('asset.id', 'asset.code' , 'asset.name' ,'asset.image' ,'asset.cost' ,'asset.salvageVal' ,'asset.depreciation' ,'asset.usage_Lifespan','asset.status', 'category.name as category', 'department.name as department')
                         ->orderBy('asset.code', 'asc')
-                        ->get();
+                        ->paginate(5);
 
 
         // dd($asset);

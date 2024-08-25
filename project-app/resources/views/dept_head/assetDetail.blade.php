@@ -18,35 +18,35 @@
     <a href="" class="text-blue-500 text-[12px]">EDIT</a>
 @endsection
 @section('content')
-    <div class="details grid grid-cols-2 gap-3 ">
+    <div class="details relative grid grid-cols-2 gap-3 h-full">
         <div class="information">
-            <div class="leftDetail w-50 text-sm">
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">name</div>
+            <div class="leftDetail text-sm">
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">name</div>
                     <div class="field-Info font-semibold ">{{ $data->name }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">cost</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">cost</div>
                     <div class="field-Info font-semibold">{{ $data->cost }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">depreciation</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">depreciation</div>
                     <div class="field-Info font-semibold">{{ $data->depreciation }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">model</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">model</div>
                     <div class="field-Info font-semibold ">{{ $data->usage_Lifespan }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">Manufacturer</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">Manufacturer</div>
                     <div class="field-Info font-semibold">{{ $data->manufacturer }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">Location</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">Location</div>
                     <div class="field-Info font-semibold">{{ $data->location }}</div>
                 </div>
-                <div class="info flex grid grid-cols-2 gap-2 pb-1">
-                    <div class="field-label uppercase text-slate-300">status</div>
+                <div class="info flex grid grid-cols-[30%_1fr] gap-2 pb-1">
+                    <div class="field-label uppercase text-slate-400">status</div>
                     <div class="field-Info font-semibold">{{ $data->status }}</div>
                 </div>
             </div>
@@ -56,33 +56,35 @@
                         Additional information
                         <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                     </div>
-                    <div class="data grid grid-cols-2">
+                    <div class="data bg-red-300">
                         @if ($fields)
-                        @foreach ($fields as $key => $value)
-                            <div class="extraInfo grid grid-cols-2">
-                                <div class="customField">{{ $key }}</div>
-                                <div class="customField">{{ $value }}</div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="error">
-                            No Custom FIeld</div>
-                    @endif
+                            @foreach ($fields as $key => $value)
+                                <div class="extraInfo grid grid-cols-[30%_1fr]">
+                                    <div class="customField">{{ $key }}</div>
+                                    <div class="customField">{{ $value }}</div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="error">
+                                No Custom FIeld</div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        <div class="right">
+        <div class="right bg-indigo-400 w-">
             <div class="imgContainer w-[100%] pb-4 flex justify-center items-center">
                 <div class="imagepart w-72 h-48 overflow-hidden relative p-3">
-                    <img src="{{ asset('storage/' . $imagePath) }}" class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover" alt="assetImage">
+                    <img src="{{ asset('storage/' . $imagePath) }}"
+                        class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                        alt="assetImage">
                 </div>
                 <div class="qrContainer flex flex-col items-center">
                     <div class="QRBOX w-24 h-24 bg-red-300"></div>
                     <a href="#" target="_blank" rel="noopener noreferrer">Print QR Code</a>
                 </div>
             </div>
-            <div class="maintenance w-full h-full bg-green-400">
+            <div class="maintenance bg-green-400">
                 Maintenance Here
             </div>
         </div>
