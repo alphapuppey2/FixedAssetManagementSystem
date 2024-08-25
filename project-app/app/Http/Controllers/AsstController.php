@@ -8,6 +8,7 @@ use App\Models\assetModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 class AsstController extends Controller
 {
     //
@@ -135,14 +136,65 @@ class AsstController extends Controller
 
     }
 
-    public function showDetails($id ){
+    public function update(Request $request , $id){
 
-        $retrieveData = assetModel::where('asset.code' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'name' => 'required|string',
+            'cost' => 'required|numeric',
+            'category' => 'required|exists:category,id',
+            'usage' => 'required|numeric',
+            'mod' => 'required|string',
+            'mcft' => 'required|exists:manufacturer,id',
+            'loc' => 'required|exists:location,id',
+            'status' => 'required|nullable|string|max:511',
+        ]);
+                // Find the existing record based on the ID
+                $data = assetModel::findOrFail($id);
+                // Update the record with the validated data
+                DB::table('asset')->where('id',$id)->update([
+                                    'name' => $validatedData["name"],
+                                    'cost' => $validatedData["cost"],
+                                    'ctg_ID' => $validatedData["category"],
+                                    'manufacturer_key' => $validatedData['mcft'],
+                                    'model_key' => $validatedData["loc"],
+                                    'loc_key' => $validatedData["loc"],
+                                    'usage_Lifespan' => $validatedData["usage"],
+                                    'status'=>$validatedData["status"],
+
+                ]);
+
+                // Handle success or failure as needed
+                if ($data->save()) {
+                    // Redirect or return a success message
+                    return redirect()->route('asset')->with('success', 'Data updated successfully!');
+                } else {
+                    // Handle errors or return an error message
+                    return back()->withErrors($data->errors());
+                }
+
+    }
+
+    public function showDetails($id){
+        $userDept = Auth::user()->dept_id;
+
+        $department = array('list' => DB::table('department')->get());
+        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
+        $location = array('locs' => DB::table('location')->get());
+        $model = array('mod' => DB::table('model')->get());
+        $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+        $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
+
+        //$id is for asset code ...
+
+        $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+                                    ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
                                     ->join('category','asset.ctg_ID' , '=','category.id')
                                     ->join('model','asset.model_key' , '=','model.id')
                                     ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
                                     ->join('location','asset.loc_key' , '=','location.id')
                                     ->select(
+                                        'asset.id',
                                         'asset.depreciation',
                                         'asset.image',
                                         'asset.name',
@@ -162,7 +214,8 @@ class AsstController extends Controller
                                     ->get();
         $fields = json_decode($retrieveData[0]->custom_fields,true);
 
+        // dd($status);
         //  dd($fields);
-        return view('dept_head.assetDetail' , compact('retrieveData' , 'fields'));
+        return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     }
 }

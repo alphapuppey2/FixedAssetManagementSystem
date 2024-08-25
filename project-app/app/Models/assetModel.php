@@ -13,6 +13,8 @@ class assetModel extends Model
     use HasFactory;
     protected $table ='asset';
 
+    public $timestamps = true;
+
     protected $fillable = [ 'id' ,
                             'code',
                             'name',
@@ -24,5 +26,7 @@ class assetModel extends Model
                             'model_key',
                             'loc_key',
                             'custom_fields',
+                            'created_at',
+                            'updated_at',
                           ];
 }

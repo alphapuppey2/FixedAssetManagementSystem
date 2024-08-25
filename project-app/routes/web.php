@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
 });
 
 // Admin Routes
@@ -52,6 +52,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/asset', [AsstController::class,'show'])->name('asset');
     Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
     Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
+    Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
 
     Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');
