@@ -44,6 +44,7 @@
                                 <td class="text-center flex place-content-center">
                                     <a href="#" class="text-blue-500 editUserBtn" 
                                         data-id="{{ $item->id }}"
+                                        data-photo="{{ $item->userPicture ? asset('uploads/profile_photos/' . $item->userPicture) : asset('images/default_profile.jpg') }}"
                                         data-firstname="{{ $item->firstname }}"
                                         data-middlename="{{ $item->middlename }}"
                                         data-lastname="{{ $item->lastname }}"
@@ -107,6 +108,9 @@
                 document.getElementById('account_updated').value = btn.getAttribute('data-account-updated');
                 document.getElementById('usertype').value = btn.getAttribute('data-user-type');
 
+                const photoPath = btn.getAttribute('data-photo');
+                document.getElementById('currentProfilePhoto').src = photoPath;
+
                 document.getElementById('editUserModal').classList.remove('hidden');
             });
         });
@@ -114,7 +118,20 @@
         document.getElementById('cancelEdit').addEventListener('click', () => {
             document.getElementById('editUserModal').classList.add('hidden');
         });
+
+        // Preview the selected profile photo
+        document.getElementById('profile_photo').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('currentProfilePhoto').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
+
 @endsection
 
 

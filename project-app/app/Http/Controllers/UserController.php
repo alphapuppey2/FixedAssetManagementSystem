@@ -48,11 +48,21 @@ class UserController extends Controller
             'status' => 'required|in:active,inactive',
             'birthdate' => 'required|date',
             'usertype' => 'required|in:user,dept_head,admin',
+            'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Profile photo validation
         ]);
-
+    
         // Find the user and update their information
         $user = User::findOrFail($request->id);
-
+    
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = 'profile_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/profile_photos'), $filename);
+            $user->userPicture = $filename;
+        }
+    
+        // Update other user details
         $user->firstname = $request->firstname;
         $user->middlename = $request->middlename;
         $user->lastname = $request->lastname;
@@ -65,11 +75,12 @@ class UserController extends Controller
         $user->birthdate = $request->birthdate;
         $user->usertype = $request->usertype;
         $user->updated_at = now(); // Update the timestamp
-
+    
         $user->save();
-
+    
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
+    
 
     // HARD DELETE
     public function delete($id){

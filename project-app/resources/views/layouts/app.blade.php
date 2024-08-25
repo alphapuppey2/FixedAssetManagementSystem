@@ -33,7 +33,8 @@
     @endif
     
     <!-- Page Content -->
-    <main class="h-full relative lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5 pr-5 md:top-[50px] -z-[10]">
+    <!-- REMOVED -z-[10] from class of main  -->
+    <main class="h-full relative lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5 pr-5 md:top-[50px] ">
         <div class="header flex flex-wrap items-center relative">
             @yield('header')
         </div>
