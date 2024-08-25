@@ -23,15 +23,16 @@
 
 <body class="font-sans antialiased">
 
-        @include('layouts.TopBar')
-        @if (Auth::user()->usertype === 'admin')
+    @include('layouts.TopBar')
+    @if (Auth::user()->usertype === 'admin')
+        @include('layouts.admin-sidebar')
+    @elseif(Auth::user()->usertype === 'dept_head')
         @include('layouts.sideBar')
-        @elseif(Auth::user()->usertype === 'dept_head')
+    @else
         @include('layouts.sideBar')
-        @else
-        @include('layouts.sideBar')
-        @endif
-        <!-- Page Content -->
+    @endif
+    
+    <!-- Page Content -->
     <main class="h-full relative lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)] pl-5 pr-5 md:top-[50px] -z-[10]">
         <div class="header flex flex-wrap items-center relative">
             @yield('header')
