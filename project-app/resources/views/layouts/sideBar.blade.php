@@ -41,12 +41,6 @@
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset')">
-                    <x-paperplane class="bg-red-500"/>
-                    <span class="ml-2 max-md:hidden lg:block">Request</span>
-                </x-nav-link>
-            </li>
-            <li>
                 <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
                     <x-wrenchIcon />
                     <span class="ml-2 max-md:hidden lg:block">Maintenance</span>
