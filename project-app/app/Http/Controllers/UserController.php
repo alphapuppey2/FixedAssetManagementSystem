@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
 class UserController extends Controller
@@ -92,6 +95,101 @@ class UserController extends Controller
     
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
+
+    public function search(Request $request){
+        $query = $request->input('query');
+        $userList = DB::table('users')
+            ->where('firstname', 'like', "%$query%")
+            ->orWhere('lastname', 'like', "%$query%")
+            ->orWhere('email', 'like', "%$query%")
+            ->get()
+            ->map(function($user) {
+                switch ($user->dept_id) {
+                    case 1:
+                        $user->department = 'IT';
+                        break;
+                    case 2:
+                        $user->department = 'Sales';
+                        break;
+                    case 3:
+                        $user->department = 'Fleet';
+                        break;
+                    case 4:
+                        $user->department = 'Production';
+                        break;
+                    default:
+                        $user->department = 'Unknown';
+                }
+                return $user;
+            });
+
+        return view('admin.user-list', ['userList' => $userList]);
+    }
     
+    public function create()
+    {
+        return view('admin.create-user');
+    }
+
+    public function store(Request $request)
+    {
+        // Validate the incoming request data
+        $validated = $request->validate([
+            'firstname' => 'required|string|max:255',
+            'middlename' => 'nullable|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'birthdate' => 'required|date',
+            'usertype' => 'required|string|in:admin,dept_head,user',
+            'gender' => 'required|string|in:male,female,other',
+            'dept_id' => 'required|integer|in:1,2,3,4',
+            'address' => 'nullable|string',
+            'contactnumber' => 'nullable|string|max:255',
+        ]);
+
+        // Generate email and password based on input
+        $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        $password = $validated['lastname'] . $validated['birthdate'];
+        $hashedPassword = Hash::make($password);
+
+        // Create the new user
+        $user = User::create([
+            'employee_id' => $validated['employee_id'],
+            'firstname' => $validated['firstname'],
+            'middlename' => $validated['middlename'],
+            'lastname' => $validated['lastname'],
+            'email' => $email,
+            'password' => $hashedPassword,
+            'birthdate' => $validated['birthdate'],
+            'usertype' => $validated['usertype'],
+            'gender' => $validated['gender'],
+            'dept_id' => $validated['dept_id'],
+            'address' => $validated['address'],
+            'contactnumber' => $validated['contactnumber'],
+            'status' => 'active',
+        ]);
+
+        // Generate employee_id based on usertype and user id
+        switch ($user->usertype) {
+            case 'admin':
+                $employee_id = 'FMS-ADMN-' . $user->id;
+                break;
+            case 'dept_head':
+                $employee_id = 'FMS-DPTHD-' . $user->id;
+                break;
+            default: // for 'user'
+                $employee_id = 'FMS-USR-' . $user->id;
+                break;
+        }
+
+        // Update the user with the generated employee_id
+        $user->employee_id = $employee_id;
+        $user->save();
+
+        // Send an email to the user with their login credentials
+        Mail::to($user->email)->send(new NewUserCredentialsMail($user, $password));
+
+        // Redirect or return response after creation
+        return redirect()->route('userList')->with('success', 'User created successfully!');
+    }
 
 }
