@@ -67,7 +67,7 @@
             <li class="hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md">
                 <a href="#" class="flex">
                     <x-bellIcon/>
-                    <span class="ml-2 sm:hidden lg:block">Nofitifcation</span>
+                    <span class="ml-2 sm:hidden lg:block">Notification</span>
                 </a>
             </li>
             <li>

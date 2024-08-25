@@ -1,10 +1,11 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="pb-3 mr-3 font-semibold text-2xl text-black-800 leading-tight border-b-2 border-gray-200">
-            Maintenance
-        </h2>
-    </x-slot>
+<!-- resources/views/dept_head/maintenance.blade.php -->
+@extends('layouts.app')
 
+@section('header')
+    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance</h2>
+@endsection
+
+@section('content')
     <div class="px-6 py-4">
         <!-- Top Section -->
         <div class="flex justify-between items-center mb-4">
@@ -50,13 +51,13 @@
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
                 <li class="mr-4">
-                    <a href="{{ route('maintenance') }}" class="inline-block px-4 py-2 {{ request()->routeIs('maintenance.requests') ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Requests</a>
+                    <a href="{{ route('maintenance') }}" class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Requests</a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.approved') }}" class="inline-block px-4 py-2 {{ request()->routeIs('maintenance.approved') ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Approved</a>
+                    <a href="{{ route('maintenance.approved') }}" class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Approved</a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.denied') }}" class="inline-block px-4 py-2 {{ request()->routeIs('maintenance.denied') ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Denied</a>
+                    <a href="{{ route('maintenance.denied') }}" class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Denied</a>
                 </li>
             </ul>
         </div>
@@ -71,35 +72,56 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested At</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        @if($tab === 'approved')
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved At</th>
+                        @elseif($tab === 'denied')
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied By</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied At</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                        @else
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($requests as $maintenance)
                     <tr>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_key }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->type }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->location }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id?? 'N/A'}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor ?? 'N/A'}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_key ?? 'N/A'}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category ?? 'N/A'}}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                        @if($tab === 'approved')
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->approved_by ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->approved_at ?? 'N/A'}}</td>
+                        @elseif($tab === 'denied')
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_at ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->reason ?? 'N/A'}}</td>
+                        @else
                         <td class="px-6 py-4 text-sm text-gray-900">
-                            @if($maintenance->status === 'request')
-                                <button class="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600">Approve</button>
-                                <button class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Deny</button>
-                            @endif
-                        </td>
+                                <form action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="px-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Approve</button>
+                                </form>
+                                <form action="{{ route('maintenance.deny', $maintenance->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="reason" value="N/A"> <!-- Default or dynamic reason input -->
+                                    <button type="submit" class="px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Deny</button>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">No maintenance requests found.</td>
+                        <td colspan="10" class="px-6 py-4 text-sm text-gray-900 text-center">No records found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-</x-app-layout>
+@endsection

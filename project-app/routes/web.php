@@ -60,6 +60,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
     Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
 
+    Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
+    Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
+
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 
     Route::get('/manufacturer', function () {

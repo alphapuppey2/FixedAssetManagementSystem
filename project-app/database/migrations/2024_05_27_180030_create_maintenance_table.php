@@ -21,7 +21,8 @@ return new class extends Migration
             $table->timestamp('start_date')->nullable();
             $table->timestamp('completion_date')->nullable();
             $table->string('reason');
-            $table->enum('status', ['request','approve','deny','preventive','predictive'])->default('request');
+            $table->enum('status', ['request','approved','denied','preventive','predictive'])->default('request');
+            $table->timestamps();
         
             $table->unsignedBigInteger('asset_key');
             $table->unsignedBigInteger('authorized_by');
