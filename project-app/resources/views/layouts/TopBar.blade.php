@@ -1,31 +1,55 @@
-<nav x-data="{ open: false }" class="topBar" style="z-index:1">
-    <!-- Primary Navigation Menu -->
-    <div class="displaylang">
+<div class="flex bg-white items-center shadow-md shadow-slate-400/50 justify-between p-2 fixed h-[40px] lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)]">
+    <div class="logo">
+        <span>
+            <a href="{{ route('dept_head.home') }}" class="logoName">
+                FAMAS
+            </a>
+        </span>
+    </div>
+    <nav>
+        <x-dropdown2 width="48">
+            <x-slot name="trigger">
+                <div class="div" style="margin-right:5px">New</div>
+            </x-slot>
+
+            <x-slot name="content">
+                <li>
+                    <x-dropdown-link :href="route('newasset')">
+                        {{ __('Asset') }}
+                    </x-dropdown-link>
+                </li>
+               <li>
+                    <x-dropdown-link :href="route('formMaintenance')">
+                        {{ __('Maintenance') }}
+                    </x-dropdown-link>
+               </li>
+                <li>
+                    <x-dropdown-link :href="route('newasset')">
+                        {{ __('Asset') }}
+                    </x-dropdown-link>
+                </li>
+            </x-slot>
+        </x-dropdown2>
+    </nav>
+</div>
+
+
+
+
+{{-- <nav class="topBar fixed h-[40px] lg:left-[205px] lg:w-[calc(100%_-_205px)] md:left-[50px] md:w-[calc(100%_-_50px)]">
+    <div class="display">
         <div class="navlinks">
             <div class="nl1">
-                <!-- Logo -->
                 <div class="">
                     <a href="{{ route('dept_head.home') }}" class="logoName">
                         FAMAS
                     </a>
                 </div>
-
-                <!-- Navigation Links -->
-                {{-- <h1 class="text-white">Famas</h1> --}}
             </div>
             <div class="right" style="display:flex">
                     <x-dropdown2 align="right" width="48">
                         <x-slot name="trigger">
                             <div class="div" style="margin-right:5px">New</div>
-                            {{-- <button>
-                                <div>{{  }}</div>
-
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button> --}}
                         </x-slot>
 
                         <x-slot name="content">
@@ -46,37 +70,9 @@
                             </li>
                         </x-slot>
                     </x-dropdown2>
-            <!-- Settings Dropdown -->
-            <div class="">
-                <x-dropdown2 align="right" width="48">
-                    <x-slot name="trigger" >
-
-                            <div style="margin-right:5px">{{ Auth::user()->firstname }}</div>
-
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown2></div>
             </div>
-
-            <!-- Hamburger -->
         </div>
     </div>
 
 
-</nav>
+</nav> --}}
