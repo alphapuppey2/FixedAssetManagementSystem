@@ -42,8 +42,8 @@ Route::get('/userList', [UserController::class, 'getUserList'])->name('userList'
 Route::put('/user/update', [UserController::class, 'update'])->name('user.update');
 Route::delete('/user/{id}', [UserController::class, 'delete'])->name('user.delete');
 
-
 });
+
 // DeptHead Routes
 Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
@@ -67,6 +67,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     })->name('report');
 
 });
+
 // User Routes
 Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
     Route::get('/user/home', function () {
@@ -79,8 +80,5 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
     Route::get('user/profile', [sideBarUserController::class, 'profile'])->name('profile');
 
 });
-
-
-
 
 require __DIR__.'/auth.php';

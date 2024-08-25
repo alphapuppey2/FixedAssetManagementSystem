@@ -71,7 +71,7 @@ class UserController extends Controller
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
 
-    // SOFT DELETE
+    // HARD DELETE
     public function delete($id){
         // Find the user and delete
         $user = User::findOrFail($id);
