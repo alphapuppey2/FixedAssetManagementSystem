@@ -58,6 +58,7 @@
                             <select id="usertype" name="usertype" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="admin">Admin</option>
                                 <option value="user">User</option>
+                                <option value="dept_head">Department Head</option>
                             </select>
                         </div>
                         <!-- Department -->
@@ -85,7 +86,6 @@
                             <select id="gender" name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                <option value="other">Other</option>
                             </select>
                         </div>
                         <!-- Contact Number -->

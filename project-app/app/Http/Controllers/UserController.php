@@ -132,8 +132,7 @@ class UserController extends Controller
         return view('admin.create-user');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         // Validate the incoming request data
         $validated = $request->validate([
             'firstname' => 'required|string|max:255',
@@ -151,7 +150,7 @@ class UserController extends Controller
         // $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
         
         // FOR TESTING PURPOSES
-        $email = 'desabellematthew@gmail.com';
+        $email = 'dain.potato09@gmail.com';
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
