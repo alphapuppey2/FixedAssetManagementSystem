@@ -1,13 +1,14 @@
 <!-- resources/views/dept_head/profile.blade.php -->
 @include('components.icons')
+@extends('layouts.app')
 
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="pb-3 mr-3 font-semibold text-2xl text-black-800 leading-tight border-b-2 border-gray-200">
-            Profile
-        </h2>
-    </x-slot>
 
+@section('header')
+    <h2 class="pb-3 mr-3 font-semibold text-2xl text-black-800 leading-tight border-b-2 border-gray-200">
+        Profile
+    </h2>
+@endsection
+@section('content')
     <div class="relative">
         <div class="absolute top-0 right-0 mt-3 mr-3 flex flex-col">
             <!-- Container for buttons -->
@@ -48,8 +49,8 @@
                                 @yield('cameraIcon')
                             </label>
                         </div>
-                        <h3 class="text-3xl font-semibold">{{ auth()->user()->firstname ?? 'Guest' }} 
-                            {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+                        <h3 class="text-3xl font-semibold">{{ auth()->user()->firstname ?? 'Guest' }}
+                            {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                             {{ auth()->user()->lastname ?? '' }}
                         </h3>
                     </div>
@@ -99,7 +100,7 @@
         </div>
     @endif
 
-</x-app-layout>
+@endsection
 
 @php
 function formatContactNumber($number) {
