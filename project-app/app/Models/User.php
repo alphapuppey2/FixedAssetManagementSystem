@@ -22,15 +22,17 @@ class User extends Authenticatable
         'middlename',
         'lastname',
         'email',
+        'employee_id',
         'password',
         'birthdate',
         'usertype',
         'gender',
-        'department',
+        'dept_id',
         'address',
         'contact',
         'status',
         'created_at',
+        'remember_token',
     ];
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
@@ -143,17 +144,20 @@ class UserController extends Controller
             'gender' => 'required|string|in:male,female,other',
             'dept_id' => 'required|integer|in:1,2,3,4',
             'address' => 'nullable|string',
-            'contactnumber' => 'nullable|string|max:255',
+            'contact' => 'nullable|string|max:255',
         ]);
 
         // Generate email and password based on input
-        $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        // $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        
+        // FOR TESTING PURPOSES
+        $email = 'desabellematthew@gmail.com';
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
         // Create the new user
         $user = User::create([
-            'employee_id' => $validated['employee_id'],
+            // 'employee_id' => $validated['employee_id'],
             'firstname' => $validated['firstname'],
             'middlename' => $validated['middlename'],
             'lastname' => $validated['lastname'],
@@ -164,8 +168,9 @@ class UserController extends Controller
             'gender' => $validated['gender'],
             'dept_id' => $validated['dept_id'],
             'address' => $validated['address'],
-            'contactnumber' => $validated['contactnumber'],
+            'contact' => $validated['contact'],
             'status' => 'active',
+            'remember_token' => Str::random(10),
         ]);
 
         // Generate employee_id based on usertype and user id
@@ -186,7 +191,7 @@ class UserController extends Controller
         $user->save();
 
         // Send an email to the user with their login credentials
-        Mail::to($user->email)->send(new NewUserCredentialsMail($user, $password));
+        Mail::to($user->email)->send(new NewUserCredentialsMail($user->email, $password));
 
         // Redirect or return response after creation
         return redirect()->route('userList')->with('success', 'User created successfully!');
