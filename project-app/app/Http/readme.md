@@ -1,4 +1,4 @@
-# ADD THIS TO YOU .env FILE
+# ADD THIS TO YOUR .env FILE
 
 ## CHANGE MAIL_USERNAME TO YOUR GMAIL ACCOUNT
 ## MAIL_PASSWORD -> google account settings->search->app password->create
