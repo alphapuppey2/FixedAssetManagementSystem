@@ -31,21 +31,22 @@
         </div>
 
         <!-- Pagination Section -->
-        <div class="flex justify-between items-center mb-4">
-            <!-- Number of Items Loaded -->
-            <div class="text-gray-600">
-                Showing <span class="font-semibold">1-10</span> of <span class="font-semibold">50</span> items
-            </div>
+        @if($requests instanceof \Illuminate\Pagination\LengthAwarePaginator || $requests instanceof \Illuminate\Pagination\Paginator)
+            <div class="flex justify-between items-center mb-4">
+                <!-- Number of Items Loaded -->
+                <div class="text-gray-600">
+                    Showing <span class="font-semibold">{{ $requests->firstItem() }}</span> to <span class="font-semibold">{{ $requests->lastItem() }}</span> of <span class="font-semibold">{{ $requests->total() }}</span> items
+                </div>
 
-            <!-- Pagination Buttons -->
-            <div class="flex items-center space-x-1">
-                <button class="px-3 py-1 border rounded-md hover:bg-gray-200">1</button>
-                <button class="px-3 py-1 border rounded-md hover:bg-gray-200">2</button>
-                <button class="px-3 py-1 border rounded-md hover:bg-gray-200">3</button>
-                <button class="px-3 py-1 border rounded-md hover:bg-gray-200">...</button>
-                <button class="px-3 py-1 border rounded-md hover:bg-gray-200">Next</button>
+                <!-- Pagination Buttons -->
+                <div class="flex items-center space-x-2">
+                    <div class="mr-2 text-gray-500">
+                        {{ $requests->links() }}
+                    </div>
+                </div>
             </div>
-        </div>
+        @endif
+
 
         <!-- Tabs Section -->
         <div class="mb-4 flex justify-end">
@@ -72,8 +73,8 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested At</th>
                         @if($tab === 'approved')
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved At</th>
                         @elseif($tab === 'denied')
@@ -81,47 +82,90 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied At</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                         @else
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested At</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                         @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($requests as $maintenance)
-                    <tr>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id?? 'N/A'}}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor ?? 'N/A'}}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_key ?? 'N/A'}}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category ?? 'N/A'}}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
-                        @if($tab === 'approved')
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->approved_by ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->approved_at ?? 'N/A'}}</td>
-                        @elseif($tab === 'denied')
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_at ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->reason ?? 'N/A'}}</td>
-                        @else
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                                <form action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="px-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Approve</button>
-                                </form>
-                                <form action="{{ route('maintenance.deny', $maintenance->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <input type="hidden" name="reason" value="N/A"> <!-- Default or dynamic reason input -->
-                                    <button type="submit" class="px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Deny</button>
-                                </form>
-                            </td>
-                        @endif
-                    </tr>
+                        <tr>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor_name ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_key ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category_name ?? 'N/A'}}</td>
+                            @if($tab === 'approved')
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->type ?? 'N/A'}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->authorized_by_name ?? 'N/A'}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                            @elseif($tab === 'denied')
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by_name ?? 'N/A'}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->reason ?? 'N/A'}}</td>
+                            @else
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->location_name ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                            <td class="text-sm text-gray-900">
+                                    <form action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="px-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Approve</button>
+                                    </form>
+                                    <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="reason" value="N/A"> <!-- Default or dynamic reason input -->
+                                        <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('maintenance.deny', $maintenance->id) }}">Deny</button>
+                                    </form>
+                                </td>
+                            @endif
+                        </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="px-6 py-4 text-sm text-gray-900 text-center">No records found.</td>
+                        <td colspan="10" class="px-6 py-4 text-sm text-gray-500">No maintenance requests found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Modal Structure -->
+    <div id="denyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg w-1/3 p-6">
+            <h2 class="text-lg font-semibold mb-4">Deny Maintenance Request</h2>
+            <form id="denyForm" action="" method="POST">
+                @csrf
+                <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
+                <input type="text" name="reason" id="reason" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                <div class="mt-4 flex justify-end">
+                    <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mr-2">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const denyButtons = document.querySelectorAll('.denyButton');
+            const denyModal = document.getElementById('denyModal');
+            const denyForm = document.getElementById('denyForm');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            denyButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const formAction = this.dataset.action; // Get form action URL from data attribute
+                    denyForm.action = formAction; // Set form action URL
+                    denyModal.classList.remove('hidden'); // Show modal
+                });
+            });
+
+            cancelBtn.addEventListener('click', function () {
+                denyModal.classList.add('hidden'); // Hide modal
+            });
+        });
+    </script>
+
 @endsection
