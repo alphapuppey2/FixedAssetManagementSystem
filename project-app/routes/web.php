@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -41,9 +42,15 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
         return view('admin.home');
     })->name('admin.home');
 
-
+    Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
+    Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+    Route::get('/admin/user-create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
 
 });
+
 // DeptHead Routes
 Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
