@@ -1,7 +1,7 @@
 # ADD THIS TO YOUR .env FILE
 
 ## CHANGE MAIL_USERNAME TO YOUR GMAIL ACCOUNT
-## MAIL_PASSWORD -> google account settings->search->app password->create
+#### MAIL_PASSWORD -> google account settings->search->app password->create->copy password and paste in MAIL_PASSWORD (remove white space)
 
 <p>MAIL_MAILER=smtp</p>
 <p>MAIL_HOST=smtp.gmail.com</p>
