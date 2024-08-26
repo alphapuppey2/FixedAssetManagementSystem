@@ -33,6 +33,7 @@ class User extends Authenticatable
         'status',
         'created_at',
         'remember_token',
+        'userPicture',
     ];
 
     /**

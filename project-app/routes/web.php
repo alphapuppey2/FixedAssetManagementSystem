@@ -46,8 +46,11 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
     Route::delete('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
     Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
-    Route::get('/admin/user-create', [UserController::class, 'create'])->name('users.create');
     Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
+
+    Route::get('/admin/user-create', function () {
+        return view('admin.create-user');
+    })->name('users.create');
 
 });
 
