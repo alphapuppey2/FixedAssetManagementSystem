@@ -51,7 +51,7 @@
                                 <td>{{ $asst->status }}</td>
                                 <td class=" w-40">
                                     <div class="grp flex justify-between">
-                                        <a href="{{ route('assetDetails' , $asst->code) }}" class="btn btn-outline-primary">view</a>
+                                        <a href="{{ route('assetDetails' , $asst->id) }}" class="btn btn-outline-primary">view</a>
                                         <x-danger-button class="btn-outline-danger">delete</x-danger-button>
                                     </div>
                                 </td>

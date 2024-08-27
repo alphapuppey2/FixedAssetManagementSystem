@@ -112,54 +112,5 @@
             </div>
     </form>
     </div>
-
-    <script>
-        function addNewFields() {
-            // Container
-            let newFieldSet = document.createElement('div');
-            newFieldSet.className = 'fieldSet mt-2 grid grid-cols-2';
-
-            // Input Key
-            let newKeyInput = document.createElement('input');
-            newKeyInput.type = 'text';
-            newKeyInput.name = 'field[key][]';
-            newKeyInput.placeholder = 'key';
-            newKeyInput.className = 'mr-2';
-
-            // input value
-            let newValueInput = document.createElement('input');
-            newValueInput.type = 'text';
-            newValueInput.name = 'field[value][]';
-            newValueInput.placeholder = 'value';
-
-            newFieldSet.appendChild(newKeyInput);
-            newFieldSet.appendChild(newValueInput);
-
-            document.querySelector('.addInfoContainer').appendChild(newFieldSet);
-        }
-
-        document.getElementById('addMoreFields').addEventListener('click', function(event) {
-            event.preventDefault();
-            addNewFields();
-        });
-
-        //image eventListener
-        document.getElementById('image').addEventListener('change', function(event) {
-            const imagePreview = document.getElementById('imageDisplay');
-            const file = event.target.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
-
-
+    @vite(['resources/js/addInfoField.js','resources/js/displayImage.js'])
 @endsection
