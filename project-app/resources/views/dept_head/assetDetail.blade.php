@@ -54,11 +54,11 @@
                     </div>
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">Category</div>
-                        {{-- <div class="field-Info font-semibold">{{ $data->salvageVal }}</div> --}}
+                        {{-- <div class="field-Info font-semibold">{{ $data->category }}</div> --}}
                         <div class="form-group">
-                            <select name="category" id="category" class="w-full">
+                            <select name="category" id="category" value class="w-full">
                                 @foreach ($categories['ctglist'] as $category)
-                                    <option value={{ $category->id }}>{{ $category->name }}</option>
+                                    <option value={{ $category->id }} @selected($data->category == $category->name)>{{ $category->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -74,7 +74,7 @@
                         <div class="form-group">
                             <select name="mod" id="mod" class="w-full flex flex-col">
                                 @foreach ($model['mod'] as $model)
-                                    <option value={{ $model->id }}>{{ $model->name }}</option>
+                                    <option value={{ $model->id }} @selected($data->model == $model->name)>{{ $model->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -85,7 +85,7 @@
                         <div class="form-group">
                             <select name="mcft" id="mcft" class="w-full">
                                 @foreach ($manufacturer['mcft'] as $manufacturer)
-                                    <option value={{ $manufacturer->id }}>{{ $manufacturer->name }}</option>
+                                    <option value={{ $manufacturer->id }} @selected($data->manufacturer == $manufacturer->name)>{{ $manufacturer->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -96,7 +96,7 @@
                         <div class="form-group">
                             <select name="loc" id="loc" class="w-full">
                                 @foreach ($location['locs'] as $location)
-                                    <option value={{ $location->id }}>{{ $location->name }}</option>
+                                    <option value={{ $location->id }} @selected($data->location == $location->name)>{{ $location->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -107,7 +107,7 @@
                         <div class="form-group">
                             <select name="status" id="stats" class="w-full">
                                 @foreach ($status['sts'] as $stats)
-                                    <option value="{{ $stats }}">{{ $stats }}</option>
+                                    <option value="{{ $stats }}" @selected($data->status == $stats)>{{ $stats }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -123,12 +123,14 @@
                             Additional information
                             <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                         </div>
-                        <div class="bg-red-300 w-full grid grid-rows-3 grid-flow-col">
+                        <div class="bg-red-300 w-full grid grid-rows-[1fr_1fr] grid-cols-[50%_50%] grid-flow-col">
                             @if ($fields)
                                 @foreach ($fields as $key => $value)
-                                    <div class="extraInfo flex grid grid-cols-2">
-                                        <div class="customField">{{ $key }}</div>
-                                        <div class="customField">{{ $value }}</div>
+                                    <div class="extraInfo bg-blue-500 grid grid-cols-2 gap-2">
+                                        <div class="customField hidden display-hidden">{{ $key }}</div>
+                                        <div class="customField hidden display-hidden">{{ $value }}</div>
+                                        <x-text-input class="editField display-show" value="{{ $key }}"/>
+                                        <x-text-input class="editField display-show" value="{{ $value }}"/>
                                     </div>
                                 @endforeach
                             @else
