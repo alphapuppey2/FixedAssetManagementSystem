@@ -18,7 +18,7 @@ Route::get('/', function(){
             case 'dept_head':
                 return redirect()->route('dept_head.home');
             case 'user':
-                return redirect()->route('user.home');
+                return redirect()->route('scanQR');
         }
     }
     return redirect('/login');
