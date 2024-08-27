@@ -17,23 +17,20 @@ class assetModelFactory extends Factory
     public function definition(): array
     {
 
-        $fields =array(
-            'default1'=> 'default',
-            'default2'=> 'default',
-            'default3'=> 'default',
-            'default4'=> 'default',
-            'default5'=> 'default',
-        )
-        ;
-
-        $obj = implode(' ', $fields);
         return [
             //
             'name'=> $this->faker->sentence(2),
             'ctg_ID'=> 1,
             'dept_ID'=> 1,
+            'custom_field' => json_encode([
+                'default1'=> 'default',
+                'default2'=> 'default',
+                'default3'=> 'default',
+                'default4'=> 'default',
+                'default5'=> 'default'
+            ]),
             'manufacturer_key'=> 1,
-            'custom_fields' => $fields,
+            'loc_key'=> 1,
             'model_key'=> 1,
         ];
     }

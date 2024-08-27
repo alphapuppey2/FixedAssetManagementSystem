@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\category as ModelsCategory;
+use App\Models\category as CategoryModel;
 use Database\Factories\categoryFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,6 +15,21 @@ class category extends Seeder
     public function run(): void
     {
         //
-        ModelsCategory::factory()->count(3)->create();
+        CategoryModel::create([
+            'name' => 'Category 1',
+            'dept_ID' => 1
+        ]);
+        CategoryModel::create([
+            'name' => 'Category 2',
+            'dept_ID' => 1
+        ]);
+        CategoryModel::create([
+            'name' => 'Category 1',
+            'dept_ID' => 2
+        ]);
+        CategoryModel::create([
+            'name' => 'Category 2',
+            'dept_ID' => 2
+        ]);
     }
 }
