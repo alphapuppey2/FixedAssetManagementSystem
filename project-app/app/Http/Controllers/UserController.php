@@ -10,8 +10,7 @@ use Illuminate\Support\Str;
 use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
-class UserController extends Controller
-{
+class UserController extends Controller{
     public function getUserList(){
         $userList = DB::table('users')->get()->map(function($user) {
             // Map dept_id to department name
@@ -53,7 +52,7 @@ class UserController extends Controller
             'status' => 'required|in:active,inactive',
             'birthdate' => 'required|date',
             'usertype' => 'required|in:user,dept_head,admin',
-            'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Profile photo validation
+            'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
     
         // Find the user and update their information
@@ -62,12 +61,12 @@ class UserController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = 'profile_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $filename = 'profile_' . strtolower($user->lastname) . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/profile_photos'), $filename);
             $user->userPicture = $filename;
         }
     
-        // Update other user details
+        // Update other user detalis
         $user->employee_id = $request->employee_id;
         $user->firstname = $request->firstname;
         $user->middlename = $request->middlename;
@@ -87,7 +86,6 @@ class UserController extends Controller
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
     
-
     // HARD DELETE
     public function delete($id){
         // Find the user and delete
@@ -126,11 +124,6 @@ class UserController extends Controller
 
         return view('admin.user-list', ['userList' => $userList]);
     }
-    
-    public function create()
-    {
-        return view('admin.create-user');
-    }
 
     public function store(Request $request){
         // Validate the incoming request data
@@ -144,19 +137,27 @@ class UserController extends Controller
             'dept_id' => 'required|integer|in:1,2,3,4',
             'address' => 'nullable|string',
             'contact' => 'nullable|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Generate email and password based on input
+
         // $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-        
-        // FOR TESTING PURPOSES
-        $email = 'dain.potato09@gmail.com';
+        $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
+        // Handle profile picture upload
+        $profilePicturePath = null;
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = 'profile_' . strtolower($validated['lastname']) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/profile_photos'), $filename);
+            $profilePicturePath = $filename;
+        }
+        
         // Create the new user
         $user = User::create([
-            // 'employee_id' => $validated['employee_id'],
             'firstname' => $validated['firstname'],
             'middlename' => $validated['middlename'],
             'lastname' => $validated['lastname'],
@@ -170,6 +171,7 @@ class UserController extends Controller
             'contact' => $validated['contact'],
             'status' => 'active',
             'remember_token' => Str::random(10),
+            'userPicture' => $profilePicturePath,
         ]);
 
         // Generate employee_id based on usertype and user id
