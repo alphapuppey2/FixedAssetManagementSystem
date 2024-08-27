@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
                     case 'dept_head':
                         return route('dept_head.home');
                     case 'user':
-                        return route('scanQR');
+                        return route('user.scanQR');
                 }
 
                 return route('login');
