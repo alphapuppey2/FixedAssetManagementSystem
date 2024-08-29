@@ -6,15 +6,6 @@
 @endphp
 
 @section('header')
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
     <h2 class="font-semibold  text-xl text-gray-800 leading-tight flex w-24">
         <a href="{{ route('back') }}">Asset</a>
         <div class="direct ml-5">
@@ -35,11 +26,11 @@
                 INVALID
             </div>
         @endif
-        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative w-full min-h-full" method="POST" enctype="multipart/form-data">
+        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative grid grid-cols-2 gap-2 justify-between w-full min-h-full bg-blue-500" method="POST">
             @csrf
             @method('PUT')
             <div class="leftC">
-                <div class="mainDetail grid grid-rows-6 grid-flow-col">
+                <div class="mainDetail bg-red-200 grid grid-rows-6 grid-flow-col">
                     <div id="name" class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">name</div>
                         <div class="field-Info font-semibold">{{ $data->name }}</div>
@@ -48,21 +39,15 @@
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">cost</div>
                         <div class="field-Info font-semibold">{{ $data->cost }}</div>
-                        <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                            name='cost' required value="{{ $data->cost }}"/>
-                        </div>
-                        <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
-                            <div class="field-label uppercase text-slate-400">depreciation</div>
-                            <div class="field-Info1 font-semibold">{{ $data->depreciation }}</div>
-                            {{-- <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                                name='depreciation' required value="{{ $data->depreciation }}"/> --}}
+                        <x-text-input class="text-sm edit hidden" name='cost' value="{{ $data->cost }}"></x-text-input>
+                    </div>
+                    <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
+                        <div class="field-label uppercase text-slate-400">depreciation</div>
+                        <div class="field-Inf font-semibold">{{ $data->depreciation }}</div>
                     </div>
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">Salvage Value</div>
                         <div class="field-Info font-semibold">{{ $data->salvageVal }}</div>
-                        <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                                name='salvageVal' required value="{{ $data->salvageVal }}"/>
-
                     </div>
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">Category</div>
@@ -142,10 +127,10 @@
                             Additional information
                             <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                         </div>
-                        <div class="addInfoContainer w-full">
+                        <div class="bg-red-300 w-full grid grid-rows-[1fr_1fr] grid-cols-[50%_50%] grid-flow-col">
                             @if ($fields)
                                 @foreach ($fields as $key => $value)
-                                    <div class="extraInfo flex flex-wrap bg-red-500  gap-2">
+                                    <div class="extraInfo bg-blue-500 grid grid-cols-2 gap-2">
                                         <div class="field-Info customField">{{ $key }}</div>
                                         <div class="field-Info customField">{{ $value }}</div>
                                         <x-text-input class="edit hidden" value="{{ $key }}" />
@@ -159,14 +144,9 @@
                             @endif
                         </div>
                     </div>
-                    <div class="flex w-full justify-center edit hidden">
-                        <button id='addMoreFields'
-                            class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add
-                            Field</button>
-                    </div>
             </div>
             </div> {{-- END mainInformation class  --}}
-            <div class="rightC flex flex-col">
+            <div class="rightC bg-indigo-400 flex flex-col">
                 <div class="imgContainer w-[100%] pb-4 flex justify-center items-center">
                     <div class="imagepart overflow-hidden relative p-3">
                         <div class="imageField w-32 h-32 relative flex justify-center">
@@ -198,10 +178,6 @@
         </form>
     </div>
     </div>
-    @if(session('success'))
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-        {{ session('sucess') }}
-    </div>
-@endif
+
     @vite(['resources/js/editAsset.js', 'resources/js/displayImage.js', 'resources/js/updateDetails.js', 'resources/js/addInfoField.js'])
 @endsection

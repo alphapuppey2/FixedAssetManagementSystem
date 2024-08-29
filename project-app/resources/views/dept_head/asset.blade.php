@@ -28,7 +28,12 @@
 
     @section('content')
     <div class="cont">
-        <table class="table table-hover bg-red-500">
+        <div class="page flex justify-end">
+            <div class="paginator w-[40%]">
+                {{ $asset->onEachSide(2)->links() }}
+            </div>
+        </div>
+        <table class="table table-hover">
             <thead>
                 <th>code</th>
                 <th>name</th>
@@ -41,7 +46,7 @@
             <tbody>
                 @if (!$asset->isEmpty())
                 @foreach ($asset as $asst )
-                        <a class="cursor-pointer bg-red-500 w-screen h-4">
+                        <a class="cursor-pointer w-screen h-4">
                             <tr>
                                 <th scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
                                 <td>{{ $asst->name }}</td>
@@ -52,7 +57,7 @@
                                 <td class=" w-40">
                                     <div class="grp flex justify-between">
                                         <a href="{{ route('assetDetails' , $asst->id) }}" class="btn btn-outline-primary">view</a>
-                                        <x-danger-button class="btn-outline-danger">delete</x-danger-button>
+                                        <x-danger-button class="btn-outline-danger" onclick="{{ route('asset.delete' , $asst->id) }}">delete</x-danger-button>
                                     </div>
                                 </td>
                             </tr>
@@ -60,14 +65,9 @@
                 @endforeach
             @else
                 <tr class="text-center text-gray-800">
-                    <td colspan='6' style="color: rgb(177, 177, 177)" >No List</td>
+                    <td colspan='7' style="color: rgb(177, 177, 177)" >No List</td>
                 </tr>
             @endif
             </tbody>
         </table>
-        <div class="page flex justify-end">
-            <div class="paginator w-[40%]">
-                {{ $asset->onEachSide(2)->links() }}
-            </div>
-        </div>
     @endsection
