@@ -22,17 +22,17 @@
 </head>
 
 <body class="font-sans antialiased h-full">
-    <div class="bodyContent h-[100%]">
+    <div class="bodyContent h-[100%] overflow-scroll">
         @include('layouts.TopBar')
         @if (Auth::user()->usertype === 'admin')
-            @include('layouts.sideBar')
+            @include('layouts.admin-sideBar')
         @elseif(Auth::user()->usertype === 'dept_head')
             @include('layouts.sideBar')
         @else
             @include('layouts.sideBar')
         @endif
         <!-- Page Content -->
-        <main class="fixed md:left-[205px] md:w-[calc(100%_-_205px)] md:w-[calc(100%_-_205px)] max-md:left-[50px] pl-5 pr-1 pt-3 pb-1 top-[40px] flex flex-col h-[calc(100%_-_40px)] bg-slate-100/50">
+        <main class="fixed md:left-[205px] overflow-auto md:w-[calc(100%_-_205px)] md:w-[calc(100%_-_205px)] max-md:left-[50px] pl-5 pt-3 pb-1 top-[40px] flex flex-col h-[calc(100%_-_40px)] bg-slate-100/50">
             <div class="flex flex-wrap items-center w-full">
                 @yield('header')
             </div>

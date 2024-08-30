@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -17,7 +18,7 @@ Route::get('/', function(){
             case 'dept_head':
                 return redirect()->route('dept_head.home');
             case 'user':
-                return redirect()->route('user.home');
+                return redirect()->route('user.scanQR');
         }
     }
     return redirect('/login');
@@ -32,7 +33,7 @@ Route::middleware('auth')->group(function () {
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
 });
 
 // Admin Routes
@@ -41,9 +42,18 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
         return view('admin.home');
     })->name('admin.home');
 
+    Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
+    Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+    Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
 
+    Route::get('/admin/user-create', function () {
+        return view('admin.create-user');
+    })->name('users.create');
 
 });
+
 // DeptHead Routes
 Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
@@ -52,6 +62,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/asset', [AsstController::class,'show'])->name('asset');
     Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
     Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
+    Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
 
     // Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');

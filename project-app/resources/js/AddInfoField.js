@@ -1,7 +1,7 @@
 function addNewFields() {
     // Create a new fieldSet div
     let newFieldSet = document.createElement('div');
-    newFieldSet.className = 'fieldSet mt-2';
+    newFieldSet.className = 'fieldSet mt-2 grid grid-cols-2';
 
     // Create the key input
     let newKeyInput = document.createElement('input');

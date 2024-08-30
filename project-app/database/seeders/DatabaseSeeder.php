@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         // For specific records, you can use:
         // test accounts
         User::create([
+            'employee_id' => 'FMS-USR001',
             'email' => 'testuser@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'User',
@@ -43,6 +44,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
+            'employee_id' => 'FMS-DPT_IT001',
             'email' => 'testit@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'DeptHead',
@@ -59,6 +61,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
+            'employee_id' => 'FMS-DPT_SLS001',
             'email' => 'testsales@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'DeptHead',
@@ -75,6 +78,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
+            'employee_id' => 'FMS-DPT_FLT001',
             'email' => 'testfleet@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'DeptHead',
@@ -91,6 +95,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
+            'employee_id' => 'FMS-DPT_PRD001',
             'email' => 'testproduction@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'DeptHead',
@@ -107,6 +112,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
+            'employee_id' => 'FMS-ADMN001',
             'email' => 'testadmin@gmail.com',
             'firstname' => 'Test',
             'lastname' => 'Admin',
@@ -123,15 +129,20 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
+            'employee_id' => 'FMS-DPT_IT002',
+            'email' => 'alphapuppey@gmail.com',
             'firstname' => 'joshua loui',
             'lastname' => 'Soqueno',
             'middlename' => 'raboy',
-            'contact' => '09123456789',
             'address' => 'default St. Address',
-            'gender' => 'male',
-            'dept_id'=> 1,
             'birthdate' => Carbon::parse('2000-10-04'),
-            'email' => 'alphapuppey@gmail.com',
+            'gender' => 'male',
+            'contact' => '09123456789',
+            'dept_id'=> 1,
+            'password' => '12345678',
+            'usertype' => 'admin',
+            'remember_token' => Str::random(10),
+            'email_verified_at' => now(),
         ]);
     }
 }
