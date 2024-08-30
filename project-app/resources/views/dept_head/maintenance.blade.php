@@ -9,18 +9,22 @@
     <div class="px-6 py-4">
         <!-- Top Section -->
         <div class="flex justify-between items-center mb-4">
+
             <!-- Search Bar -->
             <div class="flex items-center w-1/2">
-                <input type="text" placeholder="Search..." class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
+                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
+                    <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </form>
             </div>
 
             <!-- Right Section: Download Icon and Create Button -->
             <div class="flex items-center space-x-4">
-                <button class="p-2 text-black">
+                <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}" class="p-2 text-black">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                     </svg>
-                </button>
+                </a>
                 <button class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -28,6 +32,7 @@
                     Create Maintenance
                 </button>
             </div>
+
         </div>
 
         <!-- Pagination Section -->
@@ -41,7 +46,7 @@
                 <!-- Pagination Buttons -->
                 <div class="flex items-center space-x-2">
                     <div class="mr-2 text-gray-500">
-                        {{ $requests->links() }}
+                        {{ $requests->appends(['query' => request()->query('query')])->links() }}
                     </div>
                 </div>
             </div>
