@@ -2,7 +2,7 @@
     <button class="h-[10px] lg:hidden sm:block">
         <x-icons.hamburger />
     </button>
-    <a href="#">
+    <a href="{{ route('admin.profile') }}">
         <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg hover:bg-gray-300/15 transition ease-in">
             <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
             <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"

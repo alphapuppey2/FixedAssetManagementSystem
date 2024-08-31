@@ -52,6 +52,20 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
         return view('admin.create-user');
     })->name('users.create');
 
+
+    Route::get('/admin/profile', function () {
+        return view('admin.profile');
+    })->name('admin.profile');
+
+    Route::get('/admin/profile', [ProfileController::class, 'adminView'])->name('admin.profile');
+    Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
+
+    Route::get('/admin/profile_password', function () {
+        return view('admin.profile_password');
+    })->name('admin.profile_password');
+
+    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
+
 });
 
 // DeptHead Routes
