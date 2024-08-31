@@ -91,16 +91,16 @@
                                 class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
                                 alt="default">
                         </label>
+                        <x-text-input type="file" id="image" name='image' class="hidden" />
                     </div>
                     {{-- Addtional Information / custom Fields --}}
-                    <x-text-input type="file" id="image" name='image' class="hidden" />
                     <div class="customFields flex flex-col w-full mt-4">
                         <div class="w-full text-[20px] uppercase font-semibold">Additional
                             Information</div>
                         <div class="addInfo grid grid-col-2 w-full" id="field">
                             <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
                                 <div class="fieldSet mt-2 grid grid-cols-2 gap-2">
-                                    <input type="text" class="" name="field[key][]" placeholder="key">
+                                    <input type="text" name="field[key][]" placeholder="key">
                                     <input type="text" name="field[value][]" placeholder="value">
                                 </div>
                             </div>

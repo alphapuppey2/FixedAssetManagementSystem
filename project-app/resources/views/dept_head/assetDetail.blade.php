@@ -6,15 +6,15 @@
 @endphp
 
 @section('header')
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <h2 class="font-semibold  text-xl text-gray-800 leading-tight flex w-24">
         <a href="{{ route('back') }}">Asset</a>
         <div class="direct ml-5">
@@ -35,9 +35,36 @@
                 INVALID
             </div>
         @endif
-        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative w-full min-h-full" method="POST" enctype="multipart/form-data">
+        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative w-full min-h-full"
+            method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            {{-- image --}}
+            <div class="imgContainer w-[100%] pb-4 flex justify-center items-center">
+                <div class="imagepart overflow-hidden relative p-3">
+                    <div class="imageField w-32 h-32 relative flex justify-center">
+                        <div class="field-Info w-32 h-32 border-3 rounded-md transition ease-in ease-out"
+                            for="image">
+                            <img src="{{ asset('storage/' . $imagePath) }}" id="imageviewOnly"
+                                class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                                alt="default">
+                        </div>
+                        <label
+                            class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
+                            for="image">
+                            <img src="{{ asset('storage/' . $imagePath) }}" id="imageDisplay"
+                                class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                                alt="default">
+                        </label>
+                    </div>
+                    <x-text-input type="file" id="image" name='image' class="hidden" />
+                </div>
+                <div class="qrContainer flex flex-col items-center">
+                    <div class="QRBOX w-24 h-24 bg-red-300"></div>
+                    <a href="#" target="_blank" rel="noopener noreferrer">Print QR Code</a>
+                </div>
+            </div>
+
             <div class="leftC">
                 <div class="mainDetail grid grid-rows-6 grid-flow-col">
                     <div id="name" class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
@@ -48,20 +75,20 @@
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">cost</div>
                         <div class="field-Info font-semibold">{{ $data->cost }}</div>
-                        <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                            name='cost' required value="{{ $data->cost }}"/>
-                        </div>
-                        <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
-                            <div class="field-label uppercase text-slate-400">depreciation</div>
-                            <div class="field-Info1 font-semibold">{{ $data->depreciation }}</div>
-                            {{-- <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                                name='depreciation' required value="{{ $data->depreciation }}"/> --}}
+                        <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
+                            id="cost" name='cost' required value="{{ $data->cost }}" />
+                    </div>
+                    <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
+                        <div class="field-label uppercase text-slate-400">depreciation</div>
+                        <div class="field-Info1 font-semibold">{{ $data->depreciation }}</div>
+                        <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
+                                name='depreciation' required value="{{ $data->depreciation }}"/>
                     </div>
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
                         <div class="field-label uppercase text-slate-400">Salvage Value</div>
                         <div class="field-Info font-semibold">{{ $data->salvageVal }}</div>
-                        <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                                name='salvageVal' required value="{{ $data->salvageVal }}"/>
+                        <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
+                            name='salvageVal' required value="{{ $data->salvageVal }}" />
 
                     </div>
                     <div class="info flex grid grid-cols-2 gap-2 pb-1 items-center">
@@ -148,8 +175,10 @@
                                     <div class="extraInfo flex flex-wrap bg-red-500  gap-2">
                                         <div class="field-Info customField">{{ $key }}</div>
                                         <div class="field-Info customField">{{ $value }}</div>
-                                        <x-text-input class="edit hidden" value="{{ $key }}" />
-                                        <x-text-input class="edit hidden" value="{{ $value }}" />
+                                        <x-text-input class="edit hidden" name="field[key][]"
+                                            value="{{ $key }}" />
+                                        <x-text-input class="edit hidden" name="field[value][]"
+                                            value="{{ $value }}" />
                                     </div>
                                 @endforeach
                             @else
@@ -164,44 +193,14 @@
                             class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add
                             Field</button>
                     </div>
-            </div>
+                </div>
             </div> {{-- END mainInformation class  --}}
             <div class="rightC flex flex-col">
-                <div class="imgContainer w-[100%] pb-4 flex justify-center items-center">
-                    <div class="imagepart overflow-hidden relative p-3">
-                        <div class="imageField w-32 h-32 relative flex justify-center">
-                            <div class="field-Info w-32 h-32 border-3 rounded-md transition ease-in ease-out"
-                                for="image">
-                                <img src="{{ asset('storage/' . $imagePath) }}" id="imageviewOnly"
-                                    class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                                    alt="default">
-                            </div>
-                            <label
-
-                                class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
-                                for="image">
-                                <img src="{{ asset('storage/' . $imagePath) }}" id="imageDisplay"
-                                    class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                                    alt="default">
-                            </label>
-                        </div>
-                        <x-text-input type="file" id="image" name='image' class="hidden" />
-                    </div>
-                    <div class="qrContainer flex flex-col items-center">
-                        <div class="QRBOX w-24 h-24 bg-red-300"></div>
-                        <a href="#" target="_blank" rel="noopener noreferrer">Print QR Code</a>
-                    </div>
-                </div>
                 <div class="maintenance bg-green-400">
                     Maintenance Here
                 </div>
         </form>
     </div>
     </div>
-    @if(session('success'))
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-        {{ session('sucess') }}
-    </div>
-@endif
-    @vite(['resources/js/editAsset.js', 'resources/js/displayImage.js', 'resources/js/updateDetails.js', 'resources/js/addInfoField.js'])
+    @vite(['resources/js/displayImage.js', 'resources/js/updateDetails.js', 'resources/js/addInfoField.js'])
 @endsection

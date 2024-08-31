@@ -8,13 +8,14 @@ function addNewFields() {
     newKeyInput.type = 'text';
     newKeyInput.name = 'field[key][]';
     newKeyInput.placeholder = 'key';
-    // newKeyInput.className = '';
+    newKeyInput.className = 'edit';
 
     // Create the value input
     let newValueInput = document.createElement('input');
     newValueInput.type = 'text';
     newValueInput.name = 'field[value][]';
     newValueInput.placeholder = 'value';
+    newValueInput.className = 'edit';
 
     // add key and Value to div.newFieldSet
     newFieldSet.appendChild(newKeyInput);

@@ -8,6 +8,7 @@ use App\Models\assetModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AsstController extends Controller
 {
@@ -120,7 +121,7 @@ class AsstController extends Controller
             'created_at'=>now(),
         ]);
 
-        return redirect()->to('/asset');
+        return redirect()->to('/asset')->with('success' , 'New Asset Created');
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;
@@ -131,7 +132,7 @@ class AsstController extends Controller
                                          ->where("asset.dept_ID","=", $userDept)->count();
         $asset['dispose'] = DB::table('asset')->where('status','=' , 'dispose')
                                               ->where("asset.dept_ID","=", $userDept)->count();
-        $asset['deploy'] = DB::table('asset')->where('status','=' , 'deploy')
+        $asset['deploy'] = DB::table('asset')->where('status','=' , 'deployed')
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
         //FOR DASHBOARD CARDS
@@ -148,6 +149,7 @@ class AsstController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'required|string',
             'cost' => 'required|numeric',
+            'depreciation' => 'required|numeric',
             'category' => 'required|exists:category,id',
             'usage' => 'required|numeric',
             'mod' => 'required|string',
@@ -165,6 +167,10 @@ class AsstController extends Controller
             $lastID =  department::where('name',$departmentCode)->max('assetSequence');
             $seq = $lastID ? $lastID + 1 : 1;
             $code = $departmentCode.'-'.str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+            $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+
+
             //image
             $pathFile = NULL;
             if ($request->hasFile('image')) {
@@ -173,9 +179,6 @@ class AsstController extends Controller
                 $path = $image->storeAs('images', $filename,'public');
                 $pathFile = $path;
             }
-
-            $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
-                // Update the record with the validated data
                $updatedRow = DB::table('asset')->where('id',$id)->update([
                                     'image' => $pathFile,
                                     'name' => $validatedData["name"],
@@ -200,11 +203,24 @@ class AsstController extends Controller
     }
     public function delete($id){
 
+        $assetDel = assetModel::findOrFail($id);
+
+         // Get the path of the image from the database
+        $imagePath = $assetDel->image_path; // assuming 'image_path' is the column name
+
+        // Delete the image file from the server
+        if ($imagePath && Storage::exists($imagePath)) {
+            Storage::delete($imagePath);
+        }
+
+        // Delete the row from the database
+        $assetDel->delete();
 
 
-
-        return redirect()->back();
+        return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
+
+
 
     public function showDetails($id){
         $userDept = Auth::user()->dept_id;
