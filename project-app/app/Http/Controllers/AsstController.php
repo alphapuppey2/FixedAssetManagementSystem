@@ -8,6 +8,7 @@ use App\Models\assetModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AsstController extends Controller
 {
@@ -43,11 +44,25 @@ class AsstController extends Controller
 
         return view('dept_head.createAsset',compact('departments' , 'categories','location' ,'model','manufacturer'));
     }
-    public static function create(Request $request){
+    public  function convertJSON($key , $value){
+
+        $additionalInfo = [];
+
+        // Initialize an empty array to hold key-value pairs
+        if(isset($key) && isset($value)){
+            foreach($key as $index => $keys){
+                if (!empty($key) && !empty($value[$index])) {
+                    $additionalInfo[$keys] = $value[$index];
+                }
+            }
+        }
+        return json_encode($additionalInfo);
+    }
+    public function create(Request $request){
         $userDept = Auth::user()->dept_id;
         // dd($request);
         if(!$request->validate([
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
             'assetname'=> 'required',
             'category'=> 'required',
             'cost'=>'required|numeric|min:0.01',
@@ -56,27 +71,16 @@ class AsstController extends Controller
             'loc'=> 'required',
             'mod'=> 'required',
             'mcft'=> 'required',
+            'field.key.*' => 'nullable|string|max:255',
+            'field.value.*' => 'nullable|string|max:255',
+
         ])){
             return redirect()->back()->withError();
         }
 
         //additional Fields
 
-        $fields = $request->input('field');
-
-        // Initialize an empty array to hold key-value pairs
-        $additionalInfo = [];
-
-        if (isset($fields['key']) && isset($fields['value'])) {
-            foreach ($fields['key'] as $index => $key) {
-                if (!empty($key) && !empty($fields['value'][$index])) {
-                    $additionalInfo[$key] = $fields['value'][$index];
-                }
-            }
-        }
-
-
-        $customFields = json_encode($additionalInfo);
+        $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
 
         //code
         $department = DB::table('department')->where('id',$userDept)->get();
@@ -117,7 +121,7 @@ class AsstController extends Controller
             'created_at'=>now(),
         ]);
 
-        return redirect()->to('/asset');
+        return redirect()->to('/asset')->with('success' , 'New Asset Created');
     }
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;
@@ -128,7 +132,7 @@ class AsstController extends Controller
                                          ->where("asset.dept_ID","=", $userDept)->count();
         $asset['dispose'] = DB::table('asset')->where('status','=' , 'dispose')
                                               ->where("asset.dept_ID","=", $userDept)->count();
-        $asset['deploy'] = DB::table('asset')->where('status','=' , 'deploy')
+        $asset['deploy'] = DB::table('asset')->where('status','=' , 'deployed')
                                              ->where("asset.dept_ID","=", $userDept)->count();
 
         //FOR DASHBOARD CARDS
@@ -138,42 +142,85 @@ class AsstController extends Controller
 
     public function update(Request $request , $id){
 
-        // Validate the incoming request data
+        $userDept = Auth::user()->dept_id;
+
+        // dd($request);
         $validatedData = $request->validate([
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'required|string',
             'cost' => 'required|numeric',
+            'depreciation' => 'required|numeric',
             'category' => 'required|exists:category,id',
             'usage' => 'required|numeric',
             'mod' => 'required|string',
             'mcft' => 'required|exists:manufacturer,id',
             'loc' => 'required|exists:location,id',
             'status' => 'required|nullable|string|max:511',
+            'field.key.*' => 'nullable|string|max:255',
+            'field.value.*' => 'nullable|string|max:255',
         ]);
-                // Find the existing record based on the ID
-                $data = assetModel::findOrFail($id);
-                // Update the record with the validated data
-                DB::table('asset')->where('id',$id)->update([
+
+            //code for image fileName
+            $department = DB::table('department')->where('id',$userDept)->get();
+
+            $departmentCode = $department[0]->name;
+            $lastID =  department::where('name',$departmentCode)->max('assetSequence');
+            $seq = $lastID ? $lastID + 1 : 1;
+            $code = $departmentCode.'-'.str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+            $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+
+
+            //image
+            $pathFile = NULL;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = $code.'-'.time().'.'.$image->getClientOriginalExtension();
+                $path = $image->storeAs('images', $filename,'public');
+                $pathFile = $path;
+            }
+               $updatedRow = DB::table('asset')->where('id',$id)->update([
+                                    'image' => $pathFile,
                                     'name' => $validatedData["name"],
                                     'cost' => $validatedData["cost"],
                                     'ctg_ID' => $validatedData["category"],
                                     'manufacturer_key' => $validatedData['mcft'],
-                                    'model_key' => $validatedData["loc"],
+                                    'model_key' => $validatedData["mod"],
                                     'loc_key' => $validatedData["loc"],
                                     'usage_Lifespan' => $validatedData["usage"],
                                     'status'=>$validatedData["status"],
-
+                                    'custom_fields' => $fieldUpdate,
+                                    'updated_at' =>now(),
                 ]);
 
-                // Handle success or failure as needed
-                if ($data->save()) {
-                    // Redirect or return a success message
-                    return redirect()->route('asset')->with('success', 'Data updated successfully!');
-                } else {
-                    // Handle errors or return an error message
-                    return back()->withErrors($data->errors());
+                if($updatedRow){
+                    return redirect()->route("asset")->with('success', 'Asset updated successfully!');
+                }
+                else{
+                    return redirect()->route("asset")->with('failed', 'Asset update Failed!');
                 }
 
     }
+    public function delete($id){
+
+        $assetDel = assetModel::findOrFail($id);
+
+         // Get the path of the image from the database
+        $imagePath = $assetDel->image_path; // assuming 'image_path' is the column name
+
+        // Delete the image file from the server
+        if ($imagePath && Storage::exists($imagePath)) {
+            Storage::delete($imagePath);
+        }
+
+        // Delete the row from the database
+        $assetDel->delete();
+
+
+        return redirect()->route('asset')->with('success','Asset Deleted Successfully');
+    }
+
+
 
     public function showDetails($id){
         $userDept = Auth::user()->dept_id;
