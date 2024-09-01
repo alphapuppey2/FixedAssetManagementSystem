@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\settingController;
 use App\Http\Controllers\UserController;
 
 Route::get('/', function(){
@@ -84,9 +85,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/manufacturer', function () {
         return view('dept_head.manufacturer');
     })->name('manufacturer');
-    Route::get('/setting', function () {
-        return view('dept_head.setting');
-    })->name('setting');
+    Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');
