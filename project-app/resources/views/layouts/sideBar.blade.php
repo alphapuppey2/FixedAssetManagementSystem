@@ -31,45 +31,45 @@
     <nav class="flex flex-col w-full font-semibold">
         <ul class="sb h-[100%]">
             <li class="">
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
                     <x-dashIcon/>
                     <span class="ml-2 max-md:hidden lg:block">Dashboard</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset') ">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset') ">
                     <x-receipticon />
                     <span class="ml-2 max-md:hidden lg:block">Asset</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
                     <x-wrenchIcon />
                     <span class="ml-2 max-md:hidden lg:block">Maintenance</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
                     <x-chartIcon></x-chartIcon>
                     <span class="ml-2 max-md:hidden lg:block">Report</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">
                     <x-gearIcon />
                     <span class="ml-2 max-md:hidden lg:block">Setting</span>
                 </x-nav-link>
             </li>
-            <li class="hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md">
-                <a href="#" class="flex">
-                    <x-bellIcon/>
-                    <span class="ml-2 max-md:hidden lg:block">Notification</span>
-                </a>
+            <li>
+                <x-nav-link href="#" class="flex transition ease-in mb-1 p-1 rounded-md">
+                        <x-bellIcon/>
+                        <span class="ml-2 max-md:hidden lg:block">Notification</span>
+                </x-nav-link>
             </li>
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                    <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
                             onclick="event.preventDefault(); this.closest('form').submit();">
                             <x-icons.logoutIcon />
                             <span class="ml-2 max-md:hidden lg:block">Log out</span>
