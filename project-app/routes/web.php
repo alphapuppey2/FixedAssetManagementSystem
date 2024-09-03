@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\QRUserController;
+
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -94,7 +96,6 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
 // User Routes
 Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
-
     Route::get('/user/home', function () {
         return view('user.home');
     })->name('user.home');
@@ -103,16 +104,17 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
-    Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
+    Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
 
+    Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');
-
+    
     Route::get('/user/profile', function () {
         return view('user.profile');
     })->name('user.profile');
-
+    
     Route::patch('/user/profile_update', [ProfileController::class, 'update'])->name('user.profile_update');
 
     Route::get('/user/profile_edit', function () {
@@ -124,10 +126,9 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
     })->name('user.profile_password');
 
     Route::patch('/user/password', [ProfileController::class, 'changePassword'])->name('user.changePassword');
-
-
-
 });
+
+
 Route::get('back', function () {
     return redirect()->back();
 })->name('back');
