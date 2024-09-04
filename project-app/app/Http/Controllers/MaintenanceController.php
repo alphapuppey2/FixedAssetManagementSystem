@@ -49,7 +49,7 @@ class MaintenanceController extends Controller
                 ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
-                ->orWhere('asset.id', 'LIKE', "%{$searchQuery}%")
+                ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('maintenance.type', 'LIKE', "%{$searchQuery}%") 
@@ -65,7 +65,7 @@ class MaintenanceController extends Controller
         $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
         ->join('category', 'asset.ctg_ID', '=', 'category.id')
         ->join('location', 'asset.loc_key', '=', 'location.id')
-        ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name')
+        ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
 
         // Return the view with the filtered requests and selected tab
@@ -131,7 +131,7 @@ class MaintenanceController extends Controller
         $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
         ->join('category', 'asset.ctg_ID', '=', 'category.id')
         ->join('location', 'asset.loc_key', '=', 'location.id')
-        ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name')
+        ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
     
         return view('dept_head.maintenance', [
@@ -164,7 +164,7 @@ class MaintenanceController extends Controller
         ->select('maintenance.*', 
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"), 
-                'category.name AS category_name')
+                'category.name AS category_name', 'asset.code as asset_code')
         ->paginate(7);
     
         return view('dept_head.maintenance', [
@@ -198,7 +198,7 @@ class MaintenanceController extends Controller
         ->select('maintenance.*', 
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"), 
-                'category.name AS category_name')
+                'category.name AS category_name', 'asset.code as asset_code')
         ->paginate(7);
     
         return view('dept_head.maintenance', [
@@ -296,7 +296,7 @@ class MaintenanceController extends Controller
                       ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
                       ->orWhere('maintenance.repair', 'LIKE', "%{$searchQuery}%")
                       ->orWhere('maintenance.reason', 'LIKE', "%{$searchQuery}%")
-                      ->orWhere('asset.id', 'LIKE', "%{$searchQuery}%")
+                      ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
                       ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
                       ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
                       ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%")
@@ -313,7 +313,7 @@ class MaintenanceController extends Controller
                 ->join('location', 'asset.loc_key', '=', 'location.id')
                 ->select('maintenance.id', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 
                          'maintenance.asset_key', 'maintenance.description', 'category.name AS category_name', 
-                         'location.name AS location_name', 'maintenance.status', 'maintenance.type', 
+                         'location.name AS location_name', 'maintenance.status', 'maintenance.type', 'asset.code as asset_code', 
                          'maintenance.reason', DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d') as requested_at"),
                          DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d') as authorized_at"),
                          DB::raw("DATE_FORMAT(maintenance.created_at, '%Y-%m-%d %H:%i:%s') as created_at"),
@@ -322,9 +322,9 @@ class MaintenanceController extends Controller
                 ->get();
         
             // Generate CSV content
-            $csvContent = "Request ID,Requestor,Asset ID,Description,Category,Location,Status,Type,Reason,Requested At,Authorized At,Created At,Updated At,Authorized By\n";
+            $csvContent = "Request ID,Requestor,Asset Code,Description,Category,Location,Status,Type,Reason,Requested At,Authorized At,Created At,Updated At,Authorized By\n";
             foreach ($maintenances as $maintenance) {
-                $csvContent .= "\"{$maintenance->id}\",\"{$maintenance->requestor_name}\",\"{$maintenance->asset_key}\",\"{$maintenance->description}\",\"{$maintenance->category_name}\",\"{$maintenance->location_name}\",\"{$maintenance->status}\",\"{$maintenance->type}\",\"{$maintenance->reason}\",\"{$maintenance->requested_at}\",\"{$maintenance->authorized_at}\",\"{$maintenance->created_at}\",\"{$maintenance->updated_at}\",\"{$maintenance->authorized_by_name}\"\n";
+                $csvContent .= "\"{$maintenance->id}\",\"{$maintenance->requestor_name}\",\"{$maintenance->asset_code}\",\"{$maintenance->description}\",\"{$maintenance->category_name}\",\"{$maintenance->location_name}\",\"{$maintenance->status}\",\"{$maintenance->type}\",\"{$maintenance->reason}\",\"{$maintenance->requested_at}\",\"{$maintenance->authorized_at}\",\"{$maintenance->created_at}\",\"{$maintenance->updated_at}\",\"{$maintenance->authorized_by_name}\"\n";
             }
         
             // Return response as a CSV file download
