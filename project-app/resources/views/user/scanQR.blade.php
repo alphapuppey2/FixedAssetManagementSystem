@@ -8,41 +8,40 @@
         <img src="https://img.freepik.com/free-vector/smartphone-scanning-qr-code_23-2148624200.jpg" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
     </div>
 
-    <!-- Pang Tago sa scanner -->
+    <!-- QR Scanner Container -->
     <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
         <div id="qr-scanner-container" style="display: none; position: relative; width: 500px; height: 500px;">
             <video id="video" style="width: 100%; height: 100%; border: 1px solid black; object-fit: cover; background-color: #000;"></video>
-            <!-- QR box-->
+            <!-- QR box -->
             <div id="qr-bar" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border: 2px solid red;"></div>
         </div>
     </div>
 
-    <!--Notif kung goods ang scan -->
+    <!-- Success Notification -->
     <div id="scan-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px;">
         Scan Successful: <span id="qr-result"></span>
     </div>
 
-    <!-- Notif if palya-->
+    <!-- Error Notification -->
     <div id="scan-error" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px;">
         No QR code found in the image.
     </div>
 
-    <!-- Scan or Upload-->
+    <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
         <button onclick="startScanning()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Scan QR Code</button>
         <button onclick="document.getElementById('uploadInput').click()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Upload Image</button>
     </div>
 
-    <!-- Tagoan upload input unya na mogawas if matrigger -->
+    <!-- Hidden File Input for Image Upload -->
     <input type="file" id="uploadInput" name="qr_image" accept="image/*" style="display: none;" onchange="handleImageChange(event)">
 
-    <!-- ZXing My savior ako gi change to Zxing kay ang html5 di makita sa unpkg-->
+    <!-- ZXing Library for QR Code Scanning -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
     <script>
         let codeReader = new ZXing.BrowserQRCodeReader();
 
         function startScanning() {
-            // Hide the placeholder image and show the video element container
             document.getElementById('placeholderImage').style.display = 'none';
             document.getElementById('qr-scanner-container').style.display = 'block';
 
@@ -64,7 +63,7 @@
         }
 
         function handleImageChange(event) {
-            stopScanning(); // Stop any ongoing scanning
+            stopScanning();
 
             const file = event.target.files[0];
             if (file) {
@@ -84,17 +83,25 @@
                 reader.readAsDataURL(file);
             }
         }
-        //mawa ang notif nig 3 seconds 
+
         function showSuccessNotification(qrText) {
             const notification = document.getElementById('scan-success');
             const resultElement = document.getElementById('qr-result');
 
+            // Display the scanned QR code text (which is the asset code)
             resultElement.textContent = qrText;
             notification.style.display = 'block';
+
+            // After 3 seconds (3000 milliseconds), hide the notification and redirect to the asset details page
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 3000);
+                
+                // This line redirects the user to the route that handles showing the asset details
+                window.location.href = `/assetdetails/${qrText}`;
+            }, 3000); // 3-second delay before redirect
         }
+
+
 
         function showErrorNotification() {
             const notification = document.getElementById('scan-error');

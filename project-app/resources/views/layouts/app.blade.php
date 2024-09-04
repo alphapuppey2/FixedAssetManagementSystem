@@ -32,7 +32,7 @@
             @include('layouts.sideBar')
         @endif
         <!-- Page Content -->
-        <main class="fixed md:left-[205px] overflow-auto  max-md:w-[calc(100%_-_50px)] md:w-[calc(100%_-_205px)] max-md:left-[50px] pl-3 pr-1 pb-1 pt-3 top-[40px] h-[calc(100%_-_40px)] w-[calc(100%_-_205px)] min-h-[calc(100%_-_40px)] bg-slate-100/50">
+        <main class="fixed md:left-[205px] overflow-auto  max-md:w-[calc(100%_-_50px)] md:w-[calc(100%_-_205px)] max-md:left-[50px] pl-3 pr-1 pb-1 pt-3 top-[40px] h-[calc(100%_-_30px)] w-[calc(100%_-_205px)] min-h-[calc(100%_-_40px)] bg-slate-100/50">
             <div class="flex flex-wrap items-center w-full">
                 @yield('header')
             </div>
