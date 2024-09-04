@@ -19,6 +19,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $this->call([
+            deptSeeder::class,
+            ManufacturerSeeder::class,
+            ModelSeeder::class,
+            location::class,
+            category::class,
+            // assetSeeder::class,
+        ]);
         // User::factory()->count(6)->create([
         //     //Optional: you can specify attributes here if needed
         // ]);

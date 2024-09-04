@@ -19,7 +19,7 @@
             </button>
 
             <div class="searchBox">
-                <x-text-input placeholder="Search" />
+                <x-text-input name="search" id="searchFilt" placeholder="Search" />
             </div>
          </div>
 
@@ -28,7 +28,12 @@
 
     @section('content')
     <div class="cont">
-        <table class="table table-hover bg-red-500">
+        <div class="page flex justify-end">
+            <div class="paginator w-[40%]">
+                {{ $asset->onEachSide(2)->links() }}
+            </div>
+        </div>
+        <table class="table table-hover">
             <thead>
                 <th>code</th>
                 <th>name</th>
@@ -41,7 +46,7 @@
             <tbody>
                 @if (!$asset->isEmpty())
                 @foreach ($asset as $asst )
-                        <a class="cursor-pointer bg-red-500 w-screen h-4">
+
                             <tr>
                                 <th scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
                                 <td>{{ $asst->name }}</td>
@@ -49,25 +54,30 @@
                                 <td>{{ $asst->salvageVal }}</td>
                                 <td>{{ $asst->depreciation }}</td>
                                 <td>{{ $asst->status }}</td>
-                                <td class=" w-40">
+                                <td class="w-40">
                                     <div class="grp flex justify-between">
                                         <a href="{{ route('assetDetails' , $asst->id) }}" class="btn btn-outline-primary">view</a>
-                                        <x-danger-button class="btn-outline-danger">delete</x-danger-button>
+                                        <form action="{{ route('asset.delete', $asst->id) }}"    method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
-                        </a>
+
                 @endforeach
             @else
                 <tr class="text-center text-gray-800">
-                    <td colspan='6' style="color: rgb(177, 177, 177)" >No List</td>
+                    <td colspan='7' style="color: rgb(177, 177, 177)" >No List</td>
                 </tr>
             @endif
             </tbody>
         </table>
-        <div class="page flex justify-end">
-            <div class="paginator w-[40%]">
-                {{ $asset->onEachSide(2)->links() }}
-            </div>
+        @if(session('success'))
+        <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+            {{ session('success') }}
         </div>
+    @endif
+        @vite(['resources/js/flashNotification.js'])
     @endsection
