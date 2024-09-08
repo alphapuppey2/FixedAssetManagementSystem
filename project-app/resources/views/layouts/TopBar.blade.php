@@ -1,4 +1,4 @@
-{{-- 
+{{--
     ADMIN TOP BAR
 --}}
 @if (Auth::user()->usertype === 'admin')
@@ -13,7 +13,7 @@
         <nav>
             <x-dropdown2 width="48">
                 <x-slot name="trigger">
-                    <div class="div" style="margin-right:5px">New</div>
+                    <div class="div">New</div>
                 </x-slot>
 
                 <x-slot name="content">
@@ -37,7 +37,7 @@
             </x-dropdown2>
         </nav>
     </div>
-{{-- 
+{{--
     DEPARTMENT HEAD TOP BAR
 --}}
 @elseif (Auth::user()->usertype === 'dept_head')
@@ -50,32 +50,32 @@
             </span>
         </div>
         <nav>
-            <x-dropdown2 width="48">
+            <x-dropdown2 >
                 <x-slot name="trigger">
-                    <div class="div" style="margin-right:5px">New</div>
+                    <div class="div">Create </div>
                 </x-slot>
 
                 <x-slot name="content">
                     <li>
-                        <x-dropdown-link :href="route('newasset')">
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
                             {{ __('Asset') }}
                         </x-dropdown-link>
                     </li>
                 <li>
-                        <x-dropdown-link :href="route('formMaintenance')">
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('formMaintenance')">
                             {{ __('Maintenance') }}
                         </x-dropdown-link>
                 </li>
                     <li>
-                        <x-dropdown-link :href="route('newasset')">
-                            {{ __('Asset') }}
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                            {{ __('Report') }}
                         </x-dropdown-link>
                     </li>
                 </x-slot>
             </x-dropdown2>
         </nav>
     </div>
-{{-- 
+{{--
     USER TOP BAR
 --}}
 @else

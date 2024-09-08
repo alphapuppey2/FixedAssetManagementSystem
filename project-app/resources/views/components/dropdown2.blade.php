@@ -1,15 +1,18 @@
 
+<style>
+    .dropdown-toggle::after {
+      display: none !important;
+    }
+  </style>
+
 <div class="dropdown">
-    <button class="btn btn-outline-info dropdown-toggle" style="display:flex;justify-contents:space-beween;align-items:center;font-size:12px; width:100% margin-right-5px" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <button class="ease-in duration-100 border-solid text-blue-900 border-2 border-blue-900 flex items-center p-[2px] rounded-lg dropdown-toggle hover:text-blue-100 hover:bg-blue-900" data-bs-toggle="dropdown" aria-expanded="false">
         {{ $trigger }}
+        <div class="icon">
+            <x-icons.plus-icon />
+        </div>
     </button>
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu w-full">
       {{$content}}
     </ul>
   </div>
-
-  {{--
-    <li><a class="dropdown-item" href="#">profile</a></li>
-      <li><a class="dropdown-item" href="#">Logout</a></li>
-
-    --}}

@@ -48,12 +48,12 @@
                 @foreach ($asset as $asst )
 
                             <tr>
-                                <th scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
-                                <td>{{ $asst->name }}</td>
-                                <td>{{ $asst->category }}</td>
-                                <td>{{ $asst->salvageVal }}</td>
-                                <td>{{ $asst->depreciation }}</td>
-                                <td>{{ $asst->status }}</td>
+                                <th class="align-middle" scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
+                                <td class="align-middle">{{ $asst->category }}</td>
+                                <td class="align-middle">{{ $asst->name }}</td>
+                                <td class="align-middle">{{ $asst->salvageVal }}</td>
+                                <td class="align-middle">{{ $asst->depreciation }}</td>
+                                <td class="align-middle">{{ $asst->status }}</td>
                                 <td class="w-40">
                                     <div class="grp flex justify-between">
                                         <a href="{{ route('assetDetails' , $asst->id) }}" class="btn btn-outline-primary">view</a>

@@ -14,7 +14,7 @@ class settingController extends Controller
 
     public function showSettings(Request $request)
     {
-        $activeTab = $request->input('tab', 'model'); // Default to 'posts' if no tab is specified
+        $activeTab = $request->input('tab', 'model');
 
 
         $RetrieveData = NULL;
@@ -39,4 +39,39 @@ class settingController extends Controller
             'data' => $RetrieveData,
         ]);
     }
+
+    public function UpdateSettings(Request $request,$tab ,$id)
+{
+
+
+    switch ($tab) {
+        case 'model':
+            $table = ModelAsset::find($id);
+            break;
+        case 'location':
+            $table = locationModel::find($id);
+            break;
+        case 'manufacturer':
+            $table = Manufacturer::find($id);
+            break;
+        case 'category':
+            $table = category::find($id);
+            break;
+        default:
+            return response()->json(['success' => false, 'message' => 'Invalid tab'], 400);
+    }
+
+    // Ensure the model exists
+    if (!$table) {
+        return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+    }
+
+    // Update the description
+    $table->description = $request->input('description');
+    $table->save();
+
+    return response()->json(['success' => true, 'session' => 'Description updated successfully']);
+}
+
+
 }

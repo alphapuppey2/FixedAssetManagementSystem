@@ -85,7 +85,10 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/manufacturer', function () {
         return view('dept_head.manufacturer');
     })->name('manufacturer');
+    //setting page
     Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
+    Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
+
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');
