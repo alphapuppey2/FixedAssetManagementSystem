@@ -9,7 +9,14 @@
     </div>
 @endsection
 @section('content')
-    <div class="cont">
+
+<div class="cont">
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        {{dd($errors)}}
+    </div>
+@endif
+
         <div class="container mt-4">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -52,12 +59,28 @@
                                         style="display: none;">Save</a>
                                     <a class="btn btn-outline-secondary cancel-btn" data-row-id="{{ $dataItem->id }}"
                                         style="display: none;">Cancel</a>
-                                    <a class="btn btn-outline-danger delete-btn">Delete</a>
+
+                                    <form
+                                        action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $dataItem->id]) }}"
+                                        method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-outline-danger delete-btn">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+                <div class="addSetting">
+                    <form action="{{ route('setting.create', $activeTab) }}" method="post">
+                        @csrf
+                        <input type="text" id="name" name="nameSet" placeholder="Name" />
+                        <input type="text" id="decr" name="description" placeholder="description" />
+
+                        <button type="submit" class="btn btn-primary">New Setting</button>
+                    </form>
+                </div>
             </div>
             <script>
                 document.querySelectorAll('.edit-btn').forEach(function(button) {
@@ -96,8 +119,11 @@
 
                         // Get the active tab
                         const urlParams = new URLSearchParams(window.location.search);
-                        const activeTab = urlParams.get('tab').trim('%20'); // This will get the value 'model'
+                        let activeTab = urlParams.get('tab'); // This will get the value 'model'
 
+                        if (activeTab === null) {
+                            activeTab = 'model';
+                        }
 
                         // AJAX call to save the new description
                         fetch(`/setting/update/${activeTab}/${rowId}`, { // Correct URL construction
@@ -119,8 +145,11 @@
                                 } else {
                                     throw new Error('Server returned non-JSON response');
                                 }
+
+
                             })
                             .then(data => {
+
                                 if (data.success) {
                                     row.querySelector('.desc-text').textContent = newValue;
                                     row.querySelector('.desc-text').style.display = 'inline-block';

@@ -13,7 +13,10 @@ class ModelAsset extends Model
     use HasFactory;
     protected $table = "model";
     protected $fillable = [
+        'id',
         'name',
         'description',
+        'created_at',
+        'updated_at'
     ];
 }
