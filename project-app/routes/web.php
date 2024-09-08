@@ -11,6 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\settingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QRUserController;
+use App\Http\Controllers\MaintenanceSchedController;
 
 
 Route::get('/', function(){
@@ -95,6 +96,13 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
 
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
+
+// routes/web.php
+
+Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
+Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
+
+    
 
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 

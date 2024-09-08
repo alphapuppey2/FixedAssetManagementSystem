@@ -15,4 +15,9 @@ class category extends Model
         "name",
         'department'
     ];
+
+    public function assets()
+    {
+        return $this->hasMany(assetModel::class, 'ctg_ID');
+    }
 }

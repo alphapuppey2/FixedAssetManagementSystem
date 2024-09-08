@@ -29,4 +29,10 @@ class assetModel extends Model
                             'created_at',
                             'updated_at',
                           ];
+                          
+    // Relationship to the Category model
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'ctg_ID');
+    }
 }
