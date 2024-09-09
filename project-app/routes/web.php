@@ -97,13 +97,10 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
 
-// routes/web.php
-
-Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
-Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
+    Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
+    Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
 
     
-
     Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 
     Route::get('/manufacturer', function () {
