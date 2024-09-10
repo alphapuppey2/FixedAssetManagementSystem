@@ -23,7 +23,7 @@
         </li>
         <li class="p-3 rounded transition-colors duration-300 hover:bg-blue-500 cursor-pointer flex items-center space-x-4">
             @yield('requestListIcon')
-            <a href="{{ route('user.requestList') }}" class="text-gray-800 text-xl font-semibold hover:text-white">Request List</a>
+            <a href="{{ route('requests.list') }}" class="text-gray-800 text-xl font-semibold hover:text-white">Request List</a>
         </li>
         <li class="p-3 rounded transition-colors duration-300 hover:bg-blue-500 cursor-pointer  flex items-center space-x-4">
             @yield('notificationIcon')

@@ -11,7 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\settingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QRUserController;
-
+use App\Http\Controllers\RepairController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -130,9 +130,14 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
+    route::post('/repair-request', [RepairController::class, 'store'])->name('repair.request');
+
     Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
 
     Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
+
+    Route::get('/requests', [AsstController::class, 'showRequestList'])->name('requests.list');
+
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');
