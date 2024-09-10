@@ -9,46 +9,54 @@
     </div>
 @endsection
 @section('content')
-
-<div class="cont">
-    @if ($errors->any())
-    <div class="alert alert-danger">
-        {{dd($errors)}}
-    </div>
-@endif
-
-        <div class="container mt-4">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link {{ $activeTab === 'model' ? 'active' : '' }}" href="{{ url('/setting?tab=model') }}"
-                        role="tab">Model</a>
+    <div class="cont relative p-1 h-full">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                {{ dd($errors) }}
+            </div>
+        @endif
+        <div class="container relative p-2 grid grid-rows-1 gap-2">
+            <ul class="flex border-b max-w-max border-gray-300 inline-block">
+                <li class="mr-1">
+                    <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        href="{{ url('/setting?tab=model') }}">
+                        Model
+                    </a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link {{ $activeTab === 'manufacturer' ? 'active' : '' }}"
-                        href="{{ url('/setting?tab=manufacturer') }}" role="tab">manufacturer</a>
+                <li class="mr-1">
+                    <a class="inline-block py-2 px-4 {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        href="{{ url('/setting?tab=manufacturer') }}">
+                        Manufacturer
+                    </a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link {{ $activeTab === 'location' ? 'active' : '' }}"
-                        href="{{ url('/setting?tab=location') }}" role="tab">location</a>
+                <li class="mr-1">
+                    <a class="inline-block py-2 px-4 {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        href="{{ url('/setting?tab=location') }}">
+                        Location
+                    </a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link {{ $activeTab === 'category' ? 'active' : '' }}"
-                        href="{{ url('/setting?tab=category') }}" role="tab">category</a>
+                <li class="mr-1">
+                    <a class="inline-block py-2 px-4 {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        href="{{ url('/setting?tab=category') }}">
+                        Category
+                    </a>
                 </li>
             </ul>
 
-            <div class="tab-content mt-3">
-                <table>
-                    <thead>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Action</th>
+            <div class="tab-content relative h-[320px] overflow-y-auto">
+                <table class="table table-hover">
+                    <thead class="sticky top-0">
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach ($data as $key => $dataItem)
                             <tr id="row-{{ $dataItem->id }}">
-                                <td>{{ $dataItem->name }}</td>
-                                <td>
+                                <td class="w-64">{{ $dataItem->name }}</td>
+                                <td class="w-[50%]">
                                     <span class="desc-text">{{ $dataItem->description }}</span>
                                     <input type="text" class="desc-input" style="display: none;"
                                         value="{{ $dataItem->description }}">
@@ -62,7 +70,7 @@
 
                                     <form
                                         action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $dataItem->id]) }}"
-                                        method="post">
+                                        method="post" class="inline-block">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-outline-danger delete-btn">Delete</button>
@@ -72,104 +80,107 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="addSetting">
-                    <form action="{{ route('setting.create', $activeTab) }}" method="post">
-                        @csrf
-                        <input type="text" id="name" name="nameSet" placeholder="Name" />
-                        <input type="text" id="decr" name="description" placeholder="description" />
-
-                        <button type="submit" class="btn btn-primary">New Setting</button>
-                    </form>
-                </div>
             </div>
-            <script>
-                document.querySelectorAll('.edit-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const rowId = this.getAttribute('data-row-id');
-                        const row = document.getElementById('row-' + rowId);
+            <div class="addSetting">
+                <form action="{{ route('setting.create', $activeTab) }}" method="post">
+                    @csrf
+                    <input type="text" id="name" name="nameSet" placeholder="Name" />
+                    <input type="text" id="decr" name="description" placeholder="description" />
 
-                        row.querySelector('.desc-text').classList.toggle('hidden');
-                        row.querySelector('.desc-input').style.display = 'inline-block';
-                        row.querySelector('.save-btn').style.display = 'inline-block';
-                        row.querySelector('.cancel-btn').style.display = 'inline-block';
-                        row.querySelector('.delete-btn').classList.toggle('hidden');
-                        this.style.display = 'none';
-                    });
-                });
+                    <button type="submit" class="btn btn-primary">New Setting</button>
+                </form>
+            </div>
+        </div>
 
-                document.querySelectorAll('.cancel-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const rowId = this.getAttribute('data-row-id');
-                        const row = document.getElementById('row-' + rowId);
+    </div>
+    <script>
+        document.querySelectorAll('.edit-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const rowId = this.getAttribute('data-row-id');
+                const row = document.getElementById('row-' + rowId);
 
-                        row.querySelector('.desc-text').classList.toggle('hidden');
-                        row.querySelector('.desc-input').style.display = 'none';
-                        row.querySelector('.save-btn').style.display = 'none';
-                        row.querySelector('.edit-btn').style.display = 'inline-block';
-                        row.querySelector('.delete-btn').classList.toggle('hidden');
-                        this.style.display = 'none';
-                    });
-                });
+                row.querySelector('.desc-text').classList.toggle('hidden');
+                row.querySelector('.desc-input').style.display = 'inline-block';
+                row.querySelector('.save-btn').style.display = 'inline-block';
+                row.querySelector('.cancel-btn').style.display = 'inline-block';
+                row.querySelector('.delete-btn').classList.toggle('hidden');
+                this.style.display = 'none';
+            });
+        });
 
-                document.querySelectorAll('.save-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const rowId = this.getAttribute('data-row-id');
-                        const row = document.getElementById('row-' + rowId);
-                        const newValue = row.querySelector('.desc-input').value;
+        document.querySelectorAll('.cancel-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const rowId = this.getAttribute('data-row-id');
+                const row = document.getElementById('row-' + rowId);
 
-                        // Get the active tab
-                        const urlParams = new URLSearchParams(window.location.search);
-                        let activeTab = urlParams.get('tab'); // This will get the value 'model'
+                row.querySelector('.desc-text').classList.toggle('hidden');
+                row.querySelector('.desc-input').style.display = 'none';
+                row.querySelector('.save-btn').style.display = 'none';
+                row.querySelector('.edit-btn').style.display = 'inline-block';
+                row.querySelector('.delete-btn').classList.toggle('hidden');
+                this.style.display = 'none';
+            });
+        });
 
-                        if (activeTab === null) {
-                            activeTab = 'model';
+        document.querySelectorAll('.save-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const rowId = this.getAttribute('data-row-id');
+                const row = document.getElementById('row-' + rowId);
+                const newValue = row.querySelector('.desc-input').value;
+
+                // Get the active tab
+                const urlParams = new URLSearchParams(window.location.search);
+                let activeTab = urlParams.get('tab'); // This will get the value 'model'
+
+                if (activeTab === null) {
+                    activeTab = 'model';
+                }
+
+                // AJAX call to save the new description
+                fetch(`/setting/update/${activeTab}/${rowId}`, { // Correct URL construction
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            description: newValue
+                        })
+                    })
+                    .then(response => {
+                        // Check if the response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json(); // Parse the JSON if it's valid
+                        } else {
+                            throw new Error('Server returned non-JSON response');
                         }
 
-                        // AJAX call to save the new description
-                        fetch(`/setting/update/${activeTab}/${rowId}`, { // Correct URL construction
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        .getAttribute('content')
-                                },
-                                body: JSON.stringify({
-                                    description: newValue
-                                })
-                            })
-                            .then(response => {
-                                // Check if the response is JSON
-                                const contentType = response.headers.get('content-type');
-                                if (contentType && contentType.includes('application/json')) {
-                                    return response.json(); // Parse the JSON if it's valid
-                                } else {
-                                    throw new Error('Server returned non-JSON response');
-                                }
 
+                    })
+                    .then(data => {
 
-                            })
-                            .then(data => {
+                        if (data.success) {
+                            row.querySelector('.desc-text').textContent = newValue;
+                            row.querySelector('.desc-text').style.display = 'inline-block';
+                            row.querySelector('.desc-input').style.display = 'none';
+                            row.querySelector('.save-btn').style.display = 'none';
+                            row.querySelector('.cancel-btn').style.display = 'none';
+                            row.querySelector('.edit-btn').style.display = 'inline-block';
+                            row.querySelector('.delete-btn').style.display = 'inline-block';
 
-                                if (data.success) {
-                                    row.querySelector('.desc-text').textContent = newValue;
-                                    row.querySelector('.desc-text').style.display = 'inline-block';
-                                    row.querySelector('.desc-input').style.display = 'none';
-                                    row.querySelector('.save-btn').style.display = 'none';
-                                    row.querySelector('.cancel-btn').style.display = 'none';
-                                    row.querySelector('.edit-btn').style.display = 'inline-block';
-                                    row.querySelector('.delete-btn').style.display = 'inline-block';
-
-                                } else {
-                                    alert('Failed to update description');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('An error occurred. Please try again.');
-                            });
+                        } else {
+                            alert('Failed to update description');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
                     });
-                });
-            </script>
-        </div>
+            });
+        });
+    </script>
+    </div>
     </div>
 @endsection

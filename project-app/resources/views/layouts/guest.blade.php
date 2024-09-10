@@ -15,10 +15,9 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased h-screen w-screen max-md:text-xs">
 
-        <div class=" overflow-hidden bg-gradient-to-tl from-sky-950 from-40% via-sky-950 via-[41.9%] to-white-100 to-[42%]">
-            {{-- <div class="bground bg-sky-900 w-1/3 h-1/3 absolute origin-bottom left-[50rem] -rotate-[45deg]"></div> --}}
+        <div class="h-full bg-gradient-to-tl from-sky-950 from-40% via-sky-950 via-[41.9%] to-white-100 to-[42%]">
 
             {{ $slot }}
 

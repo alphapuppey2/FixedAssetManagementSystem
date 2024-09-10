@@ -84,20 +84,30 @@ class settingController extends Controller
         switch($tab){
             case 'model':
                 $deleteFrom = ModelAsset::findOrFail($id);
+                if($deleteFrom->hasMany(assetModel::class, 'model_key')->exists()){
+                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                     ->withInput(); // Fallback URL
+                }
                 break;
             case 'manufacturer':
                 $deleteFrom = manufacturer::findOrFail($id);
+                if($deleteFrom->hasMany(assetModel::class, 'manufacturer_key')->exists()){
+                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                     ->withInput(); // Fallback URL
+                }
                 break;
             case 'location':
                 $deleteFrom = locationModel::findOrFail($id);
+                if($deleteFrom->hasMany(assetModel::class, 'loc_key')->exists()){
+                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                     ->withInput(); // Fallback URL
+                }
                 break;
             case 'category':
                 $deleteFrom = category::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'ctg_ID')->exists()){
                     return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
                      ->withInput(); // Fallback URL
-
-
                 }
                 break;
         }

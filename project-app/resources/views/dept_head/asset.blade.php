@@ -49,8 +49,8 @@
 
                             <tr>
                                 <th class="align-middle" scope="col">{{ $asst->code ? $asst->code : 'NONE' }}</th>
-                                <td class="align-middle">{{ $asst->category }}</td>
                                 <td class="align-middle">{{ $asst->name }}</td>
+                                <td class="align-middle">{{ $asst->category }}</td>
                                 <td class="align-middle">{{ $asst->salvageVal }}</td>
                                 <td class="align-middle">{{ $asst->depreciation }}</td>
                                 <td class="align-middle">{{ $asst->status }}</td>
