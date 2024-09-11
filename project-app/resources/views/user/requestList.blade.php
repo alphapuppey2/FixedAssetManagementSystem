@@ -21,8 +21,8 @@
                     <th class="py-2 px-4 border-b text-left">Description</th>
                     <th class="py-2 px-4 border-b text-left">Status</th>
                     <th class="py-2 px-4 border-b text-left">Asset ID</th>
-                    <th class="py-2 px-4 border-b text-left">Requestor</th>
-                    <th class="py-2 px-4 border-b text-left">Approved By</th>
+                    <th class="py-2 px-4 border-b text-left">Asset Name</th>
+                    <th class="py-2 px-4 border-b text-left">Reviewed by</th>
                     <th class="py-2 px-4 border-b text-left">Created At</th>
                     <th class="py-2 px-4 border-b text-left">Updated At</th>
                     <th class="py-2 px-4 border-b text-left">Action</th>
@@ -40,13 +40,13 @@
                             <td class="py-2 px-4 border-b">{{ $request->Description }}</td>
                             <td class="py-2 px-4 border-b">{{ $request->status }}</td>
                             <td class="py-2 px-4 border-b">{{ $request->asset_id }}</td>
-                            <td class="py-2 px-4 border-b">{{ $request->requestor }}</td>
+                            <td class="py-2 px-4 border-b">{{ $request->name }}</td>
                             <td class="py-2 px-4 border-b">{{ $request->approvedBy }}</td>
                             <td class="py-2 px-4 border-b">{{ $request->created_at }}</td>
                             <td class="py-2 px-4 border-b">{{ $request->updated_at }}</td>
                             <td class="py-2 px-4 border-b">
                                 <button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</button>
-                                <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
+                                <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Cancel</button>
                             </td>
                         </tr>
                     @endforeach
