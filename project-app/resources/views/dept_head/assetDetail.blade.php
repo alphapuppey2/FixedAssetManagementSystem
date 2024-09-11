@@ -15,7 +15,7 @@
             </ul>
         </div>
     @endif
-    <h2 class="font-semibold  text-xl text-gray-800 leading-tight flex w-24">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight flex w-24">
         <a href="{{ route('back') }}">Asset</a>
         <div class="direct ml-5">
             >
@@ -66,31 +66,31 @@
             <div class="leftC">
                 <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2">
                     <div id="name" class="info flex flex-wrap items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">name</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">name</div>
                         <div class="field-Info font-semibold">{{ $data->name }}</div>
                         <x-text-input class="text-sm edit hidden" name='name' value="{{ $data->name }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">cost</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">cost</div>
                         <div class="field-Info font-semibold">{{ $data->cost }}</div>
                         <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
                             id="cost" name='cost' required value="{{ $data->cost }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">depreciation</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">depreciation</div>
                         <div class="field-Info font-semibold">{{ $data->depreciation }}</div>
                         <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
                             id="cost" name='depreciation' required value="{{ $data->depreciation }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">Salvage Value</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">Salvage Value</div>
                         <div class="field-Info font-semibold">{{ $data->salvageVal }}</div>
                         <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
                             name='salvageVal' required value="{{ $data->salvageVal }}" />
 
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">Category</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">Category</div>
                         <div class="field-Info font-semibold">{{ $data->category }}</div>
                         {{-- EDIT Category --}}
                         <div class="form-group edit hidden">
@@ -103,13 +103,13 @@
                         </div>
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <label class="field-label mr-3 uppercase text-slate-400">lifespan</label>
+                        <label class="field-label mr-3 capitalize text-slate-400">lifespan</label>
                         <div class="field-Info font-semibold ">{{ $data->usage_Lifespan }}</div>
                         <x-text-input class="text-sm edit hidden" id="usage" name="usage"
                             value="{{ $data->usage_Lifespan }}"></x-text-input>
                     </div>
                     <div class="info flex  pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">Model</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">Model</div>
                         <div class="field-Info font-semibold">{{ $data->model }}</div>
                         <div class="form-group edit hidden">
                             <select name="mod" id="mod" class="w-full flex flex-col">
@@ -121,7 +121,7 @@
                         </div>
                     </div>
                     <div class="info flex gap-2 pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">Manufacturer</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">Manufacturer</div>
                         <div class="field-Info font-semibold">{{ $data->manufacturer }}</div>
                         <div class="form-group edit hidden">
                             <select name="mcft" id="mcft" class="w-full">
@@ -133,7 +133,7 @@
                         </div>
                     </div>
                     <div class="info flex pb-1 items-center flex-wrap">
-                        <label class="field-label mr-3 uppercase text-slate-400" for="loc">Location</label>
+                        <label class="field-label mr-3 capitalize text-slate-400" for="loc">Location</label>
                         <div class="field-Info display font-semibold visible">{{ $data->location }}</div>
                         <div class="form-group edit hidden">
                             <select name="loc" id="loc" class="w-full">
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">status</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">status</div>
                         <div class="field-Info font-semibold">{{ $data->status }}</div>
                         <div class="form-group edit hidden">
                             <select name="status" id="stats" class="w-full">
@@ -157,13 +157,13 @@
                         </div>
                     </div>
                     <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 uppercase text-slate-400">last Used</div>
+                        <div class="field-label mr-3 capitalize text-slate-400">last Used</div>
                         <div class="field-display font-semibold">NONE</div>
                     </div>
                 </div>
                 <div class="MoreInfo">
                     <div class="addInformation">
-                        <div class="title font-bold m-2 text-[15px] opacity-50 uppercase">
+                        <div class="title font-bold m-2 text-[15px] opacity-50 capitalize">
                             Additional information
                             <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                         </div>
@@ -171,7 +171,7 @@
                             @if ($fields)
                                 @foreach ($fields as $key => $value)
                                     <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
-                                        <div class="field-Info customField uppercase text-slate-400">{{ $key }}
+                                        <div class="field-Info customField capitalize text-slate-400">{{ $key }}
                                         </div>
                                         <div class="field-Info customField">{{ $value }}</div>
                                         <x-text-input class="edit hidden" name="field[key][]"
