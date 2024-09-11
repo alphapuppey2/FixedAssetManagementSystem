@@ -220,6 +220,49 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
 
+    public function retrieveAssetData($id){
+        $userDept = Auth::user()->dept_id;
+
+        $department = array('list' => DB::table('department')->get());
+        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
+        $location = array('locs' => DB::table('location')->get());
+        $model = array('mod' => DB::table('model')->get());
+        $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+        $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
+
+        //$id is for asset code ...
+
+        $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+                                    ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
+                                    ->join('category','asset.ctg_ID' , '=','category.id')
+                                    ->join('model','asset.model_key' , '=','model.id')
+                                    ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
+                                    ->join('location','asset.loc_key' , '=','location.id')
+                                    ->select(
+                                        'asset.id',
+                                        'asset.depreciation',
+                                        'asset.image',
+                                        'asset.name',
+                                        'asset.code',
+                                        'asset.cost',
+                                        'asset.salvageVal',
+                                        'asset.usage_Lifespan',
+                                        'asset.status',
+                                        'asset.custom_fields',
+                                        'asset.created_at',
+                                        'asset.updated_at',
+                                        'category.name as category',
+                                        'model.name as model',
+                                        'location.name as location',
+                                        'manufacturer.name as manufacturer',
+                                        )
+                                    ->get();
+        $fields = json_decode($retrieveData[0]->custom_fields,true);
+
+        return compact('retrieveData' , 'fields');
+
+    }
+
 
 
     public function showDetails($id){
@@ -268,49 +311,24 @@ class AsstController extends Controller
 
     public function showRequestList() {
         // Fetch requests using the DB facade
+        
+        
+        // Fetch requests using the DB facade
+        $requests = DB::table('request')->get();
+
+        
+        $assetData = $this->retrieveAssetData($requests[0]->asset_id);
+        // dd($assetData);
 
 
-        $requests = DB::table('request')->where('request.requestor','=',Auth::user()->id)
-                                        ->join('asset','asset.id' , '=', 'request.asset_id')
-                                        ->join('department','department.id' , '=', 'asset.dept_ID')
-                                        ->join('category','category.id' , '=', 'asset.ctg_ID')
-                                        ->join('location','location.id' , '=', 'asset.loc_key')
-                                        ->join('model','model.id' , '=', 'asset.model_key')
-                                        ->select(
-                                            'asset.name',
-                                            'asset.id as asset_id', //remove nalang ni siya
-                                            'asset.image',
-                                            'asset.code',
-                                            'asset.cost',
-                                            'asset.depreciation',
-                                            'asset.salvageVal',
-                                            'asset.usage_Lifespan',
-                                            'asset.status',
-                                            'asset.custom_fields',
-                                            'asset.updated_at as assetCreated',
-                                            'asset.created_at as assetEdited',
-                                            'category.name as category',
-                                            'model.name as model',
-                                            'location.name as location',
-                                            'department.name as department',
-                                            'request.Description',
-                                            'request.id',
-                                            'request.status',
-                                            'request.requestor',
-                                            'request.approvedBy',
-                                            'request.created_at',
-                                            'request.updated_at',
-                                    )->get();
-
-        // dd($requests);
-
-
-        // Debugging the query output
-        if ($requests->isEmpty()) {
-            dd('No requests found in the database.');
-        }
     
-        // Pass the requests data to the view
-        return view('user.requestList', compact('requests'));
+       // Debugging the query output
+       if ($requests->isEmpty()) {
+           dd('No requests found in the database.');
+       }
+   
+       // Pass the requests data to the view
+       return view('user.requestList', compact('requests','assetData'));
+
     }
 }

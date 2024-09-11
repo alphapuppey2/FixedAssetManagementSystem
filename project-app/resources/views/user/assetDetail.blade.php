@@ -1,5 +1,6 @@
-@extends('user.home')
 
+@extends('dept_head.assetDetail')
+@yield('content')
 @section('section')
     <div class="container mx-auto p-6">
         <h2 class="text-2xl font-semibold mb-6">Asset Details</h2>
@@ -29,6 +30,26 @@
                     <img src="{{ asset('storage/' . $retrieveData->image) }}" alt="{{ $retrieveData->name }}" class="w-full h-auto rounded-lg">
                 @else
                     <p>No Image Available</p>
+                @endif
+            </div>
+
+            <div class="addInfoContainer grid grid-rows-5 grid-flow-col w-full">
+                @if ($fields)
+                    @foreach ($fields as $key => $value)
+                        <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
+                            <div class="field-Info customField uppercase text-slate-400">{{ $key }}
+                            </div>
+                            <div class="field-Info customField">{{ $value }}</div>
+                            <x-text-input class="edit hidden" name="field[key][]"
+                                value="{{ $key }}" />
+                            <x-text-input class="edit hidden" name="field[value][]"
+                                value="{{ $value }}" />
+                        </div>
+                    @endforeach
+                @else
+                    <div class="noneField">
+                        no Additional
+                    </div>
                 @endif
             </div>
         </div>
