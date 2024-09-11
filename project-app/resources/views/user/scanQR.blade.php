@@ -13,24 +13,24 @@
         <div id="qr-scanner-container" style="display: none; position: relative; width: 500px; height: 500px;">
             <video id="video" style="width: 100%; height: 100%; border: 1px solid black; object-fit: cover; background-color: #000;"></video>
             <!-- QR box -->
-            <div id="qr-bar" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border: 2px solid red;"></div>
+            <div id="qr-bar" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border: 2px solid rgb(236, 220, 220);"></div>
         </div>
     </div>
 
     <!-- Success Notification -->
-    <div id="scan-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #4CAF50; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #564caf; color: white; padding: 15px; border-radius: 5px;">
         Scan Successful: <span id="qr-result"></span>
     </div>
 
     <!-- Error Notification -->
-    <div id="scan-error" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-error" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #b61f14; color: white; padding: 15px; border-radius: 5px;">
         No QR code found in the image.
     </div>
 
     <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
-        <button onclick="startScanning()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Scan QR Code</button>
-        <button onclick="document.getElementById('uploadInput').click()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Upload Image</button>
+        <button onclick="startScanning()" class="bg-blue-900  text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button>
+        <button onclick="document.getElementById('uploadInput').click()" class="bg-white-500 text-blue-900 px-4 py-2 rounded hover:text-blue-400">Upload Image</button>
     </div>
 
     <!-- Hidden File Input for Image Upload -->
