@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\assetModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -199,8 +201,24 @@ class AsstController extends Controller
                 else{
                     return redirect()->route("asset")->with('failed', 'Asset update Failed!');
                 }
-
     }
+    public function searchFiltering(Request $request)
+    {
+        // Get the search query from the request
+        $search = $request->input('search');
+
+        // Query the model and filter based on all columns
+        $asst = assetModel::where(function($query) use ($search) {
+            $columns = Schema::getColumnListing('asset');
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'LIKE', "%{$search}%");
+            }
+        })->get();
+
+        // Return the results as JSON
+        return response()->json($asst);
+    }
+
     public function delete($id){
 
         $assetDel = assetModel::findOrFail($id);
@@ -309,7 +327,7 @@ class AsstController extends Controller
         if ($requests->isEmpty()) {
             dd('No requests found in the database.');
         }
-    
+
         // Pass the requests data to the view
         return view('user.requestList', compact('requests'));
     }
