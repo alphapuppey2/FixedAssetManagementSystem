@@ -66,9 +66,9 @@
             <div class="leftC">
                 <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2">
                     <div id="name" class="info flex flex-wrap items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">name</div>
-                        <div class="field-Info font-semibold">{{ $data->name }}</div>
-                        <x-text-input class="text-sm edit hidden" name='name' value="{{ $data->name }}" />
+                        <div class="field-label mr-3 capitalize text-slate-400  inline-block">name</div>
+                        <div class="field-Info font-semibold  inline-block">{{ $data->name }}</div>
+                        <x-text-input class="text-sm edit hidden  inline-block" name='name' value="{{ $data->name }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
                         <div class="field-label mr-3 capitalize text-slate-400">cost</div>
