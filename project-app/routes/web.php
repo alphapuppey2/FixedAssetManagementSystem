@@ -12,7 +12,7 @@ use App\Http\Controllers\settingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
-
+use App\Http\Controllers\RepairController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -83,9 +83,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
-
-    // Route::get('/maintenance', [maintenance::class,'show'])->name('maintenance');
-    // Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+    route::get('/assets/search', [AsstController::class, 'searchFiltering'])->name('assets.search');
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
     Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
@@ -106,7 +104,13 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/manufacturer', function () {
         return view('dept_head.manufacturer');
     })->name('manufacturer');
+    //setting page
     Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
+    Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');
+    Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
+    Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
+
+
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');
@@ -135,17 +139,22 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
+    route::post('/repair-request', [RepairController::class, 'store'])->name('repair.request');
+
     Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
 
     Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
+
+    Route::get('/requests', [AsstController::class, 'showRequestList'])->name('requests.list');
+
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');
-    
+
     Route::get('/user/profile', function () {
         return view('user.profile');
     })->name('user.profile');
-    
+
     Route::patch('/user/profile_update', [ProfileController::class, 'update'])->name('user.profile_update');
 
     Route::get('/user/profile_edit', function () {

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\assetModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -199,8 +201,24 @@ class AsstController extends Controller
                 else{
                     return redirect()->route("asset")->with('failed', 'Asset update Failed!');
                 }
-
     }
+    public function searchFiltering(Request $request)
+    {
+        // Get the search query from the request
+        $search = $request->input('search');
+
+        // Query the model and filter based on all columns
+        $asst = assetModel::where(function($query) use ($search) {
+            $columns = Schema::getColumnListing('asset');
+            foreach ($columns as $column) {
+                $query->orWhere($column, 'LIKE', "%{$search}%");
+            }
+        })->get();
+
+        // Return the results as JSON
+        return response()->json($asst);
+    }
+
     public function delete($id){
 
         $assetDel = assetModel::findOrFail($id);
@@ -264,5 +282,53 @@ class AsstController extends Controller
         // dd($status);
         //  dd($fields);
         return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
+    }
+
+    public function showRequestList() {
+        // Fetch requests using the DB facade
+
+
+        $requests = DB::table('request')->where('request.requestor','=',Auth::user()->id)
+                                        ->join('asset','asset.id' , '=', 'request.asset_id')
+                                        ->join('department','department.id' , '=', 'asset.dept_ID')
+                                        ->join('category','category.id' , '=', 'asset.ctg_ID')
+                                        ->join('location','location.id' , '=', 'asset.loc_key')
+                                        ->join('model','model.id' , '=', 'asset.model_key')
+                                        ->select(
+                                            'asset.name',
+                                            'asset.id as asset_id', //remove nalang ni siya
+                                            'asset.image',
+                                            'asset.code',
+                                            'asset.cost',
+                                            'asset.depreciation',
+                                            'asset.salvageVal',
+                                            'asset.usage_Lifespan',
+                                            'asset.status',
+                                            'asset.custom_fields',
+                                            'asset.updated_at as assetCreated',
+                                            'asset.created_at as assetEdited',
+                                            'category.name as category',
+                                            'model.name as model',
+                                            'location.name as location',
+                                            'department.name as department',
+                                            'request.Description',
+                                            'request.id',
+                                            'request.status',
+                                            'request.requestor',
+                                            'request.approvedBy',
+                                            'request.created_at',
+                                            'request.updated_at',
+                                    )->get();
+
+        // dd($requests);
+
+
+        // Debugging the query output
+        if ($requests->isEmpty()) {
+            dd('No requests found in the database.');
+        }
+
+        // Pass the requests data to the view
+        return view('user.requestList', compact('requests'));
     }
 }
