@@ -31,8 +31,25 @@ class assetModel extends Model
                           ];
                           
     // Relationship to the Category model
-    public function category()
-    {
-        return $this->belongsTo(Category::class, 'ctg_ID');
+
+    public function category() {
+        return $this->belongsTo(category::class, 'ctg_ID');
     }
+    
+    public function manufacturer() {
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_key');
+    }
+    
+    public function model() {
+        return $this->belongsTo(ModelAsset::class, 'model_key');
+    }
+    
+    public function location() {
+        return $this->belongsTo(locationModel::class, 'loc_key');
+    }
+
+    public function preventive()
+{
+    return $this->hasMany(Preventive::class, 'asset_key');
+}
 }

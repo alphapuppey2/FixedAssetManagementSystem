@@ -7,6 +7,14 @@
 
 @section('content')
     <div class="px-6 py-4">
+
+        <!-- Toast Notification -->
+        @if(session('status'))
+            <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <!-- Top Section -->
         <div class="flex justify-between items-center mb-4">
             <!-- Search Bar -->
@@ -154,4 +162,19 @@
             </table>
         </div>
     </div>
+
+    <script>
+        // Toast Notification fade-out
+        setTimeout(function() {
+            var toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.transition = 'opacity 1s ease';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 1000); // Remove it after fading out
+            }
+        }, 3000); // 3 seconds delay
+    </script>
+    
 @endsection

@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\assetModel;
+use App\Models\category;
+use App\Models\locationModel;
+use App\Models\ModelAsset;
+use App\Models\Manufacturer;
+use App\Models\Preventive;
+
 
 
 class MaintenanceController extends Controller
@@ -331,6 +338,105 @@ class MaintenanceController extends Controller
             return response($csvContent)
                 ->header('Content-Type', 'text/csv')
                 ->header('Content-Disposition', 'attachment; filename="maintenance_' . $tab . '_' . now()->format('Y-m-d_H:i:s') . '.csv"');
+        }
+
+
+        // public function create() {
+        //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
+        //     return view('dept_head.createmaintenance', compact('assets'));
+        // }
+
+        // public function create() {
+        //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
+        //     $categories = category::all(['id', 'name']);       // Retrieve category id and name
+        //     $locations = locationModel::all(['id', 'name']);        // Retrieve location id and name
+        //     $models = ModelAsset::all(['id', 'name']);              // Retrieve model id and name
+        //     $manufacturers = Manufacturer::all(['id', 'name']); // Retrieve manufacturer id and name
+        
+        //     return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
+        // }
+
+        public function create() {
+            // Get the currently authenticated user
+            $user = Auth::user();
+        
+            // Only retrieve assets that belong to the same department as the user
+            $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        
+            // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
+            $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
+            $locations = locationModel::all(['id', 'name']); // No department link, fetching all
+            $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
+            $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
+        
+            return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
+        }
+
+        public function getAssetDetails($id) {
+            // Retrieve the asset details based on its id
+            $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
+        
+            // Return the asset details as JSON
+            return response()->json($asset);
+        }
+
+        public function store(Request $request) {
+            // Validate the form input
+            $validatedData = $request->validate([
+                'asset_code' => 'required|exists:asset,id',
+                'cost' => 'required|numeric',
+                'frequency' => 'required|string',
+                'repeat' => 'nullable|integer',
+                'interval' => 'nullable|integer',
+                'ends' => 'required|string',  // This is for "never" or "after"
+                'occurrence' => 'nullable|integer', // This is for the number of occurrences if "after" is selected
+            ]);
+        
+            // Determine the frequency in days
+            $frequencyDays = 0;
+            switch ($validatedData['frequency']) {
+                case 'every_day':
+                    $frequencyDays = 1;
+                    break;
+                case 'every_week':
+                    $frequencyDays = 7;
+                    break;
+                case 'every_month':
+                    $frequencyDays = 30;
+                    break;
+                case 'every_year':
+                    $frequencyDays = 365;
+                    break;
+                case 'custom':
+                    if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
+                        $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
+                    } else {
+                        $frequencyDays = 1; // Set a default value if repeat or interval is null
+                    }
+                    break;
+            }
+        
+            // Handle 'ends' logic correctly
+            if ($validatedData['ends'] === 'never') {
+                $ends = 0; // Never ends
+            } elseif ($validatedData['ends'] === 'after' && !empty($validatedData['occurrence'])) {
+                $ends = $validatedData['occurrence']; // Set to the number of occurrences
+            } else {
+                $ends = 0; // Default to never if invalid value is given
+            }
+        
+            // Insert the data into the preventive table
+            Preventive::create([
+                'asset_key' => $validatedData['asset_code'],  // Assuming asset_key is the asset ID
+                'cost' => $validatedData['cost'],
+                'frequency' => $frequencyDays,  // Frequency stored in days
+                'ends' => $ends,  // 0 for "never", a number for occurrences
+            ]);
+
+            // Set session value for success notification
+            session()->flash('status', 'Maintenance schedule created successfully!');
+        
+            return redirect()->route('maintenance_sched')->with('success', 'Maintenance schedule created successfully!');
         }
         
         

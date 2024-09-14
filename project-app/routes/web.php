@@ -98,8 +98,13 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
     Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
 
-    
-    Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
+    Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
+   
+    Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
+
+    Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
+
+    // Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
 
     Route::get('/manufacturer', function () {
         return view('dept_head.manufacturer');

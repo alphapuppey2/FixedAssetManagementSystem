@@ -16,4 +16,7 @@ class Preventive extends Model
     {
         return $this->belongsTo(assetModel::class, 'asset_key');
     }
+
+    protected $fillable = ['asset_key', 'cost', 'frequency', 'ends'];
+
 }
