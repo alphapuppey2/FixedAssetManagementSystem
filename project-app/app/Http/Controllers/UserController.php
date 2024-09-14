@@ -12,31 +12,17 @@ use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
 class UserController extends Controller{
-    public function getUserList(){
-        $userList = DB::table('users')->get()->map(function($user) {
-            // Map dept_id to department name
-            switch ($user->dept_id) {
-                case 1:
-                    $user->department = 'IT';
-                    break;
-                case 2:
-                    $user->department = 'Sales';
-                    break;
-                case 3:
-                    $user->department = 'Fleet';
-                    break;
-                case 4:
-                    $user->department = 'Production';
-                    break;
-                default:
-                    $user->department = 'Unknown';
-            }
-            return $user;
-        });
-
+    // SHOWS USER LIST
+    public function getUserList()
+    {
+        // Use paginate directly on the query, before transforming the data
+        $userList = DB::table('users')
+            ->paginate(10); // 10 users per page
+    
         return view('admin.user-list', ['userList' => $userList]);
     }
-
+    
+    // EDIT/UPDATE USER DETAILS
     public function update(Request $request){
         // Validate the request
         $request->validate([
@@ -87,6 +73,7 @@ class UserController extends Controller{
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
 
+    // SENDS EMAIL FOR CHANGE PASSWORD
     public function changePassword(Request $request){
         $request->validate([
             'email' => 'requried|email',
@@ -111,35 +98,21 @@ class UserController extends Controller{
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
 
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         $query = $request->input('query');
+    
+        // Perform search query and paginate the results
         $userList = DB::table('users')
-            ->where('firstname', 'like', "%$query%")
-            ->orWhere('lastname', 'like', "%$query%")
-            ->orWhere('email', 'like', "%$query%")
-            ->get()
-            ->map(function($user) {
-                switch ($user->dept_id) {
-                    case 1:
-                        $user->department = 'IT';
-                        break;
-                    case 2:
-                        $user->department = 'Sales';
-                        break;
-                    case 3:
-                        $user->department = 'Fleet';
-                        break;
-                    case 4:
-                        $user->department = 'Production';
-                        break;
-                    default:
-                        $user->department = 'Unknown';
-                }
-                return $user;
-            });
-
+            ->where('firstname', 'like', "%{$query}%")
+            ->orWhere('lastname', 'like', "%{$query}%")
+            ->orWhere('email', 'like', "%{$query}%")
+            ->paginate(10) // Use paginate instead of get()
+            ->appends(['query' => $query]); // Keep the query string in pagination links
+    
         return view('admin.user-list', ['userList' => $userList]);
     }
+    
 
     public function store(Request $request){
         // Validate the incoming request data
@@ -158,8 +131,8 @@ class UserController extends Controller{
 
         // Generate email and password based on input
 
-        // $email = strtolower(substr($validated['firstname'], 0, 1) . substr($validated['middlename'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-        $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
+        $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        // $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
@@ -175,7 +148,7 @@ class UserController extends Controller{
         // Create the new user
         $user = User::create([
             'firstname' => $validated['firstname'],
-            'middlename' => $validated['middlename'],
+            'middlename' => $validated['middlename'] ?? null,
             'lastname' => $validated['lastname'],
             'email' => $email,
             'password' => $hashedPassword,
