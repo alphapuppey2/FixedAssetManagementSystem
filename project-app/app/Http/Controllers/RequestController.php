@@ -3,22 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB; // Import DB facade
+use Illuminate\Support\Facades\Auth; // Import Auth facade
 use Illuminate\Http\Request as HttpRequest;
-
-class RepairController extends Controller
+class RequestController extends Controller
 {
-    
     public function showRequestList() {
-        // Fetch requests using the DB facade
-        $requests = DB::table('request')->get();
+        // Get the ID of the currently logged-in user
+        $userId = Auth::id();
 
-    
+        // Fetch requests made by the currently logged-in user
+        $requests = DB::table('request')
+            ->where('requestor', $userId) // Assuming 'requestor' is the column storing the user ID
+            ->get();
+
         // Debugging the query output
         if ($requests->isEmpty()) {
-            dd('No requests found in the database.');
+            dd('No requests found for the current user.');
         }
-    
-        // Pass the requests data to the view
+
+        // Pass the filtered requests data to the view
         return view('user.requestList', compact('requests'));
     }
 }

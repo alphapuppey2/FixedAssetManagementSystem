@@ -1,4 +1,3 @@
-<!-- resources/views/layouts/sideBarUser.blade.php -->
 @include('components.icons')
 
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -56,17 +55,9 @@
 <script>
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
-    const menuLinks = document.querySelectorAll('#sidebar a');
 
+    // Sidebar Toggle for Mobile View
     sidebarToggle.addEventListener('click', () => {
         sidebar.classList.toggle('-translate-x-full');
-    });
-
-    menuLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth < 1024) {
-                sidebar.classList.toggle('-translate-x-full');
-            }
-        });
     });
 </script>
