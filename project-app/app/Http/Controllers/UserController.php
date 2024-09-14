@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
@@ -84,6 +85,21 @@ class UserController extends Controller{
         $user->save();
     
         return redirect()->route('userList')->with('success', 'User updated successfully.');
+    }
+
+    public function changePassword(Request $request){
+        $request->validate([
+            'email' => 'requried|email',
+        ]);
+
+        $status = Password::sendResetLink(
+            $request->only("email")
+        );
+
+        return $request === Password::RESET_LINK_SENT
+                    ? back()->with(['status' => __($status)])
+                    : back()->withErrors(['email' => __($status)]);
+
     }
     
     // HARD DELETE
