@@ -3,7 +3,7 @@
         <x-icons.hamburger />
     </button>
     <x-nav-link :href="route('profile')">
-        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg hover:bg-gray-300/15 transition ease-in">
+        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg transition ease-in">
             <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
             <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                      class="absolute bg-white top-1/2 left-1/2 lg:w-auto lg:h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
@@ -30,7 +30,7 @@
     <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
     <nav class="flex flex-col w-full font-semibold">
         <ul class="sb h-[100%]">
-            <li class="">
+            <li>
                 <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
                     <x-dashIcon/>
                     <span class="ml-2 max-md:hidden lg:block">Dashboard</span>

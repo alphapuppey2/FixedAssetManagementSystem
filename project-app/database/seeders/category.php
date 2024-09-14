@@ -17,18 +17,22 @@ class category extends Seeder
         //
         CategoryModel::create([
             'name' => 'Category 1',
+            'description'=>"categories",
             'dept_ID' => 1
         ]);
         CategoryModel::create([
             'name' => 'Category 2',
+            'description'=>"categories",
             'dept_ID' => 1
         ]);
         CategoryModel::create([
             'name' => 'Category 1',
+            'description'=>"categories",
             'dept_ID' => 2
         ]);
         CategoryModel::create([
             'name' => 'Category 2',
+            'description'=>"categories",
             'dept_ID' => 2
         ]);
     }

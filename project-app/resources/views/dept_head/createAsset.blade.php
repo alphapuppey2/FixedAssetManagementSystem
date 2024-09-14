@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-    <div class="contents">
+    <div class="contents capitalize">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -85,17 +85,17 @@
                 <div class="form-group images flex items-center flex-col AdditionalInfo">
                     <div class="imageField w-32 h-32 relative flex justify-center">
                         <label
-                            class="im w-32 h-32 border-3 rounded-md hover:bg-blue-300 hover:border-4 hover:border-blue-400 transition ease-in ease-out"
+                            class="im"
                             for="image">
                             <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
-                                class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                                class="absolute border-3 w-32 h-32 border-3 rounded-md hover:border-blue-300 hover:border-4 hover:border-blue-400S top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover cursor-pointer"
                                 alt="default">
                         </label>
                         <x-text-input type="file" id="image" name='image' class="hidden" />
                     </div>
                     {{-- Addtional Information / custom Fields --}}
                     <div class="customFields flex flex-col w-full mt-4">
-                        <div class="w-full text-[20px] uppercase font-semibold">Additional
+                        <div class="w-full text-[20px] capitalize font-semibold">Additional
                             Information</div>
                         <div class="addInfo grid grid-col-2 w-full" id="field">
                             <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
