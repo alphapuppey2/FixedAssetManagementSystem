@@ -13,14 +13,17 @@ use App\Models\User;
 
 class UserController extends Controller{
     // SHOWS USER LIST
-    public function getUserList()
-    {
+    public function getUserList(Request $request){
+        // Get the number of rows to display per page (default is 10)
+        $perPage = $request->input('perPage', 10); // Default to 10 rows per page if not set
+    
         // Use paginate directly on the query, before transforming the data
         $userList = DB::table('users')
-            ->paginate(10); // 10 users per page
+            ->paginate($perPage); // Dynamically set the number of rows per page
     
         return view('admin.user-list', ['userList' => $userList]);
     }
+    
     
     // EDIT/UPDATE USER DETAILS
     public function update(Request $request){
@@ -98,20 +101,21 @@ class UserController extends Controller{
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
 
-    public function search(Request $request)
-    {
+    public function search(Request $request){
         $query = $request->input('query');
+        $perPage = $request->input('perPage', 10); // Get rows per page from the request
     
         // Perform search query and paginate the results
         $userList = DB::table('users')
             ->where('firstname', 'like', "%{$query}%")
             ->orWhere('lastname', 'like', "%{$query}%")
             ->orWhere('email', 'like', "%{$query}%")
-            ->paginate(10) // Use paginate instead of get()
-            ->appends(['query' => $query]); // Keep the query string in pagination links
+            ->paginate($perPage) // Use the dynamic per page value
+            ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
     
         return view('admin.user-list', ['userList' => $userList]);
     }
+    
     
 
     public function store(Request $request){

@@ -8,23 +8,43 @@
 
 @section('content')
 
-    <div class="mb-4">
-        <form method="GET" action="{{ route('searchUsers') }}" class="flex">
-            <input type="text" name="query" value="{{ request('query') }}" placeholder="Search by name or email" class="border border-gray-300 rounded-l px-4 py-2 w-60">
-            <button type="submit" class="bg-blue-500 text-white rounded-r px-3 py-1 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                </svg>
-            </button>
+    <div>
+        <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
+            <!-- Search Input and Button -->
+            <div class="flex">
+                <input type="text" name="query" value="{{ request('query') }}" placeholder="Search by name or email" class="border border-gray-300 rounded-l px-4 py-2 w-60">
+                <button type="submit" class="bg-blue-500 text-white rounded-r px-3 py-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Rows per page dropdown -->
+            <div class="flex justify-between items-center mb-4">
+                <!-- Rows per page dropdown (Left) -->
+                <div class="flex items-center space-x-2">
+                    <label for="perPage">Rows per page: </label>
+                    <select name="perPage" id="perPage" class="border border-gray-300 rounded px-2 py-1 w-16" onchange="this.form.submit()">
+                        <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+                <!-- Pagination Links and Showing Results (Right) -->
+                @if($userList->hasPages())
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">Showing {{ $userList->firstItem() }} to {{ $userList->lastItem() }} of {{ $userList->total() }} items</span>
+                        <div>
+                            {{ $userList->links('vendor.pagination.tailwind') }}
+                        </div>
+                    </div>
+                @endif
+            </div>
         </form>
     </div>
 
-    <!-- Pagination Links -->
-    <div class="mt-4">
-        {{ $userList->links() }}
-    </div>
-
-    <div class="contents relative flex ">
+    <div class="contents relative flex mt-6">
         <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row ">
             <x-table class="table table-striped">
                 <x-slot name='header'>
