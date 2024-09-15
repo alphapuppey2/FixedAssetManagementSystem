@@ -214,14 +214,14 @@
                     // Populate the asset name and code
                     if (response.name) {
                         console.log('Setting Asset Name to: ' + response.name);
-                        $('#asset_name').val(response.id).trigger('change.select2'); // Set the value to the ID of the asset in the asset name select
-                        $('#asset_name option[value="' + response.id + '"]').text(response.name); // Set the display text for the selected option
+                        var assetNameOption = new Option(response.name, response.id, true, true); // Create a new option
+                        $('#asset_name').append(assetNameOption).trigger('change.select2'); // Add and trigger Select2 change
                     }
 
                     if (response.code) {
                         console.log('Setting Asset Code to: ' + response.code);
-                        $('#asset_code').val(response.id).trigger('change.select2'); // Set the value to the ID of the asset in the asset code select
-                        $('#asset_code option[value="' + response.id + '"]').text(response.code); // Set the display text for the selected option
+                        var assetCodeOption = new Option(response.code, response.id, true, true); // Create a new option
+                        $('#asset_code').append(assetCodeOption).trigger('change.select2'); // Add and trigger Select2 change
                     }
 
                     // Populate the other related fields
@@ -284,24 +284,19 @@
         $('#asset_name').on('change', assetNameChanged);
 
 
-                // Show or hide custom frequency options based on the selection
-                $('#frequency').change(function() {
-                    var selectedFrequency = $(this).val();
+        // Show or hide custom frequency options based on the selection
+        $('#frequency').change(function() {
+            var selectedFrequency = $(this).val();
 
-                    if (selectedFrequency === 'custom') {
-                        $('#repeat_section').show();
-                        $('#ends_section').show();
-                    } else {
-                        $('#repeat_section').hide();
-                        $('#ends_section').hide();
-                    }
-                });
-            });
+            if (selectedFrequency === 'custom') {
+                $('#repeat_section').show();
+                $('#ends_section').show();
+            } else {
+                $('#repeat_section').hide();
+                $('#ends_section').hide();
+            }
+        });
+    });
 </script>
-
-
-
-
-
 
 @endsection
