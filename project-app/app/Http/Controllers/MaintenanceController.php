@@ -372,12 +372,38 @@ class MaintenanceController extends Controller
             return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
         }
 
+        // public function getAssetDetails($id) {
+        //     // Retrieve the asset details based on its id
+        //     $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
+
+        //     // Prepare the image URL or set to "No Image" placeholder
+        //     $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png'); 
+
+        //     // Return the asset details as JSON
+        //     return response()->json($asset);
+        // }
         public function getAssetDetails($id) {
-            // Retrieve the asset details based on its id
+            // Retrieve the asset details based on its id, including relationships
             $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
-        
-            // Return the asset details as JSON
-            return response()->json($asset);
+
+            if (!$asset) {
+                return response()->json(['error' => 'Asset not found'], 404); // Error handling
+            }
+
+            // Prepare the image URL or set to "No Image" placeholder
+            $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png'); 
+            
+            // Return the asset details as a custom JSON response
+            return response()->json([
+                'id' => $asset->id,
+                'code' => $asset->code, // Asset code
+                'name' => $asset->name, // Asset name
+                'model' => $asset->model ? ['id' => $asset->model->id, 'name' => $asset->model->name] : null,
+                'category' => $asset->category ? ['id' => $asset->category->id, 'name' => $asset->category->name] : null,
+                'location' => $asset->location ? ['id' => $asset->location->id, 'name' => $asset->location->name] : null,
+                'manufacturer' => $asset->manufacturer ? ['id' => $asset->manufacturer->id, 'name' => $asset->manufacturer->name] : null,
+                'image_url' => $asset->image_url // Image URL
+            ]);
         }
 
         public function store(Request $request) {
@@ -388,8 +414,8 @@ class MaintenanceController extends Controller
                 'frequency' => 'required|string',
                 'repeat' => 'nullable|integer',
                 'interval' => 'nullable|integer',
-                'ends' => 'required|string',  // This is for "never" or "after"
-                'occurrence' => 'nullable|integer', // This is for the number of occurrences if "after" is selected
+                'ends' => ['required', 'regex:/^(never|\d+)$/'],  // Allow "never" or a numeric value
+                'occurrence' => 'nullable|integer', // For custom occurrences
             ]);
         
             // Determine the frequency in days
@@ -419,11 +445,10 @@ class MaintenanceController extends Controller
             // Handle 'ends' logic correctly
             if ($validatedData['ends'] === 'never') {
                 $ends = 0; // Never ends
-            } elseif ($validatedData['ends'] === 'after' && !empty($validatedData['occurrence'])) {
-                $ends = $validatedData['occurrence']; // Set to the number of occurrences
             } else {
-                $ends = 0; // Default to never if invalid value is given
+                $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
             }
+            
         
             // Insert the data into the preventive table
             Preventive::create([
