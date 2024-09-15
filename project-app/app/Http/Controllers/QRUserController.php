@@ -67,13 +67,13 @@ class QRUserController extends Controller
 
         // If asset is not found, redirect back with an error message
         if (!$retrieveData) {
-            return redirect()->back()->with('error', 'No asset found with the scanned QR code.');
+            return redirect()->back()->with('status', 'No asset found with the scanned QR code.');
         }
 
         // Decode custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
         // Pass the asset data and custom fields to the view
-        return view('user.assetDetail', compact('retrieveData', 'fields'));
+         return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
 }

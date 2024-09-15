@@ -6,12 +6,12 @@
         <h1 class="text-3xl font-bold text-gray-800">Request List</h1>
 
         <!-- Search Bar -->
-        <div class="relative w-full max-w-sm">
-            <input type="text" id="search" placeholder="Search..." class="border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:border-blue-500 w-full">
+        <form method="GET" action="{{ route('requests.list') }}" class="relative w-full max-w-sm">
+            <input type="text" name="search" id="search" value="{{ request()->input('search') }}" placeholder="Search..." class="border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:border-blue-500 w-full">
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 @yield('searchIcon')
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Request List Table -->
@@ -53,7 +53,7 @@
                             <td class="py-3 px-4 border-b">{{ $request->updated_at }}</td>
                             <td class="py-3 px-4 border-b flex space-x-2">
                                 <button class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition">
-                                    Edit
+                                    View
                                 </button>
                                 <button class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition">
                                     Cancel

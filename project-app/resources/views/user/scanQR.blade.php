@@ -1,15 +1,10 @@
 @extends('user.home')
 
 @section('scanQR-content')
+
     <h1 class="text-3xl font-semibold mb-4 mt-10 text-center">Scan QR</h1>
     <p class="text-center">Choose one of the options below:</p>
     
-    @if (session('error'))
-        <div id="session-error" class="bg-red-500 text-white p-4 rounded mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div id="placeholderImage">
         <img src="https://img.freepik.com/free-vector/smartphone-scanning-qr-code_23-2148624200.jpg" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
     </div>
@@ -24,14 +19,15 @@
     </div>
 
     <!-- Success Notification -->
-    <div id="scan-success" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #564caf; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-success" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #564caf; color: white; padding: 15px; border-radius: 5px;">
         Scan Successful: <span id="qr-result"></span>
     </div>
 
     <!-- Error Notification -->
-    <div id="scan-error" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #b61f14; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-error" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #b61f14; color: white; padding: 15px; border-radius: 5px;">
         No QR code found in the image.
     </div>
+
 
     <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
