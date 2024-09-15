@@ -16,6 +16,10 @@ export default {
             },
             colors: {
                 customButtonBlue: '#2C4C71',
+                navy: {
+                    700: '#1E3A8A',  // This is navy-700
+                    600: '#1E40AF',  // This is navy-600
+                },
             },
         },
     },
