@@ -296,6 +296,24 @@
                 $('#ends_section').hide();
             }
         });
+
+                    // When the form is submitted, set the ends field value based on the custom selection
+                    $('#maintenanceForm').on('submit', function(event) {
+                var selectedFrequency = $('#frequency').val();
+                var endsValue = 0;  // Default to 0 (never)
+
+                if (selectedFrequency === 'custom') {
+                    if ($('#after').is(':checked')) {
+                        endsValue = $('#occurrence').val();  // Set ends to the number of occurrences
+                    }
+                }
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'ends',
+                    value: endsValue
+                }).appendTo('#maintenanceForm');
+            });
     });
 </script>
 
