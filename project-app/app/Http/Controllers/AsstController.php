@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\assetModel;
+use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
@@ -31,6 +32,16 @@ class AsstController extends Controller
         // dd($asset);
 
         return view("dept_head.asset" ,compact('asset'));
+    }
+
+    public function showHistory($id){
+        //history of a Asset
+        $asset = AssetModel::where('asset.id', $id)
+                                    ->select("asset.code as assetCode")->first();
+        $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
+
+
+        return view('dept_head.MaintenanceHistory' , compact('AssetMaintenance','asset'));
     }
     public function showForm(){
 
@@ -126,6 +137,7 @@ class AsstController extends Controller
         return redirect()->to('/asset')->with('success' , 'New Asset Created');
     }
     public static function assetCount(){
+        //dashboard
         $userDept = Auth::user()->dept_id;
 
         $asset['active'] = DB::table('asset')->where('asset.status','=' , 'active')
@@ -252,8 +264,8 @@ class AsstController extends Controller
 
         //$id is for asset code ...
 
-        $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
-                                    ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
+        $retrieveData = assetModel::where('asset.id' , $id)
+                                    ->join('department' , 'department.id' , '=',  'asset.dept_ID')
                                     ->join('category','asset.ctg_ID' , '=','category.id')
                                     ->join('model','asset.model_key' , '=','model.id')
                                     ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
