@@ -5,15 +5,9 @@
     <title>New User Credentials</title>
 </head>
 <body>
-    <h1>Welcome to FAMAS</h1>
+    <h1>FAMAS</h1>
     <h4>A Fixed Asset Management System</h4>
     <p>System: {INSERT SYSTEM LINK HERE}</p>
-
-    <br>
-
-    <p>You are now registerd in the sytem:</p>
-    <p><strong>Email:</strong> {{ $email }}</p>
-    <p><strong>Password:</strong> {{ $password }}</p>
 
     <br>
 
