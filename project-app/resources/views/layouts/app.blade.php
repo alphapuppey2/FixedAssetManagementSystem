@@ -32,20 +32,21 @@
             @include('layouts.sideBar')
         @endif
         <!-- Page Content -->
-        <main class="relative md:left-[205px] max-md:w-[calc(100%_-_50px)] max-md:left-[50px] pl-3 pr-1 pb-1 pt-3 top-[40px] h-[calc(100%_-_40px)] w-[calc(100%_-_205px)] bg-slate-100/50 overflow-y-auto">
-           <div class="mainContent relativemin-h-full p-2">
-            <div class="h-[60px] uppercase font-semibold">
-                <div class="flex flex-wrap items-center w-full">
-                    @yield('header')
+        <main
+            class="relative md:left-[205px] max-md:w-[calc(100%_-_50px)] max-md:left-[50px] pl-3 pr-1 pb-1 pt-3 top-[40px] h-[calc(100%_-_40px)] w-[calc(100%_-_205px)] bg-slate-100/50 overflow-y-auto">
+            <div class="mainContent relative grid grid-rows-[60px_1fr] min-h-full p-2">
+                <div class="uppercase font-semibold items-center p-2">
+                    <div class="flex flex-wrap items-center w-full">
+                        @yield('header')
+                    </div>
+                    <div class="divider h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                 </div>
-                <div class="divider h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
-            </div>
-            <div class="mmC relative min-h-[calc(100%_-_60px)]">
-                <div class="contentPage relative p-2 h-full">
-                    @yield('content')
+                <div class="mmC relative min-h-[calc(100%_-_60px)]">
+                    <div class="contentPage relative p-2 h-full">
+                        @yield('content')
+                    </div>
                 </div>
             </div>
-           </div>
         </main>
     </div>
 
