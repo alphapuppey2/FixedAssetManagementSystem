@@ -17,13 +17,18 @@ class RequestController extends Controller
 
         // Fetch requests made by the currently logged-in user and apply search filter if present
         $requests = DB::table('request')
-            ->where('requestor', $userId) // Assuming 'requestor' is the column storing the user ID
+            ->where('requestor', $userId) // Ensure only the current user's requests are shown
             ->when($search, function ($query, $search) {
-                return $query->where('Description', 'like', '%' . $search . '%')
-                             ->orWhere('status', 'like', '%' . $search . '%')
-                             ->orWhere('asset_id', 'like', '%' . $search . '%')
-                             ->orWhere('name', 'like', '%' . $search . '%')
-                             ->orWhere('approvedBy', 'like', '%' . $search . '%');
+                // Group the OR conditions to maintain the user filter
+                return $query->where(function($query) use ($search) {
+                    $query->where('Description', 'like', '%' . $search . '%')
+                          ->orWhere('status', 'like', '%' . $search . '%')
+                          ->orWhere('asset_id', 'like', '%' . $search . '%')
+                          ->orWhere('id', 'like', '%' . $search . '%')
+                          ->orWhere('approvedBy', 'like', '%' . $search . '%')
+                          ->orWhere('created_at', 'like', '%' . $search . '%')
+                          ->orWhere('updated_at', 'like', '%' . $search . '%');
+                });
             })
             ->get();
 
