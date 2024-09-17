@@ -17,10 +17,10 @@
 @endsection
 
 @section('content')
-    <div class="relative w-full h-full overflow-hidden rounded-lg">
+    <div class="relative w-full h-full overflow-hidden bg-white">
         <table class="w-full">
             <thead>
-                <tr class="bg-blue-100/20 border-b">
+                <tr class="bg-blue-200 border-b">
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</td>
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">reason of
                         maintenance</td>
