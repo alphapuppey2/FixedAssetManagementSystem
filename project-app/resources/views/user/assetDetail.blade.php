@@ -1,7 +1,7 @@
 @extends('user.home')
 
 @section('section')
-    <div class="container mx-auto p-8 bg-white rounded-lg shadow-lg">
+    <div class="container mx-auto p-8">
         <!-- Title Section -->
         <div class="flex justify-between items-center mb-8 border-b pb-4">
             <h2 class="text-3xl font-bold text-gray-800">Asset Details: {{ $retrieveData->code }}</h2>
@@ -96,7 +96,7 @@
             <button id="requestRepairButton" class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
                 Request Repair
             </button>
-        </div>        
+        </div>
 
         <!-- Repair Request Form (Initially Hidden) -->
         <div id="repairRequestForm" class="bg-gray-50 shadow-md p-8 rounded-lg hidden">
@@ -133,7 +133,7 @@
                     <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
                         Submit Request
                     </button>
-                </div>                
+                </div>
             </form>
         </div>
 
