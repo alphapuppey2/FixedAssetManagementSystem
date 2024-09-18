@@ -284,51 +284,53 @@ class AsstController extends Controller
         return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     }
 
-    public function showRequestList() {
-        // Fetch requests using the DB facade
-
-
-        $requests = DB::table('request')->where('request.requestor','=',Auth::user()->id)
-                                        ->join('asset','asset.id' , '=', 'request.asset_id')
-                                        ->join('department','department.id' , '=', 'asset.dept_ID')
-                                        ->join('category','category.id' , '=', 'asset.ctg_ID')
-                                        ->join('location','location.id' , '=', 'asset.loc_key')
-                                        ->join('model','model.id' , '=', 'asset.model_key')
-                                        ->select(
-                                            'asset.name',
-                                            'asset.id as asset_id', //remove nalang ni siya
-                                            'asset.image',
-                                            'asset.code',
-                                            'asset.cost',
-                                            'asset.depreciation',
-                                            'asset.salvageVal',
-                                            'asset.usage_Lifespan',
-                                            'asset.status',
-                                            'asset.custom_fields',
-                                            'asset.updated_at as assetCreated',
-                                            'asset.created_at as assetEdited',
-                                            'category.name as category',
-                                            'model.name as model',
-                                            'location.name as location',
-                                            'department.name as department',
-                                            'request.Description',
-                                            'request.id',
-                                            'request.status',
-                                            'request.requestor',
-                                            'request.approvedBy',
-                                            'request.created_at',
-                                            'request.updated_at',
-                                    )->get();
-
-        // dd($requests);
-
-
-        // Debugging the query output
-        if ($requests->isEmpty()) {
-            dd('No requests found in the database.');
-        }
-
-        // Pass the requests data to the view
+    public function showRequestList(Request $request)
+    {
+        // Get the search query from the request
+        $search = $request->input('search');
+    
+        // Fetch requests for the currently logged-in user with optional search filtering
+        $requests = DB::table('request')
+            ->where('request.requestor', Auth::user()->id)
+            ->when($search, function ($query, $search) {
+                return $query->where('request.Description', 'like', '%' . $search . '%')
+                    ->orWhere('request.status', 'like', '%' . $search . '%')
+                    ->orWhere('request.id', 'like', '%' . $search . '%')
+                    ->orWhere('asset.code', 'like', '%' . $search . '%');
+            })
+            ->join('asset', 'asset.id', '=', 'request.asset_id')
+            ->select(
+                'asset.name',
+                'asset.id as asset_id',
+                'asset.image',
+                'asset.code',
+                'asset.cost',
+                'asset.depreciation',
+                'asset.salvageVal',
+                'asset.usage_Lifespan',
+                'asset.status',
+                'asset.updated_at as assetCreated',
+                'asset.created_at as assetEdited',
+                'request.Description',
+                'request.id',
+                'request.status',
+                'request.requestor',
+                'request.approvedBy',
+                'request.created_at',
+                'request.updated_at'
+            )
+            ->orderBy('request.created_at', 'desc')  // Order by most recent requests
+            ->paginate(10);  // Paginate 10 results per page
+    
         return view('user.requestList', compact('requests'));
     }
-}
+    
+    public function cancelRequest($id)
+    {
+        // Find the request by its ID and update the status to 'cancelled'
+        DB::table('request')->where('id', $id)->update(['status' => 'cancelled']);
+    
+        // Redirect back to the request list with a success message
+        return redirect()->route('requests.list')->with('status', 'Request has been cancelled successfully.');
+    }
+}    

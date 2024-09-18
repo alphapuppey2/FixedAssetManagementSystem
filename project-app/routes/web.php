@@ -142,6 +142,8 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
 
     Route::get('/requests', [AsstController::class, 'showRequestList'])->name('requests.list');
 
+    Route::post('/requests/cancel/{id}', [AsstController::class, 'cancelRequest'])->name('requests.cancel');
+
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');
