@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
+use App\Http\Controllers\PreventiveMaintenanceController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -105,6 +106,8 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
     // Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
+
+    Route::get('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate']);
 
     Route::get('/manufacturer', function () {
         return view('dept_head.manufacturer');
