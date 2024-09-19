@@ -97,7 +97,7 @@
                     @forelse($requests as $maintenance)
                         <tr>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor_name ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor == 0 ? 'System' : ($maintenance->requestor_name ?? 'N/A') }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_code ?? 'N/A'}}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category_name ?? 'N/A'}}</td>
