@@ -43,12 +43,6 @@
                     <span class="ml-2 sm:hidden lg:block">User List</span>
                 </x-nav-link>
             </li>
-            <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('users.create')" :active="request()->routeIs('users.create')">
-                    <x-paperplane class="bg-red-500"/>
-                    <span class="ml-2 sm:hidden lg:block">Create User Temporary</span>
-                </x-nav-link>
-            </li>
 
             <!--
             <li>
