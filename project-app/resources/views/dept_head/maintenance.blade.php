@@ -97,13 +97,13 @@
                     @forelse($requests as $maintenance)
                         <tr>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor == 0 ? 'System' : ($maintenance->requestor_name ?? 'N/A') }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor ? $maintenance->requestor_name : 'System-generated' }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_code ?? 'N/A'}}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category_name ?? 'N/A'}}</td>
                             @if($tab === 'approved')
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->type ?? 'N/A'}}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->authorized_by_name ?? 'N/A'}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->authorized_by ? $maintenance->authorized_by_name : 'System-generated' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
                             @elseif($tab === 'denied')
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by_name ?? 'N/A'}}</td>
