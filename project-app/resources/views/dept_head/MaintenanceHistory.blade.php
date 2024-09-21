@@ -1,9 +1,11 @@
 @extends('layouts.app')
 
 @section('header')
+<a href="{{ route('back') }}">
     <h2 class="font-semibold inline-block text-xl text-center text-gray-800 leading-tight flex w-24">
         Asset
     </h2>
+</a>
     <div class="divider">></div>
     <h2 class="inline-block  text-center w-24">
         {{ $asset->assetCode }}
@@ -41,7 +43,7 @@
                     <tr class="bg-blue-100/50">
                         <td colspan='7'
                             class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400/50 uppercase tracking-wider">
-                            no maintenance for this asset yet</td>
+                            No maintenance history</td>
                     </tr>
                 @endif
             </tbody>

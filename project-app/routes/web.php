@@ -82,7 +82,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
-    route::get('/asset/search', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');

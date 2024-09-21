@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\assetModel;
 use App\Models\Maintenance;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -214,23 +217,31 @@ class AsstController extends Controller
                     return redirect()->route("asset")->with('failed', 'Asset update Failed!');
                 }
     }
+
     public function searchFiltering(Request $request)
     {
-        // Get the search query from the request
         $search = $request->input('search');
 
-        // Query the model and filter based on all columns
-        $asst = assetModel::where(function($query) use ($search) {
-            $columns = Schema::getColumnListing('asset');
-            foreach ($columns as $column) {
-                $query->orWhere($column, 'LIKE', "%{$search}%");
-            }
-        })->get();
+        // Log the search term
+        Log::info('Search term received: ' . $search);
 
-        // Return the results as JSON
-        return response()->json($asst);
+        try {
+            // Assuming you are searching the 'name' and 'code' columns
+            $assets = assetModel::where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('code', 'LIKE', "%{$search}%")
+                                ->get();
+
+            // Log the number of assets found
+            Log::info('Assets found: ' . $assets->count());
+
+            return response()->json($assets);
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in searchFiltering: ' . $e->getMessage());
+
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
     }
-
     public function delete($id){
 
         $assetDel = assetModel::findOrFail($id);
@@ -289,9 +300,11 @@ class AsstController extends Controller
                                         'manufacturer.name as manufacturer',
                                         )
                                     ->get();
+
         $fields = json_decode($retrieveData[0]->custom_fields,true);
 
         // dd($status);
+        // dd($retrieveData);
         //  dd($fields);
         return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     }
