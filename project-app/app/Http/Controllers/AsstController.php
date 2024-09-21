@@ -42,6 +42,26 @@ class AsstController extends Controller
         return view("admin.asset-list", compact('assets'));
     }
 
+    public function searchAssets(Request $request)
+    {
+        // Get search query and rows per page
+        $query = $request->input('query');
+        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+
+        // Build the query to search assets by name or code
+        $assets = DB::table('asset')
+            ->where('asset.name', 'like', '%' . $query . '%')
+            ->orWhere('code', 'like', '%' . $query . '%')
+            ->join('department', 'asset.dept_ID', '=', 'department.id') // Assuming dept_ID is in asset
+            ->join('category', 'asset.ctg_ID', '=', 'category.id') // Assuming ctg_ID is in asset
+            ->select('asset.*', 'department.name as department', 'category.name as category')
+            ->orderBy('asset.name', 'asc') // Order by name or another column if needed
+            ->paginate($perPage);
+
+        // Return the view with the filtered assets
+        return view('admin.asset-list', compact('assets'));
+    }
+
     public function showDeptAsset(){
         $userDept = Auth::user()->dept_id;
 

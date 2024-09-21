@@ -58,17 +58,16 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     })->name('users.create');
 
     // ASSET LIST
-    Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
-    Route::get('/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
+    Route::get('/admin/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
+    Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
+    route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
         return view('admin.profile');
     })->name('admin.profile');
-
     Route::get('/admin/profile', [ProfileController::class, 'adminView'])->name('admin.profile');
     Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
-
     Route::get('/admin/profile_password', function () {
         return view('admin.profile_password');
     })->name('admin.profile_password');
