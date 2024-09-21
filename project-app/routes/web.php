@@ -84,16 +84,15 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
-    route::get('/assets/search', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
     Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
-
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
-
     Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
-
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
 
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
@@ -109,9 +108,6 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate']);
 
-    Route::get('/manufacturer', function () {
-        return view('dept_head.manufacturer');
-    })->name('manufacturer');
     //setting page
     Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
     Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');

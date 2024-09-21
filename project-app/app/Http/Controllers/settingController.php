@@ -49,7 +49,7 @@ class settingController extends Controller
         ]);
 
     switch ($tab) {
-        case 'models':
+        case 'model':
             $table = ModelAsset::find($id);
             break;
         case 'location':
@@ -71,7 +71,7 @@ class settingController extends Controller
     }
 
     // Update the description
-    $table->description = $request->input('description');
+    $table->description = $validated['description'];
     $table->save();
 
     return response()->json(['success' => true, 'session' => 'Description updated successfully']);
@@ -85,41 +85,43 @@ class settingController extends Controller
             case 'model':
                 $deleteFrom = ModelAsset::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'model_key')->exists()){
-                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'manufacturer':
                 $deleteFrom = manufacturer::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'manufacturer_key')->exists()){
-                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'location':
                 $deleteFrom = locationModel::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'loc_key')->exists()){
-                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'category':
                 $deleteFrom = category::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'ctg_ID')->exists()){
-                    return redirect()->back()->withErrors('message', 'Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
                      ->withInput(); // Fallback URL
                 }
                 break;
+            default:
+                dd(["message" => "errors"]);
         }
 
 
         if($deleteFrom !== null){
             $deleteFrom->delete();
-            return redirect()->back()->with('success', 'Setting deleted successfully.');
+            return redirect()->back()->with('Setting deleted successfully.');
         }
         else{
             dd('Errors');
-            return redirect()->back()->withErrors('errors', 'Setting deleted successfully.');
+            return redirect()->back()->withErrors('Setting deleted successfully.');
         }
 
 
