@@ -33,6 +33,7 @@ class User extends Authenticatable
         'status',
         'created_at',
         'remember_token',
+        'userPicture',
     ];
 
     /**
@@ -56,5 +57,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    /**
+     * Get the department that the user belongs to.
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'dept_id');
     }
 }

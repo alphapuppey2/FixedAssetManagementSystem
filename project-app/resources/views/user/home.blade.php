@@ -4,6 +4,7 @@
 <div class="ml-64 p-8">
 
     @yield('scanQR-content')
+    @yield('section')
     @yield('requestList-content')
     @yield('notification-content')
     @yield('profile-content')

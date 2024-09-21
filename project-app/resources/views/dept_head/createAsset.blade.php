@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-    <div class="contents">
+    <div class="contents capitalize">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -84,82 +84,41 @@
                 {{-- divider --}}
                 <div class="form-group images flex items-center flex-col AdditionalInfo">
                     <div class="imageField w-32 h-32 relative flex justify-center">
-                        <label class="im w-32 h-32 border-3 rounded-md hover:bg-blue-300 hover:border-4 hover:border-blue-400 transition ease-in ease-out" for="image">
+                        <label
+                            class="im"
+                            for="image">
                             <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
-                            class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                            alt="default">
+                                class="absolute border-3 w-32 h-32 border-3 rounded-md hover:border-blue-300 hover:border-4 hover:border-blue-400S top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover cursor-pointer"
+                                alt="default">
                         </label>
+                        <x-text-input type="file" id="image" name='image' class="hidden" />
                     </div>
-                    <x-text-input type="file" id="image" name='image' class="hidden" />
+                    {{-- Addtional Information / custom Fields --}}
                     <div class="customFields flex flex-col w-full mt-4">
-                        <div class="span relative top-0 w-full fixed text-[20px] uppercase font-semibold">Additional Information</div>
+                        <div class="w-full text-[20px] capitalize font-semibold">Additional
+                            Information</div>
                         <div class="addInfo grid grid-col-2 w-full" id="field">
                             <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
-                                <div class="fieldSet mt-2 grid grid-cols-2">
-                                    <input type="text" class="mr-2 " name="field[key][]" placeholder="key">
+                                <div class="fieldSet mt-2 grid grid-cols-2 gap-2">
+                                    <input type="text" name="field[key][]" placeholder="key">
                                     <input type="text" name="field[value][]" placeholder="value">
                                 </div>
                             </div>
                             <div class="flex w-full justify-center">
-                                <button id='addMoreFields' class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add Field</button>
+                                <button id='addMoreFields'
+                                    class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add
+                                    Field</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="butn w-full flex justify-center">
-                <x-primary-button class="mt-3 bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create Asset</x-primary-button>
+            <div class="butn mt-2 w-full flex justify-center">
+                <x-primary-button
+                    class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create
+                    Asset</x-primary-button>
             </div>
-    </form>
+        </form>
     </div>
-
-    <script>
-        function addNewFields() {
-            // Container
-            let newFieldSet = document.createElement('div');
-            newFieldSet.className = 'fieldSet mt-2 grid grid-cols-2';
-
-            // Input Key
-            let newKeyInput = document.createElement('input');
-            newKeyInput.type = 'text';
-            newKeyInput.name = 'field[key][]';
-            newKeyInput.placeholder = 'key';
-            newKeyInput.className = 'mr-2';
-
-            // input value
-            let newValueInput = document.createElement('input');
-            newValueInput.type = 'text';
-            newValueInput.name = 'field[value][]';
-            newValueInput.placeholder = 'value';
-
-            newFieldSet.appendChild(newKeyInput);
-            newFieldSet.appendChild(newValueInput);
-
-            document.querySelector('.addInfoContainer').appendChild(newFieldSet);
-        }
-
-        document.getElementById('addMoreFields').addEventListener('click', function(event) {
-            event.preventDefault();
-            addNewFields();
-        });
-
-        //image eventListener
-        document.getElementById('image').addEventListener('change', function(event) {
-            const imagePreview = document.getElementById('imageDisplay');
-            const file = event.target.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
-
-
+    @vite(['resources/js/addInfoField.js', 'resources/js/displayImage.js'])
 @endsection

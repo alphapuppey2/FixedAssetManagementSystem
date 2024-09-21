@@ -27,6 +27,18 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function adminView(Request $request): View
+    {
+
+        $user = $request->user();
+        $departmentName = $user->department ? $user->department->name : 'N/A';
+        
+        return view('admin.profile', [
+            'user' => $request->user(),
+            'departmentName' => $departmentName,
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */
@@ -48,6 +60,8 @@ class ProfileController extends Controller
         $request->validate([
             'location' => 'nullable|string|max:255',
             'contact' => 'nullable|string|max:255',
+            'birthdate' => 'nullable|date',
+            'gender' => 'nullable|string|in:male,female',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -56,6 +70,8 @@ class ProfileController extends Controller
         // Update text fields
         $user->address = $request->input('location');
         $user->contact = $request->input('contact');
+        $user->birthdate = $request->input('birthdate');
+        $user->gender = $request->input('gender');
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {

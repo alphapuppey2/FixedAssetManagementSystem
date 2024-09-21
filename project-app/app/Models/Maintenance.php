@@ -17,22 +17,30 @@ class Maintenance extends Model
         'cost',
         'requested_at',
         'authorized_at',
-        'completion',
+        'start_date',
+        'completion_date',
+        'reason',
+        'status',
         'asset_key',
         'authorized_by',
-        'requestor'
+        'requestor',
     ];
 
-    // Handle date attributes
-    protected $dates = [
-        'requested_at',
-        'authorized_at',
-        'completion'
+    // Cast timestamps to Carbon instances
+    protected $casts = [
+        'requested_at' => 'datetime',
+        'authorized_at' => 'datetime',
+        'start_date' => 'datetime',
+        'completion_date' => 'datetime',
     ];
 
     protected $primaryKey = 'id'; // Default is 'id', but specify if different
     public $incrementing = true; // Set to false if the primary key is not auto-incrementing
     protected $keyType = 'int'; // Default is 'int', change if necessary
-
+    
+    public function requestor()
+    {
+        return $this->belongsTo(User::class, 'requestor', 'id');
+    }
 
 }

@@ -2,7 +2,7 @@
     <button class="h-[10px] lg:hidden sm:block">
         <x-icons.hamburger />
     </button>
-    <a href="#">
+    <a href="{{ route('admin.profile') }}">
         <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg hover:bg-gray-300/15 transition ease-in">
             <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
             <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
@@ -41,12 +41,6 @@
                 <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('userList')" :active="request()->routeIs('userList')">
                     <x-receipticon />
                     <span class="ml-2 sm:hidden lg:block">User List</span>
-                </x-nav-link>
-            </li>
-            <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('users.create')" :active="request()->routeIs('users.create')">
-                    <x-paperplane class="bg-red-500"/>
-                    <span class="ml-2 sm:hidden lg:block">Create User Temporary</span>
                 </x-nav-link>
             </li>
 

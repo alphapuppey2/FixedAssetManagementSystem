@@ -3,7 +3,7 @@
         <x-icons.hamburger />
     </button>
     <x-nav-link :href="route('profile')">
-        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg hover:bg-gray-300/15 transition ease-in">
+        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg transition ease-in">
             <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
             <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                      class="absolute bg-white top-1/2 left-1/2 lg:w-auto lg:h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
@@ -30,46 +30,46 @@
     <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
     <nav class="flex flex-col w-full font-semibold">
         <ul class="sb h-[100%]">
-            <li class="">
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
+            <li>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
                     <x-dashIcon/>
                     <span class="ml-2 max-md:hidden lg:block">Dashboard</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset') ">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset') ">
                     <x-receipticon />
                     <span class="ml-2 max-md:hidden lg:block">Asset</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
                     <x-wrenchIcon />
                     <span class="ml-2 max-md:hidden lg:block">Maintenance</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
                     <x-chartIcon></x-chartIcon>
                     <span class="ml-2 max-md:hidden lg:block">Report</span>
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">
                     <x-gearIcon />
                     <span class="ml-2 max-md:hidden lg:block">Setting</span>
                 </x-nav-link>
             </li>
-            <li class="hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md">
-                <a href="#" class="flex">
-                    <x-bellIcon/>
-                    <span class="ml-2 max-md:hidden lg:block">Nofitifcation</span>
-                </a>
+            <li>
+                <x-nav-link href="#" class="flex transition ease-in mb-1 p-1 rounded-md">
+                        <x-bellIcon/>
+                        <span class="ml-2 max-md:hidden lg:block">Notification</span>
+                </x-nav-link>
             </li>
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                    <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
                             onclick="event.preventDefault(); this.closest('form').submit();">
                             <x-icons.logoutIcon />
                             <span class="ml-2 max-md:hidden lg:block">Log out</span>

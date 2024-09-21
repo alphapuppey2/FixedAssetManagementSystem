@@ -12,4 +12,13 @@ class department extends Model
     protected $table = 'department';
     protected $fillable = ['id','name','assetSequence'];
 
+    
+    /**
+     * Get the users for the department.
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class, 'dept_id');
+    }
+
 }
