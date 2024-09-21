@@ -24,7 +24,7 @@ class MaintenanceController extends Controller
         $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
         $searchQuery = $request->input('query', '');
 
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id');
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
         // $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
         // ->join('users', 'maintenance.requestor', '=', 'users.id') // Join with users table
         // ->select('maintenance.*', 'users.firstname as requestor_name'); // Select requestor name
@@ -69,9 +69,9 @@ class MaintenanceController extends Controller
         // Fetch the filtered and paginated results
         // $requests = $query->paginate(7);
         // $requests = $query->select('maintenance.*')->paginate(7);
-        $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
+        $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
 
@@ -123,7 +123,7 @@ class MaintenanceController extends Controller
     public function requests()
     {
         $user = Auth::user();
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'request')
             ->select('maintenance.*');
     
@@ -136,8 +136,8 @@ class MaintenanceController extends Controller
     
         // $requests = $query->get();
         $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
     
