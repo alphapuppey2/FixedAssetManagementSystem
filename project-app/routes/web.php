@@ -11,7 +11,9 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\settingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QRUserController;
+use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
+use App\Http\Controllers\PreventiveMaintenanceController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -92,7 +94,19 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
     Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
-    Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
+
+    Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
+    Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
+
+    Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
+   
+    Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
+
+    Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
+
+    // Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
+
+    Route::get('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate']);
 
     //setting page
     Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');

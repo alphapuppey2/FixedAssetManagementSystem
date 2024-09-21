@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\assetModel;
+use App\Models\category;
+use App\Models\locationModel;
+use App\Models\ModelAsset;
+use App\Models\Manufacturer;
+use App\Models\Preventive;
+
 
 
 class MaintenanceController extends Controller
@@ -17,7 +24,7 @@ class MaintenanceController extends Controller
         $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
         $searchQuery = $request->input('query', '');
 
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id');
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
         // $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
         // ->join('users', 'maintenance.requestor', '=', 'users.id') // Join with users table
         // ->select('maintenance.*', 'users.firstname as requestor_name'); // Select requestor name
@@ -62,9 +69,9 @@ class MaintenanceController extends Controller
         // Fetch the filtered and paginated results
         // $requests = $query->paginate(7);
         // $requests = $query->select('maintenance.*')->paginate(7);
-        $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
+        $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
 
@@ -116,7 +123,7 @@ class MaintenanceController extends Controller
     public function requests()
     {
         $user = Auth::user();
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'request')
             ->select('maintenance.*');
     
@@ -129,8 +136,8 @@ class MaintenanceController extends Controller
     
         // $requests = $query->get();
         $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
         ->paginate(7);
     
@@ -331,6 +338,130 @@ class MaintenanceController extends Controller
             return response($csvContent)
                 ->header('Content-Type', 'text/csv')
                 ->header('Content-Disposition', 'attachment; filename="maintenance_' . $tab . '_' . now()->format('Y-m-d_H:i:s') . '.csv"');
+        }
+
+
+        // public function create() {
+        //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
+        //     return view('dept_head.createmaintenance', compact('assets'));
+        // }
+
+        // public function create() {
+        //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
+        //     $categories = category::all(['id', 'name']);       // Retrieve category id and name
+        //     $locations = locationModel::all(['id', 'name']);        // Retrieve location id and name
+        //     $models = ModelAsset::all(['id', 'name']);              // Retrieve model id and name
+        //     $manufacturers = Manufacturer::all(['id', 'name']); // Retrieve manufacturer id and name
+        
+        //     return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
+        // }
+
+        public function create() {
+            // Get the currently authenticated user
+            $user = Auth::user();
+        
+            // Only retrieve assets that belong to the same department as the user
+            $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        
+            // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
+            $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
+            $locations = locationModel::all(['id', 'name']); // No department link, fetching all
+            $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
+            $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
+        
+            return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
+        }
+
+        // public function getAssetDetails($id) {
+        //     // Retrieve the asset details based on its id
+        //     $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
+
+        //     // Prepare the image URL or set to "No Image" placeholder
+        //     $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png'); 
+
+        //     // Return the asset details as JSON
+        //     return response()->json($asset);
+        // }
+        public function getAssetDetails($id) {
+            // Retrieve the asset details based on its id, including relationships
+            $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
+
+            if (!$asset) {
+                return response()->json(['error' => 'Asset not found'], 404); // Error handling
+            }
+
+            // Prepare the image URL or set to "No Image" placeholder
+            $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png'); 
+            
+            // Return the asset details as a custom JSON response
+            return response()->json([
+                'id' => $asset->id,
+                'code' => $asset->code, // Asset code
+                'name' => $asset->name, // Asset name
+                'model' => $asset->model ? ['id' => $asset->model->id, 'name' => $asset->model->name] : null,
+                'category' => $asset->category ? ['id' => $asset->category->id, 'name' => $asset->category->name] : null,
+                'location' => $asset->location ? ['id' => $asset->location->id, 'name' => $asset->location->name] : null,
+                'manufacturer' => $asset->manufacturer ? ['id' => $asset->manufacturer->id, 'name' => $asset->manufacturer->name] : null,
+                'image_url' => $asset->image_url // Image URL
+            ]);
+        }
+
+        public function store(Request $request) {
+            // Validate the form input
+            $validatedData = $request->validate([
+                'asset_code' => 'required|exists:asset,id',
+                'cost' => 'required|numeric',
+                'frequency' => 'required|string',
+                'repeat' => 'nullable|integer',
+                'interval' => 'nullable|integer',
+                'ends' => ['required', 'regex:/^(never|\d+)$/'],  // Allow "never" or a numeric value
+                'occurrence' => 'nullable|integer', // For custom occurrences
+            ]);
+        
+            // Determine the frequency in days
+            $frequencyDays = 0;
+            switch ($validatedData['frequency']) {
+                case 'every_day':
+                    $frequencyDays = 1;
+                    break;
+                case 'every_week':
+                    $frequencyDays = 7;
+                    break;
+                case 'every_month':
+                    $frequencyDays = 30;
+                    break;
+                case 'every_year':
+                    $frequencyDays = 365;
+                    break;
+                case 'custom':
+                    if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
+                        $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
+                    } else {
+                        $frequencyDays = 1; // Set a default value if repeat or interval is null
+                    }
+                    break;
+            }
+        
+            // Handle 'ends' logic correctly
+            if ($validatedData['ends'] === 'never') {
+                $ends = 0; // Never ends
+            } else {
+                $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
+            }
+            
+        
+            // Insert the data into the preventive table
+            Preventive::create([
+                'asset_key' => $validatedData['asset_code'],  // Assuming asset_key is the asset ID
+                'cost' => $validatedData['cost'],
+                'frequency' => $frequencyDays,  // Frequency stored in days
+                'ends' => $ends,  // 0 for "never", a number for occurrences
+            ]);
+
+            // Set session value for success notification
+            session()->flash('status', 'Maintenance schedule created successfully!');
+        
+            return redirect()->route('maintenance_sched')->with('success', 'Maintenance schedule created successfully!');
         }
         
         

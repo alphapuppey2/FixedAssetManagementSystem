@@ -44,8 +44,14 @@
             </li>
             <li>
                 <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
-                    <x-wrenchIcon />
-                    <span class="ml-2 max-md:hidden lg:block">Maintenance</span>
+                    <x-paperplane />
+                    <span class="ml-2 max-md:hidden lg:block">Maintenance Request</span>
+                </x-nav-link>
+            </li>
+            <li>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance_sched')" :active="request()->routeIs('maintenance_sched') || request()->routeIs('maintenance_sched.predictive')">
+                    <x-wrenchicon />
+                    <span class="ml-2 max-md:hidden lg:block">Maintenance Scheduling</span>
                 </x-nav-link>
             </li>
             <li>
