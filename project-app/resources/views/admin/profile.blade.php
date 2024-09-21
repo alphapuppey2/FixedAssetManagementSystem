@@ -1,4 +1,8 @@
-<!-- resources/views/admin/profile.blade.php -->
+{{-- 
+    THIS WILL DISPLAY THE PROFILE OF THE CURRENT USER.
+    ALLOWING THE TO EDIT THEIR INFORMATION AND CHANGE PASSWORD.
+--}}
+
 @include('components.icons')
 @extends('layouts.app')
 

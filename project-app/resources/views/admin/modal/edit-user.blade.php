@@ -1,3 +1,9 @@
+{{-- 
+    THIS IS A MODAL THAT CAN BE OPENED FROM THE USER LIST TABLE, AND CLICKING THE EDIT ICON (BUTTON) IN THE ACTION TAB
+    THIS WILL DISPLAY A USERS INFORMATION.
+    ALLOWS THE ADMIN TO EDIT THE USER INFORMATION
+--}}
+
 <!-- Modal backdrop -->
 <div id="editUserModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl mx-4 sm:mx-auto relative">

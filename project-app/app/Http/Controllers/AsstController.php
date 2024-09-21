@@ -14,8 +14,35 @@ use Illuminate\Support\Facades\Storage;
 
 class AsstController extends Controller
 {
-    //
-    public function show(){
+    public function showAllAssets(){
+        $assets = DB::table('asset')
+                    ->join('department', 'asset.dept_ID', '=', 'department.id')
+                    ->join('category', 'asset.ctg_ID', '=', 'category.id')
+                    ->select('asset.id', 'asset.code' , 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+                    ->orderBy('asset.code', 'asc')
+                    ->paginate(10);
+    
+        return view("admin.asset-list", compact('assets'));
+    }
+
+    public function showAssetsByDept($dept = null) {
+        $query = DB::table('asset')
+                    ->join('department', 'asset.dept_ID', '=', 'department.id')
+                    ->join('category', 'asset.ctg_ID', '=', 'category.id')
+                    ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+                    ->orderBy('asset.code', 'asc');
+        
+        // If department is selected, filter by department ID
+        if ($dept) {
+            $query->where('asset.dept_ID', $dept);
+        }
+    
+        $assets = $query->paginate(10);
+    
+        return view("admin.asset-list", compact('assets'));
+    }
+
+    public function showDeptAsset(){
         $userDept = Auth::user()->dept_id;
 
 

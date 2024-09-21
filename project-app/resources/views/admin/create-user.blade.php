@@ -1,3 +1,8 @@
+{{-- 
+    THIS IS THE CREATE USER PAGE.
+    ALLOWS ADMIN TO CREATE A NEW USER.
+--}}
+
 @extends('layouts.app')
 
 @section('header')

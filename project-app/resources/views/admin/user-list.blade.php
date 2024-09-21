@@ -1,3 +1,7 @@
+{{-- 
+    THIS WILL DISPLAY THE LIST OF USERS IN A TABLE
+--}}
+
 @extends('layouts.app')
 
 @section('header')
@@ -69,7 +73,7 @@
                             <td>{{ $item->lastname }}</td>
                             <td>{{ $item->email }}</td>
                             <td>
-                                <x-user-department :deptId="$item->dept_id" />
+                                <x-department :deptId="$item->dept_id" />
                             </td>
                             <td>{{ $item->usertype }}</td>
                             <td class="items-center space-x-2">

@@ -1,4 +1,8 @@
-<!-- resources/views/admin/profile_password.blade.php -->
+{{-- 
+    THIS IS THE CHANGE PASSWORD PAGE.
+    LOGGED IN USER CAN CHANGE THEIR PASSWORD HERE
+--}}
+
 @extends('layouts.app')
 
 @section('header')
