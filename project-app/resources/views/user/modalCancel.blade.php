@@ -26,16 +26,22 @@
                 </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 sm:px-6 flex justify-between sm:justify-end space-x-3">
-                <button type="button" onclick="hideModal()" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 w-28 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    No, Go Back
-                </button>
+                <!-- No, Go Back Button without SVG and Form -->
+                <form method="POST" id="noForm">
+                    <button type="button" onclick="hideModal()" class="inline-flex justify-center items-center rounded-md border border-gray-300 shadow-sm px-4 py-2 w-28 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        No, Go Back
+                    </button>
+                </form>
+
+                <!-- Yes, Cancel Button without SVG and Form -->
                 <form method="POST" id="cancelForm">
                     @csrf
-                    <button type="submit" class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 w-28 bg-red-600 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <button type="submit" class="inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 w-28 bg-blue-900 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Yes, Cancel
                     </button>
                 </form>
             </div>
+
         </div>
     </div>
 </div>

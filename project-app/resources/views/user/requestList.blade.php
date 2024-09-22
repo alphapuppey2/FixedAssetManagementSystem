@@ -3,7 +3,9 @@
 
 @section('requestList-content')
     <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-semibold text-gray-800">Request List</h1>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            REQUEST LIST
+        </h2>
 
         <!-- Search Bar -->
         <form method="GET" action="{{ route('requests.list') }}" class="relative w-full max-w-sm">
