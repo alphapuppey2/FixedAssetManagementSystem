@@ -16,19 +16,20 @@ return new class extends Migration
             $table->string('name');
             $table->string('image')->nullable();
             $table->string('code')->unique();
-
+            $table->date('purchase_date');
             $table->decimal("cost",10,2)->default(0);
             $table->decimal("depreciation",10,2)->default(0.00);
             $table->decimal("salvageVal",10,2)->default(0.00);
             $table->integer('usage_Lifespan')->nullable();
-
             $table->enum('status', ['active','deployed','need Repair','under Maintenance','dispose'])->default('active');
+            $table->binary('custom_fields');
+
             $table->unsignedBigInteger('ctg_ID');
             $table->unsignedBigInteger('dept_ID');
             $table->unsignedBigInteger('manufacturer_key');
             $table->unsignedBigInteger('model_key');
             $table->unsignedBigInteger('loc_key');
-            $table->binary('custom_fields');
+
             $table->foreign('model_key')->references('id')->on('model')->onDelete('cascade');
             $table->foreign('loc_key')->references('id')->on('location')->onDelete('cascade');
             $table->foreign('manufacturer_key')->references('id')->on('manufacturer')->onDelete('cascade');
