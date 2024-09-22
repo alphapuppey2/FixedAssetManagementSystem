@@ -22,7 +22,7 @@ class AsstController extends Controller
                     ->orderBy('asset.code', 'asc')
                     ->paginate(10);
     
-        return view("admin.asset-list", compact('assets'));
+        return view("admin.assetList", compact('assets'));
     }
 
     public function showAssetsByDept($dept = null) {
@@ -39,7 +39,7 @@ class AsstController extends Controller
     
         $assets = $query->paginate(10);
     
-        return view("admin.asset-list", compact('assets'));
+        return view("admin.assetList", compact('assets'));
     }
 
     public function searchAssets(Request $request)
@@ -59,7 +59,7 @@ class AsstController extends Controller
             ->paginate($perPage);
 
         // Return the view with the filtered assets
-        return view('admin.asset-list', compact('assets'));
+        return view('admin.assetList', compact('assets'));
     }
 
     public function showDeptAsset(){

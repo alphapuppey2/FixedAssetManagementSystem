@@ -21,7 +21,7 @@ class UserController extends Controller{
         $userList = DB::table('users')
             ->paginate($perPage); // Dynamically set the number of rows per page
     
-        return view('admin.user-list', ['userList' => $userList]);
+        return view('admin.userList', ['userList' => $userList]);
     }
     
     
@@ -113,7 +113,7 @@ class UserController extends Controller{
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
     
-        return view('admin.user-list', ['userList' => $userList]);
+        return view('admin.userList', ['userList' => $userList]);
     }
     
     

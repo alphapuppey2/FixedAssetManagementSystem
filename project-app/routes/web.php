@@ -54,7 +54,7 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     // CREATE USER
     Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/admin/user-create', function () {
-        return view('admin.create-user');
+        return view('admin.createUser');
     })->name('users.create');
 
     // ASSET LIST
@@ -69,7 +69,7 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     Route::get('/admin/profile', [ProfileController::class, 'adminView'])->name('admin.profile');
     Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
     Route::get('/admin/profile_password', function () {
-        return view('admin.profile_password');
+        return view('admin.profilePassword');
     })->name('admin.profile_password');
 
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
