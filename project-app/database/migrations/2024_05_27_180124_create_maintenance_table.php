@@ -25,8 +25,8 @@ return new class extends Migration
             $table->timestamps();
         
             $table->unsignedBigInteger('asset_key');
-            $table->unsignedBigInteger('authorized_by');
-            $table->unsignedBigInteger('requestor');
+            $table->unsignedBigInteger('authorized_by')->nullable();
+            $table->unsignedBigInteger('requestor')->nullable();
 
             $table->foreign('asset_key')->references('id')->on('asset')->onDelete('cascade');
             $table->foreign('authorized_by')->references('id')->on('users')->onDelete('cascade');

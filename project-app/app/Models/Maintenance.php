@@ -12,6 +12,7 @@ class Maintenance extends Model
 
     // Specify which attributes are mass-assignable
     protected $fillable = [
+        'id',
         'description',
         'type',
         'cost',
@@ -37,7 +38,7 @@ class Maintenance extends Model
     protected $primaryKey = 'id'; // Default is 'id', but specify if different
     public $incrementing = true; // Set to false if the primary key is not auto-incrementing
     protected $keyType = 'int'; // Default is 'int', change if necessary
-    
+
     public function requestor()
     {
         return $this->belongsTo(User::class, 'requestor', 'id');
