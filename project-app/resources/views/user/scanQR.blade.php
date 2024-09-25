@@ -4,7 +4,7 @@
 
     <h1 class="text-3xl font-semibold mb-4 mt-10 text-center">Scan QR</h1>
     <p class="text-center">Choose one of the options below:</p>
-    
+
     <div id="placeholderImage">
         <img src="https://img.freepik.com/free-vector/smartphone-scanning-qr-code_23-2148624200.jpg" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
     </div>
