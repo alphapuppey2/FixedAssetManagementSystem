@@ -44,6 +44,8 @@ class AsstController extends Controller
         $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
 
 
+        dd($AssetMaintenance);
+        dd($asset);
         return view('dept_head.MaintenanceHistory' , compact('AssetMaintenance','asset'));
     }
     public function showForm(){
