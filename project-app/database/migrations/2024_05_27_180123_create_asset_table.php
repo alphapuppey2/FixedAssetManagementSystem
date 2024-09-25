@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('image')->nullable();
+            $table->string('qr')->nullable();
             $table->string('code')->unique();
             $table->date('purchase_date');
             $table->decimal("cost",10,2)->default(0);
