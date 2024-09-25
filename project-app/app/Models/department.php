@@ -10,9 +10,13 @@ class department extends Model
     use HasFactory;
 
     protected $table = 'department';
-    protected $fillable = ['id','name','assetSequence'];
+    protected $fillable = ['id',
+                           'name',
+                           'assetSequence',
+                           'customs_fields',
+                        ];
 
-    
+
     /**
      * Get the users for the department.
      */
