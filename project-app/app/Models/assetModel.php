@@ -50,7 +50,12 @@ class assetModel extends Model
     }
 
     public function preventive()
-{
-    return $this->hasMany(Preventive::class, 'asset_key');
-}
+    {
+        return $this->hasMany(Preventive::class, 'asset_key');
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : asset('images/no-image.png');
+    }
 }
