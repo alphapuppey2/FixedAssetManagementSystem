@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('assetSequence')->default(0);
+            $table->binary('custom_fields')->nullable();
             $table->string('description');
             $table->timestamps();
         });

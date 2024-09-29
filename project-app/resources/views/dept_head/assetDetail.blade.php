@@ -198,7 +198,7 @@
                 <div class="maintenance flex flex-col justify-center items-center">
                     <div class="header w-full flex justify-between">
                         <h1>MAINTENANCE HISTORY</h1>
-                        <a href="#" class="text-[12px] text-blue-500"> VIEW ALL</a>
+                        <a href="{{ route('asset.history', $data->id) }}" class="text-[12px] text-blue-500"> VIEW ALL</a>
                     </div>
                     <div class="dvder w-full h-[1px] border-1 border-slate-500 mt-2 mb-2"></div>
                     <table class="w-full">

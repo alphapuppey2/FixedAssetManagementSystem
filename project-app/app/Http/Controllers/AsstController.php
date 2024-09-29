@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\assetModel;
+use App\Models\Maintenance;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -87,6 +91,17 @@ class AsstController extends Controller
         return view("dept_head.asset" ,compact('asset'));
     }
 
+    public function showHistory($id){
+        //history of a Asset
+        $asset = AssetModel::where('asset.id', $id)
+                                    ->select("asset.code as assetCode")->first();
+        $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
+
+
+        dd($AssetMaintenance);
+        dd($asset);
+        return view('dept_head.MaintenanceHistory' , compact('AssetMaintenance','asset'));
+    }
     public function showForm(){
 
         $usrDPT = Auth::user()->dept_id;
@@ -184,6 +199,7 @@ class AsstController extends Controller
     }
 
     public static function assetCount(){
+        //dashboard
         $userDept = Auth::user()->dept_id;
 
         $asset['active'] = DB::table('asset')->where('asset.status','=' , 'active')
@@ -263,21 +279,28 @@ class AsstController extends Controller
 
     public function searchFiltering(Request $request)
     {
-        // Get the search query from the request
         $search = $request->input('search');
 
-        // Query the model and filter based on all columns
-        $asst = assetModel::where(function($query) use ($search) {
-            $columns = Schema::getColumnListing('asset');
-            foreach ($columns as $column) {
-                $query->orWhere($column, 'LIKE', "%{$search}%");
-            }
-        })->get();
+        // Log the search term
+        Log::info('Search term received: ' . $search);
 
-        // Return the results as JSON
-        return response()->json($asst);
+        try {
+            // Assuming you are searching the 'name' and 'code' columns
+            $assets = assetModel::where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('code', 'LIKE', "%{$search}%")
+                                ->get();
+
+            // Log the number of assets found
+            Log::info('Assets found: ' . $assets->count());
+
+            return response()->json($assets);
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error in searchFiltering: ' . $e->getMessage());
+
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
     }
-
     public function delete($id){
 
         $assetDel = assetModel::findOrFail($id);

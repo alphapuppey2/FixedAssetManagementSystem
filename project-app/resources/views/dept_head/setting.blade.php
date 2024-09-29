@@ -12,7 +12,11 @@
     <div class="cont relative p-1 h-full">
         @if ($errors->any())
             <div class="alert alert-danger">
-                {{ dd($errors) }}
+                <ul>
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
         <div class="container relative p-2 grid grid-rows-1 gap-2">
@@ -130,14 +134,14 @@
 
                 // Get the active tab
                 const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab'); // This will get the value 'model'
+                let activeTab = urlParams.get('tab');
 
                 if (activeTab === null) {
                     activeTab = 'model';
                 }
 
                 // AJAX call to save the new description
-                fetch(`/setting/update/${activeTab}/${rowId}`, { // Correct URL construction
+                fetch(`/setting/update/${activeTab}/${rowId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
