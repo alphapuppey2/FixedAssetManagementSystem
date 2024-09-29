@@ -297,49 +297,120 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
 
-    public function showDetails($id){
-        $userDept = Auth::user()->dept_id;
+    // public function showDetails($id){
+    //     $userDept = Auth::user()->dept_id;
 
-        $department = array('list' => DB::table('department')->get());
-        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
-        $location = array('locs' => DB::table('location')->get());
-        $model = array('mod' => DB::table('model')->get());
-        $manufacturer = array('mcft' => DB::table('manufacturer')->get());
-        $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
+    //     $department = array('list' => DB::table('department')->get());
+    //     $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
+    //     $location = array('locs' => DB::table('location')->get());
+    //     $model = array('mod' => DB::table('model')->get());
+    //     $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+    //     $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
 
-        //$id is for asset code ...
+    //     //$id is for asset code ...
 
-        $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
-                                    ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
-                                    ->join('category','asset.ctg_ID' , '=','category.id')
-                                    ->join('model','asset.model_key' , '=','model.id')
-                                    ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
-                                    ->join('location','asset.loc_key' , '=','location.id')
-                                    ->select(
-                                        'asset.id',
-                                        'asset.depreciation',
-                                        'asset.image',
-                                        'asset.name',
-                                        'asset.code',
-                                        'asset.cost',
-                                        'asset.salvageVal',
-                                        'asset.usage_Lifespan',
-                                        'asset.status',
-                                        'asset.custom_fields',
-                                        'asset.created_at',
-                                        'asset.updated_at',
-                                        'category.name as category',
-                                        'model.name as model',
-                                        'location.name as location',
-                                        'manufacturer.name as manufacturer',
-                                        )
-                                    ->get();
-        $fields = json_decode($retrieveData[0]->custom_fields,true);
+    //     $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+    //                                 ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
+    //                                 ->join('category','asset.ctg_ID' , '=','category.id')
+    //                                 ->join('model','asset.model_key' , '=','model.id')
+    //                                 ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
+    //                                 ->join('location','asset.loc_key' , '=','location.id')
+    //                                 ->select(
+    //                                     'asset.id',
+    //                                     'asset.depreciation',
+    //                                     'asset.image',
+    //                                     'asset.name',
+    //                                     'asset.code',
+    //                                     'asset.cost',
+    //                                     'asset.salvageVal',
+    //                                     'asset.usage_Lifespan',
+    //                                     'asset.status',
+    //                                     'asset.custom_fields',
+    //                                     'asset.created_at',
+    //                                     'asset.updated_at',
+    //                                     'category.name as category',
+    //                                     'model.name as model',
+    //                                     'location.name as location',
+    //                                     'manufacturer.name as manufacturer',
+    //                                     )
+    //                                 ->get();
+    //     $fields = json_decode($retrieveData[0]->custom_fields,true);
+        
+    //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
+    // }
 
-        // dd($status);
-        //  dd($fields);
-        return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
+    public function showDetails($id)
+{
+    // Get the logged-in user's department ID and user type
+    $userDept = Auth::user()->dept_id;
+    $userType = Auth::user()->usertype;
+
+    // Retrieve necessary data from related tables
+    $department = ['list' => DB::table('department')->get()];
+    $categories = ['ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+        return $query->where('dept_ID', $userDept);
+    })->get()];
+    $location = ['locs' => DB::table('location')->get()];
+    $model = ['mod' => DB::table('model')->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+    $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
+
+    // Build the query to retrieve the asset data based on the asset ID
+    $retrieveDataQuery = assetModel::where('asset.id', $id)
+        ->join('department', 'asset.dept_id', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->join('model', 'asset.model_key', '=', 'model.id')
+        ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+        ->join('location', 'asset.loc_key', '=', 'location.id')
+        ->select(
+            'asset.id',
+            'asset.depreciation',
+            'asset.image',
+            'asset.name',
+            'asset.code',
+            'asset.cost',
+            'asset.salvageVal',
+            'asset.usage_Lifespan',
+            'asset.status',
+            'asset.custom_fields',
+            'asset.created_at',
+            'asset.updated_at',
+            'category.name as category',
+            'model.name as model',
+            'location.name as location',
+            'manufacturer.name as manufacturer'
+        );
+
+    // If the user is not an admin, filter by dept_ID
+    if ($userType != 'admin') {
+        $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
     }
+
+    // Retrieve the asset data
+    $retrieveData = $retrieveDataQuery->first();
+
+    // If no asset is found, redirect with an error message
+    if (!$retrieveData) {
+        // Check the user type and redirect accordingly
+        if ($userType == 'admin') {
+            return redirect()->route('assetList')->with('error', 'Asset not found.');
+        } else {
+            return redirect()->route('asset')->with('error', 'Asset not found.');
+        }
+    }
+
+    // Decode the custom fields
+    $fields = json_decode($retrieveData->custom_fields, true);
+
+    // Determine the view based on user type
+    $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
+
+    // Return the appropriate view with the asset data
+    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+}
+
+    
+
 
     public function showRequestList() {
         // Fetch requests using the DB facade

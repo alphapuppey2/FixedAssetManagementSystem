@@ -9,7 +9,7 @@
         </div>
         <div class="header-R flex items-center">
             <!-- Department filter dropdown -->
-            <form method="GET" action="{{ route('admin.assetList') }}" class="flex space-x-4">
+            <form method="GET" action="{{ route('assetList') }}" class="flex space-x-4">
                 <select name="dept" class="border border-gray-300 rounded px-2 py-1" onchange="this.form.submit()">
                     <option value="">All Departments</option>
                     @foreach($departments as $department)
@@ -25,7 +25,7 @@
 
 @section('content')
     <div class="cont">
-        <form method="GET" action="{{ route('admin.assetList') }}">
+        <form method="GET" action="{{ route('assetList') }}">
             <!-- Rows per page dropdown -->
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-2">
