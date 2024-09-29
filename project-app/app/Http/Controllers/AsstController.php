@@ -25,7 +25,7 @@ class AsstController extends Controller
         return view("admin.assetList", compact('assets'));
     }
 
-    public function showAssetsByDept($dept = null) {
+    public function showAssetsByDept($dept = null){
         $query = DB::table('asset')
                     ->join('department', 'asset.dept_ID', '=', 'department.id')
                     ->join('category', 'asset.ctg_ID', '=', 'category.id')
@@ -42,18 +42,25 @@ class AsstController extends Controller
         return view("admin.assetList", compact('assets'));
     }
 
-    public function searchAssets(Request $request)
-    {
+    public function searchAssets(Request $request){
         // Get search query and rows per page
         $query = $request->input('query');
         $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+        $deptId = $request->input('dept'); // Get the department ID from the request, if present
 
         // Build the query to search assets by name or code
         $assets = DB::table('asset')
-            ->where('asset.name', 'like', '%' . $query . '%')
-            ->orWhere('code', 'like', '%' . $query . '%')
-            ->join('department', 'asset.dept_ID', '=', 'department.id') // Assuming dept_ID is in asset
-            ->join('category', 'asset.ctg_ID', '=', 'category.id') // Assuming ctg_ID is in asset
+            ->when($deptId, function ($query, $deptId) {
+                // Apply department filter if deptId is provided
+                return $query->where('asset.dept_ID', '=', $deptId);
+            })
+            ->where(function ($subquery) use ($query) {
+                // Search by asset name or code
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                        ->orWhere('asset.code', 'like', '%' . $query . '%');
+            })
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
             ->orderBy('asset.name', 'asc') // Order by name or another column if needed
             ->paginate($perPage);
@@ -79,6 +86,7 @@ class AsstController extends Controller
 
         return view("dept_head.asset" ,compact('asset'));
     }
+
     public function showForm(){
 
         $usrDPT = Auth::user()->dept_id;
@@ -93,6 +101,7 @@ class AsstController extends Controller
 
         return view('dept_head.createAsset',compact('departments' , 'categories','location' ,'model','manufacturer'));
     }
+
     public  function convertJSON($key , $value){
 
         $additionalInfo = [];
@@ -107,6 +116,7 @@ class AsstController extends Controller
         }
         return json_encode($additionalInfo);
     }
+
     public function create(Request $request){
         $userDept = Auth::user()->dept_id;
         // dd($request);
@@ -172,6 +182,7 @@ class AsstController extends Controller
 
         return redirect()->to('/asset')->with('success' , 'New Asset Created');
     }
+
     public static function assetCount(){
         $userDept = Auth::user()->dept_id;
 
@@ -249,6 +260,7 @@ class AsstController extends Controller
                     return redirect()->route("asset")->with('failed', 'Asset update Failed!');
                 }
     }
+
     public function searchFiltering(Request $request)
     {
         // Get the search query from the request
@@ -284,8 +296,6 @@ class AsstController extends Controller
 
         return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
-
-
 
     public function showDetails($id){
         $userDept = Auth::user()->dept_id;
@@ -333,8 +343,6 @@ class AsstController extends Controller
 
     public function showRequestList() {
         // Fetch requests using the DB facade
-
-
         $requests = DB::table('request')->where('request.requestor','=',Auth::user()->id)
                                         ->join('asset','asset.id' , '=', 'request.asset_id')
                                         ->join('department','department.id' , '=', 'asset.dept_ID')
@@ -366,9 +374,6 @@ class AsstController extends Controller
                                             'request.created_at',
                                             'request.updated_at',
                                     )->get();
-
-        // dd($requests);
-
 
         // Debugging the query output
         if ($requests->isEmpty()) {

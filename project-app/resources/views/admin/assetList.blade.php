@@ -26,11 +26,14 @@
     <div class="cont">
         <div>
             <form method="GET" action="{{ route('searchAssets') }}" class="flex flex-col space-y-4">
+                <!-- Add hidden field for department ID -->
+                <input type="hidden" name="dept" value="{{ request()->dept }}">
+                
                 <!-- Search Input and Button -->
-                <x-search-input placeholder="Search by name or email" />
-                <!-- Pagination and Rows Per Page Controls -->
+                <x-search-input placeholder="Search by name or code" />
+
+                <!-- Rows Per Page Dropdown and Pagination Controls -->
                 <div class="flex justify-between items-center mb-4">
-                    <!-- Rows per page dropdown -->
                     <div class="flex items-center space-x-2">
                         <label for="perPage">Rows per page: </label>
                         <select name="perPage" id="perPage" class="border border-gray-300 rounded px-2 py-1 w-16" onchange="this.form.submit()">
@@ -40,7 +43,6 @@
                             <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
                         </select>
                     </div>
-                    <!-- Pagination and Showing Results -->
                     @if($assets->hasPages())
                         <div class="flex items-center space-x-4">
                             <span class="text-gray-600">Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets</span>

@@ -15,15 +15,14 @@ class UserController extends Controller{
     // SHOWS USER LIST
     public function getUserList(Request $request){
         // Get the number of rows to display per page (default is 10)
-        $perPage = $request->input('perPage', 10); // Default to 10 rows per page if not set
-    
+        $perPage = $request->input('perPage', 10);
+
         // Use paginate directly on the query, before transforming the data
         $userList = DB::table('users')
-            ->paginate($perPage); // Dynamically set the number of rows per page
-    
+            ->paginate($perPage);
+
         return view('admin.userList', ['userList' => $userList]);
     }
-    
     
     // EDIT/UPDATE USER DETAILS
     public function update(Request $request){
@@ -115,8 +114,6 @@ class UserController extends Controller{
     
         return view('admin.userList', ['userList' => $userList]);
     }
-    
-    
 
     public function store(Request $request){
         // Validate the incoming request data

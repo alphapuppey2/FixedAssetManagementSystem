@@ -58,7 +58,7 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     })->name('users.create');
 
     // ASSET LIST
-    Route::get('/admin/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
+    Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
     Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
