@@ -195,12 +195,13 @@ class settingController extends Controller
                                      "helptext" => $validation['helptxt']]);
                 }
                 else{
-                    $column = array_column( $customF, 'name');
+                    $collect = collect($customF);
+                    $column = $collect->contains('name' , $validation['nameSet']);
 
-                    $index = array_search($column , $validation['nameSet']);
 
-                    if($index !== false ){
-                        return redirect()->back()->withErrors('Failed', 'Names repetitive.');
+
+                    if($column !== false ){
+                        return redirect()->back()->withErrors(['errors' =>'The Name Provided is existed']);
                     }
 
 
