@@ -43,10 +43,10 @@ class UserController extends Controller{
             'usertype' => 'required|in:user,dept_head,admin',
             'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         // Find the user and update their information
         $user = User::findOrFail($request->id);
-    
+
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
@@ -54,7 +54,7 @@ class UserController extends Controller{
             $file->move(public_path('uploads/profile_photos'), $filename);
             $user->userPicture = $filename;
         }
-    
+
         // Update other user detalis
         $user->employee_id = $request->employee_id;
         $user->firstname = $request->firstname;
@@ -69,9 +69,9 @@ class UserController extends Controller{
         $user->birthdate = $request->birthdate;
         $user->usertype = $request->usertype;
         $user->updated_at = now(); // Update the timestamp
-    
+
         $user->save();
-    
+
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
 
@@ -90,20 +90,20 @@ class UserController extends Controller{
                     : back()->withErrors(['email' => __($status)]);
 
     }
-    
+
     // HARD DELETE
     public function delete($id){
         // Find the user and delete
         $user = User::findOrFail($id);
         $user->delete();
-    
+
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
 
     public function search(Request $request){
         $query = $request->input('query');
         $perPage = $request->input('perPage', 10); // Get rows per page from the request
-    
+
         // Perform search query and paginate the results
         $userList = DB::table('users')
             ->where('firstname', 'like', "%{$query}%")
@@ -145,7 +145,7 @@ class UserController extends Controller{
             $file->move(public_path('uploads/profile_photos'), $filename);
             $profilePicturePath = $filename;
         }
-        
+
         // Create the new user
         $user = User::create([
             'firstname' => $validated['firstname'],

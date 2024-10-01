@@ -158,13 +158,15 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
-    route::post('/repair-request', [RepairController::class, 'store'])->name('repair.request');
+    route::post('/maintenance/create', [MaintenanceController::class, 'createRequest'])->name('maintenance.create');
 
     Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
 
     Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
 
-    Route::get('/requests', [AsstController::class, 'showRequestList'])->name('requests.list');
+    route::get('/requests/list', [MaintenanceController::class, 'showRequestList'])->name('requests.list');
+
+    route::post('/requests/cancel/{id}', [MaintenanceController::class, 'cancelRequest'])->name('requests.cancel');
 
     Route::get('/user/notification', function () {
         return view('user.notification');
