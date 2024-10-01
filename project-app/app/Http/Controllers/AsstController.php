@@ -18,8 +18,62 @@ use Illuminate\Support\Facades\Storage;
 
 class AsstController extends Controller
 {
-    //
-    public function show(){
+    public function showAllAssets(){
+        $assets = DB::table('asset')
+                    ->join('department', 'asset.dept_ID', '=', 'department.id')
+                    ->join('category', 'asset.ctg_ID', '=', 'category.id')
+                    ->select('asset.id', 'asset.code' , 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+                    ->orderBy('asset.code', 'asc')
+                    ->paginate(10);
+    
+        return view("admin.assetList", compact('assets'));
+    }
+
+    public function showAssetsByDept($dept = null){
+        $query = DB::table('asset')
+                    ->join('department', 'asset.dept_ID', '=', 'department.id')
+                    ->join('category', 'asset.ctg_ID', '=', 'category.id')
+                    ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+                    ->orderBy('asset.code', 'asc');
+        
+        // If department is selected, filter by department ID
+        if ($dept) {
+            $query->where('asset.dept_ID', $dept);
+        }
+    
+        $assets = $query->paginate(10);
+    
+        return view("admin.assetList", compact('assets'));
+    }
+
+    public function searchAssets(Request $request){
+        // Get search query and rows per page
+        $query = $request->input('query');
+        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+        $deptId = $request->input('dept'); // Get the department ID from the request, if present
+
+        // Build the query to search assets by name or code
+        $assets = DB::table('asset')
+            ->when($deptId, function ($query, $deptId) {
+                // Apply department filter if deptId is provided
+                return $query->where('asset.dept_ID', '=', $deptId);
+            })
+            ->where(function ($subquery) use ($query) {
+                // Search by asset name or code
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                        ->orWhere('asset.code', 'like', '%' . $query . '%');
+            })
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->select('asset.*', 'department.name as department', 'category.name as category')
+            ->orderBy('asset.name', 'asc') // Order by name or another column if needed
+            ->paginate($perPage);
+
+        // Return the view with the filtered assets
+        return view('admin.assetList', compact('assets'));
+    }
+
+    public function showDeptAsset(){
         $userDept = Auth::user()->dept_id;
 
 
@@ -62,6 +116,7 @@ class AsstController extends Controller
 
         return view('dept_head.createAsset',compact('departments' , 'categories','location' ,'model','manufacturer'));
     }
+
     public  function convertJSON($key , $value){
 
         $additionalInfo = [];
@@ -76,6 +131,7 @@ class AsstController extends Controller
         }
         return json_encode($additionalInfo);
     }
+
     public function create(Request $request){
         $userDept = Auth::user()->dept_id;
         // dd($request);
@@ -141,6 +197,7 @@ class AsstController extends Controller
 
         return redirect()->to('/asset')->with('success' , 'New Asset Created');
     }
+
     public static function assetCount(){
         //dashboard
         $userDept = Auth::user()->dept_id;
@@ -263,53 +320,161 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
 
+    // public function showDetails($id){
+    //     $userDept = Auth::user()->dept_id;
 
+    //     $department = array('list' => DB::table('department')->get());
+    //     $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
+    //     $location = array('locs' => DB::table('location')->get());
+    //     $model = array('mod' => DB::table('model')->get());
+    //     $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+    //     $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
 
-    public function showDetails($id){
-        $userDept = Auth::user()->dept_id;
+    //     //$id is for asset code ...
 
-        $department = array('list' => DB::table('department')->get());
-        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
-        $location = array('locs' => DB::table('location')->get());
-        $model = array('mod' => DB::table('model')->get());
-        $manufacturer = array('mcft' => DB::table('manufacturer')->get());
-        $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
+    //     $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
+    //                                 ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
+    //                                 ->join('category','asset.ctg_ID' , '=','category.id')
+    //                                 ->join('model','asset.model_key' , '=','model.id')
+    //                                 ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
+    //                                 ->join('location','asset.loc_key' , '=','location.id')
+    //                                 ->select(
+    //                                     'asset.id',
+    //                                     'asset.depreciation',
+    //                                     'asset.image',
+    //                                     'asset.name',
+    //                                     'asset.code',
+    //                                     'asset.cost',
+    //                                     'asset.salvageVal',
+    //                                     'asset.usage_Lifespan',
+    //                                     'asset.status',
+    //                                     'asset.custom_fields',
+    //                                     'asset.created_at',
+    //                                     'asset.updated_at',
+    //                                     'category.name as category',
+    //                                     'model.name as model',
+    //                                     'location.name as location',
+    //                                     'manufacturer.name as manufacturer',
+    //                                     )
+    //                                 ->get();
+    //     $fields = json_decode($retrieveData[0]->custom_fields,true);
+        
+    //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
+    // }
 
-        //$id is for asset code ...
+    public function showDetails($id)
+{
+    // Get the logged-in user's department ID and user type
+    $userDept = Auth::user()->dept_id;
+    $userType = Auth::user()->usertype;
 
-        $retrieveData = assetModel::where('asset.id' , $id)
-                                    ->join('department' , 'department.id' , '=',  'asset.dept_ID')
-                                    ->join('category','asset.ctg_ID' , '=','category.id')
-                                    ->join('model','asset.model_key' , '=','model.id')
-                                    ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
-                                    ->join('location','asset.loc_key' , '=','location.id')
-                                    ->select(
-                                        'asset.id',
-                                        'asset.depreciation',
-                                        'asset.image',
-                                        'asset.name',
-                                        'asset.code',
-                                        'asset.cost',
-                                        'asset.salvageVal',
-                                        'asset.usage_Lifespan',
-                                        'asset.status',
-                                        'asset.custom_fields',
-                                        'asset.created_at',
-                                        'asset.updated_at',
-                                        'category.name as category',
-                                        'model.name as model',
-                                        'location.name as location',
-                                        'manufacturer.name as manufacturer',
-                                        )
-                                    ->get();
+    // Retrieve necessary data from related tables
+    $department = ['list' => DB::table('department')->get()];
+    $categories = ['ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+        return $query->where('dept_ID', $userDept);
+    })->get()];
+    $location = ['locs' => DB::table('location')->get()];
+    $model = ['mod' => DB::table('model')->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+    $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
 
-        $fields = json_decode($retrieveData[0]->custom_fields,true);
+    // Build the query to retrieve the asset data based on the asset ID
+    $retrieveDataQuery = assetModel::where('asset.id', $id)
+        ->join('department', 'asset.dept_id', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->join('model', 'asset.model_key', '=', 'model.id')
+        ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+        ->join('location', 'asset.loc_key', '=', 'location.id')
+        ->select(
+            'asset.id',
+            'asset.depreciation',
+            'asset.image',
+            'asset.name',
+            'asset.code',
+            'asset.cost',
+            'asset.salvageVal',
+            'asset.usage_Lifespan',
+            'asset.status',
+            'asset.custom_fields',
+            'asset.created_at',
+            'asset.updated_at',
+            'category.name as category',
+            'model.name as model',
+            'location.name as location',
+            'manufacturer.name as manufacturer'
+        );
 
-        // dd($status);
-        // dd($retrieveData);
-        //  dd($fields);
-        return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
+    // If the user is not an admin, filter by dept_ID
+    if ($userType != 'admin') {
+        $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
     }
 
+    // Retrieve the asset data
+    $retrieveData = $retrieveDataQuery->first();
 
+    // If no asset is found, redirect with an error message
+    if (!$retrieveData) {
+        // Check the user type and redirect accordingly
+        if ($userType == 'admin') {
+            return redirect()->route('assetList')->with('error', 'Asset not found.');
+        } else {
+            return redirect()->route('asset')->with('error', 'Asset not found.');
+        }
+    }
+
+    // Decode the custom fields
+    $fields = json_decode($retrieveData->custom_fields, true);
+
+    // Determine the view based on user type
+    $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
+
+    // Return the appropriate view with the asset data
+    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+}
+
+    
+
+
+    public function showRequestList() {
+        // Fetch requests using the DB facade
+        $requests = DB::table('request')->where('request.requestor','=',Auth::user()->id)
+                                        ->join('asset','asset.id' , '=', 'request.asset_id')
+                                        ->join('department','department.id' , '=', 'asset.dept_ID')
+                                        ->join('category','category.id' , '=', 'asset.ctg_ID')
+                                        ->join('location','location.id' , '=', 'asset.loc_key')
+                                        ->join('model','model.id' , '=', 'asset.model_key')
+                                        ->select(
+                                            'asset.name',
+                                            'asset.id as asset_id', //remove nalang ni siya
+                                            'asset.image',
+                                            'asset.code',
+                                            'asset.cost',
+                                            'asset.depreciation',
+                                            'asset.salvageVal',
+                                            'asset.usage_Lifespan',
+                                            'asset.status',
+                                            'asset.custom_fields',
+                                            'asset.updated_at as assetCreated',
+                                            'asset.created_at as assetEdited',
+                                            'category.name as category',
+                                            'model.name as model',
+                                            'location.name as location',
+                                            'department.name as department',
+                                            'request.Description',
+                                            'request.id',
+                                            'request.status',
+                                            'request.requestor',
+                                            'request.approvedBy',
+                                            'request.created_at',
+                                            'request.updated_at',
+                                    )->get();
+
+        // Debugging the query output
+        if ($requests->isEmpty()) {
+            dd('No requests found in the database.');
+        }
+
+        // Pass the requests data to the view
+        return view('user.requestList', compact('requests'));
+    }
 }

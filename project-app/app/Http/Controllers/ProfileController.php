@@ -94,7 +94,6 @@ class ProfileController extends Controller
                 return Redirect::route('admin.profile')->with('status', 'Profile updated successfully.');
             case 'dept_head':
                 return Redirect::route('profile')->with('status', 'Profile updated successfully.');
-            case 'user':
             default:
                 return Redirect::route('user.profile')->with('status', 'Profile updated successfully.');
         }
@@ -127,7 +126,6 @@ class ProfileController extends Controller
                 return Redirect::route('admin.profile')->with('status', 'Password updated successfully.');
             case 'dept_head':
                 return Redirect::route('profile')->with('status', 'Password updated successfully.');
-            case 'user':
             default:
                 return Redirect::route('user.profile')->with('status', 'Password updated successfully.');
         }
