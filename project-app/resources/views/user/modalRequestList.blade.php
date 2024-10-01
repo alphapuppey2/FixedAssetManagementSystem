@@ -1,5 +1,5 @@
 <div id="viewModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-auto relative overflow-y-auto max-h-screen">
+    <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[80vh]"> <!-- Reduced max height to 80vh -->
         <!-- Close Button (Top-Right) -->
         <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -8,17 +8,17 @@
         </button>
 
         <!-- Modal Content -->
-        <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h2 class="text-3xl font-bold text-gray-800">Asset Details: <span id="modalAssetCode"></span></h2>
+        <div class="flex justify-between items-center mb-4 border-b pb-2"> <!-- Reduced margin and padding -->
+            <h2 class="text-2xl font-bold text-gray-800">Asset Details: <span id="modalAssetCode"></span></h2>
         </div>
 
         <!-- Image and QR Code Section -->
-        <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-12 mb-12">
+        <div class="flex flex-col lg:flex-row items-start space-y-4 lg:space-y-0 lg:space-x-8 mb-6"> <!-- Reduced spacing -->
             <div class="w-full lg:w-1/2">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Asset Image & QR Code</h3>
-                <div class="flex space-x-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Asset Image & QR Code</h3> <!-- Reduced margin -->
+                <div class="flex space-x-4"> <!-- Reduced spacing -->
                     <!-- Asset Image -->
-                    <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
+                    <div class="imagepart relative w-36 h-36 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                         <img id="modalAssetImage" src="" class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                 </div>
@@ -26,10 +26,10 @@
         </div>
 
         <!-- General Information Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-            <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">General Information</h3>
-                <div class="space-y-4 text-gray-600">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6"> <!-- Reduced bottom margin -->
+            <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">General Information</h3> <!-- Reduced margin -->
+                <div class="space-y-2 text-gray-600"> <!-- Reduced spacing -->
                     <div class="flex justify-between">
                         <span class="font-medium">Name:</span>
                         <span id="modalAssetName"></span>
@@ -58,9 +58,9 @@
             </div>
 
             <!-- Additional Information Section -->
-            <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Additional Information</h3>
-                <div class="space-y-4 text-gray-600">
+            <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Additional Information</h3> <!-- Reduced margin -->
+                <div class="space-y-2 text-gray-600"> <!-- Reduced spacing -->
                     <div class="flex justify-between">
                         <span class="font-medium">Model:</span>
                         <span id="modalAssetModel"></span>
@@ -82,22 +82,22 @@
         </div>
 
         <!-- Reason for Request Section -->
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">Reason for Request</h3>
+        <div class="bg-gray-100 p-4 rounded-lg shadow-sm mb-4"> <!-- Reduced bottom margin -->
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Reason for Request:</h3> <!-- Reduced margin -->
             <p id="modalRequestReason" class="text-gray-600"></p>
         </div>
 
         <!-- Request Status Section -->
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">Request Status</h3>
+        <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Request Status:</h3> <!-- Reduced margin -->
             <span id="modalRequestStatus" class="inline-block px-2 py-1 rounded-full text-xs font-semibold"></span>
         </div>
 
         <!-- Cancel Button (Only show if request is pending) -->
-        <div id="cancelRequestButton" class="mt-6 text-right">
+        <div id="cancelRequestButton" class="mt-4 text-right"> <!-- Reduced margin -->
             <form action="" method="POST" id="cancelRequestForm">
                 @csrf
-                <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
                     Cancel Request
                 </button>
             </form>

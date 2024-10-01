@@ -366,8 +366,12 @@ class MaintenanceController extends Controller
         public function showRequestList(Request $request) {
             $userId = Auth::id();
             $search = $request->input('search');
-            $sort_by = $request->input('sort_by', 'id'); // Default sorting by 'id'
-            $sort_direction = $request->input('sort_direction', 'asc'); // Default sorting direction is 'asc'
+            $sort_by = $request->input('sort_by', 'created_at'); // Default sorting by 'created_at'
+            $sort_direction = $request->input('sort_direction', 'desc'); // Default sorting direction is 'desc'
+            $status = $request->input('status');  // Filter by status
+            $type = $request->input('type');  // Filter by type
+            $from_date = $request->input('from_date');  // Date range (start)
+            $to_date = $request->input('to_date');  // Date range (end)
 
             // Fetch requests made by the current user and join with related tables
             $requests = DB::table('maintenance')
@@ -385,6 +389,18 @@ class MaintenanceController extends Controller
                               ->orWhere('asset.code', 'like', '%' . $search . '%')
                               ->orWhere('maintenance.id', 'like', '%' . $search . '%');
                     });
+                })
+                // Apply status filter if provided
+                ->when($status, function ($query, $status) {
+                    return $query->where('maintenance.status', $status);
+                })
+                // Apply type filter if provided
+                ->when($type, function ($query, $type) {
+                    return $query->where('maintenance.type', $type);
+                })
+                // Apply date range filter if both dates are provided
+                ->when($from_date && $to_date, function ($query) use ($from_date, $to_date) {
+                    return $query->whereBetween('maintenance.created_at', [$from_date, $to_date]);
                 })
                 ->select(
                     'maintenance.*',
@@ -406,29 +422,40 @@ class MaintenanceController extends Controller
 
             return view('user.requestList', [
                 'requests' => $requests,
-                'search' => $search
+                'search' => $search,
+                'status' => $status,
+                'type' => $type,
+                'from_date' => $from_date,
+                'to_date' => $to_date
             ]);
         }
 
 
 
-        public function cancelRequest($id)
-    {
-        // Find the maintenance request by its ID
-        $request = Maintenance::findOrFail($id);
 
-        // Check if the request is pending, only pending requests can be canceled
-        if ($request->status !== 'pending') {
-            return redirect()->back()->withErrors('Only pending requests can be canceled.');
+        public function cancelRequest($id)
+        {
+            // Find the maintenance request by its ID, or fail if not found
+            $request = Maintenance::findOrFail($id);
+
+            // Check if the request is pending, only pending requests can be canceled
+            if ($request->status !== 'pending') {
+                return redirect()->back()->withErrors('Only pending requests can be canceled.');
+            }
+
+            // Optional: Check if the authenticated user is allowed to cancel the request
+            // This checks if the current user is the one who submitted the request, or if the user has admin privileges
+            if (auth()->user()->id !== $request->requestor && !auth()->user()->is_admin) {
+                return redirect()->back()->withErrors('You do not have permission to cancel this request.');
+            }
+            // Update the status to 'cancelled'
+            $request->status = 'cancelled';
+            $request->save();
+
+            // Redirect back to the request list page or another relevant page with a success message
+            return redirect()->route('requests.list')->with('status', 'Request canceled successfully.');
         }
 
-        // Update the status to 'cancelled'
-        $request->status = 'cancelled';
-        $request->save();
-
-        // Redirect back with a success message
-        return redirect()->back()->with('status', 'Request canceled successfully.');
-    }
 
 
         // public function create() {
