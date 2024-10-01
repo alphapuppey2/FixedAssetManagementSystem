@@ -56,25 +56,32 @@
         </div>
 
         <table class="table table-hover">
-            <thead>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Department</th>
-                <th>Depreciation</th>
-                <th>Status</th>
-                <th>Action</th>
+            <thead class="p-5 bg-gray-100 border-b">
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Code</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Department</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Depreciation</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status</th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action</th>
             </thead>
             <tbody id="table-body">
                 @if (!$assets->isEmpty())
                     @foreach ($assets as $asset)
                         <tr>
-                            <th class="align-middle" scope="col">{{ $asset->code ? $asset->code : 'NONE' }}</th>
-                            <td class="align-middle">{{ $asset->name }}</td>
-                            <td class="align-middle">{{ $asset->category }}</td>
-                            <td class="align-middle">{{ $asset->department }}</td>
-                            <td class="align-middle">{{ $asset->depreciation }}</td>
-                            <td class="align-middle">{{ $asset->status }}</td>
+                            <th class="align-middle text-center text-sm text-gray-900" scope="col">{{ $asset->code ? $asset->code : 'NONE' }}</th>
+                            <td class="align-middle text-center text-sm text-gray-900">{{ $asset->name }}</td>
+                            <td class="align-middle text-center text-sm text-gray-900">{{ $asset->category }}</td>
+                            <td class="align-middle text-center text-sm text-gray-900">{{ $asset->department }}</td>
+                            <td class="align-middle text-center text-sm text-gray-900">{{ $asset->depreciation }}</td>
+                            <td class="align-middle text-center text-sm text-gray-900">{{ $asset->status }}</td>
                             <td class="w-40">
                                 <div class="grp flex justify-between">
                                     <a href="{{ route('adminAssetDetails', $asset->id) }}" class="btn btn-outline-primary">View</a>
