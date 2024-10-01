@@ -81,8 +81,6 @@ class settingController extends Controller
 
             $table->custom_fields = json_encode($customfields);
 
-            // return response()->json(['success' => true, 'customFields' => $table->custom_fields]);
-
             break;
         default:
             return response()->json(['success' => false, 'message' => 'Invalid tab' , 'tab' => $tab], 400);
