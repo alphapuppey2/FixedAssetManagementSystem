@@ -38,9 +38,15 @@
                         <x-text-input inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" id="salvageVal" name='salvageVal'
                             required />
                     </div>
-                    <div class="form-group">
-                        <x-input-label for='usage'>usage lifespan (year)</x-input-label>
-                        <x-text-input type="number" id="usage" name='usage' required />
+                    <div class="grpInline grid grid-cols-2 gap-2">
+                        <div class="form-group">
+                            <x-input-label for='usage'>usage lifespan (year)</x-input-label>
+                            <x-text-input type="number" id="usage" name='usage' required />
+                        </div>
+                        <div class="form-group">
+                            <x-input-label for='purchased'>Purchased Date</x-input-label>
+                            <x-text-input type="date" id="purchased" name='purchased' required />
+                        </div>
                     </div>
                     <div class="grpInline grid grid-cols-2 gap-2">
                         <div class="form-group">

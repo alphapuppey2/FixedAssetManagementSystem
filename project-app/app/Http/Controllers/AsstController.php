@@ -85,6 +85,7 @@ class AsstController extends Controller
             'category'=> 'required',
             'cost'=>'required|numeric|min:0.01',
             'salvageVal'=> 'required|numeric|min:0.01',
+            'purchased' => 'required | date',
             'usage' => 'required',
             'loc'=> 'required',
             'mod'=> 'required',
@@ -117,7 +118,6 @@ class AsstController extends Controller
         }
         department::where('id',$userDept)->increment('assetSequence',1);
 
-        //parsing Text to decimal
         //depreciation method == Straight Line
         $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
 
@@ -127,6 +127,7 @@ class AsstController extends Controller
             'name' => $request->assetname,
             'cost' => $request->cost,
             'code' => $code,
+            'purchase_date' => $request->purchased,
             'ctg_ID' => $request->category,
             'depreciation'=>$depreciation,
             'salvageVal'=>$request->salvageVal,
@@ -224,24 +225,17 @@ class AsstController extends Controller
     {
         $search = $request->input('search');
 
-        // Log the search term
-        Log::info('Search term received: ' . $search);
-
         try {
             // Assuming you are searching the 'name' and 'code' columns
             $assets = assetModel::where('name', 'LIKE', "%{$search}%")
                                 ->orWhere('code', 'LIKE', "%{$search}%")
                                 ->get();
 
-            // Log the number of assets found
-            Log::info('Assets found: ' . $assets->count());
 
             return response()->json($assets);
         } catch (\Exception $e) {
-            // Log the error message
-            Log::error('Error in searchFiltering: ' . $e->getMessage());
 
-            return response()->json(['error' => 'Internal Server Error'], 500);
+            return response()->json(['error' => 'Internal Server Error', 'errorP'=> $e], 500);
         }
     }
     public function delete($id){
@@ -307,7 +301,7 @@ class AsstController extends Controller
 
         // dd($status);
         // dd($retrieveData);
-        //  dd($fields);
+         dd($fields);
         return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     }
 
