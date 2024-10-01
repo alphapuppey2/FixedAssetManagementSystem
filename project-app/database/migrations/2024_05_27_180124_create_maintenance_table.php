@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('maintenance', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->string('description');
             $table->enum('type', ['repair','maintenance','upgrade','inspection','replacement','calibration'])->default('repair');
             $table->float('cost');
@@ -20,10 +20,11 @@ return new class extends Migration
             $table->timestamp('authorized_at')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('completion_date')->nullable();
+            $table->boolean('completed')->default(false);
             $table->string('reason');
             $table->enum('status', ['request','approved','denied','preventive','predictive'])->default('request');
             $table->timestamps();
-        
+
             $table->unsignedBigInteger('asset_key');
             $table->unsignedBigInteger('authorized_by')->nullable();
             $table->unsignedBigInteger('requestor')->nullable();

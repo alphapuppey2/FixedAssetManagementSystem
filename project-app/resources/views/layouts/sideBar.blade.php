@@ -43,7 +43,7 @@
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('maintenance')" :active="request()->routeIs('maintenance') ||  request()->routeIs('maintenance.approved') || request()->routeIs('maintenance.denied')">
                     <x-paperplane />
                     <span class="ml-2 max-md:hidden lg:block">Maintenance Request</span>
                 </x-nav-link>

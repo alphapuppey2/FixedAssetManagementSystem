@@ -581,6 +581,74 @@ class MaintenanceController extends Controller
             return redirect()->route('maintenance_sched')->with('success', 'Maintenance schedule created successfully!');
         }
 
+        // MaintenanceController.php
+        public function editApproved($id)
+        {
+            // Load related asset, category, location, model, and manufacturer data
+            $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
+                ->findOrFail($id);
+
+            return view('dept_head.modal.editApprove', compact('maintenance'));
+        }
+
+        // In your MaintenanceController updateApproved function
+        public function updateApproved(Request $request, $id)
+        {
+
+            $request->validate([
+                'cost' => 'required|numeric|min:0',
+                'type' => 'required|string',
+                'start_date' => 'required|date',
+                'completion_date' => 'nullable|date',
+            ]);
+
+            // Find the maintenance request by ID
+            $maintenance = Maintenance::findOrFail($id);
+
+            // Update the maintenance details
+            $maintenance->update([
+                'type' => $request->type,
+                'start_date' => $request->start_date,
+                'cost' => $request->cost,
+                'completed' => $request->has('set_as_completed'),
+                // 'completion_date' => $request->completion_date,
+                'completion_date' => $request->has('set_as_completed') ? now() : null,
+
+            ]);
+
+            // Redirect back with success message
+            return redirect()->route('maintenance.approved')
+                ->with('status', 'Maintenance request updated successfully.');
+        }
+
+        public function editDenied($id)
+        {
+            // Load related asset, category, location, model, and manufacturer data
+            $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
+                ->findOrFail($id);
+
+            return view('dept_head.modal.editDenied', compact('maintenance'));
+        }
+
+        public function updateDenied(Request $request, $id)
+        {
+            // Validate that the status is 'approved' or 'denied' (as per your dropdown in editDenied.blade.php)
+            $request->validate([
+                'status' => 'required|string|in:approved,denied',
+            ]);
+
+            // Find the maintenance request by ID
+            $maintenance = Maintenance::findOrFail($id);
+
+            // Update only the status
+            $maintenance->update([
+                'status' => $request->status,
+            ]);
+
+            // Redirect back with success message
+            return redirect()->route('maintenance.denied')
+                ->with('status', 'Maintenance request status updated successfully.');
+        }
 
 
 }

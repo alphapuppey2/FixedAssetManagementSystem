@@ -25,6 +25,7 @@ class Maintenance extends Model
         'asset_key',
         'authorized_by',
         'requestor',
+        'completed'
     ];
 
     // Cast timestamps to Carbon instances
@@ -42,6 +43,33 @@ class Maintenance extends Model
     public function requestor()
     {
         return $this->belongsTo(User::class, 'requestor', 'id');
+    }
+
+    // Maintenance.php
+
+    public function asset()
+    {
+        return $this->belongsTo(assetModel::class, 'asset_key');
+    }
+
+    public function manufacturer()
+    {
+        return $this->hasOneThrough(Manufacturer::class, assetModel::class, 'id', 'id', 'asset_key', 'manufacturer_key');
+    }
+
+    public function category()
+    {
+        return $this->hasOneThrough(Category::class, assetModel::class, 'id', 'id', 'asset_key', 'ctg_ID');
+    }
+
+    public function location()
+    {
+        return $this->hasOneThrough(locationModel::class, assetModel::class, 'id', 'id', 'asset_key', 'loc_key');
+    }
+
+    public function model()
+    {
+        return $this->hasOneThrough(ModelAsset::class, assetModel::class, 'id', 'id', 'asset_key', 'model_key');
     }
 
 }
