@@ -1,67 +1,177 @@
 @extends('user.home')
 
 @section('section')
-    <div class="container mx-auto p-6">
-        <h2 class="text-2xl font-semibold mb-6">Asset Details</h2>
+    <div class="container mx-auto p-8">
+        <!-- Title Section -->
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h2 class="text-3xl font-bold text-gray-800">Asset Details: {{ $retrieveData->code }}</h2>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Asset Information -->
-            <div class="bg-white shadow p-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-4">General Information</h3>
-                <p><strong>Code:</strong> {{ $retrieveData->code }}</p>
-                <p><strong>Name:</strong> {{ $retrieveData->name }}</p>
-                <p><strong>Status:</strong> {{ $retrieveData->status }}</p>
-                <p><strong>Category:</strong> {{ $retrieveData->category }}</p>
-                <p><strong>Department:</strong> {{ $retrieveData->department }}</p>
-                <p><strong>Manufacturer:</strong> {{ $retrieveData->manufacturer }}</p>
-                <p><strong>Model:</strong> {{ $retrieveData->model }}</p>
-                <p><strong>Location:</strong> {{ $retrieveData->location }}</p>
-                <p><strong>Cost:</strong> {{ $retrieveData->cost }}</p>
-                <p><strong>Depreciation:</strong> {{ $retrieveData->depreciation }}</p>
-                <p><strong>Salvage Value:</strong> {{ $retrieveData->salvageVal }}</p>
-                <p><strong>Usage Lifespan:</strong> {{ $retrieveData->usage_Lifespan }}</p>
-            </div>
-
-            <!-- Asset Image -->
-            <div class="bg-white shadow p-4 rounded-lg">
-                <h3 class="text-xl font-semibold mb-4">Asset Image</h3>
-                @if($retrieveData->image)
-                    <img src="{{ asset('storage/' . $retrieveData->image) }}" alt="{{ $retrieveData->name }}" class="w-full h-auto rounded-lg">
-                @else
-                    <p>No Image Available</p>
-                @endif
+        <!-- Image and QR Code Section -->
+        <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-12 mb-12">
+            <div class="w-full lg:w-1/2">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Asset Image & QR Code</h3>
+                <div class="flex space-x-8">
+                    <!-- Asset Image -->
+                    <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
+                        <img src="{{ asset('storage/' . $retrieveData->image ?? 'images/defaultICON.png') }}"
+                             class="w-full h-full object-cover" alt="Asset Image">
+                    </div>
+                    <!-- QR Code -->
+                    <div class="qrContainer flex flex-col items-center">
+                        <div class="QRBOX w-32 h-32 bg-gray-200 rounded-lg shadow-md flex items-center justify-center">
+                            <!-- Placeholder for QR code -->
+                            <span class="text-gray-500">QR Code</span>
+                        </div>
+                        <a href="#" target="_blank" class="text-blue-600 mt-4 hover:underline">
+                            Print QR Code
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Repair Request Section -->
-        <div class="mt-6">
-            <button id="requestRepairButton" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Request Repair
+        <!-- General Information Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">General Information</h3>
+                <div class="space-y-4 text-gray-600">
+                    <div class="flex justify-between">
+                        <span class="font-medium">Name:</span>
+                        <span>{{ $retrieveData->name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Cost:</span>
+                        <span>${{ number_format($retrieveData->cost, 2) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Depreciation:</span>
+                        <span>{{ $retrieveData->depreciation }}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Salvage Value:</span>
+                        <span>${{ number_format($retrieveData->salvageVal, 2) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Category:</span>
+                        <span>{{ $retrieveData->category }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Lifespan:</span>
+                        <span>{{ $retrieveData->usage_Lifespan }} years</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Additional Information</h3>
+                <div class="space-y-4 text-gray-600">
+                    <div class="flex justify-between">
+                        <span class="font-medium">Model:</span>
+                        <span>{{ $retrieveData->model }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Manufacturer:</span>
+                        <span>{{ $retrieveData->manufacturer }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Location:</span>
+                        <span>{{ $retrieveData->location }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Status:</span>
+                        <span class="capitalize">{{ $retrieveData->status }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Last Used:</span>
+                        <span>NONE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repair Request Button -->
+        <div class="flex justify-end mb-12">
+            <button id="requestRepairButton" class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+                Request Maintenance
             </button>
         </div>
 
-        <!-- Repair Request Form (Initially Hidden) -->
-        <div id="repairRequestForm" class="bg-white shadow p-4 rounded-lg mt-6" style="display: none;">
-            <h3 class="text-xl font-semibold mb-4">Reason for Repair</h3>
-            <form action="{{ route('repair.request') }}" method="POST">
-                @csrf
-                <input type="hidden" name="asset_id" value="{{ $retrieveData->id }}">
+        <!-- Repair Request Modal (Initially Hidden) -->
+        <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative">
+                <!-- Close Button (Top-Right) -->
+                <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
 
-                <div class="mb-4">
-                    <label for="issue_description" class="block text-sm font-medium text-gray-700">Describe the issue</label>
-                    <textarea id="issue_description" name="issue_description" rows="4" class="mt-1 block w-full p-2 border rounded-md shadow-sm" placeholder="Enter the issue details"></textarea>
-                </div>
+                <h3 class="text-xl font-semibold mb-6 text-gray-800">Reason for Request</h3>
 
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Submit Request</button>
-            </form>
+                <!-- Display Validation Errors -->
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Display Success Message -->
+                @if (session('status'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                <!-- Repair Request Form -->
+                <form action="{{ route('maintenance.create') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="asset_id" value="{{ $retrieveData->id }}">
+
+                    <!-- Type of Request Dropdown -->
+                    <div class="mb-6">
+                        <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type of Request</label>
+                        <select id="type" name="type" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
+                            <option value="">-- Select Request Type --</option>
+                            <option value="repair">Repair</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="upgrade">Upgrade</option>
+                            <option value="inspection">Inspection</option>
+                        </select>
+                    </div>
+
+                    <!-- Issue Description -->
+                    <div class="mb-6">
+                        <label for="issue_description" class="block text-sm font-medium text-gray-700 mb-2">Describe the issue</label>
+                        <textarea id="issue_description" name="issue_description" rows="4" class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter the issue details" required>{{ old('issue_description') }}</textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                            Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <!-- JavaScript to Toggle Repair Form -->
+        <!-- JavaScript to Toggle Repair Request Modal -->
         <script>
             document.getElementById('requestRepairButton').addEventListener('click', function () {
-                var repairForm = document.getElementById('repairRequestForm');
-                repairForm.style.display = (repairForm.style.display === 'none') ? 'block' : 'none';
+                document.getElementById('repairRequestModal').classList.remove('hidden');
+                document.getElementById('repairRequestModal').classList.add('flex');
             });
+
+            function closeModal() {
+                document.getElementById('repairRequestModal').classList.add('hidden');
+                document.getElementById('repairRequestModal').classList.remove('flex');
+            }
         </script>
     </div>
 @endsection

@@ -11,6 +11,7 @@ class QRUserController extends Controller
 {
     public function uploadQRImage(Request $request)
     {
+        // Validate the uploaded image
         $request->validate([
             'qr_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -27,10 +28,10 @@ class QRUserController extends Controller
     }
 
     public function showDetails($code)
-    {   
+    {
         $userDept = Auth::user()->dept_id;
 
-        // Query the asset data based on the scanned code and user's department
+        // Query the asset based on the scanned code and user's department
         $retrieveData = assetModel::where('asset.code', $code)
                                   ->where('asset.dept_ID', $userDept)
                                   ->join('department', 'asset.dept_ID', '=', 'department.id')
@@ -60,13 +61,19 @@ class QRUserController extends Controller
                                       'model.name as model',
                                       'location.name as location',
                                       'manufacturer.name as manufacturer',
-                                      'department.name as department' // Select department name here
+                                      'department.name as department'
                                   )
-                                  ->firstOrFail();
+                                  ->first();
 
+        // If asset is not found, redirect back with an error message
+        if (!$retrieveData) {
+            return redirect()->back()->with('status', 'No asset found with the scanned QR code.');
+        }
+
+        // Decode custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-        // Pass the data to the view
-        return view('user.assetDetail', compact('retrieveData', 'fields'));
+        // Pass the asset data and custom fields to the view
+         return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
 }

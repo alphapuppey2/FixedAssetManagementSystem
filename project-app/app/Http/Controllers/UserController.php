@@ -16,15 +16,15 @@ class UserController extends Controller{
     public function getUserList(Request $request){
         // Get the number of rows to display per page (default is 10)
         $perPage = $request->input('perPage', 10); // Default to 10 rows per page if not set
-    
+
         // Use paginate directly on the query, before transforming the data
         $userList = DB::table('users')
             ->paginate($perPage); // Dynamically set the number of rows per page
-    
+
         return view('admin.user-list', ['userList' => $userList]);
     }
-    
-    
+
+
     // EDIT/UPDATE USER DETAILS
     public function update(Request $request){
         // Validate the request
@@ -44,10 +44,10 @@ class UserController extends Controller{
             'usertype' => 'required|in:user,dept_head,admin',
             'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         // Find the user and update their information
         $user = User::findOrFail($request->id);
-    
+
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
@@ -55,7 +55,7 @@ class UserController extends Controller{
             $file->move(public_path('uploads/profile_photos'), $filename);
             $user->userPicture = $filename;
         }
-    
+
         // Update other user detalis
         $user->employee_id = $request->employee_id;
         $user->firstname = $request->firstname;
@@ -70,9 +70,9 @@ class UserController extends Controller{
         $user->birthdate = $request->birthdate;
         $user->usertype = $request->usertype;
         $user->updated_at = now(); // Update the timestamp
-    
+
         $user->save();
-    
+
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
 
@@ -91,20 +91,20 @@ class UserController extends Controller{
                     : back()->withErrors(['email' => __($status)]);
 
     }
-    
+
     // HARD DELETE
     public function delete($id){
         // Find the user and delete
         $user = User::findOrFail($id);
         $user->delete();
-    
+
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
 
     public function search(Request $request){
         $query = $request->input('query');
         $perPage = $request->input('perPage', 10); // Get rows per page from the request
-    
+
         // Perform search query and paginate the results
         $userList = DB::table('users')
             ->where('firstname', 'like', "%{$query}%")
@@ -112,11 +112,11 @@ class UserController extends Controller{
             ->orWhere('email', 'like', "%{$query}%")
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
-    
+
         return view('admin.user-list', ['userList' => $userList]);
     }
-    
-    
+
+
 
     public function store(Request $request){
         // Validate the incoming request data
@@ -148,7 +148,7 @@ class UserController extends Controller{
             $file->move(public_path('uploads/profile_photos'), $filename);
             $profilePicturePath = $filename;
         }
-        
+
         // Create the new user
         $user = User::create([
             'firstname' => $validated['firstname'],
