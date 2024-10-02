@@ -1,4 +1,3 @@
-<!-- resources/views/dept_head/maintenance_sched.blade.php -->
 @extends('layouts.app')
 
 @section('header')
@@ -61,7 +60,6 @@
             </div>
         </div>
 
-
         <!-- Tabs Section -->
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
@@ -104,6 +102,16 @@
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'ends', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Ends
                             </a>
+                        </th>
+                        <!-- New Columns -->
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Occurrences
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Next Maintenance In
                         </th>
                     </tr>
                     @elseif ($tab === 'predictive')
@@ -150,6 +158,12 @@
                                 <td class="px-6 py-4">₱ {{ $record->cost }}</td>
                                 <td class="px-6 py-4">Every {{ $record->frequency }} days</td>
                                 <td class="px-6 py-4">After {{ $record->ends }} occurrence(s)</td>
+                                <!-- New Columns Data -->
+                                <td class="px-6 py-4">{{ $record->occurrences }}</td>
+                                <td class="px-6 py-4">{{ ucfirst($record->status) }}</td>
+                                <td class="px-6 py-4" id="next-maintenance-{{ $loop->index }}" data-seconds="{{ $record->seconds_remaining }}">
+                                    Loading...
+                                </td>
                             @elseif ($tab === 'predictive')
                                 <td class="px-6 py-4">{{ $record->asset->category->name }}</td>
                                 <td class="px-6 py-4">₱ {{ $record->average_cost }}</td>
@@ -177,26 +191,36 @@
         }, 3000); // 3 seconds delay
     </script>
 
-    {{-- <script>
-        // const checkInterval = 1800000; // 30 minutes
-        const checkInterval = 5000;  //(adjust to a shorter time for testing, e.g., 5000 ms for 5 seconds)
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const countdownElements = document.querySelectorAll('[id^="next-maintenance-"]');
 
-        function triggerMaintenanceCheck() {
-            console.log('Triggering maintenance check...');
-            fetch('/run-maintenance-check')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Maintenance check triggered successfully:', data);
-                })
-                .catch(error => {
-                    console.error('Error triggering maintenance check:', error);
-                });
-        }
+            countdownElements.forEach(function(countdownElem) {
+                let totalSeconds = countdownElem.getAttribute('data-seconds');
 
-        // Run the maintenance check at the interval
-        setInterval(triggerMaintenanceCheck, checkInterval);
-    </script> --}}
+                function updateCountdown() {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
 
+                        let days = Math.floor(totalSeconds / (3600 * 24));  // Calculate full days
+                        let hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);  // Calculate remaining hours after days
+                        let minutes = Math.floor((totalSeconds % 3600) / 60);  // Calculate remaining minutes after hours
+                        let seconds = Math.floor(totalSeconds % 60);  // Calculate remaining seconds
 
+                        countdownElem.innerHTML =
+                            days + ' days ' +
+                            String(hours).padStart(2, '0') + ':' +
+                            String(minutes).padStart(2, '0') + ':' +
+                            String(seconds).padStart(2, '0');
+                    } else {
+                        countdownElem.innerHTML = "Maintenance due";
+                    }
+                }
+
+                // Update every second
+                setInterval(updateCountdown, 1000);
+            });
+        });
+    </script>
 
 @endsection
