@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('qr')->nullable();
             $table->string('code')->unique();
-            $table->date('purchase_date');
+            $table->date('purchase_date')->nullable(); //dapat nullable
             $table->decimal("cost",10,2)->default(0);
             $table->decimal("depreciation",10,2)->default(0.00);
             $table->decimal("salvageVal",10,2)->default(0.00);
