@@ -176,5 +176,27 @@
             }
         }, 3000); // 3 seconds delay
     </script>
-    
+
+    {{-- <script>
+        // const checkInterval = 1800000; // 30 minutes
+        const checkInterval = 5000;  //(adjust to a shorter time for testing, e.g., 5000 ms for 5 seconds)
+
+        function triggerMaintenanceCheck() {
+            console.log('Triggering maintenance check...');
+            fetch('/run-maintenance-check')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Maintenance check triggered successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error triggering maintenance check:', error);
+                });
+        }
+
+        // Run the maintenance check at the interval
+        setInterval(triggerMaintenanceCheck, checkInterval);
+    </script> --}}
+
+
+
 @endsection

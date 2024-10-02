@@ -15,6 +15,9 @@ class PreventiveMaintenanceController extends Controller
     {
         Log::info('Preventive maintenance check started.');
 
+        // Array to store the results for JSON response
+        $maintenanceResults = [];
+
         // Fetch all preventive maintenance records
         $preventiveSchedules = Preventive::all();
 
@@ -30,11 +33,15 @@ class PreventiveMaintenanceController extends Controller
             // Calculate the total days between now and created_at
             if ($start->greaterThan($now)) {
                 Log::info("Skipping asset_key: " . $schedule->asset_key . " because created_at is in the future.");
+                $maintenanceResults[] = [
+                    'asset_key' => $schedule->asset_key,
+                    'status' => 'skipped',
+                    'message' => 'created_at is in the future'
+                ];
                 continue;
             }
 
             $totalDays = $start->diffInDays($now);  // Ensure positive days
-
             Log::info("Total days since created_at: " . $totalDays);
 
             // Calculate occurrences based on frequency
@@ -63,16 +70,36 @@ class PreventiveMaintenanceController extends Controller
                     ]);
 
                     Log::info("Maintenance request created for asset_key: " . $schedule->asset_key);
+                    $maintenanceResults[] = [
+                        'asset_key' => $schedule->asset_key,
+                        'status' => 'created',
+                        'message' => 'Maintenance request created'
+                    ];
                 } else {
                     Log::info("No new maintenance request needed for asset_key: " . $schedule->asset_key);
+                    $maintenanceResults[] = [
+                        'asset_key' => $schedule->asset_key,
+                        'status' => 'no_new_request',
+                        'message' => 'No new maintenance request needed'
+                    ];
                 }
             } else {
                 Log::info("Maintenance 'ends' reached or no more occurrences allowed for asset_key: " . $schedule->asset_key);
+                $maintenanceResults[] = [
+                    'asset_key' => $schedule->asset_key,
+                    'status' => 'ended',
+                    'message' => 'No more occurrences allowed or ended'
+                ];
             }
         }
 
         Log::info('Preventive maintenance check completed.');
-        return "Preventive maintenance check completed.";
+
+        // Return a JSON response with the maintenance results
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Preventive maintenance check completed.',
+            'details' => $maintenanceResults
+        ]);
     }
 }
-
