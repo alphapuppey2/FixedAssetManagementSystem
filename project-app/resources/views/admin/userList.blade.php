@@ -1,3 +1,7 @@
+{{-- 
+    THIS WILL DISPLAY THE LIST OF USERS IN A TABLE
+--}}
+
 @extends('layouts.app')
 
 @section('header')
@@ -11,14 +15,7 @@
     <div>
         <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
             <!-- Search Input and Button -->
-            <div class="flex">
-                <input type="text" name="query" value="{{ request('query') }}" placeholder="Search by name or email" class="border border-gray-300 rounded-l px-4 py-2 w-60">
-                <button type="submit" class="bg-blue-500 text-white rounded-r px-3 py-1 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </button>
-            </div>
+            <x-search-input placeholder="Search by name or email" />
             <!-- Rows per page dropdown -->
             <div class="flex justify-between items-center mb-4">
                 <!-- Rows per page dropdown (Left) -->
@@ -69,7 +66,7 @@
                             <td>{{ $item->lastname }}</td>
                             <td>{{ $item->email }}</td>
                             <td>
-                                <x-user-department :deptId="$item->dept_id" />
+                                <x-department :deptId="$item->dept_id" />
                             </td>
                             <td>{{ $item->usertype }}</td>
                             <td class="items-center space-x-2">
@@ -89,7 +86,7 @@
         </div>
     </div>
 
-    @include('admin.modal.edit-user')
+    @include('admin.modal.editUser')
 
     <!-- SCRIPT TO OPEN AND CLOSE MODAL -->
     <script>

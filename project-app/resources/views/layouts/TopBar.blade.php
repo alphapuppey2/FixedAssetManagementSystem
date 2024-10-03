@@ -26,7 +26,7 @@
     <nav>
         <x-dropdown2>
             <x-slot name="trigger">
-                <div class="div">New</div>
+                <div class="div">Create New</div>
             </x-slot>
 
             <x-slot name="content">
@@ -72,7 +72,7 @@
         <nav>
             <x-dropdown2 width="48">
                 <x-slot name="trigger">
-                    <div class="div" style="margin-right:5px">New</div>
+                    <div class="div" style="margin-right:5px">Create New</div>
                 </x-slot>
 
                 <x-slot name="content">
