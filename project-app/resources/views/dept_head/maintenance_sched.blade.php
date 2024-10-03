@@ -1,3 +1,4 @@
+<!-- resources/views/dept_head/maintenance_sched.blade.php -->
 @extends('layouts.app')
 
 @section('header')
@@ -150,28 +151,34 @@
                     @endif
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @foreach ($records as $record)
+                    @if ($records->isEmpty())
                         <tr>
-                            <td class="px-6 py-4">{{ $record->asset->code }}</td>
-                            <td class="px-6 py-4">{{ $record->asset->name }}</td>
-                            @if ($tab === 'preventive')
-                                <td class="px-6 py-4">₱ {{ $record->cost }}</td>
-                                <td class="px-6 py-4">Every {{ $record->frequency }} days</td>
-                                <td class="px-6 py-4">After {{ $record->ends }} occurrence(s)</td>
-                                <!-- New Columns Data -->
-                                <td class="px-6 py-4">{{ $record->occurrences }}</td>
-                                <td class="px-6 py-4">{{ ucfirst($record->status) }}</td>
-                                <td class="px-6 py-4" id="next-maintenance-{{ $loop->index }}" data-seconds="{{ $record->seconds_remaining }}">
-                                    Loading...
-                                </td>
-                            @elseif ($tab === 'predictive')
-                                <td class="px-6 py-4">{{ $record->asset->category->name }}</td>
-                                <td class="px-6 py-4">₱ {{ $record->average_cost }}</td>
-                                <td class="px-6 py-4">{{ $record->repair_count }}</td>
-                                <td class="px-6 py-4">{{ $record->recommendation }}</td>
-                            @endif
+                            <td colspan="10" class="px-6 py-4 text-sm text-gray-500 text-center">No maintenance schedule found.</td>
                         </tr>
-                    @endforeach
+                    @else
+                        @foreach ($records as $record)
+                            <tr data-asset-key="{{ $record->asset_key }}">
+                                <td class="px-6 py-4">{{ $record->asset->code }}</td>
+                                <td class="px-6 py-4">{{ $record->asset->name }}</td>
+                                @if ($tab === 'preventive')
+                                    <td class="px-6 py-4">₱ {{ $record->cost }}</td>
+                                    <td class="px-6 py-4">Every {{ $record->frequency }} days</td>
+                                    <td class="ends px-6 py-4">After {{ $record->ends }} occurrence(s)</td>
+                                    <td class="occurrences px-6 py-4">{{ $record->occurrences }}</td>
+                                    <td class="status px-6 py-4">{{ ucfirst($record->status) }}</td>
+                                    <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}"
+                                        data-next-maintenance="{{ $record->next_maintenance_timestamp ?? 0 }}">
+                                        Loading...
+                                    </td>
+                                @elseif ($tab === 'predictive')
+                                    <td class="px-6 py-4">{{ $record->asset->category->name }}</td>
+                                    <td class="px-6 py-4">₱ {{ $record->average_cost }}</td>
+                                    <td class="px-6 py-4">{{ $record->repair_count }}</td>
+                                    <td class="px-6 py-4">{{ $record->recommendation }}</td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -191,36 +198,102 @@
         }, 3000); // 3 seconds delay
     </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const countdownElements = document.querySelectorAll('[id^="next-maintenance-"]');
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkInterval = 1000;  // Check every 1 second
 
-            countdownElements.forEach(function(countdownElem) {
-                let totalSeconds = countdownElem.getAttribute('data-seconds');
+        function updateCountdowns() {
+            document.querySelectorAll('[id^="next-maintenance-"]').forEach(function(countdownElem) {
+                let nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance'), 10);
+                console.log('Next Maintenance Timestamp:', nextMaintenanceTimestamp);
+                let currentTimestamp = Math.floor(Date.now() / 1000);  // Get current timestamp in seconds
+                let totalSeconds = nextMaintenanceTimestamp - currentTimestamp;
+                let occurrencesElem = countdownElem.closest('tr').querySelector('.occurrences');
+                let endsElem = countdownElem.closest('tr').querySelector('.ends');
+                let statusElem = countdownElem.closest('tr').querySelector('.status');
 
-                function updateCountdown() {
-                    if (totalSeconds > 0) {
-                        totalSeconds--;
-
-                        let days = Math.floor(totalSeconds / (3600 * 24));  // Calculate full days
-                        let hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);  // Calculate remaining hours after days
-                        let minutes = Math.floor((totalSeconds % 3600) / 60);  // Calculate remaining minutes after hours
-                        let seconds = Math.floor(totalSeconds % 60);  // Calculate remaining seconds
-
-                        countdownElem.innerHTML =
-                            days + ' days ' +
-                            String(hours).padStart(2, '0') + ':' +
-                            String(minutes).padStart(2, '0') + ':' +
-                            String(seconds).padStart(2, '0');
-                    } else {
-                        countdownElem.innerHTML = "Maintenance due";
-                    }
+                if (isNaN(totalSeconds)) {
+                    console.error('Invalid countdown data');
+                    return;
                 }
 
-                // Update every second
-                setInterval(updateCountdown, 1000);
+                // Stop the countdown if occurrences are equal to or greater than ends
+                if (parseInt(occurrencesElem.innerText) >= parseInt(endsElem.innerText)) {
+                    countdownElem.innerHTML = "Maintenance Completed";
+                    statusElem.innerHTML = "Completed";
+                    return;  // Prevent further countdown
+                }
+
+                if (totalSeconds <= 0) {
+                    countdownElem.innerHTML = "Maintenance Due";
+                    triggerMaintenanceCheck(countdownElem);  // Trigger maintenance logic
+                } else {
+                    // Update countdown with the remaining time
+                    let days = Math.floor(totalSeconds / (3600 * 24));
+                    let hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+                    let minutes = Math.floor((totalSeconds % 3600) / 60);
+                    let seconds = totalSeconds % 60;
+
+                    countdownElem.innerHTML =
+                        days + ' days ' +
+                        String(hours).padStart(2, '0') + ':' +
+                        String(minutes).padStart(2, '0') + ':' +
+                        String(seconds).padStart(2, '0');
+                }
             });
+        }
+
+        setInterval(updateCountdowns, checkInterval);
+    });
+
+    function triggerMaintenanceCheck(countdownElem) {
+        let occurrencesElem = countdownElem.closest('tr').querySelector('.occurrences');
+        let endsElem = countdownElem.closest('tr').querySelector('.ends');
+        let statusElem = countdownElem.closest('tr').querySelector('.status');
+
+
+        // Check if the required elements exist
+        if (!occurrencesElem || !endsElem || !statusElem) {
+            console.error('Required element is missing in the row.');
+            return;
+        }
+
+        // Stop if occurrences have reached or exceeded the ends value
+        if (parseInt(occurrencesElem.innerText) >= parseInt(endsElem.innerText)) {
+            countdownElem.innerHTML = "Maintenance Completed";
+            statusElem.innerHTML = "Completed";
+            return;  // Prevent further increments and stop maintenance checks
+        }
+
+        // Log asset_key to check its value
+        console.log('Asset Key:', countdownElem.closest('tr').getAttribute('data-asset-key'));
+
+        // Logic for generating maintenance requests and incrementing occurrences
+        fetch('{{ route("run-maintenance-check") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                asset_key: countdownElem.getAttribute('data-asset-key'),
+                occurrences: parseInt(occurrencesElem.innerText) + 1  // Increment occurrences
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                occurrencesElem.innerText = parseInt(occurrencesElem.innerText) + 1;
+                console.log('Maintenance request generated:', data);
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error generating maintenance request:', error);
         });
-    </script>
+    }
+</script>
+
 
 @endsection

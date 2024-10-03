@@ -12,11 +12,10 @@ class Preventive extends Model
 
     protected $table = 'preventive'; // Specify the table name if it's not plural
 
+    protected $fillable = ['asset_key', 'cost', 'frequency', 'ends', 'occurrences', 'status']; // Include the missing fields
+
     public function asset()
     {
         return $this->belongsTo(assetModel::class, 'asset_key');
     }
-
-    protected $fillable = ['asset_key', 'cost', 'frequency', 'ends'];
-
 }

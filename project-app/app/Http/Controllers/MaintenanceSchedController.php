@@ -6,6 +6,7 @@ use App\Models\Predictive;
 use App\Models\Preventive;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class MaintenanceSchedController extends Controller
@@ -39,13 +40,21 @@ class MaintenanceSchedController extends Controller
         ->paginate($perPage);
 
         foreach ($preventives as $preventive) {
-            $lastMaintenance = Carbon::parse($preventive->last_maintenance_date);
-            $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency);
+            // Use updated_at or the last maintenance date
+            $lastMaintenance = Carbon::parse($preventive->updated_at);
 
-            // Calculate remaining time in seconds
-            $preventive->seconds_remaining = Carbon::now()->diffInSeconds($nextMaintenanceDate, false);
+            // Calculate the next maintenance date by adding the frequency in days
+            // $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //acttual
+            $nextMaintenanceDate = $lastMaintenance->addMinutes($preventive->frequency); //for testing
+
+            // Pass the next maintenance date as a timestamp (to be used in the frontend for real-time countdown)
+            $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
+
+            Log::info('Next Maintenance Timestamp:', [
+                'timestamp' => $nextMaintenanceDate->timestamp,
+                'asset_key' => $preventive->asset_key
+            ]);
         }
-
 
         return view('dept_head.maintenance_sched', [
             'tab' => 'preventive',

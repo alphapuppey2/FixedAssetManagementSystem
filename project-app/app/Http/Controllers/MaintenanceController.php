@@ -650,5 +650,15 @@ class MaintenanceController extends Controller
                 ->with('status', 'Maintenance request status updated successfully.');
         }
 
+        public function updateStatus(Request $request)
+        {
+            $assetKey = $request->input('asset_key');
+            $status = $request->input('status');
+
+            // Update the status in the database
+            Preventive::where('asset_key', $assetKey)->update(['status' => $status]);
+
+            return response()->json(['message' => 'Status updated successfully']);
+        }
 
 }
