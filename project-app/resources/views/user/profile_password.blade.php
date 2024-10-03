@@ -7,8 +7,8 @@
     <!-- Profile Photo and User Name -->
     <div class="text-center mb-6">
         <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300 mx-auto">
-        <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }} 
-                    {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+        <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }}
+                    {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                     {{ auth()->user()->lastname ?? '' }}
         </h2>
     </div>
@@ -32,7 +32,7 @@
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
-            
+
 
             <!-- New Password -->
             <div class="mb-4">

@@ -1,12 +1,13 @@
 @extends('user.home')
 
-@section('section')
-    <div class="container mx-auto p-8">
-        <!-- Title Section -->
-        <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h2 class="text-3xl font-bold text-gray-800">Asset Details: {{ $retrieveData->code }}</h2>
-        </div>
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        Asset Details: {{ $retrieveData->code }}
+    </h2>
+@endsection
 
+@section('content')
+    <div class="container mx-auto p-8">
         <!-- Image and QR Code Section -->
         <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-12 mb-12">
             <div class="w-full lg:w-1/2">
@@ -137,7 +138,7 @@
                     <div class="mb-6">
                         <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type of Request</label>
                         <select id="type" name="type" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
-                            <option value="">-- Select Request Type --</option>
+                            <option value="">Select Request Type</option>
                             <option value="repair">Repair</option>
                             <option value="maintenance">Maintenance</option>
                             <option value="upgrade">Upgrade</option>

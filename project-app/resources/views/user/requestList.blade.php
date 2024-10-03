@@ -1,78 +1,79 @@
 @extends('user.home')
 @include('components.icons')
 
-@section('requestList-content')
-<div class="flex justify-between items-center mb-4">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        REQUEST LIST
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-4">
+        {{ "Request List" }}
     </h2>
-
-    <div class="flex items-center space-x-2 w-full max-w-lg">
-        <!-- Refresh Button -->
-        <form action="{{ route('requests.list') }}" method="GET">
-            <button type="submit" class="flex items-center text-sm hover:bg-gray-300 text-gray-600 font-bold py-1 px-3 rounded-md focus:outline-none">
-                <x-icons.refresh-icon class="w-5 h-5" />
-            </button>
-        </form>
-
-        <!-- Search Bar with Filter Button Inside -->
-        <div class="relative w-full">
-            <form method="GET" action="{{ route('requests.list') }}" class="relative w-full flex items-center">
-                <!-- Filter Button Inside Search Input (on the left) -->
-                <button type="button" onclick="openModal()" class="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <x-icons.filter-icon class="w-5 h-5 text-gray-600" /> <!-- Adjusted size -->
+    <div class="flex items-center mb-4">
+        <div class="flex items-center space-x-2 w-full max-w-lg">
+            <!-- Refresh Button -->
+            <form action="{{ route('requests.list') }}" method="GET">
+                <button type="submit" class="flex items-center text-sm hover:bg-gray-300 text-gray-600 font-bold py-1 px-3 rounded-md focus:outline-none">
+                    <x-icons.refresh-icon class="w-5 h-5" />
                 </button>
-
-                <!-- Search Input Field -->
-                <input type="text" name="search" id="search" value="{{ request('search') }}"
-                       placeholder="Search by ID, Description, Status, etc..."
-                       class="block w-full pl-10 pr-16 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm">
             </form>
+
+            <!-- Search Bar with Filter Button Inside -->
+            <div class="relative w-full">
+                <form method="GET" action="{{ route('requests.list') }}" class="relative w-full flex items-center">
+                    <!-- Filter Button Inside Search Input (on the left) -->
+                    <button type="button" onclick="openModal()" class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <x-icons.filter-icon class="w-5 h-5 text-gray-600" /> <!-- Adjusted size -->
+                    </button>
+
+                    <!-- Search Input Field -->
+                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                        placeholder="Search by ID, Description, Status, etc..."
+                        class="block w-full pl-10 pr-16 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm">
+                </form>
+            </div>
         </div>
     </div>
-</div>
+@endsection
 
+@section('content')
 <!-- Request List Table -->
-<x-table class="table-auto w-full">
+<table class="min-w-full bg-white border rounded-md">
     <!-- Header -->
-    <x-slot name="header">
+    <thead class="bg-gray-100 border-b">
         <tr class="bg-gray-50 ">
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'id', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Request ID
                     <x-icons.sort-icon :direction="request('sort_by') === 'id' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'type', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Type
                     <x-icons.sort-icon :direction="request('sort_by') === 'type' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'created_at', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Created At
                     <x-icons.sort-icon :direction="request('sort_by') === 'created_at' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'status', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Status
                     <x-icons.sort-icon :direction="request('sort_by') === 'status' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'asset_code', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Asset Code
                     <x-icons.sort-icon :direction="request('sort_by') === 'asset_code' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="py-2 px-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wide">Action</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
         </tr>
-    </x-slot>
+    </thead>
 
     <!-- Table Rows -->
     @if ($requests->isEmpty())
@@ -120,7 +121,7 @@
             </tr>
         @endforeach
     @endif
-</x-table>
+</table>
 
 <!-- Pagination Links -->
 <div class="mt-4 flex justify-center">

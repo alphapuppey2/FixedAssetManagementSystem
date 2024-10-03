@@ -1,8 +1,14 @@
 @extends('user.home')
 
-@section('scanQR-content')
 
-    <h1 class="text-3xl font-semibold mb-4 mt-10 text-center">Scan QR</h1>
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ "Scan QR" }}
+    </h2>
+@endsection
+
+@section('content')
+
     <p class="text-center">Choose one of the options below:</p>
 
     <div id="placeholderImage">
