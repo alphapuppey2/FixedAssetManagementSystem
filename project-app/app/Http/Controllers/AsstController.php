@@ -25,7 +25,7 @@ class AsstController extends Controller
                     ->select('asset.id', 'asset.code' , 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
                     ->orderBy('asset.code', 'asc')
                     ->paginate(10);
-    
+
         return view("admin.assetList", compact('assets'));
     }
 
@@ -35,14 +35,14 @@ class AsstController extends Controller
                     ->join('category', 'asset.ctg_ID', '=', 'category.id')
                     ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
                     ->orderBy('asset.code', 'asc');
-        
+
         // If department is selected, filter by department ID
         if ($dept) {
             $query->where('asset.dept_ID', $dept);
         }
-    
+
         $assets = $query->paginate(10);
-    
+
         return view("admin.assetList", compact('assets'));
     }
 
@@ -95,26 +95,39 @@ class AsstController extends Controller
         //history of a Asset
         $asset = AssetModel::where('asset.id', $id)
                                     ->select("asset.code as assetCode")->first();
+
+        $assetRet = Maintenance::where("asset_key" , $id)
+                                    ->where("completed" , 1)
+                                    ->join('users' ,'users.id','=' , 'maintenance.requestor')
+                                    ->select(
+                                             'maintenance.reason as reason',
+                                             'maintenance.type as type',
+                                             'maintenance.cost as cost',
+                                             'maintenance.description as description',
+                                             'maintenance.completion_date as complete',
+                                             'maintenance.status as status',
+                                             'users.firstname as fname',
+                                             'users.lastname as lname',
+                                             )->get();
         $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
 
 
-        dd($AssetMaintenance);
-        dd($asset);
-        return view('dept_head.MaintenanceHistory' , compact('AssetMaintenance','asset'));
+
+
+        return view('dept_head.MaintenanceHistory' , compact('assetRet','asset'));
     }
     public function showForm(){
 
         $usrDPT = Auth::user()->dept_id;
 
-        $departments = array('list' => DB::table('department')->get());
-        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
-        $location = array('locs' => DB::table('location')->get());
-        $model = array('mod' => DB::table('model')->get());
-        $manufacturer = array('mcft' => DB::table('manufacturer')->get());
-
-
-
-        return view('dept_head.createAsset',compact('departments' , 'categories','location' ,'model','manufacturer'));
+        $department = department::find( $usrDPT);
+            $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
+            $location = array('locs' => DB::table('location')->get());
+            $model = array('mod' => DB::table('model')->get());
+            $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+            $addInfos = json_decode($department->custom_fields);
+        // dd($addInfos);
+        return view('dept_head.createAsset',compact('addInfos' , 'categories','location' ,'model','manufacturer'));
     }
 
     public  function convertJSON($key , $value){
@@ -150,7 +163,7 @@ class AsstController extends Controller
             'field.value.*' => 'nullable|string|max:255',
 
         ])){
-            return redirect()->back()->withError();
+            return redirect()->back()->withInput()->withError();
         }
 
         //additional Fields
@@ -352,7 +365,7 @@ class AsstController extends Controller
     //                                     )
     //                                 ->get();
     //     $fields = json_decode($retrieveData[0]->custom_fields,true);
-        
+
     //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     // }
 
@@ -427,7 +440,7 @@ class AsstController extends Controller
     return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
 }
 
-    
+
 
 
     public function showRequestList() {
