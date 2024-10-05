@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\department;
-use App\Models\assetModel;
 use App\Models\Maintenance;
+use App\Models\assetModel;
+
+use App\Models\category;
+use App\Models\locationModel;
+use App\Models\Manufacturer;
+use App\Models\ModelAsset;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -45,7 +50,9 @@ class AsstController extends Controller
             $query->where('asset.dept_ID', $dept);
         }
 
+
         $assets = $query->paginate(10);
+
 
         return view("admin.assetList", compact('assets'));
     }
@@ -102,27 +109,40 @@ class AsstController extends Controller
         //history of a Asset
         $asset = AssetModel::where('asset.id', $id)
             ->select("asset.code as assetCode")->first();
+
+        $assetRet = Maintenance::where("asset_key", $id)
+            ->where("completed", 1)
+            ->join('users', 'users.id', '=', 'maintenance.requestor')
+            ->select(
+                'maintenance.reason as reason',
+                'maintenance.type as type',
+                'maintenance.cost as cost',
+                'maintenance.description as description',
+                'maintenance.completion_date as complete',
+                'maintenance.status as status',
+                'users.firstname as fname',
+                'users.lastname as lname',
+            )->get();
         $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
 
 
-        dd($AssetMaintenance);
-        dd($asset);
-        return view('dept_head.MaintenanceHistory', compact('AssetMaintenance', 'asset'));
+
+
+        return view('dept_head.MaintenanceHistory', compact('assetRet', 'asset'));
     }
     public function showForm()
     {
 
         $usrDPT = Auth::user()->dept_id;
 
-        $departments = array('list' => DB::table('department')->get());
+        $department = department::find($usrDPT);
         $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
         $location = array('locs' => DB::table('location')->get());
         $model = array('mod' => DB::table('model')->get());
         $manufacturer = array('mcft' => DB::table('manufacturer')->get());
-
-
-
-        return view('dept_head.createAsset', compact('departments', 'categories', 'location', 'model', 'manufacturer'));
+        $addInfos = json_decode($department->custom_fields);
+        // dd($addInfos);
+        return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
     }
 
     public  function convertJSON($key, $value)
@@ -160,7 +180,7 @@ class AsstController extends Controller
             'field.value.*' => 'nullable|string|max:255',
 
         ])) {
-            return redirect()->back()->withError();
+            return redirect()->back()->withInput()->withError();
         }
 
         //additional Fields
@@ -364,6 +384,7 @@ class AsstController extends Controller
     //                                 ->get();
     //     $fields = json_decode($retrieveData[0]->custom_fields,true);
 
+
     //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     // }
 
@@ -441,6 +462,7 @@ class AsstController extends Controller
 
 
 
+
     public function showRequestList()
     {
         // Fetch requests using the DB facade
@@ -487,29 +509,128 @@ class AsstController extends Controller
 
     public function downloadCsvTemplate()
     {
-        // Get the column names from the 'asset' table
-        $columns = Schema::getColumnListing('asset');
+        // Define the readable column names that will replace foreign keys
+        $columns = [
+            'name',            // Asset name
+            'purchase_date',   // Purchase date (YYYY-MM-DD format)
+            'cost',            // Cost of the asset
+            'depreciation',    // Depreciation value
+            'salvageVal',      // Salvage value after depreciation
+            'usage_Lifespan',  // Usage lifespan in years (can be null if unknown)
+            'category',        // Asset category name (e.g., IT Equipment)
+            'manufacturer',    // Manufacturer name (e.g., Sony)
+            'model',           // Model name (e.g., Model X)
+            'location',        // Location name (e.g., HQ)
+            'status'           // Asset status (e.g., active, deployed, need Repair)
+        ];
 
-        // Remove the 'id' column (assuming 'id' is the primary key)
-        $filteredColumns = array_filter($columns, function ($column) {
-            return $column !== 'id' 
-            && $column !== 'created_at' 
-            && $column !== 'updated_at' 
-            && $column !== 'custom_fields'
-            && $column !== 'ctg_ID'
-            && $column !== 'dept_ID'
-            && $column !== 'manufacturer_key'
-            && $column !== 'model_key'
-            && $column !== 'loc_key'
-            && $column !== 'image'
-            && $column !== 'status';
-        });
+        // Add a row with sample data that matches required fields
+        $sampleData = [
+            'Sample Asset',    // Asset name
+            now()->format('Y-m-d'),  // Purchase date (today's date in correct format)
+            '10000',           // Cost in decimal (e.g., 10000.00)
+            '500',             // Depreciation value
+            '1000',            // Salvage value
+            '10',              // Usage lifespan (e.g., 10 years)
+            'IT Equipment',    // Example category
+            'Sony',            // Example manufacturer
+            'Model X',         // Example model
+            'HQ',              // Example location
+            'active'           // Status (can be: active, deployed, need Repair, under Maintenance)
+        ];
 
-        // Convert the column names into a CSV-friendly format
-        $csvContent = implode(",", $filteredColumns) . "\n";
+        // Convert the column names and sample data into CSV format
+        $csvContent = implode(",", $columns) . "\n";
+        $csvContent .= implode(",", $sampleData) . "\n"; // Add a sample row
 
+        // Return the response to download the CSV
         return response($csvContent)
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
+    }
+
+
+
+    public function uploadCsv(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'headers' => 'required|array',
+                'rows' => 'required|array',
+            ]);
+
+            $headers = $request->input('headers');
+            $rows = $request->input('rows');
+
+
+            // \Log::info('Parsed Headers:', ['headers' => $headers]); // Pass headers as an array
+            // \Log::info('Parsed Rows:', ['rows' => $rows]); // Pass rows as an array
+
+            if (!$rows || count($rows) == 0) {
+                // \Log::error('No rows provided in the request.');
+                return response()->json(['success' => false, 'message' => 'No rows provided.'], 400);
+            }
+
+            $userDept = Auth::user()->dept_id;
+
+            foreach ($rows as $row) {
+                if (count($row) < count($headers)) {
+                    // \Log::warning('Row with missing columns detected:', ['row' => $row]);
+                    continue;
+                }
+
+                $rowData = array_combine($headers, $row);
+                // \Log::info('Mapped Row Data:', ['rowData' => $rowData]);
+
+                $category = category::firstOrCreate(
+                    ['name' => $rowData['category'], 'dept_ID' => $userDept],
+                    ['description' => 'new item description']
+                );
+                $location = locationModel::firstOrCreate(
+                    ['name' => $rowData['location']],
+                    ['description' => 'new item description']
+                );
+                $manufacturer = Manufacturer::firstOrCreate(
+                    ['name' => $rowData['manufacturer']],
+                    ['description' => 'new item description']
+                );
+                $model = ModelAsset::firstOrCreate(
+                    ['name' => $rowData['model']],
+                    ['description' => 'new item description']
+                );
+
+                $department = DB::table('department')->where('id', $userDept)->get();
+                $departmentCode = $department[0]->name;
+                $lastID = department::where('name', $departmentCode)->max('assetSequence');
+                $seq = $lastID ? $lastID + 1 : 1;
+                $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+                department::where('id', $userDept)->increment('assetSequence', 1);
+
+                try {
+                    assetModel::create([
+                        'code' => $assetCode,
+                        'name' => $rowData['name'],
+                        'salvageVal' => $rowData['salvageVal'],
+                        'depreciation' => $rowData['depreciation'],
+                        'purchase_date' => $rowData['purchase_date'],
+                        'cost' => $rowData['cost'],
+                        'ctg_ID' => $category->id,
+                        'manufacturer_key' => $manufacturer->id,
+                        'model_key' => $model->id,
+                        'loc_key' => $location->id,
+                        'dept_ID' => $userDept,
+                        'status' => $rowData['status'] ?? 'active',
+                    ]);
+                    // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
+                } catch (\Exception $e) {
+                    \Log::error('Error inserting asset: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json(['success' => true, 'message' => 'CSV uploaded successfully']);
+        } catch (\Throwable $th) {
+            // \Log::error('Error uploading CSV: ' . $th->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
+        }
     }
 }

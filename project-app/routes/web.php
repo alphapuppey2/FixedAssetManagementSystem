@@ -96,6 +96,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
+    Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');

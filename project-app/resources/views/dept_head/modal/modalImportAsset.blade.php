@@ -1,3 +1,4 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Import Modal -->
 <div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg p-6 w-[300px] shadow-lg">
@@ -84,6 +85,9 @@
         const selectedSummary = document.getElementById('selectedSummary');
         const uploadButton = document.getElementById('uploadButton');
         const uploadError = document.getElementById('uploadError');
+        // Fetch CSRF token from the meta tag in the HTML head
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         let csvData = [];
         let selectedRows = [];
 
@@ -203,14 +207,44 @@
 
 
         // Upload Button Click Event
+        // Upload Button Click Event
         uploadButton.addEventListener('click', function() {
             if (selectedRows.length === 0) {
                 alert('At least 1 row must be checked.'); // Show alert if no rows are checked
             } else {
                 const checkedRows = selectedRows.map(index => csvData[index]); // Get only the checked rows
-                // Here you can send the checkedRows to the server (using AJAX for example)
-                console.log('Rows to upload:', checkedRows);
-                // Implement AJAX or form submission logic
+                const headers = Array.from(document.querySelectorAll('#previewTableHeader th')).slice(1).map(th => th.textContent.trim()); // Extract headers from the preview table
+
+                // Send the headers and checked rows to the server via AJAX
+                fetch('{{ route("upload.csv") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken // Dynamically use the token
+                        },
+                        body: JSON.stringify({
+                            headers: headers, // Include headers in the request
+                            rows: checkedRows // Include rows in the request
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json(); // Attempt to parse JSON response
+                    })
+                    .then(data => {
+                        if (data && data.success) {
+                            alert('Data uploaded successfully.');
+                            closeModal('previewModal');
+                        } else {
+                            alert('Error: ' + (data.message || 'Unknown error occurred'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error uploading data: ' + error.message);
+                    });
             }
         });
 

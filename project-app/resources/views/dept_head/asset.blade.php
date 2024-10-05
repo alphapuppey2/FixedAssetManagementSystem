@@ -2,7 +2,7 @@
 @section('header')
     <div class="header flex w-full justify-between pr-3 pl-3 items-center">
         <div class="title">
-            <a href="{{asset('asset')}}">
+            <a href="{{ asset('asset') }}">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Asset
                 </h2>
@@ -24,7 +24,13 @@
                 <x-text-input name="search" id="searchFilt" placeholder="Search" />
             </div>
         </div>
+    </div>
 
+    <div id="dataModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>No data available!</p>
+        </div>
     </div>
 @endsection
 

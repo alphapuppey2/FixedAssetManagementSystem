@@ -26,6 +26,15 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Schema::dropIfExists('department');
+
+            // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Drop the table
         Schema::dropIfExists('department');
+
+        // Enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };
