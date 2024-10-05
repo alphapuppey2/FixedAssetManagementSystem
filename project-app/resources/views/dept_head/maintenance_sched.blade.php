@@ -432,7 +432,7 @@ function updateCountdown(countdownElem, nextMaintenanceDate) {
         });
 
     } else if (timeDiff > 0) {
-        // Calculate time left in days, hours, minutes, and seconds
+       // Calculate time left in days, hours, minutes, and seconds
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
@@ -450,7 +450,7 @@ function generateMaintenanceRequest(countdownElem, callback) {
     const endsElem = row.querySelector('.ends');
 
     const occurrences = parseInt(occurrencesElem.innerText);
-    const ends = parseInt(endsElem.innerText);
+    const ends = parseInt(endsElem.getAttribute('data-ends'));
 
     console.log(`Generating request: Occurrences: ${occurrences}, Ends: ${ends}`);
 

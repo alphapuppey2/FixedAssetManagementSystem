@@ -23,16 +23,16 @@ class PreventiveMaintenanceController extends Controller
             return response()->json(['error' => 'Preventive record not found'], 404);
         }
 
-        // Check if the status is 'Cancelled'
-        if ($preventive->status === 'cancelled') {
-            return response()->json(['error' => 'This preventive maintenance plan has been cancelled.'], 400);
-        }
+        // Enable query logging
+        \DB::enableQueryLog();
 
-        // Allow one final request when occurrences == ends, then mark as completed
         if ($preventive->occurrences < $preventive->ends) {
             // Increment occurrences by 1
             $preventive->occurrences += 1;
             $preventive->save();
+
+            // Log the executed query
+            \Log::info('Query log: ' . json_encode(\DB::getQueryLog()));
 
             // Generate a maintenance request
             Maintenance::create([
@@ -44,7 +44,6 @@ class PreventiveMaintenanceController extends Controller
                 'requested_at' => now(),
             ]);
 
-            // If the occurrences now equal the ends, mark as completed
             if ($preventive->occurrences == $preventive->ends) {
                 $preventive->status = 'completed';
                 $preventive->save();
@@ -53,14 +52,10 @@ class PreventiveMaintenanceController extends Controller
             return response()->json(['success' => true, 'message' => 'Maintenance generated and occurrences updated']);
         }
 
-        // If occurrences have already reached or exceeded ends, return completed message
         if ($preventive->occurrences >= $preventive->ends) {
             return response()->json(['success' => true, 'message' => 'Maintenance already completed']);
         }
     }
-
-
-
 
     public function resetCountdown(Request $request)
     {
@@ -104,8 +99,6 @@ class PreventiveMaintenanceController extends Controller
 
         return redirect()->route('maintenance_sched')->with('status', 'Preventive maintenance updated successfully.');
     }
-
-
 
     public function edit($id)
     {
