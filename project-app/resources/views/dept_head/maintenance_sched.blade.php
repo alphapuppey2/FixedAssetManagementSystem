@@ -213,7 +213,7 @@
 
                     setInterval(() => {
                         updateCountdown(countdownElem, nextMaintenanceDate);
-                    }, 1000); // Update every 60 seconds
+                    }, 1000); // Update every 1 second
                 } else {
                     countdownElem.innerHTML = "Invalid Maintenance Date";
                 }
@@ -238,47 +238,61 @@
         }
 
 
-    function generateMaintenanceRequest(countdownElem) {
-        const row = countdownElem.closest('tr');
-        const occurrencesElem = row.querySelector('.occurrences');
-        const endsElem = row.querySelector('.ends');
-        const statusElem = row.querySelector('.status');
+        function generateMaintenanceRequest(countdownElem) {
+    const row = countdownElem.closest('tr');
+    const occurrencesElem = row.querySelector('.occurrences');
+    const endsElem = row.querySelector('.ends');
+    const statusElem = row.querySelector('.status');
 
-        if (!occurrencesElem || !endsElem || !statusElem) {
-            console.error('Required element is missing in the row.');
-            return;
-        }
-
-        if (parseInt(occurrencesElem.innerText) >= parseInt(endsElem.innerText)) {
-            countdownElem.innerHTML = "Maintenance Completed";
-            statusElem.innerHTML = "Completed";
-            return;
-        }
-
-        fetch('{{ route("run-maintenance-check") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                asset_key: row.getAttribute('data-asset-key'),
-                occurrences: parseInt(occurrencesElem.innerText) + 1
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                occurrencesElem.innerText = parseInt(occurrencesElem.innerText) + 1;
-                console.log('Maintenance request generated:', data);
-            } else {
-                console.error('Error:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error generating maintenance request:', error);
-        });
+    if (!occurrencesElem || !endsElem || !statusElem) {
+        console.error('Required element is missing in the row.');
+        return;
     }
+
+    const occurrences = parseInt(occurrencesElem.innerText);
+    const ends = parseInt(endsElem.innerText);
+
+    // If occurrences have already reached the 'ends' value, mark as completed
+    if (occurrences >= ends) {
+        countdownElem.innerHTML = "Maintenance Completed";
+        statusElem.innerHTML = "Completed";
+        return;
+    }
+
+    // Otherwise, increment the occurrences and generate the maintenance request
+    fetch('{{ route("run-maintenance-check") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            asset_key: row.getAttribute('data-asset-key'),
+            occurrences: occurrences + 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the occurrences on the frontend
+            occurrencesElem.innerText = occurrences + 1;
+
+            // Check if this was the last occurrence
+            if (occurrences + 1 >= ends) {
+                countdownElem.innerHTML = "Maintenance Completed";
+                statusElem.innerHTML = "Completed";
+            } else {
+                console.log('Maintenance request generated:', data);
+            }
+        } else {
+            console.error('Error:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error generating maintenance request:', error);
+    });
+}
+
 </script>
 
 
