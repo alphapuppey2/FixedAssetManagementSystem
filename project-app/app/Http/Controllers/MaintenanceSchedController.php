@@ -48,7 +48,8 @@ class MaintenanceSchedController extends Controller
             $nextMaintenanceDate = $lastMaintenance->addMinutes($preventive->frequency); //for testing
 
             // Pass the next maintenance date as a timestamp (to be used in the frontend for real-time countdown)
-            $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
+            // $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
+            $preventive->next_maintenance_timestamp = $nextMaintenanceDate ? $nextMaintenanceDate->timestamp : null;
 
             Log::info('Next Maintenance Timestamp:', [
                 'timestamp' => $nextMaintenanceDate->timestamp,

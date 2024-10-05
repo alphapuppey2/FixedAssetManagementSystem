@@ -199,76 +199,62 @@
     </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const checkInterval = 1000;  // Check every 1 second
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM fully loaded and parsed');
+            const countdownElems = document.querySelectorAll('[id^="next-maintenance-"]');
+            console.log('Found countdown elements:', countdownElems.length);
 
-        function updateCountdowns() {
-            document.querySelectorAll('[id^="next-maintenance-"]').forEach(function(countdownElem) {
-                let nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance'), 10);
-                console.log('Next Maintenance Timestamp:', nextMaintenanceTimestamp);
-                let currentTimestamp = Math.floor(Date.now() / 1000);  // Get current timestamp in seconds
-                let totalSeconds = nextMaintenanceTimestamp - currentTimestamp;
-                let occurrencesElem = countdownElem.closest('tr').querySelector('.occurrences');
-                let endsElem = countdownElem.closest('tr').querySelector('.ends');
-                let statusElem = countdownElem.closest('tr').querySelector('.status');
+            countdownElems.forEach(countdownElem => {
+                const nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance')) * 1000;
 
-                if (isNaN(totalSeconds)) {
-                    console.error('Invalid countdown data');
-                    return;
-                }
+                if (nextMaintenanceTimestamp) {
+                    const nextMaintenanceDate = new Date(nextMaintenanceTimestamp);
+                    updateCountdown(countdownElem, nextMaintenanceDate);
 
-                // Stop the countdown if occurrences are equal to or greater than ends
-                if (parseInt(occurrencesElem.innerText) >= parseInt(endsElem.innerText)) {
-                    countdownElem.innerHTML = "Maintenance Completed";
-                    statusElem.innerHTML = "Completed";
-                    return;  // Prevent further countdown
-                }
-
-                if (totalSeconds <= 0) {
-                    countdownElem.innerHTML = "Maintenance Due";
-                    triggerMaintenanceCheck(countdownElem);  // Trigger maintenance logic
+                    setInterval(() => {
+                        updateCountdown(countdownElem, nextMaintenanceDate);
+                    }, 1000); // Update every 60 seconds
                 } else {
-                    // Update countdown with the remaining time
-                    let days = Math.floor(totalSeconds / (3600 * 24));
-                    let hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-                    let minutes = Math.floor((totalSeconds % 3600) / 60);
-                    let seconds = totalSeconds % 60;
-
-                    countdownElem.innerHTML =
-                        days + ' days ' +
-                        String(hours).padStart(2, '0') + ':' +
-                        String(minutes).padStart(2, '0') + ':' +
-                        String(seconds).padStart(2, '0');
+                    countdownElem.innerHTML = "Invalid Maintenance Date";
                 }
             });
+        });
+
+        function updateCountdown(countdownElem, nextMaintenanceDate) {
+            const currentDate = new Date();
+            const timeDiff = nextMaintenanceDate - currentDate;
+
+            if (timeDiff <= 0) {
+                countdownElem.innerHTML = "Maintenance Due";
+                generateMaintenanceRequest(countdownElem);
+            } else {
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                countdownElem.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
         }
 
-        setInterval(updateCountdowns, checkInterval);
-    });
 
-    function triggerMaintenanceCheck(countdownElem) {
-        let occurrencesElem = countdownElem.closest('tr').querySelector('.occurrences');
-        let endsElem = countdownElem.closest('tr').querySelector('.ends');
-        let statusElem = countdownElem.closest('tr').querySelector('.status');
+    function generateMaintenanceRequest(countdownElem) {
+        const row = countdownElem.closest('tr');
+        const occurrencesElem = row.querySelector('.occurrences');
+        const endsElem = row.querySelector('.ends');
+        const statusElem = row.querySelector('.status');
 
-
-        // Check if the required elements exist
         if (!occurrencesElem || !endsElem || !statusElem) {
             console.error('Required element is missing in the row.');
             return;
         }
 
-        // Stop if occurrences have reached or exceeded the ends value
         if (parseInt(occurrencesElem.innerText) >= parseInt(endsElem.innerText)) {
             countdownElem.innerHTML = "Maintenance Completed";
             statusElem.innerHTML = "Completed";
-            return;  // Prevent further increments and stop maintenance checks
+            return;
         }
 
-        // Log asset_key to check its value
-        console.log('Asset Key:', countdownElem.closest('tr').getAttribute('data-asset-key'));
-
-        // Logic for generating maintenance requests and incrementing occurrences
         fetch('{{ route("run-maintenance-check") }}', {
             method: 'POST',
             headers: {
@@ -276,8 +262,8 @@
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
-                asset_key: countdownElem.getAttribute('data-asset-key'),
-                occurrences: parseInt(occurrencesElem.innerText) + 1  // Increment occurrences
+                asset_key: row.getAttribute('data-asset-key'),
+                occurrences: parseInt(occurrencesElem.innerText) + 1
             })
         })
         .then(response => response.json())
