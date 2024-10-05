@@ -92,11 +92,11 @@
                 @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
                     <div class="">
                         <!-- Number of Items Loaded -->
-                        <div class="text-gray-600">
+                        <!-- <div class="text-gray-600">
                             Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
                                 class="font-semibold">{{ $asset->lastItem() }}</span> of <span
                                 class="font-semibold">{{ $asset->total() }}</span> items
-                        </div>
+                        </div> -->
 
                         <!-- Pagination Buttons -->
                         <div class="">
