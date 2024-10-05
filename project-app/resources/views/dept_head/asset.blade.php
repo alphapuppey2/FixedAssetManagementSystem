@@ -2,7 +2,7 @@
 @section('header')
     <div class="header flex w-full justify-between pr-3 pl-3 items-center">
         <div class="title">
-            <a href="{{asset('asset')}}">
+            <a href="{{ asset('asset') }}">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Asset
                 </h2>
@@ -24,7 +24,13 @@
                 <x-text-input name="search" id="searchFilt" placeholder="Search" />
             </div>
         </div>
+    </div>
 
+    <div id="dataModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>No data available!</p>
+        </div>
     </div>
 @endsection
 
@@ -116,6 +122,56 @@
     @endif
     @vite(['resources/js/flashNotification.js'])
     <script>
+        <!-- Modal HTML
+        -->
+    <div id="dataModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>No data available!</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function fetchData() {
+            // Assuming you're using vanilla JavaScript
+            fetch('/check-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                    },
+                    body: JSON.stringify({
+                        id: 1 // You can send the required parameters here
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'no_data') {
+                        // Show modal if no data
+                        openModal();
+                    } else if (data.status === 'has_data') {
+                        // Redirect to create form page if data exists
+                        window.location.href = '/create-form';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to open modal
+        function openModal() {
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('dataModal').style.display = 'none';
+        }
+
+        // Trigger fetchData on page load or specific action
+        window.onload = fetchData;
+
+
         document.getElementById('searchFilt').addEventListener('keyup', function() {
             let query = this.value;
 
@@ -138,34 +194,35 @@
                     if (data.length === 0) {
                         // Display "Asset not found" if no results are found
                         let noResultsRow = `
-                    <tr class="text-center text-gray-800">
-                        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
-                    </tr>
-                `;
+    <tr class="text-center text-gray-800">
+        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
+    </tr>
+    `;
                         tableBody.innerHTML = noResultsRow;
                     } else {
                         // Populate new table rows based on the search results
                         data.forEach(asset => {
                             let row = `
-                        <tr>
-                            <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-                            <td class="align-middle">${asset.name}</td>
-                            <td class="align-middle">${asset.category}</td>
-                            <td class="align-middle">${asset.salvageVal}</td>
-                            <td class="align-middle">${asset.depreciation}</td>
-                            <td class="align-middle">${asset.status}</td>
-                            <td class="w-40">
-                                <div class="grp flex justify-between">
-                                    <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
-                                    <form action="/asset/delete/${asset.id}" method="post">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-outline-danger py-[2px] px-2" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+    <tr>
+        <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+        <td class="align-middle">${asset.name}</td>
+        <td class="align-middle">${asset.category}</td>
+        <td class="align-middle">${asset.salvageVal}</td>
+        <td class="align-middle">${asset.depreciation}</td>
+        <td class="align-middle">${asset.status}</td>
+        <td class="w-40">
+            <div class="grp flex justify-between">
+                <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
+                <form action="/asset/delete/${asset.id}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-outline-danger py-[2px] px-2"
+                        onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    `;
                             tableBody.innerHTML += row;
                         });
                     }

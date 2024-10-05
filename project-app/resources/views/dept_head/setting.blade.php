@@ -149,25 +149,19 @@
             <div class="addSetting">
                 <form action="{{ route('setting.create', $activeTab) }}" method="post">
                     @csrf
+                    <input type="text" id="name" name="nameSet" placeholder="Name" required />
                     @if ($activeTab !== 'customFields')
-                        <input type="text" id="name" name="nameSet" placeholder="Name" />
-                        <input type="text" id="decr" name="description" placeholder="description" />
-
-                        <button type="submit" class="btn btn-primary">New Setting</button>
+                        <input type="text" id="decr" name="description" placeholder="description" required />
                     @else
-                        <input type="text" id="name" name="nameSet" placeholder="Name" />
-                        <input type="text" id="type" name="type" placeholder="type" />
-                        <input type="text" id="helptxt" name="helptxt" placeholder="Helper Text" />
-
-                        <button type="submit" class="btn btn-primary">New Setting</button>
+                        <input type="text" id="type" name="type" placeholder="type" required />
+                        <input type="text" id="helptxt" name="helptxt" placeholder="Helper Text" required />
                     @endif
+                    <button type="submit" class="btn btn-primary">New Setting</button>
                 </form>
             </div>
         </div>
     </div>
     <script>
-
-
         document.querySelectorAll('.edit-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const urlParams = new URLSearchParams(window.location.search);

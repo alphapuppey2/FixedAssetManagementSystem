@@ -106,14 +106,12 @@
                         <div class="addInfo grid grid-col-2 w-full" id="field">
                             <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
                                 <div class="fieldSet mt-2 grid grid-cols-2 gap-2">
-                                    <input type="text" name="field[key][]" placeholder="key">
+                                    @foreach ($addInfos as $key => $dataItem )
+                                    <span>{{ $dataItem->name }}</span>
+                                    <input type="text" name="field[key][]" placeholder="key" class="hidden" value="{{ $dataItem->name }}">
                                     <input type="text" name="field[value][]" placeholder="value">
+                                    @endforeach
                                 </div>
-                            </div>
-                            <div class="flex w-full justify-center">
-                                <button id='addMoreFields'
-                                    class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">Add
-                                    Field</button>
                             </div>
                         </div>
                     </div>
