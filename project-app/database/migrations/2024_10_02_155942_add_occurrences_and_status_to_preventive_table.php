@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::table('preventive', function (Blueprint $table) {
             $table->integer('occurrences')->default(0);  // Track the number of completed maintenance occurrences
-            $table->enum('status', ['active', 'completed'])->default('active');  // Track if the maintenance schedule is still active
+            $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');  // Track if the maintenance schedule is still active
+            $table->text('cancel_reason')->nullable();
         });
 
     }

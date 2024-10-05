@@ -23,6 +23,7 @@ class MaintenanceController extends Controller
         $user = Auth::user();
         $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
         $searchQuery = $request->input('query', '');
+        $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
         // $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
@@ -73,19 +74,21 @@ class MaintenanceController extends Controller
         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
         ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
-        ->paginate(7);
+        ->paginate($perPage);
 
         // Return the view with the filtered requests and selected tab
         if ($user->usertype === 'dept_head') {
             return view('dept_head.maintenance', [
                 'requests' => $requests,
                 'tab' => $tab,
-                'searchQuery' => $searchQuery, // Passing the search query
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,  // Passing the search query
             ]);
         } else {
             return view('user.requestList', [
                 'requests' => $requests,
-                'searchQuery' => $searchQuery, // Passing the search query
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,  // Passing the search query
             ]);
         }
     }
@@ -120,9 +123,11 @@ class MaintenanceController extends Controller
     // }
 
 
-    public function requests()
+    public function requests(Request $request)
     {
         $user = Auth::user();
+        $perPage = $request->input('rows_per_page', 10);
+
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'request')
             ->select('maintenance.*');
@@ -139,19 +144,21 @@ class MaintenanceController extends Controller
         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
         ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
-        ->paginate(7);
+        ->paginate($perPage);
 
         return view('dept_head.maintenance', [
             'requests' => $requests,
             'tab' => 'requests',
+            'perPage' => $perPage,
         ]);
     }
 
     // Show the list of approved maintenance requests
-    public function approved()
+    public function approved(Request $request)
     {
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
+        $perPage = $request->input('rows_per_page', 10);
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'approved')
@@ -172,20 +179,22 @@ class MaintenanceController extends Controller
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
                 'category.name AS category_name', 'asset.code as asset_code')
-        ->paginate(7);
+        ->paginate($perPage);
 
         return view('dept_head.maintenance', [
             'requests' => $requests,
             'tab' => 'approved',
-            'searchQuery' => $searchQuery, // Passing an empty search query
+            'searchQuery' => $searchQuery,
+            'perPage' => $perPage, // Passing an empty search query
         ]);
     }
 
     // Show the list of denied maintenance requests
-    public function denied()
+    public function denied(Request $request)
     {
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
+        $perPage = $request->input('rows_per_page', 10);
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'denied')
@@ -206,12 +215,13 @@ class MaintenanceController extends Controller
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"),
                 'category.name AS category_name', 'asset.code as asset_code')
-        ->paginate(7);
+        ->paginate($perPage);
 
         return view('dept_head.maintenance', [
             'requests' => $requests,
             'tab' => 'denied',
-            'searchQuery' => $searchQuery, // Passing an empty search query
+            'searchQuery' => $searchQuery,
+            'perPage' => $perPage, // Passing an empty search query
         ]);
     }
 

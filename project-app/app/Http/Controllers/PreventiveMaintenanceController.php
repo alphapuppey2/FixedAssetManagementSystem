@@ -23,6 +23,11 @@ class PreventiveMaintenanceController extends Controller
             return response()->json(['error' => 'Preventive record not found'], 404);
         }
 
+        // Check if the status is 'Cancelled'
+        if ($preventive->status === 'cancelled') {
+            return response()->json(['error' => 'This preventive maintenance plan has been cancelled.'], 400);
+        }
+
         // Allow one final request when occurrences == ends, then mark as completed
         if ($preventive->occurrences < $preventive->ends) {
             // Increment occurrences by 1
@@ -35,6 +40,8 @@ class PreventiveMaintenanceController extends Controller
                 'status' => 'request',
                 'asset_key' => $preventive->asset_key,
                 'type' => 'maintenance',
+                'cost' => $preventive->cost,
+                'requested_at' => now(),
             ]);
 
             // If the occurrences now equal the ends, mark as completed
@@ -74,8 +81,40 @@ class PreventiveMaintenanceController extends Controller
         return response()->json(['error' => 'Preventive record not found'], 404);
     }
 
+    public function update(Request $request, $id)
+    {
+        $preventive = Preventive::findOrFail($id);
+
+        // Update basic fields
+        $preventive->cost = $request->input('cost');
+        $preventive->frequency = $request->input('frequency');
+        $preventive->ends = $request->input('ends');
+
+        // Handle status change
+        $preventive->status = $request->input('status');
+
+        // If the status is 'cancelled', store the cancellation reason
+        if ($request->input('status') == 'cancelled') {
+            $preventive->cancel_reason = $request->input('cancel_reason');
+        } else {
+            $preventive->cancel_reason = null; // Reset the reason if not cancelled
+        }
+
+        $preventive->save();
+
+        return redirect()->route('maintenance_sched')->with('status', 'Preventive maintenance updated successfully.');
+    }
 
 
+
+    public function edit($id)
+    {
+        // Find the preventive record by ID
+        $preventive = Preventive::findOrFail($id);
+
+        // Return the data as JSON for the modal to populate
+        return response()->json($preventive);
+    }
 
 
 
