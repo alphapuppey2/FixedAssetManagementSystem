@@ -135,7 +135,7 @@ class MaintenanceController extends Controller
         }
 
         // $requests = $query->get();
-        $requests = $query->join('users', 'maintenance.requestor', '=', 'users.id')
+        $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
         ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
@@ -153,7 +153,7 @@ class MaintenanceController extends Controller
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
 
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'approved')
             ->select('maintenance.*');
 
@@ -165,9 +165,9 @@ class MaintenanceController extends Controller
         }
 
         // $requests = $query->get();
-        $requests = $query->join('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-        ->join('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
+        ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
         ->select('maintenance.*',
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
@@ -187,7 +187,7 @@ class MaintenanceController extends Controller
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
 
-        $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'denied')
             ->select('maintenance.*');
 
@@ -199,9 +199,9 @@ class MaintenanceController extends Controller
         }
 
         // $requests = $query->get();
-        $requests = $query->join('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-        ->join('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
+        ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
+        ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
         ->select('maintenance.*',
                 DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
                 DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"),
