@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class AsstController extends Controller
 {
     public function showAllAssets(){
@@ -471,5 +473,17 @@ class AsstController extends Controller
 
         // Pass the requests data to the view
         return view('user.requestList', compact('requests'));
+    }
+
+    public function downloadCsvTemplate(){
+        // Get the column names from the 'asset' table
+        $columns = Schema::getColumnListing('asset');
+
+        // Convert the column names into a CSV-friendly format
+        $csvContent = implode(",", $columns) . "\n";
+
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
     }
 }
