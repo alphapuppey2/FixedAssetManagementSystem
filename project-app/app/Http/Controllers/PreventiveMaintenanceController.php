@@ -12,38 +12,66 @@ use Illuminate\Support\Facades\Log;
 class PreventiveMaintenanceController extends Controller
 {
     public function checkAndGenerate(Request $request)
+{
+    $assetKey = $request->input('asset_key');
+    $occurrences = $request->input('occurrences');
+
+    // Retrieve the preventive maintenance record for the asset
+    $preventive = Preventive::where('asset_key', $assetKey)->first();
+
+    if (!$preventive) {
+        return response()->json(['error' => 'Preventive record not found'], 404);
+    }
+
+    // Ensure that only one request is processed at a time
+    if ($preventive->occurrences >= $preventive->ends) {
+        // If occurrences reached ends, mark as completed
+        $preventive->status = 'completed';
+        $preventive->save();
+
+        return response()->json(['success' => true, 'message' => 'Maintenance completed']);
+    }
+
+    // Increment occurrences and generate a maintenance request
+    if ($preventive->occurrences < $preventive->ends) {
+        $preventive->occurrences += 1;  // Increment by 1 only
+        $preventive->save();
+
+        // Generate a maintenance request
+        Maintenance::create([
+            'description' => 'Scheduled preventive maintenance for asset ' . $preventive->asset_key,
+            'status' => 'request',
+            'asset_key' => $preventive->asset_key,
+            'type' => 'maintenance',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Maintenance generated']);
+    }
+}
+
+
+    public function resetCountdown(Request $request)
     {
         $assetKey = $request->input('asset_key');
-        $occurrences = $request->input('occurrences');
-
         $preventive = Preventive::where('asset_key', $assetKey)->first();
 
         if ($preventive) {
-            // Check if occurrences match the 'ends' value, marking it as complete
-            if ($occurrences >= $preventive->ends) {
-                $preventive->status = 'completed';
-                $preventive->save();
+            // Dynamically calculate the next maintenance date based on the last maintenance (updated_at) and frequency
+            $lastMaintenance = Carbon::parse($preventive->updated_at);
+            $nextMaintenanceDate = $lastMaintenance->addSeconds(10);  // For testing, use seconds instead of days
 
-                return response()->json(['message' => 'Maintenance completed']);
-            }
-
-            // Update the occurrences count
-            $preventive->occurrences = $occurrences;
-            $preventive->save();
-
-            // Generate a maintenance request with requestor = null
-            Maintenance::create([
-                'description' => 'Scheduled preventive maintenance for asset ' . $preventive->asset_key,
-                'status' => 'request',
-                'asset_key' => $preventive->asset_key,
-                // 'requestor' => null,  // Set requestor to null for system-generated requests
-                'type' => 'maintenance',
+            return response()->json([
+                'success' => true,
+                'nextMaintenanceTimestamp' => $nextMaintenanceDate->timestamp  // Pass the next due timestamp to the frontend
             ]);
-
-            return response()->json(['message' => 'Maintenance request generated and occurrences updated']);
-        } else {
-            return response()->json(['error' => 'Preventive record not found'], 404);
         }
+
+        return response()->json(['error' => 'Preventive record not found'], 404);
     }
+
+
+
+
+
 
 }

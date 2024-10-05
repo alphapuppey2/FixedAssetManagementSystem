@@ -124,6 +124,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     // Route::get('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate']);
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
+    Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
+
+
 
 
 

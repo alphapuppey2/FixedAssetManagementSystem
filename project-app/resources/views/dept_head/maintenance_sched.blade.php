@@ -199,52 +199,51 @@
     </script>
 
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('DOM fully loaded and parsed');
-            const countdownElems = document.querySelectorAll('[id^="next-maintenance-"]');
-            console.log('Found countdown elements:', countdownElems.length);
+document.addEventListener('DOMContentLoaded', function () {
+    const countdownElems = document.querySelectorAll('[id^="next-maintenance-"]');
+    countdownElems.forEach(countdownElem => {
+        let nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance')) * 1000;
+        let isRequestPending = false;  // Flag to ensure we only make one request when countdown hits 0
 
-            countdownElems.forEach(countdownElem => {
-                const nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance')) * 1000;
+        if (nextMaintenanceTimestamp) {
+            let nextMaintenanceDate = new Date(nextMaintenanceTimestamp);
+            countdownElem.interval = setInterval(() => {
+                updateCountdown(countdownElem, nextMaintenanceDate);
+            }, 1000); // Update every second
+        } else {
+            countdownElem.innerHTML = "Invalid Maintenance Date";
+        }
+    });
+});
 
-                if (nextMaintenanceTimestamp) {
-                    const nextMaintenanceDate = new Date(nextMaintenanceTimestamp);
-                    updateCountdown(countdownElem, nextMaintenanceDate);
+function updateCountdown(countdownElem, nextMaintenanceDate) {
+    const currentDate = new Date();
+    const timeDiff = nextMaintenanceDate - currentDate;
 
-                    setInterval(() => {
-                        updateCountdown(countdownElem, nextMaintenanceDate);
-                    }, 1000); // Update every 1 second
-                } else {
-                    countdownElem.innerHTML = "Invalid Maintenance Date";
-                }
+    if (timeDiff <= 0) {
+        // Trigger the maintenance request only once per cycle
+        if (!countdownElem.isRequestPending) {
+            countdownElem.isRequestPending = true;  // Prevent multiple requests
+
+            // Trigger the maintenance request when countdown hits 0
+            generateMaintenanceRequest(countdownElem, () => {
+                // After the request, reset the countdown and set isRequestPending to false
+                resetCountdown(countdownElem);
             });
-        });
-
-        function updateCountdown(countdownElem, nextMaintenanceDate) {
-            const currentDate = new Date();
-            const timeDiff = nextMaintenanceDate - currentDate;
-
-            if (timeDiff <= 0) {
-                countdownElem.innerHTML = "Maintenance Due";
-                generateMaintenanceRequest(countdownElem);
-            } else {
-                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-                countdownElem.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            }
         }
 
+    } else {
+        const seconds = Math.floor(timeDiff / 1000);
+        countdownElem.innerHTML = `${seconds}s`;  // Display the remaining time
+    }
+}
 
-        function generateMaintenanceRequest(countdownElem) {
+function generateMaintenanceRequest(countdownElem, callback) {
     const row = countdownElem.closest('tr');
     const occurrencesElem = row.querySelector('.occurrences');
     const endsElem = row.querySelector('.ends');
-    const statusElem = row.querySelector('.status');
 
-    if (!occurrencesElem || !endsElem || !statusElem) {
+    if (!occurrencesElem || !endsElem) {
         console.error('Required element is missing in the row.');
         return;
     }
@@ -252,14 +251,13 @@
     const occurrences = parseInt(occurrencesElem.innerText);
     const ends = parseInt(endsElem.innerText);
 
-    // If occurrences have already reached the 'ends' value, mark as completed
     if (occurrences >= ends) {
         countdownElem.innerHTML = "Maintenance Completed";
-        statusElem.innerHTML = "Completed";
+        clearInterval(countdownElem.interval); // Stop the countdown when maintenance is completed
         return;
     }
 
-    // Otherwise, increment the occurrences and generate the maintenance request
+    // Send the request to the backend to increment occurrences and generate the maintenance request
     fetch('{{ route("run-maintenance-check") }}', {
         method: 'POST',
         headers: {
@@ -274,24 +272,43 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update the occurrences on the frontend
             occurrencesElem.innerText = occurrences + 1;
 
-            // Check if this was the last occurrence
-            if (occurrences + 1 >= ends) {
-                countdownElem.innerHTML = "Maintenance Completed";
-                statusElem.innerHTML = "Completed";
-            } else {
-                console.log('Maintenance request generated:', data);
-            }
+            // Show "Maintenance Generated" message
+            countdownElem.innerHTML = "Maintenance Generated";
+
+            setTimeout(() => {
+                callback();  // Reset countdown after showing the message
+                countdownElem.isRequestPending = false;  // Allow the next cycle to generate the next request
+            }, 2000);  // Show "Maintenance Generated" for 2 seconds
+
         } else {
             console.error('Error:', data.error);
+            countdownElem.isRequestPending = false;  // Reset flag on error
         }
     })
     .catch(error => {
         console.error('Error generating maintenance request:', error);
+        countdownElem.isRequestPending = false;  // Reset flag on error
     });
 }
+
+function resetCountdown(countdownElem) {
+    const setTime = 10;  // Set to 10 seconds for testing, adjust to 86400 (1 day) for actual
+    const nextMaintenanceDate = new Date(new Date().getTime() + setTime * 1000); // Reset countdown
+
+    // Clear existing interval
+    if (countdownElem.interval) {
+        clearInterval(countdownElem.interval);
+    }
+
+    // Start a new countdown
+    countdownElem.interval = setInterval(() => {
+        updateCountdown(countdownElem, nextMaintenanceDate);
+    }, 1000); // Update every second
+}
+
+
 
 </script>
 

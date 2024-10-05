@@ -46,7 +46,7 @@ class MaintenanceSchedController extends Controller
             // Calculate the next maintenance date by adding the frequency in days
             // $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //acttual //for testing
             // For testing, use seconds instead of days or minutes
-            $nextMaintenanceDate = $lastMaintenance->addSeconds(10); // 10 seconds for testing
+            $nextMaintenanceDate = $lastMaintenance->addSeconds(15); // 10 seconds for testing
 
 
             // Pass the next maintenance date as a timestamp (to be used in the frontend for real-time countdown)
