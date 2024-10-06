@@ -14,7 +14,7 @@ use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
-
+use App\Http\Controllers\PredictiveController;
 
 Route::get('/', function(){
     if(Auth::check()){
@@ -127,10 +127,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
     Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
-
-
-    // routes/web.php
     Route::post('/update-maintenance-status', [MaintenanceController::class, 'updateStatus']);
+
+    Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
 
     //setting page
