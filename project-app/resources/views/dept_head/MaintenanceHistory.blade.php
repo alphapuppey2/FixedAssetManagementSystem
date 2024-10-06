@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('header')
-<a href="{{ route('back') }}">
-    <h2 class="font-semibold inline-block text-xl text-center text-gray-800 leading-tight flex w-24">
-        Asset
-    </h2>
-</a>
+    <a href="{{ route('back') }}">
+        <h2 class="font-semibold inline-block text-xl text-center text-gray-800 leading-tight flex w-24">
+            Asset
+        </h2>
+    </a>
     <div class="divider">></div>
     <h2 class="inline-block  text-center w-24">
         {{ $asset->assetCode }}
@@ -31,18 +31,28 @@
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description
                     </td>
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</td>
-                    <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion</td>
+                    <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion
+                    </td>
                 </tr>
             </thead>
             <tbody>
-                @if (isset($AssetMaintenance) && count($AssetMaintenance) > 0)
-                    @php
-                        echo $AssetMaintenance;
-                    @endphp
+
+                @if (isset($assetRet) && count($assetRet) > 0)
+                    @foreach ($assetRet as $logs)
+                        <tr>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->lname.' , '.$logs->fname }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->reason }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->type }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->cost }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->description }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->status }}</td>
+                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->complete }}</td>
+                        </tr>
+                    @endforeach
                 @else
                     <tr class="bg-blue-100/50">
                         <td colspan='7'
-                            class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400/50 uppercase tracking-wider">
+                            class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400/50 tracking-wider">
                             No maintenance history</td>
                     </tr>
                 @endif

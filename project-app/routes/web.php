@@ -95,6 +95,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+    // IMPORT
+    Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
+    Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
@@ -136,7 +139,6 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
 
-
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');
@@ -154,6 +156,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
 });
+
 
 // User Routes
 Route::middleware(['workerUserType','auth', 'verified'])->group(function(){

@@ -132,19 +132,27 @@ class settingController extends Controller
                      ->withInput(); // Fallback URL
                 }
                 break;
+            case 'customFields':
+                $department = department::findOrFail(Auth::user()->dept_id);
+                $deleterow = json_decode($department->custom_fields);
+
+                unset($deleterow[$id]);
+
+                $department->custom_fields = json_encode($deleterow);
+
+                $department->save();
+
+                break;
             default:
-                dd(["message" => "errors"]);
+            return redirect()->back()->withErrors('Failed to remove the item from the list.');
         }
 
 
-        if($deleteFrom !== null){
+        if($tab !== 'customFields' && $deleteFrom !== null){
             $deleteFrom->delete();
             return redirect()->back()->with('Setting deleted successfully.');
         }
-        else{
-            dd('Errors');
-            return redirect()->back()->withErrors('Setting deleted successfully.');
-        }
+
 
 
     }
@@ -195,12 +203,13 @@ class settingController extends Controller
                                      "helptext" => $validation['helptxt']]);
                 }
                 else{
-                    $column = array_column( $customF, 'name');
+                    $collect = collect($customF);
+                    $column = $collect->contains('name' , $validation['nameSet']);
 
-                    $index = array_search($column , $validation['nameSet']);
 
-                    if($index !== false ){
-                        return redirect()->back()->withErrors('Failed', 'Names repetitive.');
+
+                    if($column !== false ){
+                        return redirect()->back()->withErrors(['errors' =>'The Name already exists']);
                     }
 
 
