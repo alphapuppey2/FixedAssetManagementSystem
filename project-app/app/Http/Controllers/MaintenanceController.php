@@ -373,99 +373,6 @@ class MaintenanceController extends Controller
             return redirect()->back()->with('status', 'Maintenance request submitted successfully.');
         }
 
-        public function showRequestList(Request $request) {
-            $userId = Auth::id();
-            $search = $request->input('search');
-            $sort_by = $request->input('sort_by', 'created_at'); // Default sorting by 'created_at'
-            $sort_direction = $request->input('sort_direction', 'desc'); // Default sorting direction is 'desc'
-            $status = $request->input('status');  // Filter by status
-            $type = $request->input('type');  // Filter by type
-            $from_date = $request->input('from_date');  // Date range (start)
-            $to_date = $request->input('to_date');  // Date range (end)
-
-            // Fetch requests made by the current user and join with related tables
-            $requests = DB::table('maintenance')
-                ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
-                ->join('category', 'asset.ctg_ID', '=', 'category.id')
-                ->join('model', 'asset.model_key', '=', 'model.id')
-                ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
-                ->join('location', 'asset.loc_key', '=', 'location.id')
-                ->join('department', 'asset.dept_ID', '=', 'department.id')
-                ->where('maintenance.requestor', $userId)
-                ->when($search, function ($query, $search) {
-                    return $query->where(function ($query) use ($search) {
-                        $query->where('maintenance.description', 'like', '%' . $search . '%')
-                              ->orWhere('maintenance.status', 'like', '%' . $search . '%')
-                              ->orWhere('asset.code', 'like', '%' . $search . '%')
-                              ->orWhere('maintenance.id', 'like', '%' . $search . '%');
-                    });
-                })
-                // Apply status filter if provided
-                ->when($status, function ($query, $status) {
-                    return $query->where('maintenance.status', $status);
-                })
-                // Apply type filter if provided
-                ->when($type, function ($query, $type) {
-                    return $query->where('maintenance.type', $type);
-                })
-                // Apply date range filter if both dates are provided
-                ->when($from_date && $to_date, function ($query) use ($from_date, $to_date) {
-                    return $query->whereBetween('maintenance.created_at', [$from_date, $to_date]);
-                })
-                ->select(
-                    'maintenance.*',
-                    'asset.code as asset_code',
-                    'asset.status as asset_status',
-                    'asset.image as asset_image',
-                    'asset.name as asset_name',
-                    'asset.depreciation',
-                    'asset.salvageVal',
-                    'asset.usage_Lifespan',
-                    'category.name as category',
-                    'model.name as model',
-                    'manufacturer.name as manufacturer',
-                    'location.name as location',
-                    'department.name as department'
-                )
-                ->orderBy($sort_by, $sort_direction) // Apply sorting
-                ->paginate(8);
-
-            return view('user.requestList', [
-                'requests' => $requests,
-                'search' => $search,
-                'status' => $status,
-                'type' => $type,
-                'from_date' => $from_date,
-                'to_date' => $to_date
-            ]);
-        }
-
-
-
-
-        public function cancelRequest($id)
-        {
-            // Find the maintenance request by its ID, or fail if not found
-            $request = Maintenance::findOrFail($id);
-
-            // Check if the request is pending, only pending requests can be canceled
-            if ($request->status !== 'pending') {
-                return redirect()->back()->withErrors('Only pending requests can be canceled.');
-            }
-
-            // Optional: Check if the authenticated user is allowed to cancel the request
-            // This checks if the current user is the one who submitted the request, or if the user has admin privileges
-            if (auth()->user()->id !== $request->requestor && !auth()->user()->is_admin) {
-                return redirect()->back()->withErrors('You do not have permission to cancel this request.');
-            }
-            // Update the status to 'cancelled'
-            $request->status = 'cancelled';
-            $request->save();
-
-            // Redirect back to the request list page or another relevant page with a success message
-            return redirect()->route('requests.list')->with('status', 'Request canceled successfully.');
-        }
-
 
 
         // public function create() {
@@ -671,4 +578,102 @@ class MaintenanceController extends Controller
             return response()->json(['message' => 'Status updated successfully']);
         }
 
+        public function showRequestList(Request $request) {
+            $userId = Auth::id();
+            $search = $request->input('search');
+            $sort_by = $request->input('sort_by', 'created_at'); // Default sorting by 'created_at'
+            $sort_direction = $request->input('sort_direction', 'desc'); // Default sorting direction is 'desc'
+            $status = $request->input('status');  // Filter by status
+            $type = $request->input('type');  // Filter by type
+            $from_date = $request->input('from_date');  // Date range (start)
+            $to_date = $request->input('to_date');  // Date range (end)
+
+            // Fetch requests made by the current user and join with related tables
+            $requests = DB::table('maintenance')
+                ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
+                ->join('category', 'asset.ctg_ID', '=', 'category.id')
+                ->join('model', 'asset.model_key', '=', 'model.id')
+                ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+                ->join('location', 'asset.loc_key', '=', 'location.id')
+                ->join('department', 'asset.dept_ID', '=', 'department.id')
+                ->where('maintenance.requestor', $userId)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($query) use ($search) {
+                        $query->where('maintenance.description', 'like', '%' . $search . '%')
+                              ->orWhere('maintenance.status', 'like', '%' . $search . '%')
+                              ->orWhere('asset.code', 'like', '%' . $search . '%')
+                              ->orWhere('maintenance.id', 'like', '%' . $search . '%');
+                    });
+                })
+                // Apply status filter if provided
+                ->when($status, function ($query, $status) {
+                    return $query->where('maintenance.status', $status);
+                })
+                // Apply type filter if provided
+                ->when($type, function ($query, $type) {
+                    return $query->where('maintenance.type', $type);
+                })
+                // Apply date range filter if both dates are provided
+                ->when($from_date && $to_date, function ($query) use ($from_date, $to_date) {
+                    return $query->whereBetween('maintenance.created_at', [$from_date, $to_date]);
+                })
+                ->select(
+                    'maintenance.*',
+                    'asset.code as asset_code',
+                    'asset.status as asset_status',
+                    'asset.image as asset_image',
+                    'asset.name as asset_name',
+                    'asset.depreciation',
+                    'asset.salvageVal',
+                    'asset.usage_Lifespan',
+                    'category.name as category',
+                    'model.name as model',
+                    'manufacturer.name as manufacturer',
+                    'location.name as location',
+                    'department.name as department'
+                )
+                ->orderBy($sort_by, $sort_direction) // Apply sorting
+                ->paginate(8);
+
+            return view('user.requestList', [
+                'requests' => $requests,
+                'search' => $search,
+                'status' => $status,
+                'type' => $type,
+                'from_date' => $from_date,
+                'to_date' => $to_date
+            ]);
+        }
+
+
+
+
+        public function cancelRequest($id)
+        {
+            // Find the maintenance request by its ID, or fail if not found
+            $request = Maintenance::findOrFail($id);
+
+            // Check if the request is pending, only pending requests can be canceled
+            if ($request->status !== 'pending') {
+                return redirect()->back()->withErrors('Only pending requests can be canceled.');
+            }
+
+            // Optional: Check if the authenticated user is allowed to cancel the request
+            // This checks if the current user is the one who submitted the request, or if the user has admin privileges
+            if (auth()->user()->id !== $request->requestor && !auth()->user()->is_admin) {
+                return redirect()->back()->withErrors('You do not have permission to cancel this request.');
+            }
+            // Update the status to 'cancelled'
+            $request->status = 'cancelled';
+            $request->save();
+
+            // Redirect back to the request list page or another relevant page with a success message
+            return redirect()->route('requests.list')->with('status', 'Request canceled successfully.');
+        }
+
 }
+
+
+
+
+

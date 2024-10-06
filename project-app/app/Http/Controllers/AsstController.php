@@ -384,10 +384,13 @@ class AsstController extends Controller
     //                                 ->get();
     //     $fields = json_decode($retrieveData[0]->custom_fields,true);
 
-
     //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     // }
 
+
+
+    //If modify make sure to update show details in QRUserCotroller.php
+    //Both same functionalities but different parameters
     public function showDetails($id)
     {
         // Get the logged-in user's department ID and user type
