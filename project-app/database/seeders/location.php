@@ -17,19 +17,23 @@ class location extends Seeder
 
         locationModel::create([
             'name' => 'Office Bldg- Cebu',
-            'description' => 'Businnes Branches'
+            'description' => 'Businnes Branches',
+            'dept_ID' => 1
         ]);
         locationModel::create([
             'name' => 'Plantation Factory - Consolation',
-            'description' => 'Businnes Branches'
+            'description' => 'Businnes Branches',
+            'dept_ID' => 1
         ]);
         locationModel::create([
             'name' => 'Plantation Factory - Carcar',
-            'description' => 'Businnes Branches'
+            'description' => 'Businnes Branches',
+            'dept_ID' => 2
         ]);
         locationModel::create([
             'name' => 'Office Bldg- Danao',
-            'description' => 'Businnes Branches'
+            'description' => 'Businnes Branches',
+            'dept_ID' => 2
         ]);
     }
 }
