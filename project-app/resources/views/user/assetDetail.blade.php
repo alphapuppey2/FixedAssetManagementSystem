@@ -21,10 +21,10 @@
                     <!-- QR Code -->
                     <div class="qrContainer flex flex-col items-center">
                         <div class="QRBOX w-32 h-32 bg-gray-200 rounded-lg shadow-md flex items-center justify-center">
-                            <!-- Placeholder for QR code -->
-                            <span class="text-gray-500">QR Code</span>
+                            <!-- Display QR code -->
+                            <img src="{{ asset('storage/' . $retrieveData->qr) }}" class="w-full h-full object-cover" alt="QR Code">
                         </div>
-                        <a href="#" target="_blank" class="text-blue-600 mt-4 hover:underline">
+                        <a href="{{ asset('storage/' . $retrieveData->qr) }}" target="_blank" class="text-blue-600 mt-4 hover:underline">
                             Print QR Code
                         </a>
                     </div>

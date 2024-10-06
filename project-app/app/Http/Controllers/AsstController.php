@@ -25,7 +25,7 @@ class AsstController extends Controller
                     ->select('asset.id', 'asset.code' , 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
                     ->orderBy('asset.code', 'asc')
                     ->paginate(10);
-    
+
         return view("admin.assetList", compact('assets'));
     }
 
@@ -35,14 +35,14 @@ class AsstController extends Controller
                     ->join('category', 'asset.ctg_ID', '=', 'category.id')
                     ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
                     ->orderBy('asset.code', 'asc');
-        
+
         // If department is selected, filter by department ID
         if ($dept) {
             $query->where('asset.dept_ID', $dept);
         }
-    
+
         $assets = $query->paginate(10);
-    
+
         return view("admin.assetList", compact('assets'));
     }
 
@@ -352,10 +352,14 @@ class AsstController extends Controller
     //                                     )
     //                                 ->get();
     //     $fields = json_decode($retrieveData[0]->custom_fields,true);
-        
+
     //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     // }
 
+
+
+    //If modify make sure to update show details in QRUserCotroller.php
+    //Both same functionalities but different parameters
     public function showDetails($id)
 {
     // Get the logged-in user's department ID and user type
@@ -427,7 +431,7 @@ class AsstController extends Controller
     return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
 }
 
-    
+
 
 
     public function showRequestList() {

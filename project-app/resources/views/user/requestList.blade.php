@@ -34,44 +34,45 @@
 
 @section('content')
 <!-- Request List Table -->
+<!-- Request List Table -->
 <table class="min-w-full bg-white border rounded-md">
     <!-- Header -->
     <thead class="bg-gray-100 border-b">
         <tr class="bg-gray-50 ">
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'id', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Request ID
                     <x-icons.sort-icon :direction="request('sort_by') === 'id' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'type', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Type
                     <x-icons.sort-icon :direction="request('sort_by') === 'type' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'created_at', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Created At
                     <x-icons.sort-icon :direction="request('sort_by') === 'created_at' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'status', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Status
                     <x-icons.sort-icon :direction="request('sort_by') === 'status' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'asset_code', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
                     Asset Code
                     <x-icons.sort-icon :direction="request('sort_by') === 'asset_code' ? request('sort_direction') : null" />
                 </a>
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
         </tr>
     </thead>
 
@@ -106,12 +107,9 @@
 
                 <!-- Action (View and Cancel Buttons) -->
                 <td class="py-2 px-3 flex justify-center items-center space-x-2">
-                    <!-- View Icon Button with showModal functionality -->
                     <button type="button" onclick="showModal('{{ $request->asset_code }}', '{{ $request->asset_image }}', '{{ $request->asset_name }}', '{{ $request->cost }}', '{{ $request->depreciation }}', '{{ $request->salvageVal }}', '{{ $request->category }}', '{{ $request->usage_Lifespan }}', '{{ $request->model }}', '{{ $request->manufacturer }}', '{{ $request->location }}', '{{ $request->asset_status }}', '{{ $request->description }}', '{{ $request->id }}', '{{ $request->status }}')" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                     </button>
-
-                    <!-- Cancel Icon Button (Triggers modal) -->
                     @if ($request->status === 'pending')
                         <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                             <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
@@ -122,6 +120,7 @@
         @endforeach
     @endif
 </table>
+
 
 <!-- Pagination Links -->
 <div class="mt-4 flex justify-center">
