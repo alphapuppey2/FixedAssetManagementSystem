@@ -9,7 +9,7 @@
             </a>
         </div>
         <div class="header-R flex items-center">
-            <button>
+            <button id="openModalBtn">
                 <span>
                     <x-icons.importIcon />
                 </span>
@@ -28,6 +28,7 @@
 @endsection
 
 @section('content')
+
     <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
         <div class="tableContainer overflow-auto rounded-md h-full w-full">
             <table class="w-full">
@@ -96,11 +97,11 @@
                 @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
                     <div class="">
                         <!-- Number of Items Loaded -->
-                        <div class="text-gray-600">
+                        <!-- <div class="text-gray-600">
                             Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
                                 class="font-semibold">{{ $asset->lastItem() }}</span> of <span
                                 class="font-semibold">{{ $asset->total() }}</span> items
-                        </div>
+                        </div> -->
 
                         <!-- Pagination Buttons -->
                         <div class="">
@@ -113,6 +114,9 @@
             </div>
         </div>
     </div>
+
+    @include('dept_head.modal.modalImportAsset')
+
     @if (session('success'))
         <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
             {{ session('success') }}
@@ -130,7 +134,8 @@
         document.getElementById('searchFilt').addEventListener('keyup', function() {
             let query = this.value;
 
-            fetch(`/asset/search/row?search=${query}`, {
+
+                fetch(`/asset/search/row?search=${query}`, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -143,19 +148,16 @@
                     return response.json();
                 })
                 .then(data => {
-                    let tableBody = document.getElementById('table-body');
                     tableBody.innerHTML = ''; // Clear current table rows
 
                     if (data.length === 0) {
-                        // Display "Asset not found" if no results are found
-                        let noResultsRow = `
-    <tr class="text-center text-gray-800">
-        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
-    </tr>
-    `;
+                        const noResultsRow = `
+                            <tr class="text-center text-gray-800">
+                                <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
+                            </tr>
+                        `;
                         tableBody.innerHTML = noResultsRow;
                     } else {
-                        // Populate new table rows based on the search results
                         data.forEach(asset => {
                             let row = `
     <tr>
@@ -183,7 +185,22 @@
                     }
                 })
                 .catch(error => console.log('Error:', error));
+            });
+        }
+
+        // DOMContentLoaded event to initialize all event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalId = 'importModal';
+            
+            // Modal open and close event listeners
+            document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+            document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
+            window.addEventListener('click', (e) => closeModalOnClickOutside(modalId, e));
+
+            // Initialize search functionality
+            handleSearch('searchFilt', 'table-body');
         });
     </script>
+
 
 @endsection

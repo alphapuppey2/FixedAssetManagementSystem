@@ -1,88 +1,87 @@
 @extends('layouts.app')
 @section('header')
-    <div class="headerTitle">
-        <h2 class="font-semibold text-xl uppercase font-bold text-gray-800 leading-tight">
-            create Asset
-        </h2>
-    </div>
+<div class="headerTitle">
+    <h2 class="font-semibold text-xl uppercase font-bold text-gray-800 leading-tight">
+        create Asset
+    </h2>
+</div>
 @endsection
 
 @section('content')
-    <div class="contents capitalize">
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+<div class="contents capitalize">
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
 
-        <form action="{{ route('asset.create') }}" method="post" class="flex flex-col relative" enctype="multipart/form-data">
-            @csrf
-            <div class="formbox grid md:grid-cols-[1fr_8px_1fr] gap-3 max-md:grid-cols-1">
-                <div class="formInformation">
+    <form action="{{ route('asset.create') }}" method="post" class="flex flex-col relative" enctype="multipart/form-data">
+        @csrf
+        <div class="formbox grid md:grid-cols-[1fr_8px_1fr] gap-3 max-md:grid-cols-1">
+            <div class="formInformation">
+                <div class="form-group">
+                    <x-input-label for='assetname'>asset Name</x-input-label>
+                    <x-text-input id="assetname" name='assetname' required />
+                </div>
+                <div class="form-group">
+                    <x-input-label for='cost'>cost</x-input-label>
+                    <x-text-input inputmode="decimal" id="cost" pattern="[0-9]*[.,]?[0-9]*" id="cost"
+                        name='cost' required />
+                </div>
+                <div class="form-group">
+                    <x-input-label for='salvageVal'>Salvage Value</x-input-label>
+                    <x-text-input inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" id="salvageVal" name='salvageVal'
+                        required />
+                </div>
+                <div class="grpInline grid grid-cols-2 gap-2">
                     <div class="form-group">
-                        <x-input-label for='assetname'>asset Name</x-input-label>
-                        <x-text-input id="assetname" name='assetname' required />
+                        <x-input-label for='usage'>usage lifespan (year)</x-input-label>
+                        <x-text-input type="number" id="usage" name='usage' required />
                     </div>
                     <div class="form-group">
-                        <x-input-label for='cost'>cost</x-input-label>
-                        <x-text-input inputmode="decimal" id="cost" pattern="[0-9]*[.,]?[0-9]*" id="cost"
-                            name='cost' required />
+                        <x-input-label for='purchased'>Purchased Date</x-input-label>
+                        <x-text-input type="date" id="purchased" name='purchased' required />
+                    </div>
+                </div>
+                <div class="grpInline grid grid-cols-2 gap-2">
+                    <div class="form-group">
+                        <x-input-label for='category'>Category</x-input-label>
+                        <select name="category" id="category" class="w-full">
+                            @foreach ($categories['ctglist'] as $category)
+                            <option value={{ $category->id }}>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
-                        <x-input-label for='salvageVal'>Salvage Value</x-input-label>
-                        <x-text-input inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" id="salvageVal" name='salvageVal'
-                            required />
+                        <x-input-label for='loc'>Location</x-input-label>
+                        <select name="loc" id="loc" class="w-full">
+                            @foreach ($location['locs'] as $location)
+                            <option value={{ $location->id }}>{{ $location->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="grpInline grid grid-cols-2 gap-2">
-                        <div class="form-group">
-                            <x-input-label for='usage'>usage lifespan (year)</x-input-label>
-                            <x-text-input type="number" id="usage" name='usage' required />
-                        </div>
-                        <div class="form-group">
-                            <x-input-label for='purchased'>Purchased Date</x-input-label>
-                            <x-text-input type="date" id="purchased" name='purchased' required />
-                        </div>
+                </div>
+                <div class="grpInline grid grid-cols-2 gap-2">
+                    <div class="form-group">
+                        <x-input-label for='mod'>Model</x-input-label>
+                        <select name="mod" id="mod" class="w-full flex flex-col">
+                            @foreach ($model['mod'] as $model)
+                            <option value={{ $model->id }}>{{ $model->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="grpInline grid grid-cols-2 gap-2">
-                        <div class="form-group">
-                            <x-input-label for='category'>Category</x-input-label>
-                            <select name="category" id="category" class="w-full">
-                                @foreach ($categories['ctglist'] as $category)
-                                    <option value={{ $category->id }}>{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <x-input-label for='loc'>Location</x-input-label>
-                            <select name="loc" id="loc" class="w-full">
-                                @foreach ($location['locs'] as $location)
-                                    <option value={{ $location->id }}>{{ $location->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grpInline grid grid-cols-2 gap-2">
-                        <div class="form-group">
-                            <x-input-label for='mod'>Model</x-input-label>
-                            <select name="mod" id="mod" class="w-full flex flex-col">
-                                @foreach ($model['mod'] as $model)
-                                    <option value={{ $model->id }}>{{ $model->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <x-input-label for='mcft'>Manufacturer</x-input-label>
-                            <select name="mcft" id="mcft" class="w-full">
-                                @foreach ($manufacturer['mcft'] as $manufacturer)
-                                    <option value={{ $manufacturer->id }}>{{ $manufacturer->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <x-input-label for='mcft'>Manufacturer</x-input-label>
+                        <select name="mcft" id="mcft" class="w-full">
+                            @foreach ($manufacturer['mcft'] as $manufacturer)
+                            <option value={{ $manufacturer->id }}>{{ $manufacturer->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 {{-- divider --}}
@@ -132,3 +131,4 @@
     </div>
     @vite(['resources/js/displayImage.js'])
 @endsection
+ 

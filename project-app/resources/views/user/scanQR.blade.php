@@ -1,12 +1,18 @@
 @extends('user.home')
 
-@section('scanQR-content')
 
-    <h1 class="text-3xl font-semibold mb-4 mt-10 text-center">Scan QR</h1>
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ "Scan QR" }}
+    </h2>
+@endsection
+
+@section('content')
+
     <p class="text-center">Choose one of the options below:</p>
 
     <div id="placeholderImage">
-        <img src="https://img.freepik.com/free-vector/smartphone-scanning-qr-code_23-2148624200.jpg" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
+        <img src="{{ asset('images/scanQRImage.png') }}" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
     </div>
 
     <!-- QR Scanner Container -->
@@ -115,7 +121,7 @@
 
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 5000); // Set the timeout to 5 seconds for the error message to disappear
+            }, 3000); // Set the timeout to 5 seconds for the error message to disappear
         }
 
         // Function to make the session error disappear after 5 seconds
@@ -124,6 +130,6 @@
             if (sessionError) {
                 sessionError.style.display = 'none';
             }
-        }, 5000); // 5000 milliseconds = 5 seconds
+        }, 3000); // 5000 milliseconds = 5 seconds
     </script>
 @endsection

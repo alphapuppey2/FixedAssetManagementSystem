@@ -65,6 +65,7 @@
                 <label class="block text-sm font-medium text-gray-700">Maintenance Type</label>
                 <select name="type" class="block w-full px-2 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
                     <option value="repair" {{ $maintenance->type == 'repair' ? 'selected' : '' }}>Repair</option>
+                    <option value="maintenance" {{ $maintenance->type == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                     <option value="upgrade" {{ $maintenance->type == 'upgrade' ? 'selected' : '' }}>Upgrade</option>
                     <option value="inspection" {{ $maintenance->type == 'inspection' ? 'selected' : '' }}>Inspection</option>
                     <option value="replacement" {{ $maintenance->type == 'replacement' ? 'selected' : '' }}>Replacement</option>
