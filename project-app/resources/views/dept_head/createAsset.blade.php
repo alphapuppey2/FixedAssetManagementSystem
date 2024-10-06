@@ -116,6 +116,7 @@
                                 <span class="text-slate-400">
                                     {{ "No additional for this Department" }}
                                 </span>
+                                @endif
                             </div>
                         </div>
                     </div>
