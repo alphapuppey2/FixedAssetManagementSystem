@@ -25,13 +25,6 @@
             </div>
         </div>
     </div>
-
-    <div id="dataModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <p>No data available!</p>
-        </div>
-    </div>
 @endsection
 
 @section('content')
@@ -74,12 +67,17 @@
                                 <td class="w-40">
                                     <div class="grp flex gap-2 justify-center">
                                         <a href="{{ route('assetDetails', $asst->id) }}"
-                                            class="btn btn-outline-primary py-[2px] px-2">view</a>
+                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                            >
+                                            <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                                        </a>
                                         <form action="{{ route('asset.delete', $asst->id) }}" method="post">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger py-[2px] px-2"
-                                                onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                                onclick="return confirm('Are you sure you want to delete this asset?');">
+                                                <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
@@ -120,58 +118,15 @@
             {{ session('success') }}
         </div>
     @endif
-    @vite(['resources/js/flashNotification.js'])
-    <script>
-        <!-- Modal HTML
-        -->
-    <div id="dataModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <p>No data available!</p>
-        </div>
+    @if (session('failed'))
+    <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+        {{ session('failed') }}
     </div>
+@endif
+    @vite(['resources/js/flashNotification.js'])
 
     <!-- JavaScript -->
     <script>
-        function fetchData() {
-            // Assuming you're using vanilla JavaScript
-            fetch('/check-data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
-                    },
-                    body: JSON.stringify({
-                        id: 1 // You can send the required parameters here
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'no_data') {
-                        // Show modal if no data
-                        openModal();
-                    } else if (data.status === 'has_data') {
-                        // Redirect to create form page if data exists
-                        window.location.href = '/create-form';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Function to open modal
-        function openModal() {
-            document.getElementById('dataModal').style.display = 'block';
-        }
-
-        // Function to close modal
-        function closeModal() {
-            document.getElementById('dataModal').style.display = 'none';
-        }
-
-        // Trigger fetchData on page load or specific action
-        window.onload = fetchData;
-
-
         document.getElementById('searchFilt').addEventListener('keyup', function() {
             let query = this.value;
 
@@ -204,15 +159,15 @@
                         data.forEach(asset => {
                             let row = `
     <tr>
-        <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-        <td class="align-middle">${asset.name}</td>
-        <td class="align-middle">${asset.category}</td>
-        <td class="align-middle">${asset.salvageVal}</td>
-        <td class="align-middle">${asset.depreciation}</td>
-        <td class="align-middle">${asset.status}</td>
+        <th class="align-middle align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.name}</td>
+        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.category}</td>
+        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.salvageVal}</td>
+        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.depreciation}</td>
+        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.status}</td>
         <td class="w-40">
-            <div class="grp flex justify-between">
-                <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
+            <div class="grp flex gap-2 justify-center">
+                <a href="/asset/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
                 <form action="/asset/delete/${asset.id}" method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="DELETE">

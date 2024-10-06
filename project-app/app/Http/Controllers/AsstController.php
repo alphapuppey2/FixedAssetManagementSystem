@@ -104,11 +104,23 @@ class AsstController extends Controller
                                              'maintenance.type as type',
                                              'maintenance.cost as cost',
                                              'maintenance.description as description',
-                                             'maintenance.completion_date as complete',
+                                             DB::raw('DATE(maintenance.completion_date) AS complete',),
                                              'maintenance.status as status',
                                              'users.firstname as fname',
                                              'users.lastname as lname',
-                                             )->get();
+                                             )->groupBy(
+                                                'maintenance.completion_date',
+                                                'maintenance.status',
+                                                'maintenance.type',
+                                                'maintenance.cost',
+                                                'users.firstname',
+                                                'users.lastname',
+                                                'maintenance.description',
+                                                'maintenance.reason',
+                                             )
+                                              ->orderByRaw("FIELD(maintenance.status, 'request', 'pending', 'in_progress','complete','denied','denied')")
+                                              ->orderBy('maintenance.completion_date', 'asc')
+                                              ->get();
         $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
 
 
@@ -119,14 +131,20 @@ class AsstController extends Controller
     public function showForm(){
 
         $usrDPT = Auth::user()->dept_id;
-
         $department = department::find( $usrDPT);
+
+
             $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
-            $location = array('locs' => DB::table('location')->get());
-            $model = array('mod' => DB::table('model')->get());
-            $manufacturer = array('mcft' => DB::table('manufacturer')->get());
+            $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
+            $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
+            $manufacturer = array('mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get());
             $addInfos = json_decode($department->custom_fields);
-        // dd($addInfos);
+
+
+            if($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()){
+                return redirect()->back()->with('failed', 'pag butang sa Setting bago ka mu add!');
+            }
+
         return view('dept_head.createAsset',compact('addInfos' , 'categories','location' ,'model','manufacturer'));
     }
 
@@ -327,48 +345,6 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success','Asset Deleted Successfully');
     }
 
-    // public function showDetails($id){
-    //     $userDept = Auth::user()->dept_id;
-
-    //     $department = array('list' => DB::table('department')->get());
-    //     $categories = array('ctglist' => DB::table('category')->where('dept_ID', $userDept)->get());
-    //     $location = array('locs' => DB::table('location')->get());
-    //     $model = array('mod' => DB::table('model')->get());
-    //     $manufacturer = array('mcft' => DB::table('manufacturer')->get());
-    //     $status = array('sts' =>['active' ,'deployed' , 'need repair' , 'under maintenance', 'dispose']);
-
-    //     //$id is for asset code ...
-
-    //     $retrieveData = assetModel::where('asset.id' , $id)->where('asset.dept_ID' , Auth::user()->dept_id)
-    //                                 ->join('department' , 'asset.dept_id' , '=', 'asset.dept_ID')
-    //                                 ->join('category','asset.ctg_ID' , '=','category.id')
-    //                                 ->join('model','asset.model_key' , '=','model.id')
-    //                                 ->join('manufacturer','asset.manufacturer_key' , '=','manufacturer.id')
-    //                                 ->join('location','asset.loc_key' , '=','location.id')
-    //                                 ->select(
-    //                                     'asset.id',
-    //                                     'asset.depreciation',
-    //                                     'asset.image',
-    //                                     'asset.name',
-    //                                     'asset.code',
-    //                                     'asset.cost',
-    //                                     'asset.salvageVal',
-    //                                     'asset.usage_Lifespan',
-    //                                     'asset.status',
-    //                                     'asset.custom_fields',
-    //                                     'asset.created_at',
-    //                                     'asset.updated_at',
-    //                                     'category.name as category',
-    //                                     'model.name as model',
-    //                                     'location.name as location',
-    //                                     'manufacturer.name as manufacturer',
-    //                                     )
-    //                                 ->get();
-    //     $fields = json_decode($retrieveData[0]->custom_fields,true);
-
-    //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
-    // }
-
     public function showDetails($id)
 {
     // Get the logged-in user's department ID and user type
@@ -380,10 +356,42 @@ class AsstController extends Controller
     $categories = ['ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
         return $query->where('dept_ID', $userDept);
     })->get()];
-    $location = ['locs' => DB::table('location')->get()];
-    $model = ['mod' => DB::table('model')->get()];
-    $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+    $location = ['locs' => DB::table('location')->when($userType != 'admin', function ($query) use ($userDept) {
+        return $query->where('dept_ID', $userDept);
+    })->get()];
+    $model = ['mod' => DB::table('model')->when($userType != 'admin', function ($query) use ($userDept) {
+        return $query->where('dept_ID', $userDept);
+    })->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->when($userType != 'admin', function ($query) use ($userDept) {
+        return $query->where('dept_ID', $userDept);
+    })->get()];
     $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
+
+    $assetRet = Maintenance::where("asset_key" , $id)
+                                    ->where("completed" , 1)
+                                    ->join('users' ,'users.id','=' , 'maintenance.requestor')
+                                    ->select(
+                                        'users.firstname as fname',
+                                        'users.lastname as lname',
+                                        'maintenance.reason as reason',
+                                        'maintenance.cost as cost',
+                                        'maintenance.status as status',
+
+                                             DB::raw('DATE_FORMAT(maintenance.completion_date , "%Y-%m-%d") AS complete'),
+
+                                             )->take(5)
+                                             ->groupBy(
+                                                'maintenance.completion_date',
+                                                'maintenance.cost',
+                                                'users.firstname',
+                                                'users.lastname',
+                                                'maintenance.reason',
+                                                'maintenance.status',
+                                             )
+                                              ->orderByRaw("FIELD(maintenance.status, 'request', 'pending', 'in_progress','complete','denied','denied')")
+                                              ->orderBy('maintenance.completion_date', 'asc')->get();
+
+
 
     // Build the query to retrieve the asset data based on the asset ID
     $retrieveDataQuery = assetModel::where('asset.id', $id)
@@ -411,6 +419,8 @@ class AsstController extends Controller
             'manufacturer.name as manufacturer'
         );
 
+
+
     // If the user is not an admin, filter by dept_ID
     if ($userType != 'admin') {
         $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
@@ -433,11 +443,13 @@ class AsstController extends Controller
     // Decode the custom fields
     $fields = json_decode($retrieveData->custom_fields, true);
 
+
+
     // Determine the view based on user type
     $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
 
     // Return the appropriate view with the asset data
-    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer','assetRet'));
 }
 
 

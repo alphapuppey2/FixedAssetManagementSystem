@@ -53,20 +53,20 @@
                 </li>
             </ul>
 
-            <div class="tab-content relative h-[320px] overflow-y-auto">
+            <div class="tab-content relative h-full overflow-y-auto">
 
                 <table class="table table-hover">
-                    <thead class="sticky top-0">
+                    <thead>
                         <tr>
                             @if ($activeTab !== 'customFields')
-                                <td>Name</td>
-                                <td>Description</td>
-                                <td>Actions</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</td>
                             @else
-                                <td>Name</td>
-                                <td>Type</td>
-                                <td>Helper Text</td>
-                                <td>Action</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Helper Text</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</td>
                             @endif
                         </tr>
                     </thead>
@@ -76,14 +76,14 @@
                                 <tr id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
                                         <td class="w-64">
-                                            <span class="name-text">{{ $dataItem->name }}</span>
+                                            <span class="name-text text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
                                         <td class="w-[50%]">
-                                            <span class="desc-text">{{ $dataItem->description }}</span>
-                                            <input type="text" class="desc-input" style="display: none"
+                                            <span class="desc-text text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $dataItem->description }}</span>
+                                            <input type="text" class="desc-input text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider" style="display: none"
                                                 value="{{ $dataItem->description }}">
                                         </td>
                                         <td>

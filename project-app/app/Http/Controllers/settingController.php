@@ -18,22 +18,21 @@ class settingController extends Controller
     public function showSettings(Request $request)
     {
         $activeTab = $request->input('tab', 'model');
-
+        $departmentID = Auth::user()->dept_id;
 
         $RetrieveData = NULL;
-
         switch ($activeTab) {
             case 'model':
-                $RetrieveData = ModelAsset::all();
+                $RetrieveData = ModelAsset::where('dept_ID',$departmentID)->get();
                 break;
             case 'location':
-                $RetrieveData = locationModel::all();
+                $RetrieveData = locationModel::where('dept_ID',$departmentID)->get();
                 break;
             case 'manufacturer':
-                $RetrieveData = Manufacturer::all();
+                $RetrieveData = Manufacturer::where('dept_ID',$departmentID)->get();
                 break;
             case 'category':
-                $RetrieveData = category::all();
+                $RetrieveData = category::where('dept_ID',$departmentID)->get();
                 break;
             case 'customFields':
                 $fetch = department::where('id',Auth::user()->dept_id)->get();
@@ -171,18 +170,21 @@ class settingController extends Controller
                 ModelAsset::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
+                    'dept_ID' => $userDept
                 ]);
                 break;
             case 'manufacturer':
                 Manufacturer::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
+                    'dept_ID' => $userDept
                 ]);
                 break;
             case 'location':
                 locationModel::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
+                    'dept_ID' => $userDept
                 ]);
                 break;
             case 'category':

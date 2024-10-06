@@ -105,12 +105,18 @@
                             Information</div>
                         <div class="addInfo grid grid-col-2 w-full" id="field">
                             <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
-                                <div class="fieldSet mt-2 grid grid-cols-2 gap-2">
-                                    @foreach ($addInfos as $key => $dataItem )
-                                    <span>{{ $dataItem->name }}</span>
-                                    <input type="text" name="field[key][]" placeholder="key" class="hidden" value="{{ $dataItem->name }}">
-                                    <input type="text" name="field[value][]" placeholder="value">
-                                    @endforeach
+                                <div class="fieldSet mt-2 {{ isset($addInfos) ? "grid grid-cols-2 gap-2" : "flex" }}">
+                                    @if ($addInfos)
+                                        @foreach ($addInfos as $key => $dataItem )
+                                            <span>{{ $dataItem->name }}</span>
+                                            <input type="text" name="field[key][]" placeholder="key" class="hidden" value="{{ $dataItem->name }}">
+                                            <input type="text" name="field[value][]" placeholder="value">
+                                        @endforeach
+                                    @else
+                                        <span class="text-slate-400">
+                                            {{ "No additional for this Department" }}
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -124,5 +130,5 @@
             </div>
         </form>
     </div>
-    @vite(['resources/js/addInfoField.js', 'resources/js/displayImage.js'])
+    @vite(['resources/js/displayImage.js'])
 @endsection

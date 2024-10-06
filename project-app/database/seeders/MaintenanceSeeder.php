@@ -38,7 +38,7 @@ class  MaintenanceSeeder extends Seeder
                 'start_date' => $faker->dateTimeBetween('now', '+2 months'), // Random start date in the next 2 months
                 'completion_date' => $isCompleted ? $faker->dateTimeBetween('+2 months', '+3 months') : null, // Completion date only if maintenance is completed
                 'reason' => $faker->sentence, // Generate a random sentence for reason
-                'status' => $faker->randomElement(['request', 'approved', 'denied', 'preventive', 'predictive']), // Random status
+                'status' => $faker->randomElement(['request', 'pending', 'approved', 'denied', 'in_progress', 'completed', 'cancelled']), // Random status
                 'completed' => $isCompleted, // Set completed to true or false
                 'asset_key' => $faker->randomElement($assetIds), // Random asset id from asset table
                 'authorized_by' => $faker->randomElement($userIds), // Random user id from users table
