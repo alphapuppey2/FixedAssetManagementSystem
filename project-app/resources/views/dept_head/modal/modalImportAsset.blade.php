@@ -23,7 +23,7 @@
         <!-- Upload CSV Button -->
         <div class="mb-4">
             <label for="csvUpload" class="block mb-2 text-sm font-medium text-gray-700">Upload CSV File:</label>
-            <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50" />
+            <input type="file" id="csvUpload" accept=".csv" class="block w-full text-sm text-gray-900 border border-gray-300 cursor-pointer bg-gray-50" />
         </div>
 
         <!-- Error Notification -->
@@ -34,7 +34,7 @@
 
         <!-- Next Button -->
         <div class="mb-4 hidden" id="nextButtonContainer">
-            <button id="nextButton" class="w-full bg-blue-950 text-white py-2 px-4 rounded-md text-center">
+            <button id="nextButton" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md text-center hover:bg-blue-600">
                 Next
             </button>
         </div>
@@ -65,7 +65,7 @@
         <div class="flex justify-between items-center mt-4">
             <span id="selectedSummary" class="text-gray-700">21 of 21 rows are checked</span>
             <div class="flex space-x-2">
-                <button id="uploadButton" class="bg-blue-950 text-white px-4 py-2 rounded-md hover:bg-green-600">Upload</button>
+                <button id="uploadButton" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Upload</button>
                 <button id="closePreviewModalBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">Close</button>
             </div>
         </div>
