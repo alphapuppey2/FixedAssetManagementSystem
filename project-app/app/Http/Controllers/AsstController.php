@@ -450,13 +450,12 @@ class AsstController extends Controller
         // Decode the custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-    // Determine the view based on user type
-    $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
+        // Determine the view based on user type
+        $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
 
-    //new assetRet
-    // Return the appropriate view with the asset data
-    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer','assetRet'));
-}
+        // Return the appropriate view with the asset data, including the QR code
+        return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+    }
 
 
 
@@ -622,7 +621,7 @@ class AsstController extends Controller
                     ]);
                     // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
                 } catch (\Exception $e) {
-                    \Log::error('Error inserting asset: ' . $e->getMessage());
+                    Log::error('Error inserting asset: ' . $e->getMessage());
                 }
             }
 
