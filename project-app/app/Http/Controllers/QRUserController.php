@@ -27,6 +27,19 @@ class QRUserController extends Controller
         return redirect()->route('qr.asset.details', ['code' => $text]);
     }
 
+    public function checkAsset($code)
+    {
+        $asset = assetModel::where('code', $code)->first();
+
+        if ($asset) {
+            // Asset exists, return the asset details view
+            return view('assetdetails', compact('asset'));
+        } else {
+            // Asset does not exist, return JSON response with an error
+            return response()->json(['error' => 'Asset not found'], 404);
+        }
+    }
+
     public function showDetails($code)
     {
         $userDept = Auth::user()->dept_id;
