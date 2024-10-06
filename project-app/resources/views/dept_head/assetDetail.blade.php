@@ -4,6 +4,7 @@
     // Retrieve asset data and fallback image
     $data = $retrieveData ?? null;
     $imagePath = $data->image ?? 'images/defaultICON.png';
+    $qrCodePath = $data->qr ?? 'images/defaultQR.png'; // Fallback QR code if not available
 @endphp
 
 @section('header')
@@ -58,15 +59,20 @@
                     </div>
                     <x-text-input type="file" id="image" name='image' class="hidden" />
                 </div>
+
+                {{-- QR Code Section --}}
                 <div class="qrContainer flex flex-col items-center">
-                    <div class="QRBOX w-24 h-24 bg-red-300"></div>
-                    <a href="#" target="_blank" rel="noopener noreferrer">Print QR Code</a>
+                    <div class="QRBOX w-24 h-24">
+                        <img src="{{ asset('storage/' . $qrCodePath) }}" alt="QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <a href="{{ asset('storage/' . $qrCodePath) }}" download="{{ $data->code }}">Download QR Code</a>
                 </div>
             </div>
 
             {{-- Main Asset Details --}}
             <div class="leftC">
                 <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2">
+                    {{-- Asset name, cost, depreciation, etc. --}}
                     <div id="name" class="info flex flex-wrap items-center">
                         <div class="field-label mr-3 capitalize text-slate-400 inline-block">name</div>
                         <div class="field-Info font-semibold inline-block">{{ $data->name }}</div>

@@ -35,6 +35,7 @@
 @endsection
 
 @section('content')
+
     <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
         <div class="tableContainer overflow-auto rounded-md h-full w-full">
             <table class="w-full">
