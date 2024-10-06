@@ -15,6 +15,7 @@ use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 
+
 Route::get('/', function(){
     if(Auth::check()){
         switch(Auth::user()->usertype){
@@ -94,6 +95,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+    // IMPORT
+    Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
+    Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
@@ -116,19 +120,24 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
-
     Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
-    // Route::get('/createmaintenance', [maintenance::class,'showForm'])->name('formMaintenance');
+    Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
+    Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
 
-    Route::get('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate']);
+    Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
+    Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
+
+
+    // routes/web.php
+    Route::post('/update-maintenance-status', [MaintenanceController::class, 'updateStatus']);
+
 
     //setting page
     Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
     Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
-
 
     Route::get('/report', function () {
         return view('dept_head.reports');
@@ -147,6 +156,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
 });
+
 
 // User Routes
 Route::middleware(['workerUserType','auth', 'verified'])->group(function(){

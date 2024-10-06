@@ -34,31 +34,36 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                     </svg>
                 </a>
-                <button class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
+                <a href="{{ route('formMaintenance') }}" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                     Create Maintenance
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- Pagination Section -->
-        @if($requests instanceof \Illuminate\Pagination\LengthAwarePaginator || $requests instanceof \Illuminate\Pagination\Paginator)
-            <div class="flex justify-between items-center mb-4">
-                <!-- Number of Items Loaded -->
-                <div class="text-gray-600">
-                    Showing <span class="font-semibold">{{ $requests->firstItem() }}</span> to <span class="font-semibold">{{ $requests->lastItem() }}</span> of <span class="font-semibold">{{ $requests->total() }}</span> items
-                </div>
-
-                <!-- Pagination Buttons -->
-                <div class="flex items-center space-x-2">
-                    <div class="mr-2 text-gray-500">
-                        {{ $requests->appends(['query' => request()->query('query')])->links() }}
-                    </div>
-                </div>
+        <div class="flex justify-between items-center mb-4">
+            <!-- Rows per page dropdown (on the left) -->
+            <div class="flex items-center">
+                <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
+                <form action="{{ route(Route::currentRouteName()) }}" method="GET" id="rowsPerPageForm">
+                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
+                    <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                    <select name="rows_per_page" id="rows_per_page" class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="document.getElementById('rowsPerPageForm').submit()">
+                        <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                        <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                        <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                    </select>
+                </form>
             </div>
-        @endif
+
+            <!-- Pagination (on the right) -->
+            <div class="ml-auto">
+                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }} <!-- Pagination Links -->
+            </div>
+        </div>
 
         <!-- Tabs Section -->
         <div class="mb-4 flex justify-end">
@@ -126,7 +131,7 @@
                                     <!-- Approve and Deny buttons for Requests tab -->
                                     <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="button" class="approveButton px-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600" data-id="{{ $maintenance->id }}">Approve</button>
+                                        <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
                                     </form>
                                     <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
                                         @csrf

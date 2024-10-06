@@ -1,14 +1,14 @@
-@props(['data' => [] ])
-@props(['activeTab']);
+{{-- @props(['data' => [] ]) --}}
+{{-- @props(['activeTab']); --}}
 
-@php
+{{-- @php
     $column = $activeTab === 'customField' ? ['name', 'type', 'Help Text'] : ['name', 'Description'];
-
-@endphp
+@endphp --}}
 
 <table {{ $attributes->merge(['class' => 'table table-hover w-[100%]']) }}>
     <thead>
-        <tr>
+        {{ $header }}
+        {{-- <tr>
             @if ($activeTab !== 'custom field')
                 <td>Name</td>
                 <td>description</td>
@@ -19,10 +19,11 @@
                 <td>Help Text</td>
                 <td></td>
             @endif
-        </tr>
+        </tr> --}}
     </thead>
     <tbody>
-        @foreach ($data as $key => $dataItem)
+        {{ $slot }}
+        {{-- @foreach ($data as $key => $dataItem)
             <tr id="row-{{ $dataItem->id }}">
                 <td class="w-64">{{ $dataItem->name }}</td>
                 <td class="w-[50%]">
@@ -44,6 +45,6 @@
                     </form>
                 </td>
             </tr>
-        @endforeach
+        @endforeach --}}
     </tbody>
 </table>
