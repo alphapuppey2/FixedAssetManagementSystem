@@ -84,51 +84,50 @@
                         </select>
                     </div>
                 </div>
-                {{-- divider --}}
-                <div class="dvdr h-full w-[3px] bg-blue-950/10 hidden md:block"></div>
-                {{-- divider --}}
-                <div class="form-group images flex items-center flex-col AdditionalInfo">
-                    <div class="imageField w-32 h-32 relative flex justify-center">
-                        <label
-                            class="im"
-                            for="image">
-                            <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
-                                class="absolute border-3 w-32 h-32 border-3 rounded-md hover:border-blue-300 hover:border-4 hover:border-blue-400S top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover cursor-pointer"
-                                alt="default">
-                        </label>
-                        <x-text-input type="file" id="image" name='image' class="hidden" />
-                    </div>
-                    {{-- Addtional Information / custom Fields --}}
-                    <div class="customFields flex flex-col w-full mt-4">
-                        <div class="w-full text-[20px] capitalize font-semibold">Additional
-                            Information</div>
-                        <div class="addInfo grid grid-col-2 w-full" id="field">
-                            <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
-                                <div class="fieldSet mt-2 {{ isset($addInfos) ? "grid grid-cols-2 gap-2" : "flex" }}">
-                                    @if ($addInfos)
-                                        @foreach ($addInfos as $key => $dataItem )
-                                            <span>{{ $dataItem->name }}</span>
-                                            <input type="text" name="field[key][]" placeholder="key" class="hidden" value="{{ $dataItem->name }}">
-                                            <input type="text" name="field[value][]" placeholder="value">
-                                        @endforeach
-                                    @else
-                                        <span class="text-slate-400">
-                                            {{ "No additional for this Department" }}
-                                        </span>
-                                    @endif
-                                </div>
+            </div>
+            {{-- divider --}}
+            <div class="dvdr h-full w-[3px] bg-blue-950/10 hidden md:block"></div>
+            {{-- divider --}}
+            <div class="form-group images flex items-center flex-col AdditionalInfo">
+                <div class="imageField w-32 h-32 relative flex justify-center">
+                    <label
+                        class="im"
+                        for="image">
+                        <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
+                            class="absolute border-3 w-32 h-32 border-3 rounded-md hover:border-blue-300 hover:border-4 hover:border-blue-400S top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover cursor-pointer"
+                            alt="default">
+                    </label>
+                    <x-text-input type="file" id="image" name='image' class="hidden" />
+                </div>
+                {{-- Addtional Information / custom Fields --}}
+                <div class="customFields flex flex-col w-full mt-4">
+                    <div class="w-full text-[20px] capitalize font-semibold">Additional
+                        Information</div>
+                    <div class="addInfo grid grid-col-2 w-full" id="field">
+                        <div class="addInfoContainer w-full overflow-auto p-2 h-[220px] scroll-smooth">
+                            <div class="fieldSet mt-2 grid grid-cols-2 gap-2">
+                                @if ($addInfos)
+                                @foreach ($addInfos as $key => $dataItem )
+                                <span>{{ $dataItem->name }}</span>
+                                <input type="text" name="field[key][]" placeholder="key" class="hidden" value="{{ $dataItem->name }}">
+                                <input type="text" name="field[value][]" placeholder="value">
+                                @endforeach
+                                @else
+                                <span class="text-slate-400">
+                                    {{ "No additional for this Department" }}
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="butn mt-2 w-full flex justify-center">
-                <x-primary-button
-                    class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create
-                    Asset</x-primary-button>
-            </div>
-        </form>
-    </div>
-    @vite(['resources/js/displayImage.js'])
+        </div>
+        <div class="butn mt-2 w-full flex justify-center">
+            <x-primary-button
+                class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create
+                Asset</x-primary-button>
+        </div>
+    </form>
+</div>
+@vite(['resources/js/addInfoField.js', 'resources/js/displayImage.js'])
 @endsection
- 
