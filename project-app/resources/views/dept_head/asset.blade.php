@@ -52,7 +52,7 @@
                     <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         status</th>
                     <th class="px-6 py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    </th>
+                        Actions</th>
                 </thead>
                 <tbody id="table-body">
                     @if (!$asset->isEmpty())
@@ -74,12 +74,16 @@
                                 <td class="w-40">
                                     <div class="grp flex gap-2 justify-center">
                                         <a href="{{ route('assetDetails', $asst->id) }}"
-                                            class="btn btn-outline-primary py-[2px] px-2">view</a>
+                                            class="text-blue-950 py-[2px]">
+                                            <x-viewIcon/>
+                                        </a>
                                         <form action="{{ route('asset.delete', $asst->id) }}" method="post">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger py-[2px] px-2"
-                                                onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                                            <button type="submit" class="text-red-500 py-[2px]"
+                                                onclick="return confirm('Are you sure you want to delete this asset?');">
+                                                <x-deleteIcon/>
+                                            </button>
                                         </form>
                                     </div>
                                 </td>

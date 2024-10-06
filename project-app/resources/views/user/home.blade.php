@@ -1,5 +1,5 @@
 <!-- resources/views/user/home.blade.php -->
-@include('layouts.sideBarUser')
+@include('layouts.userSideBar')
 
 <div class="ml-64 p-8">
 
