@@ -2,14 +2,14 @@
 @section('header')
     <div class="header flex w-full justify-between pr-3 pl-3 items-center">
         <div class="title">
-            <a href="{{asset('asset')}}">
+            <a href="{{ asset('asset') }}">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Asset
                 </h2>
             </a>
         </div>
         <div class="header-R flex items-center">
-            <button>
+            <button id="openModalBtn">
                 <span>
                     <x-icons.importIcon />
                 </span>
@@ -24,7 +24,13 @@
                 <x-text-input name="search" id="searchFilt" placeholder="Search" />
             </div>
         </div>
+    </div>
 
+    <div id="dataModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p>No data available!</p>
+        </div>
     </div>
 @endsection
 
@@ -92,11 +98,11 @@
                 @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
                     <div class="">
                         <!-- Number of Items Loaded -->
-                        <div class="text-gray-600">
+                        <!-- <div class="text-gray-600">
                             Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
                                 class="font-semibold">{{ $asset->lastItem() }}</span> of <span
                                 class="font-semibold">{{ $asset->total() }}</span> items
-                        </div>
+                        </div> -->
 
                         <!-- Pagination Buttons -->
                         <div class="">
@@ -109,6 +115,9 @@
             </div>
         </div>
     </div>
+
+    @include('dept_head.modal.modalImportAsset')
+
     @if (session('success'))
         <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
             {{ session('success') }}
@@ -116,10 +125,35 @@
     @endif
     @vite(['resources/js/flashNotification.js'])
     <script>
-        document.getElementById('searchFilt').addEventListener('keyup', function() {
-            let query = this.value;
+        // Function to open the modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+        }
 
-            fetch(`/asset/search/row?search=${query}`, {
+        // Function to close the modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+        }
+
+        // Function to handle modal close when clicking outside the modal
+        function closeModalOnClickOutside(modalId, event) {
+            const modal = document.getElementById(modalId);
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Function to handle asset search
+        function handleSearch(inputId, tableBodyId) {
+            const input = document.getElementById(inputId);
+            const tableBody = document.getElementById(tableBodyId);
+
+            input.addEventListener('keyup', function () {
+                const query = input.value;
+
+                fetch(`/asset/search/row?search=${query}`, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -132,46 +166,58 @@
                     return response.json();
                 })
                 .then(data => {
-                    let tableBody = document.getElementById('table-body');
                     tableBody.innerHTML = ''; // Clear current table rows
 
                     if (data.length === 0) {
-                        // Display "Asset not found" if no results are found
-                        let noResultsRow = `
-                    <tr class="text-center text-gray-800">
-                        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
-                    </tr>
-                `;
+                        const noResultsRow = `
+                            <tr class="text-center text-gray-800">
+                                <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
+                            </tr>
+                        `;
                         tableBody.innerHTML = noResultsRow;
                     } else {
-                        // Populate new table rows based on the search results
                         data.forEach(asset => {
-                            let row = `
-                        <tr>
-                            <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-                            <td class="align-middle">${asset.name}</td>
-                            <td class="align-middle">${asset.category}</td>
-                            <td class="align-middle">${asset.salvageVal}</td>
-                            <td class="align-middle">${asset.depreciation}</td>
-                            <td class="align-middle">${asset.status}</td>
-                            <td class="w-40">
-                                <div class="grp flex justify-between">
-                                    <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
-                                    <form action="/asset/delete/${asset.id}" method="post">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-outline-danger py-[2px] px-2" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                            const row = `
+                                <tr>
+                                    <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+                                    <td class="align-middle">${asset.name}</td>
+                                    <td class="align-middle">${asset.category}</td>
+                                    <td class="align-middle">${asset.salvageVal}</td>
+                                    <td class="align-middle">${asset.depreciation}</td>
+                                    <td class="align-middle">${asset.status}</td>
+                                    <td class="w-40">
+                                        <div class="grp flex justify-between">
+                                            <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
+                                            <form action="/asset/delete/${asset.id}" method="post">
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-outline-danger py-[2px] px-2" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
                             tableBody.innerHTML += row;
                         });
                     }
                 })
                 .catch(error => console.log('Error:', error));
+            });
+        }
+
+        // DOMContentLoaded event to initialize all event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalId = 'importModal';
+            
+            // Modal open and close event listeners
+            document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+            document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
+            window.addEventListener('click', (e) => closeModalOnClickOutside(modalId, e));
+
+            // Initialize search functionality
+            handleSearch('searchFilt', 'table-body');
         });
     </script>
+
 
 @endsection
