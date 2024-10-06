@@ -1,8 +1,24 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Import Modal -->
 <div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-[300px] shadow-lg">
+    <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative"> <!-- Added relative for positioning -->
+        
+        <!-- Close Icon at the top-right corner -->
+        <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-2xl">
+            &times;
+        </button>
+
         <h3 class="text-lg font-semibold mb-4">Import Asset</h3>
+        
+        <!-- Instructions Section -->
+        <div class="bg-blue-100 border border-blue-300 text-blue-700 px-4 py-3 rounded-md mb-4">
+            <p class="font-medium">Instructions:</p>
+            <ul class="list-disc ml-4 text-sm mt-2">
+                <li>Download the <b><a href="{{ route('download.csv.template') }}" class="text-blue-900 underline">CSV template</a></b>.</li>
+                <li>Ensure your CSV file follows the template format and columns.</li>
+                <li>Once ready, upload your CSV file below.</li>
+            </ul>
+        </div>
 
         <!-- Upload CSV Button -->
         <div class="mb-4">
@@ -13,31 +29,18 @@
         <!-- Error Notification -->
         <div id="uploadError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative mb-4" role="alert">
             <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">Please upload a valid CSV file.</span>
+            <span class="block sm:inline">Please upload a valid CSV file matching the template columns.</span>
         </div>
 
         <!-- Next Button -->
         <div class="mb-4 hidden" id="nextButtonContainer">
-            <button id="nextButton" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md text-center">
+            <button id="nextButton" class="w-full bg-blue-950 text-white py-2 px-4 rounded-md text-center">
                 Next
-            </button>
-        </div>
-
-        <!-- Download Template Button -->
-        <div class="mb-4">
-            <a href="{{ route('download.csv.template') }}" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md text-center">
-                Download CSV Template
-            </a>
-        </div>
-
-        <!-- Close Button -->
-        <div class="flex justify-end">
-            <button id="closeModalBtn" class="text-gray-600 bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300">
-                Close
             </button>
         </div>
     </div>
 </div>
+
 
 <!-- Preview Modal (Increased Size) -->
 <div id="previewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
@@ -62,14 +65,12 @@
         <div class="flex justify-between items-center mt-4">
             <span id="selectedSummary" class="text-gray-700">21 of 21 rows are checked</span>
             <div class="flex space-x-2">
-                <button id="uploadButton" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Upload</button>
+                <button id="uploadButton" class="bg-blue-950 text-white px-4 py-2 rounded-md hover:bg-green-600">Upload</button>
                 <button id="closePreviewModalBtn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">Close</button>
             </div>
         </div>
     </div>
 </div>
-
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
