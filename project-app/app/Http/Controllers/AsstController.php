@@ -15,6 +15,8 @@ use App\Models\ModelAsset;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use LaravelDaily\LaravelCharts\Classes\LaravelChart;
+
 
 
 use Illuminate\Http\Request;
@@ -275,8 +277,18 @@ class AsstController extends Controller
         $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
             ->where("asset.dept_ID", "=", $userDept)->count();
 
+            $chart_options = [
+                'chart_title' => 'Users by months',
+                'report_type' => 'group_by_date',
+                'model' => 'App\Models\User',
+                'group_by_field' => 'created_at',
+                'group_by_period' => 'month',
+                'chart_type' => 'bar',
+            ];
+            $chart1 = new LaravelChart($chart_options);
+
         //FOR DASHBOARD CARDS
-        return view('dept_head.Home', ['asset' => $asset]);
+        return view('dept_head.Home', compact(['asset' , 'chart1']));
     }
 
     public function update(Request $request, $id)
@@ -382,87 +394,6 @@ class AsstController extends Controller
 
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
-    public function showDetails($id)
-{
-    // Get the logged-in user's department ID and user type
-    $userDept = Auth::user()->dept_id;
-    $userType = Auth::user()->usertype;
-
-    // Retrieve necessary data from related tables
-    $department = ['list' => DB::table('department')->get()];
-    $categories = ['ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
-        return $query->where('dept_ID', $userDept);
-    })->get()];
-    $location = ['locs' => DB::table('location')->when($userType != 'admin', function ($query) use ($userDept) {
-        return $query->where('dept_ID', $userDept);
-    })->get()];
-    $model = ['mod' => DB::table('model')->when($userType != 'admin', function ($query) use ($userDept) {
-        return $query->where('dept_ID', $userDept);
-    })->get()];
-    $manufacturer = ['mcft' => DB::table('manufacturer')->when($userType != 'admin', function ($query) use ($userDept) {
-        return $query->where('dept_ID', $userDept);
-    })->get()];
-    $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
-
-    $assetRet = Maintenance::where("asset_key" , $id)
-                                    ->where("completed" , 1)
-                                    ->join('users' ,'users.id','=' , 'maintenance.requestor')
-                                    ->select(
-                                        'users.firstname as fname',
-                                        'users.lastname as lname',
-                                        'maintenance.reason as reason',
-                                        'maintenance.cost as cost',
-                                        'maintenance.status as status',
-
-                                             DB::raw('DATE_FORMAT(maintenance.completion_date , "%Y-%m-%d") AS complete'),
-
-                                             )->take(5)
-                                             ->groupBy(
-                                                'maintenance.completion_date',
-                                                'maintenance.cost',
-                                                'users.firstname',
-                                                'users.lastname',
-                                                'maintenance.reason',
-                                                'maintenance.status',
-                                             )
-                                              ->orderByRaw("FIELD(maintenance.status, 'request', 'pending', 'in_progress','complete','denied','denied')")
-                                              ->orderBy('maintenance.completion_date', 'asc')->get();
-
-
-
-    // Build the query to retrieve the asset data based on the asset ID
-    $retrieveDataQuery = assetModel::where('asset.id', $id)
-        ->join('department', 'asset.dept_id', '=', 'department.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('model', 'asset.model_key', '=', 'model.id')
-        ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
-        ->select(
-            'asset.id',
-            'asset.depreciation',
-            'asset.image',
-            'asset.name',
-            'asset.code',
-            'asset.cost',
-            'asset.salvageVal',
-            'asset.usage_Lifespan',
-            'asset.status',
-            'asset.custom_fields',
-            'asset.created_at',
-            'asset.updated_at',
-            'category.name as category',
-            'model.name as model',
-            'location.name as location',
-            'manufacturer.name as manufacturer'
-        );
-
-
-
-    // If the user is not an admin, filter by dept_ID
-    if ($userType != 'admin') {
-        $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-    }
-
 
 
     //If modify make sure to update show details in QRUserCotroller.php
@@ -531,13 +462,16 @@ class AsstController extends Controller
         // Decode the custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-    // Determine the view based on user type
-    $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
-    
-    //new assetRet
-    // Return the appropriate view with the asset data
-    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer','assetRet'));
-}
+        $thisDepartment = $department['list']->firstWhere('name', "IT");
+
+
+
+        // Determine the view based on user type
+        $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
+
+        // Return the appropriate view with the asset data, including the QR code
+        return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+    }
 
 
 
@@ -703,7 +637,8 @@ class AsstController extends Controller
                     ]);
                     // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
                 } catch (\Exception $e) {
-                    \Log::error('Error inserting asset: ' . $e->getMessage());
+                    // \Log::error('Error inserting asset: ' . $e->getMessage());
+                    Log::error('Error inserting asset: ' . $e->getMessage());
                 }
             }
 
