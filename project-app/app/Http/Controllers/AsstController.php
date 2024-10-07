@@ -15,6 +15,8 @@ use App\Models\ModelAsset;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use LaravelDaily\LaravelCharts\Classes\LaravelChart;
+
 
 
 use Illuminate\Http\Request;
@@ -275,8 +277,18 @@ class AsstController extends Controller
         $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
             ->where("asset.dept_ID", "=", $userDept)->count();
 
+            $chart_options = [
+                'chart_title' => 'Users by months',
+                'report_type' => 'group_by_date',
+                'model' => 'App\Models\User',
+                'group_by_field' => 'created_at',
+                'group_by_period' => 'month',
+                'chart_type' => 'bar',
+            ];
+            $chart1 = new LaravelChart($chart_options);
+
         //FOR DASHBOARD CARDS
-        return view('dept_head.Home', ['asset' => $asset]);
+        return view('dept_head.Home', compact(['asset' , 'chart1']));
     }
 
     public function update(Request $request, $id)
@@ -450,6 +462,10 @@ class AsstController extends Controller
         // Decode the custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
+        $thisDepartment = $department['list']->firstWhere('name', "IT");
+
+
+
         // Determine the view based on user type
         $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
 
@@ -621,6 +637,7 @@ class AsstController extends Controller
                     ]);
                     // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
                 } catch (\Exception $e) {
+                    // \Log::error('Error inserting asset: ' . $e->getMessage());
                     Log::error('Error inserting asset: ' . $e->getMessage());
                 }
             }

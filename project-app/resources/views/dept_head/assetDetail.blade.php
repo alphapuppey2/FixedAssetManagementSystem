@@ -195,12 +195,6 @@
                             @endif
                         </div>
                     </div>
-                    <div class="flex w-full justify-center edit hidden">
-                        <button id='addMoreFields'
-                            class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">
-                            Add Field
-                        </button>
-                    </div>
                 </div>
             </div>
 
