@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Models\assetModel;
 use App\Models\category;
 use App\Models\locationModel;
 use App\Models\ModelAsset;
 use App\Models\Manufacturer;
 use App\Models\Preventive;
-
+use App\Jobs\RunPredictiveAnalysis;
+use Illuminate\Support\Facades\Log;
 
 
 class MaintenanceController extends Controller
@@ -621,10 +623,31 @@ class MaintenanceController extends Controller
                 'start_date' => $request->start_date,
                 'cost' => $request->cost,
                 'completed' => $request->has('set_as_completed'),
-                // 'completion_date' => $request->completion_date,
                 'completion_date' => $request->has('set_as_completed') ? now() : null,
 
             ]);
+
+            // Check if the maintenance was marked as completed
+            if ($maintenance->completed) {
+                // Step 1: Find the asset by ID
+                $asset = assetModel::findOrFail($maintenance->asset_key);
+
+                // Update the status
+                $asset->status = 'active';
+
+                // Save the updated asset model to the database
+                $asset->save();
+
+                \Log::info("Asset status updated to active for asset ID: " . $asset->id);
+                \Log::info("Asset status after save: " . $asset->status);
+
+                // Step 2: Dispatch the job to run the predictive maintenance asynchronously
+                RunPredictiveAnalysis::dispatch();
+
+                \Log::info("Predictive maintenance job dispatched.");
+            }
+
+
 
             // Redirect back with success message
             return redirect()->route('maintenance.approved')

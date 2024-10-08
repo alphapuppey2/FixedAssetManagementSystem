@@ -5,23 +5,26 @@ namespace App\Jobs;
 use App\Http\Controllers\PredictiveController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class RunPredictiveAnalysis implements ShouldQueue
 {
-    use InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct() {}
 
     public function handle()
     {
-        // Run the predictive analysis
+        Log::info("Predictive maintenance job started.");
+
+        // Run the predictive analysis logic
         app(PredictiveController::class)->analyze();
 
-        // Redispatch the job to run again after 24 hours (or any desired interval)
-        // self::dispatch()->delay(now()->addDay());
-        self::dispatch(); // Redispatch without any delay (for testing)
+        Log::info("Predictive maintenance job finished.");
     }
-}
 
+}
