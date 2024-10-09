@@ -14,22 +14,26 @@
             @endforeach
         </div>
         {{-- Recent Activity --}}
-        <div class="container grid grid-cols-[minmax(300px,600px)_1fr] gap-2">
+        <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2">
             <div class="chartArea">
 
-                @include('components.chart', ['months' => $Amonths, 'counts' => $Acounts ])
+                <x-chart
+                    :weeks="$Amonths"
+                    :activeCounts="$Acounts"
+                    :maintenanceCounts="$UMcounts"
+                />
             </div>
             <div class="RecentNew overflow-hidden flex flex-col w-full rounded-md h-full bg-white shadow-md">
-                <span class="font-bold capitalize text-lg bg-blue-100 text-center h-8 border-b w-full">
+                <span class="font-bold uppercase text-lg bg-blue-100 text-center h-8 border-b w-full">
                     New Assets
                 </span>
-                <div class="overflow-x-auto">
+                <div class="overflow-auto">
                     <table class="min-w-full">
-                        <thead>
+                        <thead class="border-b  m-2">
                             <tr>
-                                <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Name</th>
-                                <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Code</th>
-                                <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Date Acquired</th>
+                                <th class="text-center text-sm font-medium text-gray-700">Name</th>
+                                <th class="text-center text-sm font-medium text-gray-700">Code</th>
+                                <th class="text-center text-sm font-medium text-gray-700">Date Acquired</th>
                             </tr>
                         </thead>
                         <tbody>

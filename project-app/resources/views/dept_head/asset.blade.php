@@ -185,20 +185,27 @@
                         data.forEach(asset => {
                             const row = `
                                 <tr>
-                                    <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-                                    <td class="align-middle">${asset.name}</td>
-                                    <td class="align-middle">${asset.category}</td>
-                                    <td class="align-middle">${asset.salvageVal}</td>
-                                    <td class="align-middle">${asset.depreciation}</td>
-                                    <td class="align-middle">${asset.status}</td>
+                                    <th class="align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.name}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.category}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.salvageVal}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.depreciation}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.status}</td>
                                     <td class="w-40">
-                                        <div class="grp flex justify-between">
-                                            <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
-                                            <form action="/asset/delete/${asset.id}" method="post">
-                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                <input type="hidden" name="_method" value="DELETE">
-                                                <button type="submit" class="btn btn-outline-danger py-[2px] px-2" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
-                                            </form>
+                                        <div class="grp flex gap-2 justify-center">
+                                            <a href="{{ route('assetDetails', $asst->id) }}"
+                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                            >
+                                            <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                                        </a>
+                                        <form action="{{ route('asset.delete', $asst->id) }}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                                onclick="return confirm('Are you sure you want to delete this asset?');">
+                                                <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                            </button>
+                                        </form>
                                         </div>
                                     </td>
                                 </tr>

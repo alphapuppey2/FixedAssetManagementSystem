@@ -263,80 +263,84 @@ class AsstController extends Controller
     return redirect()->to('/asset')->with('success', 'New Asset Created');
 }
 
-
-    public function assetGraph(){
-    // Initialize an array for all months (January to December) with zero counts
-    $months = [
-        'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0,
-        'May' => 0, 'Jun' => 0, 'Jul' => 0, 'Aug' => 0,
-        'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0
-    ];
-
-    // Retrieve data grouped by month from the database
-    $data = assetModel::where('dept_ID',Auth::user()->dept_id)->select(
-        DB::raw('MONTH(created_at) as month'), // Get the month number
-        DB::raw('COUNT(*) as count') // Count the records for that month
-    )
-    ->groupBy('month')
-    ->get();
-
-    // Map the retrieved data to the $months array
-    foreach ($data as $record) {
-        $monthName = date('M', mktime(0, 0, 0, $record->month, 10)); // Convert month number to shortened month name
-        $months[$monthName] = $record->count; // Update the month count
-    }
-
-    // Prepare the data for the chart in JSON format
-    return response()->json([
-        'months' => array_keys($months), // Array of shortened month names
-        'counts' => array_values($months) // Array of corresponding counts
-    ]);
-    }
-
     public static function assetCount(){
-        //dashboard
-        $userDept = Auth::user()->dept_id;
+    // Dashboard
+    $userDept = Auth::user()->dept_id;
 
-        $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
-            ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
+        ->where("asset.dept_ID", "=", $userDept)->count();
 
-            $newAssetCreated = assetModel::where('dept_ID',$userDept)->whereMonth('created_at', Carbon::now()->month)->orderBy('created_at', 'desc')->take(5)->get();
+    $newAssetCreated = assetModel::where('dept_ID', $userDept)
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
 
-            // Initialize an array for all months (January to December) with zero counts
-    $months = [
-        'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0,
-        'May' => 0, 'Jun' => 0, 'Jul' => 0, 'Aug' => 0,
-        'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0
-    ];
-
-    // Retrieve data grouped by month from the database
-    $data = assetModel::where('dept_ID',Auth::user()->dept_id)->select(
-        DB::raw('MONTH(created_at) as month'), // Get the month number
-        DB::raw('COUNT(*) as count'), // Count the records for that month
-    )
-    ->groupBy('month')
-    ->get();
-
-    // Map the retrieved data to the $months array
-    foreach ($data as $record) {
-        $monthName = date('M', mktime(0, 0, 0, $record->month, 10)); // Convert month number to shortened month name
-        $months[$monthName] = $record->count; // Update the month count
+    // Initialize an array for months from four months ago up to the current month
+    $monthsActive = [];
+    $monthsUnderMaintenance = [];
+    for ($i = 4; $i >= 0; $i--) { // Loop backwards from 4 months ago to the current month
+        $date = Carbon::now()->subMonths($i);
+        $monthName = $date->format('M');
+        $year = $date->format('Y');
+        $monthsActive["$monthName $year"] = 0; // Initialize count to 0 for Active
+        $monthsUnderMaintenance["$monthName $year"] = 0; // Initialize count to 0 for Under Maintenance
     }
 
+    // Retrieve data for Active assets grouped by month and year
+    $dataActive = assetModel::where('dept_ID', Auth::user()->dept_id)
+        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+            Carbon::now()->format('Y-m') // Up to the current month
+        ])
+        ->where('status', 'active')
+        ->select(
+            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+            DB::raw('COUNT(*) as count') // Count the records for that month
+        )
+        ->groupBy('monthYear')
+        ->get();
 
-        //FOR DASHBOARD CARDS
-        return view('dept_head.home', [
-            'asset' => $asset,
-            'newAssetCreated' => $newAssetCreated,
-            'Amonths' => array_keys($months),
-            'Acounts' => array_values($months),
-        ]);
+    // Retrieve data for Under Maintenance assets grouped by month and year
+    $dataUnderMaintenance = assetModel::where('dept_ID', Auth::user()->dept_id)
+        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+            Carbon::now()->format('Y-m') // Up to the current month
+        ])
+        ->where('status', 'under maintenance')
+        ->select(
+            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+            DB::raw('COUNT(*) as count') // Count the records for that month
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Map the retrieved data to the $monthsActive array
+    foreach ($dataActive as $record) {
+        $monthsActive[$record->monthYear] = $record->count; // Update the month count for Active assets
+    }
+
+    // Map the retrieved data to the $monthsUnderMaintenance array
+    foreach ($dataUnderMaintenance as $record) {
+        $monthsUnderMaintenance[$record->monthYear] = $record->count; // Update the month count for Under Maintenance assets
+    }
+
+    // FOR DASHBOARD CARDS
+    return view('dept_head.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'Amonths' => array_keys($monthsActive), // Array of month labels
+        'Acounts' => array_values($monthsActive), // Array of counts for Active assets
+        'UMmonths' => array_keys($monthsUnderMaintenance), // Array of month labels for Under Maintenance
+        'UMcounts' => array_values($monthsUnderMaintenance), // Array of counts for Under Maintenance assets
+    ]);
+
 
     }
 
