@@ -1,5 +1,5 @@
 @php
-    $routes = [route('user.home'), route('dept_head.home'), route('admin.home')];
+    $routes = [route('user.scanQR'), route('dept_head.home'), route('admin.home')];
     $homeRoute = null;
     switch (Auth::user()->usertype) {
         case 'user':
