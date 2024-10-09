@@ -216,7 +216,7 @@
                 })
                 .catch(error => console.log('Error:', error));
             });
-
+        }
         // DOMContentLoaded event to initialize all event listeners
         document.addEventListener('DOMContentLoaded', function () {
             const modalId = 'importModal';
