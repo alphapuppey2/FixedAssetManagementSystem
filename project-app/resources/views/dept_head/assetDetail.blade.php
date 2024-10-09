@@ -181,10 +181,10 @@
                             @if ($fields)
                                 @foreach ($fields as $key => $value)
                                     <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
-                                        <div class="field-Info customField capitalize text-slate-400">{{ $key }}
+                                        <div class="field-Infos customField capitalize text-slate-400">{{ $key }}
                                         </div>
                                         <div class="field-Info customField">{{ $value }}</div>
-                                        <x-text-input class="edit hidden" name="field[key][]"
+                                        <x-text-input class="edt hidden" name="field[key][]"
                                             value="{{ $key }}" />
                                         <x-text-input class="edit hidden" name="field[value][]"
                                             value="{{ $value }}" />
