@@ -54,32 +54,32 @@
                 </button>
                 <!-- Dropdown Menu -->
                 <ul id="dropdownMenu" class="hidden flex-col bg-blue-900 rounded-md mt-1">
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" 
-                        :href="route('assetList', ['dropdown' => 'open'])" 
+                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                        :href="route('assetList', ['dropdown' => 'open'])"
                         :active="request()->routeIs('assetList')">
                         <span class="ml-2 sm:hidden lg:block">All</span>
                     </x-nav-link>
                     <!-- IT Department Link -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" 
-                        :href="route('assetListByDept', ['dept' => 1, 'dropdown' => 'open'])" 
+                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                        :href="route('assetListByDept', ['dept' => 1, 'dropdown' => 'open'])"
                         :active="request()->routeIs('assetListByDept') && request()->dept == 1">
                         <span class="ml-2 sm:hidden lg:block">IT</span>
                     </x-nav-link>
                     <!-- Sales Department Link -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" 
-                        :href="route('assetListByDept', ['dept' => 2, 'dropdown' => 'open'])" 
+                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                        :href="route('assetListByDept', ['dept' => 2, 'dropdown' => 'open'])"
                         :active="request()->routeIs('assetListByDept') && request()->dept == 2">
                         <span class="ml-2 sm:hidden lg:block">Sales</span>
                     </x-nav-link>
                     <!-- Fleet Department Link -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" 
-                        :href="route('assetListByDept', ['dept' => 3, 'dropdown' => 'open'])" 
+                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                        :href="route('assetListByDept', ['dept' => 3, 'dropdown' => 'open'])"
                         :active="request()->routeIs('assetListByDept') && request()->dept == 3">
                         <span class="ml-2 sm:hidden lg:block">Fleet</span>
                     </x-nav-link>
                     <!-- Production Department Link -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" 
-                        :href="route('assetListByDept', ['dept' => 4, 'dropdown' => 'open'])" 
+                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                        :href="route('assetListByDept', ['dept' => 4, 'dropdown' => 'open'])"
                         :active="request()->routeIs('assetListByDept') && request()->dept == 4">
                         <span class="ml-2 sm:hidden lg:block">Production</span>
                     </x-nav-link>
@@ -87,13 +87,13 @@
             </li>
 
             <!-- Log out button moves down dynamically -->
-            <li class="mt-auto">
+            <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                    <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
                             onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-icons.logoutIcon />
-                        <span class="ml-2 sm:hidden lg:block">Log out</span>
+                            <x-icons.logout-icon />
+                            <span class="ml-2 max-md:hidden lg:block">Log out</span>
                     </button>
                 </form>
             </li>

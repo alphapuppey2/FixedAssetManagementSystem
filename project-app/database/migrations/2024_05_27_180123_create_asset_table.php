@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal("depreciation",10,2)->default(0.00);
             $table->decimal("salvageVal",10,2)->default(0.00);
             $table->integer('usage_Lifespan')->nullable();
-            $table->enum('status', ['active','deployed','need Repair','under Maintenance','dispose'])->default('active');
+            $table->enum('status', ['active','deployed','need_repair','under_maintenance','disposed'])->default('active');
             $table->binary('custom_fields')->nullable();
 
             $table->unsignedBigInteger('ctg_ID');
@@ -47,10 +47,10 @@ return new class extends Migration
     {
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         // Drop the table
         Schema::dropIfExists('asset');
-        
+
         // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }

@@ -14,6 +14,7 @@ use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\ReportsController;
 
 
 Route::get('/', function(){
@@ -139,9 +140,11 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
 
-    Route::get('/report', function () {
-        return view('dept_head.reports');
-    })->name('report');
+    //reports page
+    Route::get('/report', [ReportsController::class, 'showReports'])->name('reports.show');
+    Route::post('/save-report-columns', [ReportsController::class, 'saveReportColumns'])->name('reports.saveColumns');
+
+
 
     Route::get('/profile', function () {
         return view('dept_head.profile');
