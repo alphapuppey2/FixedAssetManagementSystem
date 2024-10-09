@@ -48,7 +48,6 @@
                     <span class="ml-2">Maintenance</span>
                     <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown icon -->
                 </button>
-
                 <!-- Dropdown Menu with left margin for indentation -->
                 <ul id="maintenanceDropdownMenu" class="hidden flex-col rounded-md mt-1 ml-4"> <!-- Added ml-4 for indentation -->
                     <!-- Maintenance Request -->
@@ -68,8 +67,6 @@
                     </x-nav-link>
                 </ul>
             </li>
-
-
             <li>
                 <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
                     <x-chartIcon></x-chartIcon>

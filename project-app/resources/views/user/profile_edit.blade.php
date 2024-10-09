@@ -25,8 +25,8 @@
 
             <!-- User Name -->
             <div class="text-center mb-4 flex items-center justify-center">
-                <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }} 
-                    {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+                <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }}
+                    {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                     {{ auth()->user()->lastname ?? '' }}
                 </h2>
                 <a href="{{ route('user.profile') }}" class="text-gray-600 hover:text-blue-500">

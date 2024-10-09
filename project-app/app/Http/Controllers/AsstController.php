@@ -162,75 +162,89 @@ class AsstController extends Controller
     }
 
     public function create(Request $request)
-    {
-        $userDept = Auth::user()->dept_id;
-        // dd($request);
-        if (!$request->validate([
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
-            'assetname' => 'required',
-            'category' => 'required',
-            'cost' => 'required|numeric|min:0.01',
-            'salvageVal' => 'required|numeric|min:0.01',
-            'purchased' => 'required | date',
-            'usage' => 'required',
-            'loc' => 'required',
-            'mod' => 'required',
-            'mcft' => 'required',
-            'field.key.*' => 'nullable|string|max:255',
-            'field.value.*' => 'nullable|string|max:255',
+{
+    $userDept = Auth::user()->dept_id;
 
-        ])) {
-            return redirect()->back()->withInput()->withError();
-        }
+    // Validate the request
+    $request->validate([
+        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
+        'assetname' => 'required',
+        'category' => 'required',
+        'cost' => 'required|numeric|min:0.01',
+        'salvageVal' => 'required|numeric|min:0.01',
+        'purchased' => 'required|date',
+        'usage' => 'required',
+        'loc' => 'required',
+        'mod' => 'required',
+        'mcft' => 'required',
+        'field.key.*' => 'nullable|string|max:255',
+        'field.value.*' => 'nullable|string|max:255',
+    ]);
 
-        //additional Fields
+    // Additional Fields
+    $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
 
-        $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+    // Generate Asset Code
+    $department = DB::table('department')->where('id', $userDept)->first();
+    $departmentCode = $department->name;
+    $lastID = department::where('name', $departmentCode)->max('assetSequence');
+    $seq = $lastID ? $lastID + 1 : 1;
+    $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        //code
-        $department = DB::table('department')->where('id', $userDept)->get();
-
-        $departmentCode = $department[0]->name;
-        $lastID =  department::where('name', $departmentCode)->max('assetSequence');
-        $seq = $lastID ? $lastID + 1 : 1;
-        $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-        //image
-        $pathFile = NULL;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $filename, 'public');
-            $pathFile = $path;
-        }
-        department::where('id', $userDept)->increment('assetSequence', 1);
-
-        //depreciation method == Straight Line
-        $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
-
-
-        DB::table('asset')->insert([
-            'image' => $pathFile,
-            'name' => $request->assetname,
-            'cost' => $request->cost,
-            'code' => $code,
-            'purchase_date' => $request->purchased,
-            'ctg_ID' => $request->category,
-            'depreciation' => $depreciation,
-            'salvageVal' => $request->salvageVal,
-            'usage_Lifespan' => $request->usage,
-            'custom_fields' => $customFields,
-            'dept_ID' => $userDept,
-            'loc_key' => $request->loc,
-            'model_key' => $request->mod,
-            'manufacturer_key' => $request->mcft,
-            'created_at' => now(),
-        ]);
-
-        return redirect()->to('/asset')->with('success', 'New Asset Created');
+    // Handle image upload
+    $pathFile = NULL;
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
+        $path = $image->storeAs('images', $filename, 'public');
+        $pathFile = $path;
     }
 
-    public static function assetCount()
-    {
+    // Increment asset sequence in department
+    department::where('id', $userDept)->increment('assetSequence', 1);
+
+    // Calculate depreciation (Straight Line method)
+    $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
+
+    // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
+    $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
+    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+    // Ensure the directory exists
+    if (!file_exists(storage_path('app/public/qrcodes'))) {
+        mkdir(storage_path('app/public/qrcodes'), 0777, true);
+    }
+
+    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+        ->size(250)
+        ->generate($code, $qrStoragePath);
+
+    // Save asset details to the database
+    DB::table('asset')->insert([
+        'image' => $pathFile,
+        'name' => $request->assetname,
+        'cost' => $request->cost,
+        'code' => $code,
+        'purchase_date' => $request->purchased,
+        'ctg_ID' => $request->category,
+        'depreciation' => $depreciation,
+        'salvageVal' => $request->salvageVal,
+        'usage_Lifespan' => $request->usage,
+        'custom_fields' => $customFields,
+        'dept_ID' => $userDept,
+        'loc_key' => $request->loc,
+        'model_key' => $request->mod,
+        'manufacturer_key' => $request->mcft,
+        'qr' => $qrCodePath,  // Store the path to the QR code image file
+        'created_at' => now(),
+    ]);
+
+    return redirect()->to('/asset')->with('success', 'New Asset Created');
+}
+
+
+
+    public static function assetCount(){
         //dashboard
         $userDept = Auth::user()->dept_id;
 
@@ -327,23 +341,30 @@ class AsstController extends Controller
     }
     public function delete($id)
     {
-
         $assetDel = assetModel::findOrFail($id);
 
         // Get the path of the image from the database
-        $imagePath = $assetDel->image_path; // assuming 'image_path' is the column name
+        $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
 
         // Delete the image file from the server
-        if ($imagePath && Storage::exists($imagePath)) {
-            Storage::delete($imagePath);
+        if ($imagePath && Storage::exists('public/' . $imagePath)) {
+            Storage::delete('public/' . $imagePath);
         }
 
-        // Delete the row from the database
-        $assetDel->delete();
+        // Get the path of the QR code from the database
+        $qrCodePath = $assetDel->qr; // assuming 'qr' is the column name for the QR code path
 
+        // Delete the QR code file from the server
+        if ($qrCodePath && Storage::exists('public/' . $qrCodePath)) {
+            Storage::delete('public/' . $qrCodePath);
+        }
+
+        // Delete the asset record from the database
+        $assetDel->delete();
 
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
+
 
     // public function showDetails($id){
     //     $userDept = Auth::user()->dept_id;
@@ -384,10 +405,13 @@ class AsstController extends Controller
     //                                 ->get();
     //     $fields = json_decode($retrieveData[0]->custom_fields,true);
 
-
     //     return view('dept_head.assetDetail' , compact('retrieveData' , 'fields','department','categories','location','model','status','manufacturer'));
     // }
 
+
+
+    //If modify make sure to update show details in QRUserCotroller.php
+    //Both same functionalities but different parameters
     public function showDetails($id)
     {
         // Get the logged-in user's department ID and user type
@@ -422,6 +446,7 @@ class AsstController extends Controller
                 'asset.usage_Lifespan',
                 'asset.status',
                 'asset.custom_fields',
+                'asset.qr',  // Add the QR code path
                 'asset.created_at',
                 'asset.updated_at',
                 'category.name as category',
@@ -437,7 +462,6 @@ class AsstController extends Controller
 
         // Retrieve the asset data
         $retrieveData = $retrieveDataQuery->first();
-
 
         // If no asset is found, redirect with an error message
         if (!$retrieveData) {
@@ -455,7 +479,7 @@ class AsstController extends Controller
         // Determine the view based on user type
         $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
 
-        // Return the appropriate view with the asset data
+        // Return the appropriate view with the asset data, including the QR code
         return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
     }
 

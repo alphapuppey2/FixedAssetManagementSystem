@@ -30,42 +30,50 @@ class QRUserController extends Controller
     public function showDetails($code)
     {
         $userDept = Auth::user()->dept_id;
+        $userType = Auth::user()->usertype;
 
         // Query the asset based on the scanned code and user's department
-        $retrieveData = assetModel::where('asset.code', $code)
-                                  ->where('asset.dept_ID', $userDept)
-                                  ->join('department', 'asset.dept_ID', '=', 'department.id')
-                                  ->join('category', 'asset.ctg_ID', '=', 'category.id')
-                                  ->join('model', 'asset.model_key', '=', 'model.id')
-                                  ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
-                                  ->join('location', 'asset.loc_key', '=', 'location.id')
-                                  ->select(
-                                      'asset.id',
-                                      'asset.code',
-                                      'asset.name',
-                                      'asset.image',
-                                      'asset.cost',
-                                      'asset.depreciation',
-                                      'asset.salvageVal',
-                                      'asset.usage_Lifespan',
-                                      'asset.status',
-                                      'asset.ctg_ID',
-                                      'asset.dept_ID',
-                                      'asset.manufacturer_key',
-                                      'asset.model_key',
-                                      'asset.loc_key',
-                                      'asset.custom_fields',
-                                      'asset.created_at',
-                                      'asset.updated_at',
-                                      'category.name as category',
-                                      'model.name as model',
-                                      'location.name as location',
-                                      'manufacturer.name as manufacturer',
-                                      'department.name as department'
-                                  )
-                                  ->first();
+        $retrieveDataQuery = assetModel::where('asset.code', $code)
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->join('model', 'asset.model_key', '=', 'model.id')
+            ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+            ->join('location', 'asset.loc_key', '=', 'location.id')
+            ->select(
+                'asset.id',
+                'asset.code',
+                'asset.name',
+                'asset.image',
+                'asset.cost',
+                'asset.depreciation',
+                'asset.salvageVal',
+                'asset.usage_Lifespan',
+                'asset.status',
+                'asset.ctg_ID',
+                'asset.dept_ID',
+                'asset.manufacturer_key',
+                'asset.model_key',
+                'asset.loc_key',
+                'asset.custom_fields',
+                'asset.qr',  // Retrieve QR code
+                'asset.created_at',
+                'asset.updated_at',
+                'category.name as category',
+                'model.name as model',
+                'location.name as location',
+                'manufacturer.name as manufacturer',
+                'department.name as department'
+            );
 
-        // If asset is not found, redirect back with an error message
+        // If the user is not an admin, restrict by department
+        if ($userType != 'admin') {
+            $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
+        }
+
+        // Retrieve asset data
+        $retrieveData = $retrieveDataQuery->first();
+
+        // If asset not found, redirect back with error message
         if (!$retrieveData) {
             return redirect()->back()->with('status', 'No asset found with the scanned QR code.');
         }
@@ -73,7 +81,7 @@ class QRUserController extends Controller
         // Decode custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-        // Pass the asset data and custom fields to the view
-         return view('user.assetDetail', compact('retrieveData', 'fields'));
+        // Pass the asset data, custom fields, and QR code to the view
+        return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
 }

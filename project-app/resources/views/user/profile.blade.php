@@ -2,7 +2,12 @@
 @extends('user.home')
 @include('components.icons')
 
-@section('profile-content')
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ "Profile" }}
+    </h2>
+@endsection
+@section('content')
     <div class="max-w-xl mx-auto">
         <!-- Profile Photo -->
         <div class="flex justify-center mb-6">
@@ -11,8 +16,8 @@
 
         <!-- User Name -->
         <div class="text-center mb-4 flex items-center justify-center">
-            <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }} 
-                {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }} 
+            <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }}
+                {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                 {{ auth()->user()->lastname ?? '' }}
             </h2>
             <a href="{{ route('user.profile_edit') }}" class="text-gray-600 hover:text-blue-500">
@@ -48,7 +53,7 @@
                     <h3 class="text-xl font-semibold text-gray-700">Contact</h3>
                     <p class="text-gray-600">{{ formatContactNumber(auth()->user()->contact) ?? 'N/A' }}</p>
                 </div>
-                    
+
             </div>
             <div class="mb-4 flex items-center">
                 <div class ="mr-3">
@@ -58,7 +63,7 @@
                     <h3 class="text-xl font-semibold text-gray-700">ID Number</h3>
                     <p class="text-gray-600">{{ auth()->user()->id ?? 'N/A' }}</p>
                 </div>
-                
+
             </div>
         </div>
 
@@ -71,7 +76,7 @@
 
 @php
 function formatContactNumber($number) {
-   
+
     $cleaned = preg_replace('/\D/', '', $number);
 
     if (substr($cleaned, 0, 1) === '0') {

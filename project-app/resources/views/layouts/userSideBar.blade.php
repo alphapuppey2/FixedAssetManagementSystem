@@ -1,55 +1,61 @@
-@include('components.icons')
-
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
+<aside class="h-screen transition ease-in max-md:w-[50px] md:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
 <!-- Sidebar -->
-<nav class="bg-blue-900 fixed h-full w-64 lg:w-64 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-lg" id="sidebar">
-    <!-- Profile Section -->
-    <div class="flex flex-col items-center mb-6 mt-8">
-        <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-20 h-20 rounded-full object-cover border-2 border-white mb-2">
-        <div class="text-center">
-            <h2 class="text-white text-2xl font-semibold">{{ auth()->user()->firstname ?? 'Guest' }}
-                {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
-                {{ auth()->user()->lastname ?? '' }}
-            </h2>
+    <x-nav-link :href="route('user.profile')">
+        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg transition ease-in">
+            <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
+                <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
+                         class="absolute bg-white top-1/2 left-1/2 lg:w-auto lg:h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
+                         alt="User Profile Photo">
+             </div>
+            <!-- Profile Section -->
+            <div class="profileUser grid grid-col-2 ml-2 text-[12px] w-full max-md:hidden lg:block">
+                <span class="font-normal">
+                    {{ Auth::user()->lastname.','.Auth::user()->firstname }}
+                </span>
+                <br>
+                <span>
+                 Worker
+                </span>
+            </div>
         </div>
-    </div>
+    </x-nav-link>
 
-    <!-- Menu Items -->
-    <ul class="mt-16">
-        <li class="p-3 rounded transition-colors duration-300 {{ request()->routeIs('user.scanQR') ? 'bg-blue-700 text-white' : 'hover:bg-blue-600' }} cursor-pointer flex items-center space-x-4">
-            @yield('scanQRIcon')
-            <a href="{{ route('user.scanQR') }}" class="text-white text-xl font-semibold hover:text-gray-200">Scan QR</a>
-        </li>
-        <li class="p-3 rounded transition-colors duration-300 {{ request()->routeIs('requests.list') ? 'bg-blue-700 text-white' : 'hover:bg-blue-600' }} cursor-pointer flex items-center space-x-4">
-            @yield('requestListIcon')
-            <a href="{{ route('requests.list') }}" class="text-white text-xl font-semibold hover:text-gray-200">Request List</a>
-        </li>
-        <li class="p-3 rounded transition-colors duration-300 {{ request()->routeIs('user.notification') ? 'bg-blue-700 text-white' : 'hover:bg-blue-600' }} cursor-pointer flex items-center space-x-4">
-            @yield('notificationIcon')
-            <a href="{{ route('user.notification') }}" class="text-white text-xl font-semibold hover:text-gray-200">Notification</a>
-        </li>
-        <li class="p-3 rounded transition-colors duration-300 {{ request()->routeIs('user.profile') ? 'bg-blue-700 text-white' : 'hover:bg-blue-600' }} cursor-pointer flex items-center space-x-4">
-            @yield('profileIcon')
-            <a href="{{ route('user.profile') }}" class="text-white text-xl font-semibold hover:text-gray-200">Profile</a>
-        </li>
-        <li class="p-3 rounded transition-colors duration-300 hover:bg-blue-450 cursor-pointer flex items-center space-x-4">
-            @yield('logoutIcon')
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="text-white text-xl font-semibold hover:text-gray-200"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                    Logout
-                </button>
-            </form>
-        </li>
-    </ul>
-</nav>
+    <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
+    <nav class="flex flex-col w-full font-semibold">
+        <!-- Menu Items -->
+        <ul class="sb h-[100%]">
+            <li>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('user.scanQR')" :active="request()->routeIs('user.scanQR')">
+                    <x-icons.scanQR-icon/>
+                    <span class="ml-2 max-md:hidden lg:block">Scan QR</span>
+                </x-nav-link>
+            </li>
+            <li>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('requests.list')" :active="request()->routeIs('requests.list')">
+                    <x-icons.requestList-icon/>
+                    <span class="ml-2 max-md:hidden lg:block">Request List</span>
+                </x-nav-link>
+            </li>
+            <li>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('user.notification')" :active="request()->routeIs('user.notification')">
+                    <x-icons.notification-icon/>
+                    <span class="ml-2 max-md:hidden lg:block">Notification</span>
+                </x-nav-link>
+            </li>
 
-<!-- Sidebar Responsive Toggle Button -->
-<button class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 hover:bg-blue-600 transition duration-200" id="sidebarToggle">
-    ☰
-</button>
+            <li>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
+                            onclick="event.preventDefault(); this.closest('form').submit();">
+                            <x-icons.logout-icon />
+                            <span class="ml-2 max-md:hidden lg:block">Log out</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</aside>
 
 <!-- Script for Sidebar Toggle -->
 <script>
