@@ -133,8 +133,6 @@
     <script>
         document.getElementById('searchFilt').addEventListener('keyup', function() {
             let query = this.value;
-
-
                 fetch(`/asset/search/row?search=${query}`, {
                     method: 'GET',
                     headers: {
@@ -186,12 +184,11 @@
                 })
                 .catch(error => console.log('Error:', error));
             });
-        }
 
         // DOMContentLoaded event to initialize all event listeners
         document.addEventListener('DOMContentLoaded', function () {
             const modalId = 'importModal';
-            
+
             // Modal open and close event listeners
             document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
             document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));

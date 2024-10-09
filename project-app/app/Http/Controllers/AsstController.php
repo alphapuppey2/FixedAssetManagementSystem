@@ -14,6 +14,7 @@ use App\Models\ModelAsset;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use LaravelDaily\LaravelCharts\Classes\LaravelChart;
 
@@ -263,6 +264,34 @@ class AsstController extends Controller
 }
 
 
+    public function assetGraph(){
+    // Initialize an array for all months (January to December) with zero counts
+    $months = [
+        'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0,
+        'May' => 0, 'Jun' => 0, 'Jul' => 0, 'Aug' => 0,
+        'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0
+    ];
+
+    // Retrieve data grouped by month from the database
+    $data = assetModel::where('dept_ID',Auth::user()->dept_id)->select(
+        DB::raw('MONTH(created_at) as month'), // Get the month number
+        DB::raw('COUNT(*) as count') // Count the records for that month
+    )
+    ->groupBy('month')
+    ->get();
+
+    // Map the retrieved data to the $months array
+    foreach ($data as $record) {
+        $monthName = date('M', mktime(0, 0, 0, $record->month, 10)); // Convert month number to shortened month name
+        $months[$monthName] = $record->count; // Update the month count
+    }
+
+    // Prepare the data for the chart in JSON format
+    return response()->json([
+        'months' => array_keys($months), // Array of shortened month names
+        'counts' => array_values($months) // Array of corresponding counts
+    ]);
+    }
 
     public static function assetCount(){
         //dashboard
@@ -277,18 +306,38 @@ class AsstController extends Controller
         $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
             ->where("asset.dept_ID", "=", $userDept)->count();
 
-            $chart_options = [
-                'chart_title' => 'Users by months',
-                'report_type' => 'group_by_date',
-                'model' => 'App\Models\User',
-                'group_by_field' => 'created_at',
-                'group_by_period' => 'month',
-                'chart_type' => 'bar',
-            ];
-            $chart1 = new LaravelChart($chart_options);
+            $newAssetCreated = assetModel::where('dept_ID',$userDept)->whereMonth('created_at', Carbon::now()->month)->orderBy('created_at', 'desc')->take(5)->get();
+
+            // Initialize an array for all months (January to December) with zero counts
+    $months = [
+        'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0,
+        'May' => 0, 'Jun' => 0, 'Jul' => 0, 'Aug' => 0,
+        'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0
+    ];
+
+    // Retrieve data grouped by month from the database
+    $data = assetModel::where('dept_ID',Auth::user()->dept_id)->select(
+        DB::raw('MONTH(created_at) as month'), // Get the month number
+        DB::raw('COUNT(*) as count'), // Count the records for that month
+    )
+    ->groupBy('month')
+    ->get();
+
+    // Map the retrieved data to the $months array
+    foreach ($data as $record) {
+        $monthName = date('M', mktime(0, 0, 0, $record->month, 10)); // Convert month number to shortened month name
+        $months[$monthName] = $record->count; // Update the month count
+    }
+
 
         //FOR DASHBOARD CARDS
-        return view('dept_head.Home', compact(['asset' , 'chart1']));
+        return view('dept_head.home', [
+            'asset' => $asset,
+            'newAssetCreated' => $newAssetCreated,
+            'Amonths' => array_keys($months),
+            'Acounts' => array_values($months),
+        ]);
+
     }
 
     public function update(Request $request, $id)
