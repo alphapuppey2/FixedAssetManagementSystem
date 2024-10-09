@@ -2,14 +2,14 @@
 <!-- Import Modal -->
 <div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative"> <!-- Added relative for positioning -->
-        
+
         <!-- Close Icon at the top-right corner -->
         <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-2xl">
             &times;
         </button>
 
         <h3 class="text-lg font-semibold mb-4">Import Asset</h3>
-        
+
         <!-- Instructions Section -->
         <div class="bg-blue-100 border border-blue-300 text-blue-700 px-4 py-3 rounded-md mb-4">
             <p class="font-medium">Instructions:</p>
@@ -258,3 +258,8 @@
         });
     });
 </script>
+
+
+
+
+
