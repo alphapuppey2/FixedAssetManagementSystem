@@ -19,10 +19,10 @@
 @endsection
 
 @section('content')
-    <div class="relative w-full h-full overflow-hidden bg-white">
+    <div class="relative w-full h-full overflow-hidden bg-white rounded-lg shadow-md">
         <table class="w-full">
             <thead>
-                <tr class="bg-blue-200 border-b">
+                <tr class="bg-blue-100/50 border-b">
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</td>
                     <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">reason of
                         maintenance</td>
@@ -40,19 +40,19 @@
                 @if (isset($assetRet) && count($assetRet) > 0)
                     @foreach ($assetRet as $logs)
                         <tr>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->lname.' , '.$logs->fname }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->reason }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->type }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->cost }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->description }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->status }}</td>
-                            <td class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->complete }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $logs->lname.' , '.$logs->fname }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $logs->reason }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $logs->type }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $logs->cost }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $logs->description }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ str_replace('_', ' ', $logs->status) }}</td>
+                            <td class="text-left px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">{{ $logs->complete }}</td>
                         </tr>
                     @endforeach
                 @else
                     <tr class="bg-blue-100/50">
                         <td colspan='7'
-                            class="text-center px-6 py-3 text-left text-xs font-medium text-gray-400/50 tracking-wider">
+                            class="text-left px-6 py-3 text-left text-xs font-medium text-gray-400/50 tracking-wider">
                             No maintenance history</td>
                     </tr>
                 @endif

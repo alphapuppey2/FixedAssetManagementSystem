@@ -16,19 +16,23 @@ class ModelSeeder extends Seeder
         //
         ModelAsset::create([
             'name' => 'model 1',
-            'description' => 'NO CHANCES'
+            'description' => 'NO CHANCES',
+            'dept_ID' => 1
         ]);
         ModelAsset::create([
             'name' => 'model 2',
-            'description' => 'NO CHANCES'
+            'description' => 'NO CHANCES',
+            'dept_ID' => 1
         ]);
         ModelAsset::create([
             'name' => 'model 3',
-            'description' => 'NO CHANCES'
+            'description' => 'NO CHANCES',
+            'dept_ID' => 1
         ]);
         ModelAsset::create([
             'name' => 'model 4',
-            'description' => 'NO CHANCES'
+            'description' => 'NO CHANCES',
+            'dept_ID' => 1
         ]);
     }
 }
