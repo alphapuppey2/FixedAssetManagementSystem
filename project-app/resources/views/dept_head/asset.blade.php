@@ -131,9 +131,33 @@
 
     <!-- JavaScript -->
     <script>
-        document.getElementById('searchFilt').addEventListener('keyup', function() {
-            let query = this.value;
+        // Function to open the modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+        }
 
+        // Function to close the modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+        }
+
+        // Function to handle modal close when clicking outside the modal
+        function closeModalOnClickOutside(modalId, event) {
+            const modal = document.getElementById(modalId);
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Function to handle asset search
+        function handleSearch(inputId, tableBodyId) {
+            const input = document.getElementById(inputId);
+            const tableBody = document.getElementById(tableBodyId);
+
+            input.addEventListener('keyup', function () {
+                const query = input.value;
 
                 fetch(`/asset/search/row?search=${query}`, {
                     method: 'GET',
@@ -159,27 +183,33 @@
                         tableBody.innerHTML = noResultsRow;
                     } else {
                         data.forEach(asset => {
-                            let row = `
-    <tr>
-        <th class="align-middle align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.name}</td>
-        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.category}</td>
-        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.salvageVal}</td>
-        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.depreciation}</td>
-        <td class="align-middle align-middle text-center text-sm text-gray-900 py-2 text-balance">${asset.status}</td>
-        <td class="w-40">
-            <div class="grp flex gap-2 justify-center">
-                <a href="/asset/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
-                <form action="/asset/delete/${asset.id}" method="post">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-outline-danger py-[2px] px-2"
-                        onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
-                </form>
-            </div>
-        </td>
-    </tr>
-    `;
+                            const row = `
+                                <tr>
+                                    <th class="align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.name}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.category}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.salvageVal}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.depreciation}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.status}</td>
+                                    <td class="w-40">
+                                        <div class="grp flex gap-2 justify-center">
+                                            <a href="{{ route('assetDetails', $asst->id) }}"
+                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                            >
+                                            <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                                        </a>
+                                        <form action="{{ route('asset.delete', $asst->id) }}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                                onclick="return confirm('Are you sure you want to delete this asset?');">
+                                                <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                            </button>
+                                        </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
                             tableBody.innerHTML += row;
                         });
                     }
@@ -191,7 +221,7 @@
         // DOMContentLoaded event to initialize all event listeners
         document.addEventListener('DOMContentLoaded', function () {
             const modalId = 'importModal';
-            
+
             // Modal open and close event listeners
             document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
             document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
