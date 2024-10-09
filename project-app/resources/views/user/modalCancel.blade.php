@@ -44,13 +44,12 @@
 
 <script>
     function showCancelModal(requestId) {
-        // Set the form action to cancel the specific request
         const form = document.getElementById('cancelForm');
-        form.action = `/requests/cancel/${requestId}`;
+            form.action = `/requests/cancel/${requestId}`;
 
-        // Show the modal
         document.getElementById('cancelRequestModal').classList.remove('hidden');
     }
+
 
     function hideModal() {
         // Hide the modal

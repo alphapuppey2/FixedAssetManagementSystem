@@ -14,6 +14,8 @@ use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\UserSideController;
+
 
 
 Route::get('/', function(){
@@ -168,16 +170,16 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
-    route::post('/maintenance/create', [MaintenanceController::class, 'createRequest'])->name('maintenance.create');
+    route::post('/maintenance/create', [UserSideController::class, 'createRequest'])->name('maintenance.create');
 
-    Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
+    Route::get('/assetdetails/{code}', [UserSideController::class, 'showDetails'])->name('qr.asset.details');
 
-    Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
+    route::get('/requests/list', [UserSideController::class, 'showRequestList'])->name('requests.list');
 
-    route::get('/requests/list', [MaintenanceController::class, 'showRequestList'])->name('requests.list');
+    route::post('/requests/cancel/{id}', [UserSideController::class, 'cancelRequest'])->name('requests.cancel');
 
-    route::post('/requests/cancel/{id}', [MaintenanceController::class, 'cancelRequest'])->name('requests.cancel');
 
+    //PROFFILE SECTION
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');

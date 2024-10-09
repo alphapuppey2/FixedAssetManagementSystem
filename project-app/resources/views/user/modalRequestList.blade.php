@@ -102,7 +102,7 @@
 
         <!-- Cancel Button (Only show if request is pending) -->
         <div id="cancelRequestButton" class="mt-4 text-right">
-            <button type="button" onclick="showCancelModal()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+            <button type="button" onclick="showDaCancelModal()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
                 Cancel Request
             </button>
         </div>
@@ -112,7 +112,7 @@
 <!-- Cancel Modal Structure -->
 <div id="cancelRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-lg mx-auto relative">
-        <button onclick="hideCancelModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
+        <button onclick="hideDaCancelModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -123,7 +123,7 @@
 
         <!-- Buttons -->
         <div class="flex justify-end space-x-3">
-            <button onclick="hideCancelModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">No</button>
+            <button onclick="hideDaCancelModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">No</button>
             <form id="cancelForm" method="POST">
                 @csrf
                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Yes</button>
@@ -173,12 +173,12 @@
         document.getElementById('viewModal').classList.remove('flex');
     }
 
-    function showCancelModal() {
+    function showDaCancelModal() {
         // Show the cancel modal
         document.getElementById('cancelRequestModal').classList.remove('hidden');
     }
 
-    function hideCancelModal() {
+    function hideDaCancelModal() {
         // Hide the cancel modal
         document.getElementById('cancelRequestModal').classList.add('hidden');
     }

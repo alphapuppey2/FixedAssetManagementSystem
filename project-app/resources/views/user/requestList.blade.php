@@ -128,10 +128,11 @@
                     </button>
 
                     @if ($request->status === 'pending')
-                        <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                        </button>
-                    @endif
+                    <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                        <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                    </button>
+                @endif
+
                 </td>
             </tr>
         @endforeach
