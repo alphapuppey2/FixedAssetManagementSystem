@@ -25,9 +25,9 @@
     <div class="bodyContent relative h-full">
         @include('layouts.TopBar')
         @if (Auth::user()->usertype === 'admin')
-            @include('layouts.admin-sideBar')
+            @include('layouts.adminSidebar')
         @elseif(Auth::user()->usertype === 'dept_head')
-            @include('layouts.sideBar')
+            @include('layouts.deptHeadSideBar')
         @else
             @include('layouts.sideBarUser')
         @endif
