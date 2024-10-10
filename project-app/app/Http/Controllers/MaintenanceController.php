@@ -18,81 +18,6 @@ use App\Models\Preventive;
 class MaintenanceController extends Controller
 {
     // Show the list of maintenance requests based on user type and tab
-    // public function index(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
-    //     $searchQuery = $request->input('query', '');
-    //     $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
-
-    //     $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
-    //     // $query = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
-    //     // ->join('users', 'maintenance.requestor', '=', 'users.id') // Join with users table
-    //     // ->select('maintenance.*', 'users.firstname as requestor_name'); // Select requestor name
-
-    //     // Apply status filter based on the selected tab
-    //     if ($tab === 'requests') {
-    //         $query->where('maintenance.status', 'request');
-    //     } elseif ($tab === 'approved') {
-    //         $query->where('maintenance.status', 'approved');
-    //     } elseif ($tab === 'denied') {
-    //         $query->where('maintenance.status', 'denied');
-    //     }
-
-    //     // Apply department filter for department heads
-    //     if ($user->usertype === 'dept_head') {
-    //         $deptId = $user->dept_id;
-    //         $query->where('asset.dept_ID', $deptId);
-    //     } elseif ($user->usertype === 'user') {
-    //         $query->where('maintenance.requestor', $user->id);
-    //     } else {
-    //         return redirect()->route('user.home');
-    //     }
-
-    //     // Apply search filter
-    //     if ($searchQuery) {
-    //         $query->where(function ($q) use ($searchQuery) {
-    //             $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('maintenance.type', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere('maintenance.reason', 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%")
-    //                 ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%");
-    //         });
-    //     }
-
-    //     // Fetch the filtered and paginated results
-    //     // $requests = $query->paginate(7);
-    //     // $requests = $query->select('maintenance.*')->paginate(7);
-    //     $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
-    //         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-    //         ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
-    //         ->select('maintenance.*', DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"), 'category.name AS category_name', 'location.name AS location_name', 'asset.code as asset_code')
-    //         ->paginate($perPage);
-
-    //     // Return the view with the filtered requests and selected tab
-    //     if ($user->usertype === 'dept_head') {
-    //         return view('dept_head.maintenance', [
-    //             'requests' => $requests,
-    //             'tab' => $tab,
-    //             'searchQuery' => $searchQuery,
-    //             'perPage' => $perPage,  // Passing the search query
-    //         ]);
-    //     } else {
-    //         return view('user.requestList', [
-    //             'requests' => $requests,
-    //             'searchQuery' => $searchQuery,
-    //             'perPage' => $perPage,  // Passing the search query
-    //         ]);
-    //     }
-    // }
-
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -182,29 +107,6 @@ class MaintenanceController extends Controller
     }
 
     // Show the list of maintenance requests for the department head
-    // public function requests()
-    // {
-    //     $user = Auth::user();
-
-    //     if ($user->usertype === 'dept_head') {
-    //         $deptId = $user->dept_id;
-
-    //         $requests = Maintenance::join('asset', 'maintenance.asset_key', '=', 'asset.id')
-    //             ->where('asset.dept_ID', $deptId)
-    //             ->where('maintenance.status', 'request')
-    //             ->select('maintenance.*')
-    //             ->get();
-
-    //             return view('dept_head.maintenance', [
-    //                 'requests' => $requests,
-    //                 'tab' => 'requests' // Default tab
-    //             ]);
-    //     }
-
-    //     return redirect()->route('user.home');
-    // }
-
-
     public function requests(Request $request)
     {
         $user = Auth::user();
@@ -236,44 +138,6 @@ class MaintenanceController extends Controller
     }
 
     // Show the list of approved maintenance requests
-    // public function approved(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $searchQuery = ''; // Initialize to empty string
-    //     $perPage = $request->input('rows_per_page', 10);
-
-    //     $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
-    //         ->where('maintenance.status', 'approved')
-    //         ->select('maintenance.*');
-
-    //     if ($user->usertype === 'dept_head') {
-    //         $deptId = $user->dept_id;
-    //         $query->where('asset.dept_ID', $deptId);
-    //     } else {
-    //         return redirect()->route('user.home');
-    //     }
-
-    //     // $requests = $query->get();
-    //     $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-    //         ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-    //         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-    //         ->select(
-    //             'maintenance.*',
-    //             DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
-    //             DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
-    //             'category.name AS category_name',
-    //             'asset.code as asset_code'
-    //         )
-    //         ->paginate($perPage);
-
-    //     return view('dept_head.maintenance', [
-    //         'requests' => $requests,
-    //         'tab' => 'approved',
-    //         'searchQuery' => $searchQuery,
-    //         'perPage' => $perPage, // Passing an empty search query
-    //     ]);
-    // }
-
     public function approved(Request $request)
     {
         $user = Auth::user();
@@ -329,43 +193,6 @@ class MaintenanceController extends Controller
 
 
     // Show the list of denied maintenance requests
-    // public function denied(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     $searchQuery = ''; // Initialize to empty string
-    //     $perPage = $request->input('rows_per_page', 10);
-
-    //     $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
-    //         ->where('maintenance.status', 'denied')
-    //         ->select('maintenance.*');
-
-    //     if ($user->usertype === 'dept_head') {
-    //         $deptId = $user->dept_id;
-    //         $query->where('asset.dept_ID', $deptId);
-    //     } else {
-    //         return redirect()->route('user.home');
-    //     }
-
-    //     // $requests = $query->get();
-    //     $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-    //         ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-    //         ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-    //         ->select(
-    //             'maintenance.*',
-    //             DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
-    //             DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"),
-    //             'category.name AS category_name',
-    //             'asset.code as asset_code'
-    //         )
-    //         ->paginate($perPage);
-
-    //     return view('dept_head.maintenance', [
-    //         'requests' => $requests,
-    //         'tab' => 'denied',
-    //         'searchQuery' => $searchQuery,
-    //         'perPage' => $perPage, // Passing an empty search query
-    //     ]);
-    // }
 
     public function denied(Request $request)
     {

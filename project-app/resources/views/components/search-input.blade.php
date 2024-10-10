@@ -18,7 +18,6 @@
     </button>
 </div>
 
-
 <script>
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearBtn');
