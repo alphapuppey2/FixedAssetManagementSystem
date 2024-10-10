@@ -36,8 +36,9 @@
                 INVALID
             </div>
         @endif
-        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative w-full min-h-full grid grid-row-[1fr_minmax(50%,100px)] gap-2"
-            method="POST" enctype="multipart/form-data">
+        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}"
+            class="details relative w-full min-h-full grid grid-row-[1fr_minmax(50%,100px)] gap-2" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -50,7 +51,8 @@
                                 class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
                                 alt="Asset Image">
                         </div>
-                        <label class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
+                        <label
+                            class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
                             for="image">
                             <img src="{{ asset('storage/' . $imagePath) }}" id="imageDisplay"
                                 class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
@@ -102,7 +104,8 @@
                         <div class="form-group edit hidden">
                             <select name="category" id="category" class="w-full">
                                 @foreach ($categories['ctglist'] as $category)
-                                    <option value={{ $category->id }} @selected($data->category == $category->name)>{{ $category->name }}</option>
+                                    <option value={{ $category->id }} @selected($data->category == $category->name)>{{ $category->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -110,7 +113,8 @@
                     <div class="info flex pb-1 items-center">
                         <label class="field-label mr-3 capitalize text-slate-400">lifespan</label>
                         <div class="field-Info font-semibold">{{ $data->usage_Lifespan }}</div>
-                        <x-text-input class="text-sm edit hidden" id="usage" name="usage" value="{{ $data->usage_Lifespan }}" />
+                        <x-text-input class="text-sm edit hidden" id="usage" name="usage"
+                            value="{{ $data->usage_Lifespan }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
                         <div class="field-label mr-3 capitalize text-slate-400">Model</div>
@@ -118,7 +122,8 @@
                         <div class="form-group edit hidden">
                             <select name="mod" id="mod" class="w-full flex flex-col">
                                 @foreach ($model['mod'] as $model)
-                                    <option value={{ $model->id }} @selected($data->model == $model->name)>{{ $model->name }}</option>
+                                    <option value={{ $model->id }} @selected($data->model == $model->name)>{{ $model->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -129,7 +134,8 @@
                         <div class="form-group edit hidden">
                             <select name="mcft" id="mcft" class="w-full">
                                 @foreach ($manufacturer['mcft'] as $manufacturer)
-                                    <option value={{ $manufacturer->id }} @selected($data->manufacturer == $manufacturer->name)>{{ $manufacturer->name }}</option>
+                                    <option value={{ $manufacturer->id }} @selected($data->manufacturer == $manufacturer->name)>
+                                        {{ $manufacturer->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -140,7 +146,8 @@
                         <div class="form-group edit hidden">
                             <select name="loc" id="loc" class="w-full">
                                 @foreach ($location['locs'] as $location)
-                                    <option value={{ $location->id }} @selected($data->location == $location->name)>{{ $location->name }}</option>
+                                    <option value={{ $location->id }} @selected($data->location == $location->name)>{{ $location->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -151,7 +158,8 @@
                         <div class="form-group edit hidden">
                             <select name="status" id="status" class="w-full">
                                 @foreach ($status['sts'] as $stats)
-                                    <option value="{{ $stats }}" @selected($data->status == $stats)>{{ $stats }}</option>
+                                    <option value="{{ $stats }}" @selected($data->status == $stats)>{{ $stats }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -173,21 +181,19 @@
                             @if ($fields)
                                 @foreach ($fields as $key => $value)
                                     <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
-                                        <div class="field-Info customField capitalize text-slate-400">{{ $key }}</div>
+                                        <div class="field-Info customField capitalize text-slate-400">{{ $key }}
+                                        </div>
                                         <div class="field-Info customField">{{ $value }}</div>
-                                        <x-text-input class="edit hidden" name="field[key][]" value="{{ $key }}" />
-                                        <x-text-input class="edit hidden" name="field[value][]" value="{{ $value }}" />
+                                        <x-text-input class="edit hidden" name="field[key][]"
+                                            value="{{ $key }}" />
+                                        <x-text-input class="edit hidden" name="field[value][]"
+                                            value="{{ $value }}" />
                                     </div>
                                 @endforeach
                             @else
                                 <div class="noneField">No Additional Information</div>
                             @endif
                         </div>
-                    </div>
-                    <div class="flex w-full justify-center edit hidden">
-                        <button id='addMoreFields' class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">
-                            Add Field
-                        </button>
                     </div>
                 </div>
             </div>
@@ -200,19 +206,32 @@
                         <a href="{{ route('asset.history', $data->id) }}" class="text-[12px] text-blue-500"> VIEW ALL</a>
                     </div>
                     <div class="divider w-full h-[1px] border-1 border-slate-500 mt-2 mb-2"></div>
-                    <table class="w-full">
-                        <thead>
-                            <th>Work Description</th>
-                            <th>Date</th>
-                            <th>Date Completed</th>
-                            <th>Status</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan='4' class="text-center">NO MAINTENANCE HISTORY</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="tableContainer">
+                        <table>
+                            <thead>
+                                <th>User</th>
+                                <th>Reason</th>
+                                <th>Cost</th>
+                                <th>Complete</th>
+                            </thead>
+                            <tbody>
+                                @if (isset($assetRet) && count($assetRet) > 0)
+                                    @foreach ($assetRet as $item)
+                                        <tr>
+                                            <td >{{ $item->lname.' , '.$item->fname }}</td>
+                                            <td >{{ $item->reason }}</td>
+                                            <td >{{ $item->cost }}</td>
+                                            <td  class="text-slate-400">{{ $item->complete }}</td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan='4' class="text-center">NO MAINTENANCE HISTORY</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
         </form>
     </div>

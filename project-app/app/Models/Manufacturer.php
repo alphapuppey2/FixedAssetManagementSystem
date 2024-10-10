@@ -14,6 +14,7 @@ class Manufacturer extends Model
         'id',
         'name',
         'description',
+        'dept_ID',
         'created_at',
         'updated_at'
     ] ;

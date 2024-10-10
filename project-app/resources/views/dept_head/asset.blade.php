@@ -24,13 +24,6 @@
             </div>
         </div>
     </div>
-
-    <div id="dataModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <p>No data available!</p>
-        </div>
-    </div>
 @endsection
 
 @section('content')
@@ -126,11 +119,18 @@
     @include('dept_head.modal.modalImportAsset')
 
     @if (session('success'))
-    <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-        {{ session('success') }}
-    </div>
+        <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+            {{ session('success') }}
+        </div>
     @endif
+    @if (session('failed'))
+    <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+        {{ session('failed') }}
+    </div>
+@endif
     @vite(['resources/js/flashNotification.js'])
+
+    <!-- JavaScript -->
     <script>
         // Function to open the modal
         function openModal(modalId) {
@@ -175,6 +175,47 @@
                     .then(data => {
                         tableBody.innerHTML = ''; // Clear current table rows
 
+                    if (data.length === 0) {
+                        const noResultsRow = `
+                            <tr class="text-center text-gray-800">
+                                <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML = noResultsRow;
+                    } else {
+                        data.forEach(asset => {
+                            const row = `
+                                <tr>
+                                    <th class="align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.name}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.category}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.salvageVal}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.depreciation}</td>
+                                    <td class="align-middle text-center text-sm text-gray-900">${asset.status}</td>
+                                    <td class="w-40">
+                                        <div class="grp flex gap-2 justify-center">
+                                            <a href="/assetDetails/${asset.id}"
+                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                            >
+                                            <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                                        </a>
+                                        <form action="asset/delete/${asset.id}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                                onclick="return confirm('Are you sure you want to delete this asset?');">
+                                                <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                            </button>
+                                        </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        });
+                    }
+                })
+                .catch(error => console.log('Error:', error));
                         if (data.length === 0) {
                             const noResultsRow = `
                                 <tr class="text-center text-gray-800">
@@ -211,10 +252,10 @@
                     .catch(error => console.log('Error:', error));
             });
         }
-
         // DOMContentLoaded event to initialize all event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const modalId = 'importModal';
+
 
             // Modal open and close event listeners
             document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
