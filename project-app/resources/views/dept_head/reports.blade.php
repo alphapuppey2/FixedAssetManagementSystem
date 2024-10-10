@@ -9,29 +9,39 @@
     <div class="px-6 py-4">
         <!-- Top Section -->
         <div class="flex justify-between items-center mb-6">
-            <!-- Search Bar -->
-            <div class="flex items-center w-1/2">
+            <!-- Search Bar and Date Filters -->
+            <div class="flex items-center w-1/2 space-x-4">
+                <!-- Search Bar -->
                 <form action="" method="GET" class="w-full">
-                    <input type="hidden" name="tab" value=""> <!-- Include the current tab -->
+                    <input type="hidden" name="tab" value="">
                     <input type="text" name="query" placeholder="Search..." value="" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </form>
             </div>
 
-            <!-- Right Section: Download Icon and Customize Report Button -->
+            <!-- Right Section: Refresh Icon, Export Icon, and Customize Button -->
             <div class="flex items-center space-x-4">
                 <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                    {{-- <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query --> --}}
                     <button id="refreshButton" class="p-2 text-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
                     </button>
                 </form>
-                <a href="#" class="p-2 text-gray-700 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                    </svg>
-                </a>
+                <!-- Export Dropdown Button -->
+                <div class="relative group">
+                    <button class="p-2 text-black flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        <span class="ml-2">Export</span>
+                    </button>
+                    <!-- Dropdown Content -->
+                    <div class="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg hidden group-hover:block z-10">
+                        <a href="{{ route('reports.export', ['format' => 'csv']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as CSV</a>
+                        <a href="{{ route('reports.export', ['format' => 'xlsx']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as Excel</a>
+                        <a href="{{ route('reports.export', ['format' => 'pdf']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as PDF</a>
+                    </div>
+                </div>
                 <button onclick="openModal()" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -57,6 +67,40 @@
                 </form>
             </div>
 
+            <div>
+
+                <form action="{{ route(Route::currentRouteName()) }}" method="GET" class="flex items-center space-x-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="date_filter" value="today" {{ request('date_filter') == 'today' ? 'checked' : '' }} class="mr-2 ml-5">
+                        <span>Today</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="date_filter" value="weekly" {{ request('date_filter') == 'weekly' ? 'checked' : '' }} class="mr-2">
+                        <span>Weekly</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="date_filter" value="monthly" {{ request('date_filter') == 'monthly' ? 'checked' : '' }} class="mr-2">
+                        <span>Monthly</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="date_filter" value="yearly" {{ request('date_filter') == 'yearly' ? 'checked' : '' }} class="mr-2">
+                        <span>Yearly</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="date_filter" value="custom" {{ request('date_filter') == 'custom' ? 'checked' : '' }} class="mr-2">
+                        <span>Custom Range:</span>
+                        <input type="date" name="start_date" class="border rounded-md p-2" value="{{ request('start_date') }}">
+                        <span>to</span>
+                        <input type="date" name="end_date" class="border rounded-md p-2 bg-gray-200" value="{{ date('Y-m-d') }}" readonly>
+                    </label>
+                    <!-- Apply Button -->
+                    <button type="submit" class="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none">
+                        Apply
+                    </button>
+                </form>
+
+            </div>
+
             <!-- Pagination (on the right) -->
             <div class="ml-auto">
                 {{ $assetData->appends(['rows_per_page' => $perPage, 'query' => request('query')])->links() }} <!-- Pagination Links -->
@@ -76,32 +120,41 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-            @foreach($assetData as $row)
-                <tr class="hover:bg-gray-50">
-                    @foreach($selectedColumns as $column)
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            @if($column == 'ctg_ID')
-                                {{ $row->category_name ?? 'N/A' }}
-                            @elseif($column == 'dept_ID')
-                                {{ $row->department_name ?? 'N/A' }}
-                            @elseif($column == 'manufacturer_key')
-                                {{ $row->manufacturer_name ?? 'N/A' }}
-                            @elseif($column == 'model_key')
-                                {{ $row->model_name ?? 'N/A' }}
-                            @elseif($column == 'loc_key')
-                                {{ $row->location_name ?? 'N/A' }}
-                            @elseif($column == 'status')
-                                {{ ucfirst($row->status) }}
-                            @else
-                                {{ $row->$column }}
-                            @endif
-                        </td>
-                    @endforeach
+            @if($assetData->isEmpty())
+                <tr>
+                    <td colspan="{{ count($selectedColumns) }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                        No data within this time frame
+                    </td>
                 </tr>
-            @endforeach
+            @else
+                @foreach($assetData as $row)
+                    <tr class="hover:bg-gray-50">
+                        @foreach($selectedColumns as $column)
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                @if($column == 'ctg_ID')
+                                    {{ $row->category_name ?? 'N/A' }}
+                                @elseif($column == 'dept_ID')
+                                    {{ $row->department_name ?? 'N/A' }}
+                                @elseif($column == 'manufacturer_key')
+                                    {{ $row->manufacturer_name ?? 'N/A' }}
+                                @elseif($column == 'model_key')
+                                    {{ $row->model_name ?? 'N/A' }}
+                                @elseif($column == 'loc_key')
+                                    {{ $row->location_name ?? 'N/A' }}
+                                @elseif($column == 'status')
+                                    {{ ucfirst($row->status) }}
+                                @else
+                                    {{ $row->$column }}
+                                @endif
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 </div>
+
 
 
     </div>
@@ -202,9 +255,6 @@
     </div>
 </div>
 
-
-
-
 <!-- Include jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -214,6 +264,11 @@
 <!-- Include Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 
+<script>
+    document.querySelector('input[name="start_date"]').addEventListener('focus', function() {
+        document.querySelector('input[value="custom"]').checked = true;
+    });
+</script>
 
 <script>
     function openModal() {
@@ -248,16 +303,21 @@
     fetch('/save-report-columns', {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Ensure this is being rendered by Laravel
             'Accept': 'application/json',
         },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Update the table based on the selected columns
-            updateTable(data.columns);
+            // Fetch updated data and update the table
+            fetchUpdatedReportData(data.columns);
             closeModal();
         } else {
             alert('Failed to save columns.');
@@ -270,24 +330,63 @@
 }
 
 
-    function updateTable(columns) {
-        // Clear the current table headers and rows
-        const tableHead = document.querySelector('table thead tr');
-        tableHead.innerHTML = '';
+function fetchUpdatedReportData(columns) {
+    const params = new URLSearchParams();
+    columns.forEach(column => params.append('columns[]', column));
 
-        // Add new headers based on the selected columns
+    fetch('/fetch-report-data?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateTable(data.columns, data.assetData);
+        } else {
+            alert('Failed to fetch updated report data.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching updated data.');
+    });
+}
+
+function updateTable(columns, assetData) {
+    // Clear the current table headers and rows
+    const tableHead = document.querySelector('table thead tr');
+    tableHead.innerHTML = '';
+
+    // Add new headers based on the selected columns
+    columns.forEach(column => {
+        const th = document.createElement('th');
+        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+        th.textContent = column.replace('_', ' ').toUpperCase();
+        tableHead.appendChild(th);
+    });
+
+    // Clear the current table body
+    const tableBody = document.querySelector('table tbody');
+    tableBody.innerHTML = '';
+
+    // Add new rows based on the fetched data
+    assetData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50';
+
         columns.forEach(column => {
-            const th = document.createElement('th');
-            th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
-            th.textContent = column.replace('_', ' ').toUpperCase();
-            tableHead.appendChild(th);
+            const td = document.createElement('td');
+            td.className = 'px-6 py-4 text-sm text-gray-900';
+            td.textContent = row[column] || 'N/A'; // Display 'N/A' if the column data is null
+            tr.appendChild(td);
         });
 
-        // You may also want to clear and update the table body based on the new columns
-        const tableBody = document.querySelector('table tbody');
-        tableBody.innerHTML = '';
-        // You can add logic here to load the data for the selected columns
-    }
+        tableBody.appendChild(tr);
+    });
+}
+
 
     function toggleSelectAll(selectAllCheckbox) {
         const checkboxes = document.querySelectorAll('.column-checkbox');
