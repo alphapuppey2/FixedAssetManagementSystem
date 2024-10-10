@@ -85,6 +85,12 @@
                     </x-nav-link>
                 </ul>
             </li>
+            <li>
+                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('adminMaintenance')" :active="request()->routeIs('adminMaintenance')">
+                    <x-wrenchicon />
+                    <span class="ml-2 sm:hidden lg:block">Maintenance</span>
+                </x-nav-link>
+            </li>
 
             <!-- Log out button moves down dynamically -->
             <li class="mt-auto">
@@ -92,7 +98,7 @@
                     @csrf
                     <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
                             onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-icons.logoutIcon />
+                        <x-logoutIcon />
                         <span class="ml-2 sm:hidden lg:block">Log out</span>
                     </button>
                 </form>
