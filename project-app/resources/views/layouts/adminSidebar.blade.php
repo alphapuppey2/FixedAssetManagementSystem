@@ -134,7 +134,7 @@
                     @csrf
                     <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
                         onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-logoutIcon />
+                        <x-icons.logout-icon />
                         <span class="ml-2 sm:hidden lg:block">Log out</span>
                     </button>
                 </form>
