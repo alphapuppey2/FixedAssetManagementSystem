@@ -62,7 +62,8 @@
                                     {{ $asst->salvageVal }}</td>
                                 <td class="align-middle text-center text-sm text-gray-900 py-2 ">
                                     {{ $asst->depreciation }}</td>
-                                <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->status }}
+                                {{-- <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->status }} --}}
+                                <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ Str::of($asst->status)->replace('_', ' ')->title() }}</td>
                                 </td>
                                 <td class="w-40">
                                     <div class="grp flex gap-2 justify-center">
