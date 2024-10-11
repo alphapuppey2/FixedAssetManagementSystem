@@ -70,6 +70,11 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
 
+    // MAINTENANCE
+    Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
+    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approved'])->name('adminMaintenanceAproved');
+    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'denied'])->name('adminMaintenanceDenied');
+
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
         return view('admin.profile');

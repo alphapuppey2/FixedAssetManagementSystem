@@ -607,12 +607,7 @@ class AsstController extends Controller
             $headers = $request->input('headers');
             $rows = $request->input('rows');
 
-
-            // \Log::info('Parsed Headers:', ['headers' => $headers]); // Pass headers as an array
-            // \Log::info('Parsed Rows:', ['rows' => $rows]); // Pass rows as an array
-
             if (!$rows || count($rows) == 0) {
-                // \Log::error('No rows provided in the request.');
                 return response()->json(['success' => false, 'message' => 'No rows provided.'], 400);
             }
 
@@ -620,12 +615,10 @@ class AsstController extends Controller
 
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
-                    // \Log::warning('Row with missing columns detected:', ['row' => $row]);
                     continue;
                 }
 
                 $rowData = array_combine($headers, $row);
-                // \Log::info('Mapped Row Data:', ['rowData' => $rowData]);
 
                 $category = category::firstOrCreate(
                     ['name' => $rowData['category'], 'dept_ID' => $userDept],
@@ -644,14 +637,28 @@ class AsstController extends Controller
                     ['description' => 'new item description']
                 );
 
-                $department = DB::table('department')->where('id', $userDept)->get();
-                $departmentCode = $department[0]->name;
+                $department = DB::table('department')->where('id', $userDept)->first();
+                $departmentCode = $department->name;
                 $lastID = department::where('name', $departmentCode)->max('assetSequence');
                 $seq = $lastID ? $lastID + 1 : 1;
                 $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
                 department::where('id', $userDept)->increment('assetSequence', 1);
 
+                $qrCodePath = 'qrcodes/' . $assetCode . '.png';  // Path to store the QR code
+                $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+                // Ensure the directory exists
+                if (!file_exists(storage_path('app/public/qrcodes'))) {
+                    mkdir(storage_path('app/public/qrcodes'), 0777, true);
+                }
+
+                // Generate the QR code
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+                    ->size(250)
+                    ->generate($assetCode, $qrStoragePath);
+
                 try {
+                    // Create the asset
                     assetModel::create([
                         'code' => $assetCode,
                         'name' => $rowData['name'],
@@ -665,17 +672,15 @@ class AsstController extends Controller
                         'loc_key' => $location->id,
                         'dept_ID' => $userDept,
                         'status' => $rowData['status'] ?? 'active',
+                        'qr' => $qrCodePath,  // Store the path to the QR code image file
                     ]);
-                    // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
                 } catch (\Exception $e) {
-                    // \Log::error('Error inserting asset: ' . $e->getMessage());
                     Log::error('Error inserting asset: ' . $e->getMessage());
                 }
             }
 
             return response()->json(['success' => true, 'message' => 'CSV uploaded successfully']);
         } catch (\Throwable $th) {
-            // \Log::error('Error uploading CSV: ' . $th->getMessage());
             return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
         }
     }

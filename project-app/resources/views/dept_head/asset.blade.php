@@ -19,7 +19,6 @@
                     <x-icons.exportIcon />
                 </span>
             </button>
-
             <div class="searchBox">
                 <x-text-input name="search" id="searchFilt" placeholder="Search" />
             </div>
@@ -46,7 +45,7 @@
                     <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         status</th>
                     <th class="px-6 py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    </th>
+                        Actions</th>
                 </thead>
                 <tbody id="table-body">
                     @if (!$asset->isEmpty())
@@ -85,9 +84,9 @@
                             </tr>
                         @endforeach
                     @else
-                        <tr class="text-center text-gray-800">
-                            <td colspan='7' style="color: rgb(177, 177, 177)">No List</td>
-                        </tr>
+                    <tr class="text-center text-gray-800">
+                        <td colspan='7' style="color: rgb(177, 177, 177)">No List</td>
+                    </tr>
                     @endif
                 </tbody>
             </table>
@@ -95,21 +94,21 @@
         <div class="page flex justify-between px-4 py-3">
             <div class="paginator">
                 @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
-                    <div class="">
-                        <!-- Number of Items Loaded -->
-                        <!-- <div class="text-gray-600">
-                            Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
-                                class="font-semibold">{{ $asset->lastItem() }}</span> of <span
-                                class="font-semibold">{{ $asset->total() }}</span> items
-                        </div> -->
+                <div class="">
+                    <!-- Number of Items Loaded -->
+                    <!-- <div class="text-gray-600">
+                                Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
+                                    class="font-semibold">{{ $asset->lastItem() }}</span> of <span
+                                    class="font-semibold">{{ $asset->total() }}</span> items
+                            </div> -->
 
-                        <!-- Pagination Buttons -->
-                        <div class="">
-                            <div class="text-gray-500">
-                                {{ $asset->appends(['query' => request()->query('query')])->links() }}
-                            </div>
+                    <!-- Pagination Buttons -->
+                    <div class="">
+                        <div class="text-gray-500">
+                            {{ $asset->appends(['query' => request()->query('query')])->links() }}
                         </div>
                     </div>
+                </div>
                 @endif
             </div>
         </div>
@@ -156,23 +155,23 @@
             const input = document.getElementById(inputId);
             const tableBody = document.getElementById(tableBodyId);
 
-            input.addEventListener('keyup', function () {
+            input.addEventListener('keyup', function() {
                 const query = input.value;
 
                 fetch(`/asset/search/row?search=${query}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    tableBody.innerHTML = ''; // Clear current table rows
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        tableBody.innerHTML = ''; // Clear current table rows
 
                     if (data.length === 0) {
                         const noResultsRow = `
@@ -215,11 +214,46 @@
                     }
                 })
                 .catch(error => console.log('Error:', error));
+                        if (data.length === 0) {
+                            const noResultsRow = `
+                                <tr class="text-center text-gray-800">
+                                    <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML = noResultsRow;
+                        } else {
+                            data.forEach(asset => {
+                                const row = `
+                                    <tr>
+                                        <th class="align-middle" scope="col">${asset.code ? asset.code : 'NONE'}</th>
+                                        <td class="align-middle">${asset.name}</td>
+                                        <td class="align-middle">${asset.category}</td>
+                                        <td class="align-middle">${asset.salvageVal}</td>
+                                        <td class="align-middle">${asset.depreciation}</td>
+                                        <td class="align-middle">${asset.status}</td>
+                                        <td class="w-40">
+                                            <div class="grp flex justify-between">
+                                                <a href="/assetDetails/${asset.id}" class="btn btn-outline-primary py-[2px] px-2">view</a>
+                                                <form action="/asset/delete/${asset.id}" method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-outline-danger py-[2px] px-2" onclick="return confirm('Are you sure you want to delete this asset?');">delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                                tableBody.innerHTML += row;
+                            });
+                        }
+                    })
+                    .catch(error => console.log('Error:', error));
             });
         }
         // DOMContentLoaded event to initialize all event listeners
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const modalId = 'importModal';
+
 
             // Modal open and close event listeners
             document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
