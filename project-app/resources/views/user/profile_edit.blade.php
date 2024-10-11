@@ -2,7 +2,7 @@
 @extends('user.home')
 @include('components.icons')
 
-@section('profile_edit-content')
+@section('content')
 <div class="max-w-xl mx-auto">
 
     <!-- Profile Edit Form -->
