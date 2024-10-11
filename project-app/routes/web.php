@@ -15,6 +15,8 @@ use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\UserSideController;
+use App\Http\Controllers\ReportController;
+
 
 
 
@@ -166,6 +168,9 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     })->name('dept_head.profile_password');
 
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
+    //Reports
+
+    Route::get('/reports', [ReportController::class, 'maintenanceReport'])->name('reports');
 
 });
 
