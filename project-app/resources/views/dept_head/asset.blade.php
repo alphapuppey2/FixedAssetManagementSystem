@@ -67,12 +67,12 @@
                                 </td>
                                 <td class="w-40">
                                     <div class="grp flex gap-2 justify-center">
-                                        <a href="{{ route('assetDetails', $asst->id) }}"
+                                        <a href="{{ route('assetDetails', $asst->code) }}"
                                             class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
                                             >
                                             <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                                         </a>
-                                        <form action="{{ route('asset.delete', $asst->id) }}" method="post">
+                                        <form action="{{ route('asset.delete', $asst->code) }}" method="post">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
@@ -193,12 +193,12 @@
                                     <td class="align-middle text-center text-sm text-gray-900">${asset.status}</td>
                                     <td class="w-40">
                                         <div class="grp flex gap-2 justify-center">
-                                            <a href="/assetDetails/${asset.id}"
+                                            <a href="/assetDetails/${asset.code}"
                                             class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
                                             >
                                             <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                                         </a>
-                                        <form action="asset/delete/${asset.id}" method="post">
+                                        <form action="asset/delete/${asset.code}" method="post">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"

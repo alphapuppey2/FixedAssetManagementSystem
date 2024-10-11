@@ -98,6 +98,8 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+    Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
+
 
 
     // IMPORT
@@ -125,7 +127,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
+    Route::get('/assets/details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
     Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
