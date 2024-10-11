@@ -14,6 +14,7 @@ use App\Exports\AssetReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+
 class ReportsController extends Controller
 {
     /**
@@ -82,7 +83,40 @@ class ReportsController extends Controller
                     break;
             }
         }
-    
+
+        // Calculate total assets
+        $totalAssets = $query->count();
+
+        // Calculate total cost if the 'cost' column is selected
+        $totalCost = null;
+        if (in_array('cost', $selectedColumns)) {
+            $totalCost = $query->sum('asset.cost');
+        }
+        
+        // Determine the date display based on the selected filter
+        $dateDisplay = '';
+        switch ($dateFilter) {
+            case 'today':
+                $dateDisplay = now()->format('M d, Y');
+                break;
+            case 'weekly':
+                $dateDisplay = now()->startOfWeek()->format('M d, Y') . ' - ' . now()->endOfWeek()->format('M d, Y');
+                break;
+            case 'monthly':
+                $dateDisplay = now()->format('F Y');
+                break;
+            case 'yearly':
+                $dateDisplay = now()->format('Y');
+                break;
+            case 'custom':
+                if ($startDate && $endDate) {
+                    $dateDisplay = \Carbon\Carbon::parse($startDate)->format('M d, Y') . ' - ' . \Carbon\Carbon::parse($endDate)->format('M d, Y');
+                }
+                break;
+            default:
+                $dateDisplay = 'All Time';
+                break;
+        }
         // Fetch data with or without pagination
         $assetData = $isExport ? $query->get() : $query->paginate($perPage);
     
@@ -99,7 +133,10 @@ class ReportsController extends Controller
             'categories',
             'manufacturers',
             'models',
-            'locations'
+            'locations',
+            'totalAssets', // Add total assets
+            'totalCost', // Add total cost
+            'dateDisplay' // Add date display
         ));
     }
     
@@ -178,36 +215,127 @@ class ReportsController extends Controller
         }
     }
 
-
     public function export(Request $request)
     {
         $format = $request->query('format', 'csv');
-        $assetData = $this->showReports($request, true); // Pass true for export
         $selectedColumns = session('selected_report_columns', ['id', 'name', 'code', 'status', 'created_at']);
     
-        // if ($format === 'pdf') {
-        //     // Return as a regular HTML view for testing
-        //     return view('exports.asset_report', [
-        //         'assetData' => $assetData,
-        //         'selectedColumns' => $selectedColumns,
-        //     ]);
-        // }
+        // Start building the query for fetching data with the same logic as in showReports
+        $query = \DB::table('asset')
+            ->select('asset.*',
+                'category.name as category_name',
+                'department.name as department_name',
+                'manufacturer.name as manufacturer_name',
+                'model.name as model_name',
+                'location.name as location_name'
+            )
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+            ->leftJoin('department', 'asset.dept_ID', '=', 'department.id')
+            ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+            ->leftJoin('model', 'asset.model_key', '=', 'model.id')
+            ->leftJoin('location', 'asset.loc_key', '=', 'location.id');
     
+        // Apply date filters
+        $dateFilter = $request->query('date_filter'); // Use query() to get the date filter from the URL
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date', date('Y-m-d'));
+    
+        if ($dateFilter) {
+            switch ($dateFilter) {
+                case 'today':
+                    $query->whereDate('asset.created_at', '=', now()->toDateString());
+                    break;
+                case 'weekly':
+                    $query->whereBetween('asset.created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    break;
+                case 'monthly':
+                    $query->whereMonth('asset.created_at', now()->month)
+                          ->whereYear('asset.created_at', now()->year);
+                    break;
+                case 'yearly':
+                    $query->whereYear('asset.created_at', now()->year);
+                    break;
+                case 'custom':
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('asset.created_at', [$startDate, $endDate]);
+                    }
+                    break;
+            }
+        }
+    
+        // Fetch the data for export based on the applied filters
+        $assetData = $query->get();
+    
+        // Calculate total assets and total cost
+        $totalAssets = $assetData->count();
+        $totalCost = in_array('cost', $selectedColumns) ? $assetData->sum('cost') : null;
+    
+        // Determine the date display based on the selected filter
+        $dateDisplay = '';
+        switch ($dateFilter) {
+            case 'today':
+                $dateDisplay = now()->format('M d, Y');
+                break;
+            case 'weekly':
+                $dateDisplay = now()->startOfWeek()->format('M d, Y') . ' - ' . now()->endOfWeek()->format('M d, Y');
+                break;
+            case 'monthly':
+                $dateDisplay = now()->format('F Y');
+                break;
+            case 'yearly':
+                $dateDisplay = now()->format('Y');
+                break;
+            case 'custom':
+                if ($startDate && $endDate) {
+                    $dateDisplay = \Carbon\Carbon::parse($startDate)->format('M d, Y') . ' - ' . \Carbon\Carbon::parse($endDate)->format('M d, Y');
+                }
+                break;
+            default:
+                $dateDisplay = 'All Time';
+                break;
+        }
+    
+        // Pass the filtered data, columns, and additional information to the export class
+        $export = new AssetReportExport($assetData, $selectedColumns, $totalAssets, $totalCost, $dateDisplay);
+    
+        // Export based on the selected format
         switch ($format) {
             case 'xlsx':
-                return Excel::download(new AssetReportExport($assetData, $selectedColumns), 'asset_report.xlsx');
+                return Excel::download($export, 'asset_report.xlsx');
             case 'pdf':
                 $pdf = Pdf::loadView('exports.asset_report', [
                     'assetData' => $assetData,
                     'selectedColumns' => $selectedColumns,
+                    'totalAssets' => $totalAssets,
+                    'totalCost' => $totalCost,
+                    'dateDisplay' => $dateDisplay
                 ]);
                 return $pdf->download('asset_report.pdf');
             case 'csv':
             default:
-                return Excel::download(new AssetReportExport($assetData, $selectedColumns), 'asset_report.csv');
+                return Excel::download($export, 'asset_report.csv');
+        }
+    }
+    
+    public function resetColumns()
+    {
+        try {
+            // Clear the session data for selected columns
+            session()->forget('selected_report_columns');
+    
+            // Optionally, clear other session data related to filters if needed
+            session()->forget('selected_report_filters');
+    
+            \Log::info('Columns successfully reset'); // For debugging purposes
+    
+            // Return a success response
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error resetting columns: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'An error occurred while resetting columns.'], 500);
         }
     }
     
     
-
+    
 }

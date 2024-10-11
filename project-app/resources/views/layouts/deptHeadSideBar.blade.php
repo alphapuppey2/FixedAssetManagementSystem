@@ -68,7 +68,7 @@
                 </ul>
             </li>
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('reports.show')" :active="request()->routeIs('reports.show')">
                     <x-chartIcon></x-chartIcon>
                     <span class="ml-2 max-md:hidden lg:block">Report</span>
                 </x-nav-link>
@@ -90,7 +90,7 @@
                     @csrf
                     <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
                         onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-icons.logoutIcon />
+                        <x-icons.logout-icon />
                         <span class="ml-2 max-md:hidden lg:block">Log out</span>
                     </button>
                 </form>

@@ -27,25 +27,26 @@
                         </svg>
                     </button>
                 </form>
-                <!-- Export Dropdown Button -->
-                <div class="relative group">
-                    <button class="p-2 text-black flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
-                        <span class="ml-2">Export</span>
-                    </button>
+                <!-- Export Dropdown using form -->
+                <div class="relative">
+                    <form onsubmit="event.preventDefault(); toggleDropdown();" class="flex items-center">
+                        <button type="submit" class="p-2 text-black flex items-center w-12 h-12" title="Export">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                        </button>
+                    </form>
                     <!-- Dropdown Content -->
-                    <div class="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg hidden group-hover:block z-10">
-                        <a href="{{ route('reports.export', ['format' => 'csv']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as CSV</a>
-                        <a href="{{ route('reports.export', ['format' => 'xlsx']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as Excel</a>
-                        <a href="{{ route('reports.export', ['format' => 'pdf']) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as PDF</a>
-                    </div>
+                    <div id="exportDropdown" class="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg hidden z-10">
+                        <a href="{{ route('reports.export', ['format' => 'csv', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as CSV</a>
+                        <a href="{{ route('reports.export', ['format' => 'xlsx', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as Excel</a>
+                        <a href="{{ route('reports.export', ['format' => 'pdf', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as PDF</a>
+                    </div>                      
                 </div>
                 <button onclick="openModal()" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>                      
                     Customize Report
                 </button>
             </div>
@@ -69,35 +70,52 @@
 
             <div>
 
-                <form action="{{ route(Route::currentRouteName()) }}" method="GET" class="flex items-center space-x-4">
-                    <label class="flex items-center">
-                        <input type="radio" name="date_filter" value="today" {{ request('date_filter') == 'today' ? 'checked' : '' }} class="mr-2 ml-5">
-                        <span>Today</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="date_filter" value="weekly" {{ request('date_filter') == 'weekly' ? 'checked' : '' }} class="mr-2">
-                        <span>Weekly</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="date_filter" value="monthly" {{ request('date_filter') == 'monthly' ? 'checked' : '' }} class="mr-2">
-                        <span>Monthly</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="date_filter" value="yearly" {{ request('date_filter') == 'yearly' ? 'checked' : '' }} class="mr-2">
-                        <span>Yearly</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="date_filter" value="custom" {{ request('date_filter') == 'custom' ? 'checked' : '' }} class="mr-2">
-                        <span>Custom Range:</span>
-                        <input type="date" name="start_date" class="border rounded-md p-2" value="{{ request('start_date') }}">
-                        <span>to</span>
-                        <input type="date" name="end_date" class="border rounded-md p-2 bg-gray-200" value="{{ date('Y-m-d') }}" readonly>
-                    </label>
-                    <!-- Apply Button -->
-                    <button type="submit" class="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none">
-                        Apply
-                    </button>
-                </form>
+            <!-- Toast Notification for Success Messages -->
+            @if(session('status'))
+                <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <!-- Toast Notification for Error Messages -->
+            <div id="dateErrorToast" class="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg hidden">
+                End date cannot be earlier than the start date.
+            </div>
+
+            <!-- Date Filter Form -->
+            <form action="{{ route(Route::currentRouteName()) }}" method="GET" class="flex items-center space-x-4" onsubmit="return validateDateRange()">
+                <label class="flex items-center">
+                    <input type="radio" name="date_filter" value="today" {{ request('date_filter') == 'today' ? 'checked' : '' }} class="mr-2 ml-5">
+                    <span>Today</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="date_filter" value="weekly" {{ request('date_filter') == 'weekly' ? 'checked' : '' }} class="mr-2">
+                    <span>Week</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="date_filter" value="monthly" {{ request('date_filter') == 'monthly' ? 'checked' : '' }} class="mr-2">
+                    <span>Month</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="date_filter" value="yearly" {{ request('date_filter') == 'yearly' ? 'checked' : '' }} class="mr-2">
+                    <span>Year</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="date_filter" value="custom" {{ request('date_filter') == 'custom' ? 'checked' : '' }} class="mr-2">
+                    <span>Custom Range:</span>
+                    <input type="date" name="start_date" class="border rounded-md p-2" value="{{ request('start_date') }}">
+                    <span>to</span>
+                    <input type="date" name="end_date" class="border rounded-md p-2" value="{{ request('end_date', date('Y-m-d')) }}">
+                </label>
+                <!-- Apply Button -->
+                <button type="submit" class="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none">
+                    Apply
+                </button>
+                <!-- Reset Button -->
+                <button type="button" onclick="resetToDefault()" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none">
+                    Reset
+                </button>
+            </form>
 
             </div>
 
@@ -106,6 +124,25 @@
                 {{ $assetData->appends(['rows_per_page' => $perPage, 'query' => request('query')])->links() }} <!-- Pagination Links -->
             </div>
         </div>
+
+
+<!-- Total Assets, Total Cost, and Date Section -->
+<div class="mb-2">
+    <div class="flex justify-between items-center">
+        <span class="text-gray-800 font-medium">
+            <strong> Total Assets: {{ $totalAssets }}</strong>
+        </span>
+        @if($totalCost !== null)
+            <span class="text-gray-800 font-medium">
+                <strong>Total Cost: ₱{{ number_format($totalCost, 2) }}</strong>
+            </span>
+        @endif
+        <span class="text-gray-800 font-medium">
+            <strong> Date: {{ $dateDisplay }} </strong>
+        </span>
+    </div>
+</div>
+
 
 <!-- Table Section -->
 <div class="overflow-x-auto">
@@ -247,7 +284,9 @@
 
                 <!-- Actions -->
                 <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
+                        <!-- Reset Columns Button -->
+                    <button type="button" onclick="resetColumns()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Reset</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Cancel</button>
                     <button type="button" onclick="saveColumns()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save</button>
                 </div>
             </form>
@@ -265,7 +304,77 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 
 <script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('exportDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('exportDropdown');
+        const icon = event.target.closest('form'); // Check if the clicked element is inside the form containing the icon
+
+        // Close the dropdown if the click is outside the dropdown and the icon
+        if (!icon && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+</script>
+
+<script>
+    function resetToDefault() {
+        // Create a new URL object based on the current location
+        const url = new URL(window.location.href);
+
+        // Remove any query parameters to reset to the default view
+        url.searchParams.delete('query');
+        url.searchParams.delete('date_filter');
+        url.searchParams.delete('start_date');
+        url.searchParams.delete('end_date');
+        url.searchParams.delete('rows_per_page');
+        
+        // Redirect to the updated URL
+        window.location.href = url.toString();
+    }
+</script>
+
+<script>
+    function validateDateRange() {
+        const dateFilter = document.querySelector('input[name="date_filter"]:checked').value;
+        const startDate = document.querySelector('input[name="start_date"]').value;
+        const endDate = document.querySelector('input[name="end_date"]').value;
+        const dateErrorToast = document.getElementById('dateErrorToast');
+
+        // Hide the toast if it's already visible
+        dateErrorToast.classList.add('hidden');
+
+        // Validate only if the custom date filter is selected
+        if (dateFilter === 'custom' && new Date(endDate) < new Date(startDate)) {
+            // Show the toast notification
+            dateErrorToast.classList.remove('hidden');
+            // Hide the toast after 3 seconds
+            setTimeout(() => {
+                dateErrorToast.classList.add('hidden');
+            }, 3000);
+            return false; // Prevent form submission
+        }
+        return true; // Allow form submission
+    }
+
+    // Reset the date validation when changing the date filter
+    document.querySelectorAll('input[name="date_filter"]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+            // Hide the error toast when switching between date filters
+            document.getElementById('dateErrorToast').classList.add('hidden');
+        });
+    });
+</script>
+
+<script>
     document.querySelector('input[name="start_date"]').addEventListener('focus', function() {
+        document.querySelector('input[value="custom"]').checked = true;
+    });
+    document.querySelector('input[name="end_date"]').addEventListener('focus', function() {
         document.querySelector('input[value="custom"]').checked = true;
     });
 </script>
@@ -414,6 +523,74 @@ function updateTable(columns, assetData) {
     });
 </script>
 
+
+<script>
+function resetColumns() {
+    fetch('/reports/reset-columns', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status); // Log response status
+        return response.json(); // Parse response as JSON
+    })
+    .then(data => {
+        console.log('Response data:', data); // Log the data for debugging
+        if (data.success) {
+            // Show the success toast notification
+            showToast('Columns have been reset to default.', 'success');
+            fetchUpdatedReportData(['id', 'name', 'code', 'status', 'created_at']); // Load default columns
+        } else {
+            // If 'data.success' is false, show an error message
+            showToast(data.message || 'Failed to reset columns.', 'error');
+        }
+        // Close the modal after handling response
+        closeModal();
+    })
+    .catch(error => {
+        // Handle any unexpected errors
+        showToast('An error occurred while resetting columns.', 'error');
+        console.error('An error occurred while resetting columns:', error);
+        closeModal();
+    });
+}
+
+</script>
+
+
+<script>
+    // Function to show a toast notification using your existing setup
+    function showToast(message, type) {
+        let toast = document.getElementById(type === 'success' ? 'toast' : 'dateErrorToast');
+
+        // If the toast element does not exist, create it dynamically
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = type === 'success' ? 'toast' : 'dateErrorToast';
+            toast.className = 'fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg'; // Base styles
+            
+            // Additional styles based on type
+            if (type === 'success') {
+                toast.classList.add('bg-green-500', 'text-white');
+            } else {
+                toast.classList.add('bg-red-500', 'text-white');
+            }
+            
+            document.body.appendChild(toast);
+        }
+
+        // Set the message and make the toast visible
+        toast.textContent = message;
+        toast.classList.remove('hidden');
+
+        // Automatically hide the toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
+</script>
 
 
 @endsection
