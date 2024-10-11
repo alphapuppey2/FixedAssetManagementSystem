@@ -90,7 +90,7 @@
                     @csrf
                     <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
                         onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-icons.logoutIcon />
+                        <x-logoutIcon />
                         <span class="ml-2 max-md:hidden lg:block">Log out</span>
                     </button>
                 </form>

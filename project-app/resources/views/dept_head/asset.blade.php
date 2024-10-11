@@ -134,14 +134,24 @@
     <script>
         // Function to open the modal
         function openModal(modalId) {
+            console.log('Opening modal:', modalId);
             const modal = document.getElementById(modalId);
-            modal.classList.remove('hidden');
-        }
+            if (modal) {
+                modal.classList.remove('hidden');
+            } else {
+                console.log('Modal not found:', modalId);
+            }
+        }   
 
         // Function to close the modal
         function closeModal(modalId) {
+            console.log('Closing modal:', modalId);
             const modal = document.getElementById(modalId);
-            modal.classList.add('hidden');
+            if (modal) {
+                modal.classList.add('hidden');
+            } else {
+                console.log('Modal not found:', modalId);
+            }
         }
 
         // Function to handle modal close when clicking outside the modal
@@ -255,7 +265,6 @@
         // DOMContentLoaded event to initialize all event listeners
         document.addEventListener('DOMContentLoaded', function() {
             const modalId = 'importModal';
-
 
             // Modal open and close event listeners
             document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
