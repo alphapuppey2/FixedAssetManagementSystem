@@ -2,16 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
 class UserController extends Controller{
+    public function autocomplete(Request $request)
+{
+    try {
+        // Get and trim the query parameter
+        $query = trim($request->get('query'));
+
+        // Check if the query is empty, and if so, fetch all users (limited to a specified number)
+        if (empty($query)) {
+            $results = User::where('dept_id', Auth::user()->dept_id)->select('firstname', 'middlename', 'lastname')
+                ->take(10) // Limit to 10 users
+                ->get();
+        } else {
+            // If a query is provided, search for matching users
+            $results = User::where('firstname', 'LIKE', "%{$query}%")
+                ->orWhere('lastname', 'LIKE', "%{$query}%")
+                ->select('firstname', 'middlename', 'lastname')
+                ->take(10) // Limit to 10 results for better performance
+                ->get();
+        }
+
+        // Return the results with a 200 status
+        return response()->json($results, 200);
+    } catch (\Exception $e) {
+        // Log the error for debugging purposes
+        Log::error('Autocomplete error: ' . $e->getMessage());
+        // Return a generic error message
+        return response()->json(['error' => 'An unexpected server error occurred. Please try again later.'], 500); // Internal Server Error
+    }
+}
+
+
+
     // SHOWS USER LIST
     public function getUserList(Request $request){
         // Get the number of rows to display per page (default is 10)
@@ -23,7 +58,7 @@ class UserController extends Controller{
 
         return view('admin.userList', ['userList' => $userList]);
     }
-    
+
     // EDIT/UPDATE USER DETAILS
     public function update(Request $request){
         // Validate the request
@@ -111,7 +146,7 @@ class UserController extends Controller{
             ->orWhere('email', 'like', "%{$query}%")
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
-    
+
         return view('admin.userList', ['userList' => $userList]);
     }
 
