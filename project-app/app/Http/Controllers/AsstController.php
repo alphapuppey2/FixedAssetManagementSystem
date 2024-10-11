@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use LaravelDaily\LaravelCharts\Classes\LaravelChart;
 
 
 
@@ -89,24 +88,45 @@ class AsstController extends Controller
     }
 
     public function showDeptAsset()
-    {
-        $userDept = Auth::user()->dept_id;
+{
+    $userDept = Auth::user()->dept_id;
+
+    $asset = DB::table('asset')
+        ->join('department', 'asset.dept_ID', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', $userDept)
+        ->select(
+            'asset.id',
+            'asset.code',
+            'asset.name',
+            'asset.image',
+            'asset.cost',
+            'asset.salvageVal',
+            'asset.depreciation',
+            'asset.usage_Lifespan',
+            'asset.status',
+            'category.name as category',
+            'department.name as department'
+        )
+        ->orderByRaw("
+            CASE
+                WHEN asset.status = 'active' THEN 0
+                WHEN asset.status = 'under Maintenance' THEN 1
+                WHEN asset.status = 'deployed' THEN 2
+                WHEN asset.status = 'disposed' THEN 3
+                ELSE 4
+            END
+        ")
+        ->orderBy('code','asc')
+        ->orderBy('asset.created_at', 'desc') // Then sort by created_at
+        ->paginate(10);
+
+    return view("dept_head.asset", compact('asset'));
+}
 
 
-        $asset = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('asset.dept_ID', $userDept)
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderBy('asset.code', 'asc')
-            ->paginate(10);
 
-
-        // dd($asset);
-
-        return view("dept_head.asset", compact('asset'));
-    }
-
+    //Maintenance History of the
     public function showHistory($id)
     {
         //history of a Asset
@@ -411,7 +431,7 @@ class AsstController extends Controller
 
         try {
             // Assuming you are searching the 'name' and 'code' columns
-            $assets = assetModel::where('name', 'LIKE', "%{$search}%")
+            $assets = assetModel::where('dept_ID' , Auth::user()->dept_id)->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('code', 'LIKE', "%{$search}%")
                 ->get();
 
@@ -448,83 +468,89 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
 
-
     //If modify make sure to update show details in QRUserCotroller.php
     //Both same functionalities but different parameters
-    public function showDetails($id)
-    {
-        // Get the logged-in user's department ID and user type
-        $userDept = Auth::user()->dept_id;
-        $userType = Auth::user()->usertype;
+    public function showDetails($code)
+{
+    // Get the logged-in user's department ID and user type
+    $userDept = Auth::user()->dept_id;
+    $userType = Auth::user()->usertype;
 
-        // Retrieve necessary data from related tables
-        $department = ['list' => DB::table('department')->get()];
-        $categories = ['ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+    // Retrieve necessary data from related tables
+    $department = ['list' => DB::table('department')->get()];
+    $categories = [
+        'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
             return $query->where('dept_ID', $userDept);
-        })->get()];
-        $location = ['locs' => DB::table('location')->get()];
-        $model = ['mod' => DB::table('model')->get()];
-        $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
-        $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
+        })->get()
+    ];
+    $location = ['locs' => DB::table('location')->get()];
+    $model = ['mod' => DB::table('model')->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+    $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
 
-        // Build the query to retrieve the asset data based on the asset ID
-        $retrieveDataQuery = assetModel::where('asset.id', $id)
-            ->join('department', 'asset.dept_id', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->join('model', 'asset.model_key', '=', 'model.id')
-            ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
-            ->join('location', 'asset.loc_key', '=', 'location.id')
-            ->select(
-                'asset.id',
-                'asset.depreciation',
-                'asset.image',
-                'asset.name',
-                'asset.code',
-                'asset.cost',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
-                'asset.status',
-                'asset.custom_fields',
-                'asset.qr',  // Add the QR code path
-                'asset.created_at',
-                'asset.updated_at',
-                'category.name as category',
-                'model.name as model',
-                'location.name as location',
-                'manufacturer.name as manufacturer'
-            );
+    // Build the query to retrieve the asset data based on the asset code
+    $retrieveDataQuery = assetModel::where('asset.code', $code)
+        ->join('department', 'asset.dept_ID', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->join('model', 'asset.model_key', '=', 'model.id')
+        ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+        ->join('location', 'asset.loc_key', '=', 'location.id')
+        ->select(
+            'asset.id',
+            'asset.depreciation',
+            'asset.image',
+            'asset.name',
+            'asset.code',
+            'asset.cost',
+            'asset.salvageVal',
+            'asset.usage_Lifespan',
+            'asset.status',
+            'asset.custom_fields',
+            'asset.qr',  // Add the QR code path
+            'asset.created_at',
+            'asset.updated_at',
+            'category.name as category',
+            'model.name as model',
+            'location.name as location',
+            'manufacturer.name as manufacturer'
+        );
 
-        // If the user is not an admin, filter by dept_ID
-        if ($userType != 'admin') {
-            $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-        }
-
-        // Retrieve the asset data
-        $retrieveData = $retrieveDataQuery->first();
-
-        // If no asset is found, redirect with an error message
-        if (!$retrieveData) {
-            // Check the user type and redirect accordingly
-            if ($userType == 'admin') {
-                return redirect()->route('assetList')->with('error', 'Asset not found.');
-            } else {
-                return redirect()->route('asset')->with('error', 'Asset not found.');
-            }
-        }
-
-        // Decode the custom fields
-        $fields = json_decode($retrieveData->custom_fields, true);
-
-        $thisDepartment = $department['list']->firstWhere('name', "IT");
-
-
-
-        // Determine the view based on user type
-        $view = $userType == 'admin' ? 'admin.assetDetail' : 'dept_head.assetDetail';
-
-        // Return the appropriate view with the asset data, including the QR code
-        return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
+    // Apply department filter for dept_head and user
+    if ($userType != 'admin') {
+        $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
     }
+
+    // Retrieve the asset data
+    $retrieveData = $retrieveDataQuery->first();
+
+    // If no asset is found, redirect with an error message
+    if (!$retrieveData) {
+        return redirect()->route('asset')->with('error', 'Asset not found.');
+    }
+
+    // Decode the custom fields
+    $fields = json_decode($retrieveData->custom_fields, true);
+
+    // Retrieve related maintenance data for the asset
+    $assetRet = Maintenance::where('maintenance.completed', 1)
+        ->where('maintenance.requestor', 'user.id')
+        ->join('users', 'maintenance.requestor', '=', 'users.id')
+        ->select(
+            'users.firstname as fname',
+            'users.lastname as lname',
+            'maintenance.cost',
+            'maintenance.reason',
+            'maintenance.completion_date as complete'
+        )
+        ->get();
+
+    // Determine the view based on user type
+    $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
+
+    // Return the appropriate view with the asset data, including the QR code
+    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
+}
+
 
     public function downloadCsvTemplate()
     {
