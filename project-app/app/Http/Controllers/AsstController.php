@@ -14,6 +14,7 @@ use App\Models\ModelAsset;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use LaravelDaily\LaravelCharts\Classes\LaravelChart;
 
@@ -262,33 +263,85 @@ class AsstController extends Controller
     return redirect()->to('/asset')->with('success', 'New Asset Created');
 }
 
-
-
     public static function assetCount(){
-        //dashboard
-        $userDept = Auth::user()->dept_id;
+    // Dashboard
+    $userDept = Auth::user()->dept_id;
 
-        $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
-            ->where("asset.dept_ID", "=", $userDept)->count();
-        $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
-            ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
+        ->where("asset.dept_ID", "=", $userDept)->count();
+    $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
+        ->where("asset.dept_ID", "=", $userDept)->count();
 
-            $chart_options = [
-                'chart_title' => 'Users by months',
-                'report_type' => 'group_by_date',
-                'model' => 'App\Models\User',
-                'group_by_field' => 'created_at',
-                'group_by_period' => 'month',
-                'chart_type' => 'bar',
-            ];
-            $chart1 = new LaravelChart($chart_options);
+    $newAssetCreated = assetModel::where('dept_ID', $userDept)
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
 
-        //FOR DASHBOARD CARDS
-        return view('dept_head.Home', compact(['asset' , 'chart1']));
+    // Initialize an array for months from four months ago up to the current month
+    $monthsActive = [];
+    $monthsUnderMaintenance = [];
+    for ($i = 4; $i >= 0; $i--) { // Loop backwards from 4 months ago to the current month
+        $date = Carbon::now()->subMonths($i);
+        $monthName = $date->format('M');
+        $year = $date->format('Y');
+        $monthsActive["$monthName $year"] = 0; // Initialize count to 0 for Active
+        $monthsUnderMaintenance["$monthName $year"] = 0; // Initialize count to 0 for Under Maintenance
+    }
+
+    // Retrieve data for Active assets grouped by month and year
+    $dataActive = assetModel::where('dept_ID', Auth::user()->dept_id)
+        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+            Carbon::now()->format('Y-m') // Up to the current month
+        ])
+        ->where('status', 'active')
+        ->select(
+            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+            DB::raw('COUNT(*) as count') // Count the records for that month
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Retrieve data for Under Maintenance assets grouped by month and year
+    $dataUnderMaintenance = assetModel::where('dept_ID', Auth::user()->dept_id)
+        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+            Carbon::now()->format('Y-m') // Up to the current month
+        ])
+        ->where('status', 'under maintenance')
+        ->select(
+            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+            DB::raw('COUNT(*) as count') // Count the records for that month
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Map the retrieved data to the $monthsActive array
+    foreach ($dataActive as $record) {
+        $monthsActive[$record->monthYear] = $record->count; // Update the month count for Active assets
+    }
+
+    // Map the retrieved data to the $monthsUnderMaintenance array
+    foreach ($dataUnderMaintenance as $record) {
+        $monthsUnderMaintenance[$record->monthYear] = $record->count; // Update the month count for Under Maintenance assets
+    }
+
+    // FOR DASHBOARD CARDS
+    return view('dept_head.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'Amonths' => array_keys($monthsActive), // Array of month labels
+        'Acounts' => array_values($monthsActive), // Array of counts for Active assets
+        'UMmonths' => array_keys($monthsUnderMaintenance), // Array of month labels for Under Maintenance
+        'UMcounts' => array_values($monthsUnderMaintenance), // Array of counts for Under Maintenance assets
+    ]);
+
+
     }
 
     public function update(Request $request, $id)
@@ -473,54 +526,6 @@ class AsstController extends Controller
         return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer'));
     }
 
-
-
-
-
-    public function showRequestList()
-    {
-        // Fetch requests using the DB facade
-        $requests = DB::table('request')->where('request.requestor', '=', Auth::user()->id)
-            ->join('asset', 'asset.id', '=', 'request.asset_id')
-            ->join('department', 'department.id', '=', 'asset.dept_ID')
-            ->join('category', 'category.id', '=', 'asset.ctg_ID')
-            ->join('location', 'location.id', '=', 'asset.loc_key')
-            ->join('model', 'model.id', '=', 'asset.model_key')
-            ->select(
-                'asset.name',
-                'asset.id as asset_id', //remove nalang ni siya
-                'asset.image',
-                'asset.code',
-                'asset.cost',
-                'asset.depreciation',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
-                'asset.status',
-                'asset.custom_fields',
-                'asset.updated_at as assetCreated',
-                'asset.created_at as assetEdited',
-                'category.name as category',
-                'model.name as model',
-                'location.name as location',
-                'department.name as department',
-                'request.Description',
-                'request.id',
-                'request.status',
-                'request.requestor',
-                'request.approvedBy',
-                'request.created_at',
-                'request.updated_at',
-            )->get();
-
-        // Debugging the query output
-        if ($requests->isEmpty()) {
-            dd('No requests found in the database.');
-        }
-
-        // Pass the requests data to the view
-        return view('user.requestList', compact('requests'));
-    }
-
     public function downloadCsvTemplate()
     {
         // Define the readable column names that will replace foreign keys
@@ -576,12 +581,7 @@ class AsstController extends Controller
             $headers = $request->input('headers');
             $rows = $request->input('rows');
 
-
-            // \Log::info('Parsed Headers:', ['headers' => $headers]); // Pass headers as an array
-            // \Log::info('Parsed Rows:', ['rows' => $rows]); // Pass rows as an array
-
             if (!$rows || count($rows) == 0) {
-                // \Log::error('No rows provided in the request.');
                 return response()->json(['success' => false, 'message' => 'No rows provided.'], 400);
             }
 
@@ -589,12 +589,10 @@ class AsstController extends Controller
 
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
-                    // \Log::warning('Row with missing columns detected:', ['row' => $row]);
                     continue;
                 }
 
                 $rowData = array_combine($headers, $row);
-                // \Log::info('Mapped Row Data:', ['rowData' => $rowData]);
 
                 $category = category::firstOrCreate(
                     ['name' => $rowData['category'], 'dept_ID' => $userDept],
@@ -613,14 +611,28 @@ class AsstController extends Controller
                     ['description' => 'new item description']
                 );
 
-                $department = DB::table('department')->where('id', $userDept)->get();
-                $departmentCode = $department[0]->name;
+                $department = DB::table('department')->where('id', $userDept)->first();
+                $departmentCode = $department->name;
                 $lastID = department::where('name', $departmentCode)->max('assetSequence');
                 $seq = $lastID ? $lastID + 1 : 1;
                 $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
                 department::where('id', $userDept)->increment('assetSequence', 1);
 
+                $qrCodePath = 'qrcodes/' . $assetCode . '.png';  // Path to store the QR code
+                $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+                // Ensure the directory exists
+                if (!file_exists(storage_path('app/public/qrcodes'))) {
+                    mkdir(storage_path('app/public/qrcodes'), 0777, true);
+                }
+
+                // Generate the QR code
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+                    ->size(250)
+                    ->generate($assetCode, $qrStoragePath);
+
                 try {
+                    // Create the asset
                     assetModel::create([
                         'code' => $assetCode,
                         'name' => $rowData['name'],
@@ -634,17 +646,15 @@ class AsstController extends Controller
                         'loc_key' => $location->id,
                         'dept_ID' => $userDept,
                         'status' => $rowData['status'] ?? 'active',
+                        'qr' => $qrCodePath,  // Store the path to the QR code image file
                     ]);
-                    // \Log::info('Asset created successfully:', ['code' => $assetCode, 'name' => $rowData['name']]);
                 } catch (\Exception $e) {
-                    // \Log::error('Error inserting asset: ' . $e->getMessage());
                     Log::error('Error inserting asset: ' . $e->getMessage());
                 }
             }
 
             return response()->json(['success' => true, 'message' => 'CSV uploaded successfully']);
         } catch (\Throwable $th) {
-            // \Log::error('Error uploading CSV: ' . $th->getMessage());
             return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
         }
     }

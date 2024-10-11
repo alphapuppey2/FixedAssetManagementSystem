@@ -25,9 +25,9 @@
     <div class="bodyContent relative h-full">
         @include('layouts.TopBar')
         @if (Auth::user()->usertype === 'admin')
-            @include('layouts.admin-sidebar')
+            @include('layouts.adminSidebar')
         @elseif(Auth::user()->usertype === 'dept_head')
-            @include('layouts.sideBar')
+            @include('layouts.deptHeadSideBar')
         @else
             @include('layouts.sideBarUser')
         @endif
@@ -53,8 +53,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    @yield('JS')
 </body>
 
 </html>

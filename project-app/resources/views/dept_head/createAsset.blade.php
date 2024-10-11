@@ -131,4 +131,4 @@
     </div>
     @vite(['resources/js/displayImage.js'])
 @endsection
- 
+

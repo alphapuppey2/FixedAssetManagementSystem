@@ -15,6 +15,8 @@ use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\UserSideController;
+
 
 
 Route::get('/', function(){
@@ -90,12 +92,15 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/asset', [AsstController::class,'showDeptAsset'])->name('asset');
     Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
+    route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
     Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
     Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
     Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+
+
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
@@ -173,16 +178,16 @@ Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
         return view('user.scanQR');
     })->name('user.scanQR');
 
-    route::post('/maintenance/create', [MaintenanceController::class, 'createRequest'])->name('maintenance.create');
+    route::post('/maintenance/create', [UserSideController::class, 'createRequest'])->name('maintenance.create');
 
-    Route::get('/assetdetails/{code}', [QRUserController::class, 'showDetails'])->name('qr.asset.details');
+    Route::get('/assetdetails/{code}', [UserSideController::class, 'showDetails'])->name('qr.asset.details');
 
-    Route::get('/user/requestList', [MaintenanceController::class, 'index'])->name('user.requestList');
+    route::get('/requests/list', [UserSideController::class, 'showRequestList'])->name('requests.list');
 
-    route::get('/requests/list', [MaintenanceController::class, 'showRequestList'])->name('requests.list');
+    route::post('/requests/cancel/{id}', [UserSideController::class, 'cancelRequest'])->name('requests.cancel');
 
-    route::post('/requests/cancel/{id}', [MaintenanceController::class, 'cancelRequest'])->name('requests.cancel');
 
+    //PROFFILE SECTION
     Route::get('/user/notification', function () {
         return view('user.notification');
     })->name('user.notification');
