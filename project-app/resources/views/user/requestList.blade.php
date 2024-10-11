@@ -91,7 +91,7 @@
                     @php
                         $statusClasses = [
                             'approved' => 'bg-green-100 text-green-800',
-                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'request' => 'bg-yellow-100 text-yellow-800',
                             'cancelled' => 'bg-gray-200 text-gray-600',
                             'denied' => 'bg-red-100 text-red-800',
                             'in_progress' => 'bg-blue-100 text-blue-800',
@@ -107,27 +107,28 @@
                 <!-- Action (View and Cancel Buttons) -->
                 <td class="py-2 px-3 flex justify-center items-center space-x-2">
                     <button type="button" onclick="showModal(
-                        '{{ $request->asset_code }}',
-                        '{{ $request->asset_image }}',
-                        '{{ $request->asset_name }}',
-                        '{{ $request->cost }}',
-                        '{{ $request->depreciation }}',
-                        '{{ $request->salvageVal }}',
-                        '{{ $request->category }}',
-                        '{{ $request->usage_Lifespan }}',
-                        '{{ $request->model }}',
-                        '{{ $request->manufacturer }}',
-                        '{{ $request->location }}',
-                        '{{ $request->asset_status }}',
-                        '{{ $request->description }}',
-                        '{{ $request->id }}',
-                        '{{ $request->status }}',
-                        '{{ $request->qr_code }}' // Add this line for the QR code
-                    )" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                            '{{ $request->asset_code }}',
+                            '{{ $request->asset_image }}',
+                            '{{ $request->asset_name }}',
+                            '{{ $request->cost }}',
+                            '{{ $request->depreciation }}',
+                            '{{ $request->salvageVal }}',
+                            '{{ $request->category }}',
+                            '{{ $request->usage_Lifespan }}',
+                            '{{ $request->model }}',
+                            '{{ $request->manufacturer }}',
+                            '{{ $request->location }}',
+                            '{{ $request->asset_status }}',
+                            '{{ $request->description }}',
+                            '{{ $request->id }}',
+                            '{{ $request->status }}',
+                            '{{ $request->qr_code }}',
+                            '{{ $request->reason }}' // Add this line to pass the denial reason
+                        )" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                     </button>
 
-                    @if ($request->status === 'pending')
+                    @if ($request->status === 'request')
                     <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                         <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
                     </button>

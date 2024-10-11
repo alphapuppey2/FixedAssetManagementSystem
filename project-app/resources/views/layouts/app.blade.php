@@ -29,7 +29,7 @@
         @elseif(Auth::user()->usertype === 'dept_head')
             @include('layouts.deptHeadSideBar')
         @else
-            @include('layouts.sideBarUser')
+            @include('layouts.userSideBar')
         @endif
         <!-- Page Content -->
         <main
