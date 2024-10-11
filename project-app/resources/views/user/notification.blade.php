@@ -1,6 +1,6 @@
 @extends('user.home')
 
-@section('notification-content')
+@section('content')
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Unread Notifications</h2>
         <form action="{{ route('markAllAsRead') }}" method="POST">
