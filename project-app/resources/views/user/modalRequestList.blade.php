@@ -139,7 +139,7 @@ function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciatio
     document.getElementById('modalAssetManufacturer').innerText = assetManufacturer;
     document.getElementById('modalAssetLocation').innerText = assetLocation;
 
-    // Set reason for the request or reason for denied
+    // Set reason for the request
     document.getElementById('modalRequestReason').innerText = requestReason;
 
     // Set request status
@@ -152,9 +152,9 @@ function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciatio
         document.getElementById('denialReasonContainer').classList.add('hidden');
     } else if (requestStatus === 'denied') {
         document.getElementById('authorizedByContainer').classList.remove('hidden');
-        document.getElementById('modalAuthorizedBy').innerText = authorizedBy ? authorizedBy : 'N/A';
+        document.getElementById('modalAuthorizedBy').innerText = denialReason ? denialReason : 'N/A';
         document.getElementById('denialReasonContainer').classList.remove('hidden');
-        document.getElementById('modalDenialReason').innerText = denialReason ? denialReason : 'N/A';
+        document.getElementById('modalDenialReason').innerText = authorizedBy ? authorizedBy : 'N/A';
     } else {
         document.getElementById('authorizedByContainer').classList.add('hidden');
         document.getElementById('denialReasonContainer').classList.add('hidden');
@@ -172,6 +172,7 @@ function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciatio
     document.getElementById('viewModal').classList.remove('hidden');
     document.getElementById('viewModal').classList.add('flex');
 }
+
 
 function closeModal() {
     // Hide the view modal

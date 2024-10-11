@@ -25,6 +25,7 @@
                     <option value="">All Statuses</option>
                     <option value="request" {{ request('status') == 'request' ? 'selected' : '' }}>Request</option>
                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="denied" {{ request('status') == 'denied' ? 'selected' : '' }}>Denied</option>
                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                 </select>
             </div>
@@ -36,6 +37,8 @@
                     <option value="">All Types</option>
                     <option value="repair" {{ request('type') == 'repair' ? 'selected' : '' }}>Repair</option>
                     <option value="maintenance" {{ request('type') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                    <option value="upgrade" {{ request('type') == 'upgrade' ? 'selected' : '' }}>Upgrade</option>
+                    <option value="inspection" {{ request('type') == 'inspection' ? 'selected' : '' }}>Inspection</option>
                 </select>
             </div>
 
