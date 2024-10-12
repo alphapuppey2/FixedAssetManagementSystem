@@ -15,6 +15,7 @@ use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\ReportController;
 
@@ -153,9 +154,12 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
 
-    Route::get('/report', function () {
-        return view('dept_head.reports');
-    })->name('report');
+    //reports page
+    Route::get('/report', [ReportsController::class, 'showReports'])->name('reports.show');
+    Route::post('/save-report-columns', [ReportsController::class, 'saveReportColumns'])->name('reports.saveColumns');
+    Route::get('/fetch-report-data', [ReportsController::class, 'fetchReportData'])->name('fetchReportData');
+    Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+    Route::get('/reports/reset-columns', [ReportsController::class, 'resetColumns'])->name('reports.resetColumns');
 
     Route::get('/profile', function () {
         return view('dept_head.profile');

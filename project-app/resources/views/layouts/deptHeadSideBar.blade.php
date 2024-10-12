@@ -68,7 +68,7 @@
                 </ul>
             </li>
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('reports.show')" :active="request()->routeIs('reports.show')">
                     <x-chartIcon></x-chartIcon>
                     <span class="ml-2 max-md:hidden lg:block">Report</span>
                 </x-nav-link>
