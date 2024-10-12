@@ -32,7 +32,7 @@ class AsstController extends Controller
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc')
             ->paginate(10);
 
@@ -44,14 +44,13 @@ class AsstController extends Controller
         $query = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.image', 'asset.cost', 'asset.salvageVal', 'asset.depreciation', 'asset.usage_Lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc');
 
         // If department is selected, filter by department ID
         if ($dept) {
             $query->where('asset.dept_ID', $dept);
         }
-
 
         $assets = $query->paginate(10);
 
@@ -88,24 +87,24 @@ class AsstController extends Controller
     }
 
     public function showDeptAsset()
-{
-    $userDept = Auth::user()->dept_id;
+    {
+        $userDept = Auth::user()->dept_id;
 
-    $asset = DB::table('asset')
-        ->join('department', 'asset.dept_ID', '=', 'department.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->where('asset.dept_ID', $userDept)
-        ->where('asset.isDeleted',0)
-        ->select(
-            'asset.id',
-            'asset.code',
-            'asset.name',
-            'asset.image',
-            'asset.status',
-            'category.name as category',
-            'department.name as department'
-        )
-        ->orderByRaw("
+        $asset = DB::table('asset')
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->where('asset.dept_ID', $userDept)
+            ->where('asset.isDeleted', 0)
+            ->select(
+                'asset.id',
+                'asset.code',
+                'asset.name',
+                'asset.asst_img',
+                'asset.status',
+                'category.name as category',
+                'department.name as department'
+            )
+            ->orderByRaw("
             CASE
                 WHEN asset.status = 'active' THEN 0
                 WHEN asset.status = 'under Maintenance' THEN 1
@@ -114,12 +113,12 @@ class AsstController extends Controller
                 ELSE 4
             END
         ")
-        ->orderBy('code','asc')
-        ->orderBy('asset.created_at', 'desc') // Then sort by created_at
-        ->paginate(10);
+            ->orderBy('code', 'asc')
+            ->orderBy('asset.created_at', 'desc') // Then sort by created_at
+            ->paginate(10);
 
-    return view("dept_head.asset", compact('asset'));
-}
+        return view("dept_head.asset", compact('asset'));
+    }
 
 
 
@@ -128,33 +127,33 @@ class AsstController extends Controller
     {
         //history of a Asset
         $asset = AssetModel::where('asset.id', $id)
-                                    ->select("asset.code as assetCode")->first();
+            ->select("asset.code as assetCode")->first();
 
-        $assetRet = Maintenance::where("asset_key" , $id)
-                                    ->where("completed" , 1)
-                                    ->join('users' ,'users.id','=' , 'maintenance.requestor')
-                                    ->select(
-                                             'maintenance.reason as reason',
-                                             'maintenance.type as type',
-                                             'maintenance.cost as cost',
-                                             'maintenance.description as description',
-                                             DB::raw('DATE(maintenance.completion_date) AS complete',),
-                                             'maintenance.status as status',
-                                             'users.firstname as fname',
-                                             'users.lastname as lname',
-                                             )->groupBy(
-                                                'maintenance.completion_date',
-                                                'maintenance.status',
-                                                'maintenance.type',
-                                                'maintenance.cost',
-                                                'users.firstname',
-                                                'users.lastname',
-                                                'maintenance.description',
-                                                'maintenance.reason',
-                                             )
-                                              ->orderByRaw("FIELD(maintenance.status, 'request', 'pending', 'in_progress','complete','denied','denied')")
-                                              ->orderBy('maintenance.completion_date', 'asc')
-                                              ->get();
+        $assetRet = Maintenance::where("asset_key", $id)
+            ->where("is_completed", 1)
+            ->join('users', 'users.id', '=', 'maintenance.requestor')
+            ->select(
+                'maintenance.reason as reason',
+                'maintenance.type as type',
+                'maintenance.cost as cost',
+                'maintenance.description as description',
+                DB::raw('DATE(maintenance.completion_date) AS complete',),
+                'maintenance.status as status',
+                'users.firstname as fname',
+                'users.lastname as lname',
+            )->groupBy(
+                'maintenance.completion_date',
+                'maintenance.status',
+                'maintenance.type',
+                'maintenance.cost',
+                'users.firstname',
+                'users.lastname',
+                'maintenance.description',
+                'maintenance.reason',
+            )
+            ->orderByRaw("FIELD(maintenance.status, 'request', 'pending', 'in_progress','complete','denied','denied')")
+            ->orderBy('maintenance.completion_date', 'asc')
+            ->get();
         $AssetMaintenance = Maintenance::where("asset_key", $id)->get();
 
 
@@ -166,21 +165,21 @@ class AsstController extends Controller
     {
 
         $usrDPT = Auth::user()->dept_id;
-        $department = department::find( $usrDPT);
+        $department = department::find($usrDPT);
 
 
-            $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
-            $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
-            $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
-            $manufacturer = array('mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get());
-            $addInfos = json_decode($department->custom_fields);
+        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
+        $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
+        $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
+        $manufacturer = array('mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get());
+        $addInfos = json_decode($department->custom_fields);
 
 
-            if($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()){
-                return redirect()->back()->with('toast', 'Your setting is null. Please set up your settings.');
-            }
+        if ($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()) {
+            return redirect()->back()->with('toast', 'Your setting is null. Please set up your settings.');
+        }
 
-        return view('dept_head.createAsset',compact('addInfos' , 'categories','location' ,'model','manufacturer'));
+        return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
     }
 
     public  function convertJSON($key, $value)
@@ -200,156 +199,155 @@ class AsstController extends Controller
     }
 
     public function create(Request $request)
-{
-    $userDept = Auth::user()->dept_id;
+    {
+        $userDept = Auth::user()->dept_id;
 
-    // Validate the request
-    $request->validate([
-        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
-        'assetname' => 'required',
-        'category' => 'required',
-        'purchased' => 'required|date',
-        'loc' => 'required',
-        'mod' => 'required',
-        'mcft' => 'required',
-        'field.key.*' => 'nullable|string|max:255',
-        'field.value.*' => 'nullable|string|max:255',
-    ]);
+        // Validate the request
+        $request->validate([
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
+            'assetname' => 'required',
+            'category' => 'required',
+            'purchased' => 'required|date',
+            'loc' => 'required',
+            'mod' => 'required',
+            'mcft' => 'required',
+            'field.key.*' => 'nullable|string|max:255',
+            'field.value.*' => 'nullable|string|max:255',
+        ]);
 
-    // Additional Fields
-    $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+        // Additional Fields
+        $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
 
-    // Generate Asset Code
-    $department = DB::table('department')->where('id', $userDept)->first();
-    $departmentCode = $department->name;
-    $lastID = department::where('name', $departmentCode)->max('assetSequence');
-    $seq = $lastID ? $lastID + 1 : 1;
-    $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        // Generate Asset Code
+        $department = DB::table('department')->where('id', $userDept)->first();
+        $departmentCode = $department->name;
+        $lastID = department::where('name', $departmentCode)->max('assetSequence');
+        $seq = $lastID ? $lastID + 1 : 1;
+        $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-    // Handle image upload
-    $pathFile = NULL;
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-        $path = $image->storeAs('images', $filename, 'public');
-        $pathFile = $path;
+        // Handle image upload
+        $pathFile = NULL;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('images', $filename, 'public');
+            $pathFile = $path;
+        }
+
+        // Increment asset sequence in department
+        department::where('id', $userDept)->increment('assetSequence', 1);
+
+        // Calculate depreciation (Straight Line method)
+
+        // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
+        $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
+        $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+        // Ensure the directory exists
+        if (!file_exists(storage_path('app/public/qrcodes'))) {
+            mkdir(storage_path('app/public/qrcodes'), 0777, true);
+        }
+
+        \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+            ->size(250)
+            ->generate($code, $qrStoragePath);
+
+        // Save asset details to the database
+        DB::table('asset')->insert([
+            'image' => $pathFile,
+            'name' => $request->assetname,
+            'code' => $code,
+            'ctg_ID' => $request->category,
+            'custom_fields' => $customFields,
+            'dept_ID' => $userDept,
+            'loc_key' => $request->loc,
+            'model_key' => $request->mod,
+            'manufacturer_key' => $request->mcft,
+            'qr' => $qrCodePath,  // Store the path to the QR code image file
+            'created_at' => now(),
+        ]);
+
+        return redirect()->to('/asset')->with('success', 'New Asset Created');
     }
 
-    // Increment asset sequence in department
-    department::where('id', $userDept)->increment('assetSequence', 1);
+    public static function assetCount()
+    {
+        // Dashboard
+        $userDept = Auth::user()->dept_id;
 
-    // Calculate depreciation (Straight Line method)
+        $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
+            ->where("asset.dept_ID", "=", $userDept)->count();
+        $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
+            ->where("asset.dept_ID", "=", $userDept)->count();
+        $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
+            ->where("asset.dept_ID", "=", $userDept)->count();
+        $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
+            ->where("asset.dept_ID", "=", $userDept)->count();
 
-    // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
-    $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
-    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+        $newAssetCreated = assetModel::where('dept_ID', $userDept)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-    // Ensure the directory exists
-    if (!file_exists(storage_path('app/public/qrcodes'))) {
-        mkdir(storage_path('app/public/qrcodes'), 0777, true);
-    }
+        // Initialize an array for months from four months ago up to the current month
+        $monthsActive = [];
+        $monthsUnderMaintenance = [];
+        for ($i = 4; $i >= 0; $i--) { // Loop backwards from 4 months ago to the current month
+            $date = Carbon::now()->subMonths($i);
+            $monthName = $date->format('M');
+            $year = $date->format('Y');
+            $monthsActive["$monthName $year"] = 0; // Initialize count to 0 for Active
+            $monthsUnderMaintenance["$monthName $year"] = 0; // Initialize count to 0 for Under Maintenance
+        }
 
-    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-        ->size(250)
-        ->generate($code, $qrStoragePath);
+        // Retrieve data for Active assets grouped by month and year
+        $dataActive = assetModel::where('dept_ID', Auth::user()->dept_id)
+            ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+                Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+                Carbon::now()->format('Y-m') // Up to the current month
+            ])
+            ->where('status', 'active')
+            ->select(
+                DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+                DB::raw('COUNT(*) as count') // Count the records for that month
+            )
+            ->groupBy('monthYear')
+            ->get();
 
-    // Save asset details to the database
-    DB::table('asset')->insert([
-        'image' => $pathFile,
-        'name' => $request->assetname,
-        'code' => $code,
-        'ctg_ID' => $request->category,
-        'custom_fields' => $customFields,
-        'dept_ID' => $userDept,
-        'loc_key' => $request->loc,
-        'model_key' => $request->mod,
-        'manufacturer_key' => $request->mcft,
-        'qr' => $qrCodePath,  // Store the path to the QR code image file
-        'created_at' => now(),
-    ]);
+        // Retrieve data for Under Maintenance assets grouped by month and year
+        $dataUnderMaintenance = assetModel::where('dept_ID', Auth::user()->dept_id)
+            ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
+                Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
+                Carbon::now()->format('Y-m') // Up to the current month
+            ])
+            ->where('status', 'under maintenance')
+            ->select(
+                DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
+                DB::raw('COUNT(*) as count') // Count the records for that month
+            )
+            ->groupBy('monthYear')
+            ->get();
 
-    return redirect()->to('/asset')->with('success', 'New Asset Created');
-}
+        // Map the retrieved data to the $monthsActive array
+        foreach ($dataActive as $record) {
+            $monthsActive[$record->monthYear] = $record->count; // Update the month count for Active assets
+        }
 
-    public static function assetCount(){
-    // Dashboard
-    $userDept = Auth::user()->dept_id;
+        // Map the retrieved data to the $monthsUnderMaintenance array
+        foreach ($dataUnderMaintenance as $record) {
+            $monthsUnderMaintenance[$record->monthYear] = $record->count; // Update the month count for Under Maintenance assets
+        }
 
-    $asset['active'] = DB::table('asset')->where('asset.status', '=', 'active')
-        ->where("asset.dept_ID", "=", $userDept)->count();
-    $asset['um'] = DB::table('asset')->where('status', '=', 'under maintenance')
-        ->where("asset.dept_ID", "=", $userDept)->count();
-    $asset['dispose'] = DB::table('asset')->where('status', '=', 'dispose')
-        ->where("asset.dept_ID", "=", $userDept)->count();
-    $asset['deploy'] = DB::table('asset')->where('status', '=', 'deployed')
-        ->where("asset.dept_ID", "=", $userDept)->count();
-
-    $newAssetCreated = assetModel::where('dept_ID', $userDept)
-        ->whereMonth('created_at', Carbon::now()->month)
-        ->orderBy('created_at', 'desc')
-        ->take(5)
-        ->get();
-
-    // Initialize an array for months from four months ago up to the current month
-    $monthsActive = [];
-    $monthsUnderMaintenance = [];
-    for ($i = 4; $i >= 0; $i--) { // Loop backwards from 4 months ago to the current month
-        $date = Carbon::now()->subMonths($i);
-        $monthName = $date->format('M');
-        $year = $date->format('Y');
-        $monthsActive["$monthName $year"] = 0; // Initialize count to 0 for Active
-        $monthsUnderMaintenance["$monthName $year"] = 0; // Initialize count to 0 for Under Maintenance
-    }
-
-    // Retrieve data for Active assets grouped by month and year
-    $dataActive = assetModel::where('dept_ID', Auth::user()->dept_id)
-        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
-            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
-            Carbon::now()->format('Y-m') // Up to the current month
-        ])
-        ->where('status', 'active')
-        ->select(
-            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
-            DB::raw('COUNT(*) as count') // Count the records for that month
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Retrieve data for Under Maintenance assets grouped by month and year
-    $dataUnderMaintenance = assetModel::where('dept_ID', Auth::user()->dept_id)
-        ->whereBetween(DB::raw('DATE_FORMAT(created_at, "%Y-%m")'), [
-            Carbon::now()->subMonths(4)->format('Y-m'), // Start from 4 months ago
-            Carbon::now()->format('Y-m') // Up to the current month
-        ])
-        ->where('status', 'under maintenance')
-        ->select(
-            DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'), // Get the month and year
-            DB::raw('COUNT(*) as count') // Count the records for that month
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Map the retrieved data to the $monthsActive array
-    foreach ($dataActive as $record) {
-        $monthsActive[$record->monthYear] = $record->count; // Update the month count for Active assets
-    }
-
-    // Map the retrieved data to the $monthsUnderMaintenance array
-    foreach ($dataUnderMaintenance as $record) {
-        $monthsUnderMaintenance[$record->monthYear] = $record->count; // Update the month count for Under Maintenance assets
-    }
-
-    // FOR DASHBOARD CARDS
-    return view('dept_head.home', [
-        'asset' => $asset,
-        'newAssetCreated' => $newAssetCreated,
-        'Amonths' => array_keys($monthsActive), // Array of month labels
-        'Acounts' => array_values($monthsActive), // Array of counts for Active assets
-        'UMmonths' => array_keys($monthsUnderMaintenance), // Array of month labels for Under Maintenance
-        'UMcounts' => array_values($monthsUnderMaintenance), // Array of counts for Under Maintenance assets
-    ]);
-
-
+        // FOR DASHBOARD CARDS
+        return view('dept_head.home', [
+            'asset' => $asset,
+            'newAssetCreated' => $newAssetCreated,
+            'Amonths' => array_keys($monthsActive), // Array of month labels
+            'Acounts' => array_values($monthsActive), // Array of counts for Active assets
+            'UMmonths' => array_keys($monthsUnderMaintenance), // Array of month labels for Under Maintenance
+            'UMcounts' => array_values($monthsUnderMaintenance), // Array of counts for Under Maintenance assets
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -359,7 +357,7 @@ class AsstController extends Controller
 
         // dd($request);
         $validatedData = $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'required|string',
             'category' => 'required|exists:category,id',
             'usrAct' => 'nullable|exists:users,id',
@@ -391,7 +389,7 @@ class AsstController extends Controller
             $pathFile = $path;
         }
         $updatedRow = DB::table('asset')->where('id', $id)->update([
-            'image' => $pathFile,
+            'asst_img' => $pathFile,
             'name' => $validatedData["name"],
             'ctg_ID' => $validatedData["category"],
             'manufacturer_key' => $validatedData['mcft'],
@@ -416,7 +414,7 @@ class AsstController extends Controller
 
         try {
             // Assuming you are searching the 'name' and 'code' columns
-            $assets = assetModel::where('dept_ID' , Auth::user()->dept_id)->where('name', 'LIKE', "%{$search}%")
+            $assets = assetModel::where('dept_ID', Auth::user()->dept_id)->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('code', 'LIKE', "%{$search}%")
                 ->get();
 
@@ -457,157 +455,159 @@ class AsstController extends Controller
 
     //If modify make sure to update show details in QRUserCotroller.php
     //Both same functionalities but different parameters
-        public function showDetails($code)
-        {
-            // Get the logged-in user's department ID and user type
-            $userDept = Auth::user()->dept_id;
-            $userType = Auth::user()->usertype;
+    public function showDetails($code)
+    {
+        // Get the logged-in user's department ID and user type
+        $userDept = Auth::user()->dept_id;
+        $userType = Auth::user()->usertype;
 
-            // dd($code);
-            // Retrieve necessary data from related tables
-            $department = ['list' => DB::table('department')->get()];
-            $categories = [
-                'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
-                    return $query->where('dept_ID', $userDept);
-                })->get()
-            ];
-            $location = ['locs' => DB::table('location')->get()];
-            $model = ['mod' => DB::table('model')->get()];
-            $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
-            $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
-
-            // Build the query to retrieve the asset data based on the asset code
-            // dd($code);
-            $retrieveDataQuery = assetModel::where('code', $code)
-    ->leftJoin('department', 'dept_ID', '=', 'department.id')
-    ->leftJoin('category', 'ctg_ID', '=', 'category.id')
-    ->leftJoin('model', 'model_key', '=', 'model.id')
-    ->leftJoin('manufacturer', 'manufacturer_key', '=', 'manufacturer.id')
-    ->leftJoin('location', 'loc_key', '=', 'location.id')
-    ->leftJoin('users', 'users.id', '=', 'asset.last_used_by')
-    ->select(
-        'asset.id',
-        'asset.image',
-        'asset.name',
-        'asset.code',
-        'asset.status',
-        'asset.last_used_by',
-        'asset.custom_fields',
-        'asset.qr',
-        'asset.created_at',
-        'asset.updated_at',
-        'users.firstname', 'users.lastname', 'users.middlename',
-        'category.name as category',
-        'model.name as model',
-        'location.name as location',
-        'manufacturer.name as manufacturer'
-    );
-                // dd($retrieveDataQuery);
-            // Apply department filter for dept_head and user
-            if ($userType != 'admin') {
-                $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-            }
-
-            // Retrieve the asset data
-            $retrieveData = $retrieveDataQuery->first();
-
-            // dd($retrieveData);
-            // If no asset is found, redirect with an error message
-            if (!$retrieveData) {
-                return redirect()->route('asset')->with('error', 'Asset not found.');
-            }
-
-            // Retrieve asset and department data
-    $asset = assetModel::find($retrieveData->id);
-    $department = Department::find($asset->dept_ID);
-
-    // Decode custom_fields from both asset and department (assuming they are stored as JSON)
-    $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
-    $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
-
-    // Create an empty array to hold the updated custom fields
-    $updatedCustomFields = [];
-    // dd($departmentCustomFields);
-    // Loop through the department custom fields and map the values from the asset custom fields
-    foreach ($departmentCustomFields as $deptField) {
-        $fieldName = $deptField['name']; // For example: "RAM"
-
-        // Check if the asset has a value for this field
-        $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
-
-        // dd($deptField);
-
-        // Add the field to the updated custom fields array
-        $updatedCustomFields[] = [
-            'name' => $fieldName,
-            'value' => $fieldValue, // Take the value from the asset
-            'type' => $deptField['type'], // Keep type from department
-            'helper' => $deptField['helptext'] // Keep helper from department
+        // dd($code);
+        // Retrieve necessary data from related tables
+        $department = ['list' => DB::table('department')->get()];
+        $categories = [
+            'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
         ];
+        $location = ['locs' => DB::table('location')->get()];
+        $model = ['mod' => DB::table('model')->get()];
+        $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+        $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
+
+        // Build the query to retrieve the asset data based on the asset code
+        // dd($code);
+        $retrieveDataQuery = assetModel::where('code', $code)
+            ->leftJoin('department', 'dept_ID', '=', 'department.id')
+            ->leftJoin('category', 'ctg_ID', '=', 'category.id')
+            ->leftJoin('model', 'model_key', '=', 'model.id')
+            ->leftJoin('manufacturer', 'manufacturer_key', '=', 'manufacturer.id')
+            ->leftJoin('location', 'loc_key', '=', 'location.id')
+            ->leftJoin('users', 'users.id', '=', 'asset.last_used_by')
+            ->select(
+                'asset.id',
+                'asset.asst_img',
+                'asset.name',
+                'asset.code',
+                'asset.status',
+                'asset.last_used_by',
+                'asset.custom_fields',
+                'asset.qr_img',
+                'asset.created_at',
+                'asset.updated_at',
+                'users.firstname',
+                'users.lastname',
+                'users.middlename',
+                'category.name as category',
+                'model.name as model',
+                'location.name as location',
+                'manufacturer.name as manufacturer'
+            );
+        // dd($retrieveDataQuery);
+        // Apply department filter for dept_head and user
+        if ($userType != 'admin') {
+            $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
+        }
+
+        // Retrieve the asset data
+        $retrieveData = $retrieveDataQuery->first();
+
+        // dd($retrieveData);
+        // If no asset is found, redirect with an error message
+        if (!$retrieveData) {
+            return redirect()->route('asset')->with('error', 'Asset not found.');
+        }
+
+        // Retrieve asset and department data
+        $asset = assetModel::find($retrieveData->id);
+        $department = Department::find($asset->dept_ID);
+
+        // Decode custom_fields from both asset and department (assuming they are stored as JSON)
+        $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
+        $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
+
+        // Create an empty array to hold the updated custom fields
+        $updatedCustomFields = [];
+        // dd($departmentCustomFields);
+        // Loop through the department custom fields and map the values from the asset custom fields
+        foreach ($departmentCustomFields as $deptField) {
+            $fieldName = $deptField['name']; // For example: "RAM"
+
+            // Check if the asset has a value for this field
+            $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
+
+            // dd($deptField);
+
+            // Add the field to the updated custom fields array
+            $updatedCustomFields[] = [
+                'name' => $fieldName,
+                'value' => $fieldValue, // Take the value from the asset
+                'type' => $deptField['type'], // Keep type from department
+                'helper' => $deptField['helptext'] // Keep helper from department
+            ];
+        }
+        // Retrieve related maintenance data for the asset
+        $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
+            ->where('is_completed', 1)
+            ->join('users', 'users.id', '=', 'maintenance.requestor')
+            ->select(
+                'users.firstname as fname',
+                'users.lastname as lname',
+                'maintenance.cost',
+                'maintenance.reason',
+                'maintenance.completion_date as complete'
+            )
+            ->get();
+
+        // Determine the view based on user type
+        $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
+        // dd($updatedCustomFields[0]);
+        // Return the appropriate view with the asset data, including the QR code
+        return view($view, compact('retrieveData', 'updatedCustomFields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
     }
-            // Retrieve related maintenance data for the asset
-            $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
-                ->where('completed', 1)
-                ->join('users', 'users.id', '=', 'maintenance.requestor')
-                ->select(
-                    'users.firstname as fname',
-                    'users.lastname as lname',
-                    'maintenance.cost',
-                    'maintenance.reason',
-                    'maintenance.completion_date as complete'
-                )
-                ->get();
-
-            // Determine the view based on user type
-            $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
-                    // dd($updatedCustomFields[0]);
-            // Return the appropriate view with the asset data, including the QR code
-            return view($view, compact('retrieveData', 'updatedCustomFields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
-        }
 
 
 
-        public function downloadCsvTemplate()
-        {
-            // Define the readable column names that will replace foreign keys
-            $columns = [
-                'name',            // Asset name
-                'purchase_date',   // Purchase date (YYYY-MM-DD format)
-                'cost',            // Cost of the asset
-                'depreciation',    // Depreciation value
-                'salvageVal',      // Salvage value after depreciation
-                'usage_Lifespan',  // Usage lifespan in years (can be null if unknown)
-                'category',        // Asset category name (e.g., IT Equipment)
-                'manufacturer',    // Manufacturer name (e.g., Sony)
-                'model',           // Model name (e.g., Model X)
-                'location',        // Location name (e.g., HQ)
-                'status'           // Asset status (e.g., active, deployed, need Repair)
-            ];
+    public function downloadCsvTemplate()
+    {
+        // Define the readable column names that will replace foreign keys
+        $columns = [
+            'name',            // Asset name
+            'purchase_date',   // Purchase date (YYYY-MM-DD format)
+            'cost',            // Cost of the asset
+            'depreciation',    // Depreciation value
+            'salvageVal',      // Salvage value after depreciation
+            'usage_Lifespan',  // Usage lifespan in years (can be null if unknown)
+            'category',        // Asset category name (e.g., IT Equipment)
+            'manufacturer',    // Manufacturer name (e.g., Sony)
+            'model',           // Model name (e.g., Model X)
+            'location',        // Location name (e.g., HQ)
+            'status'           // Asset status (e.g., active, deployed, need Repair)
+        ];
 
-            // Add a row with sample data that matches required fields
-            $sampleData = [
-                'Sample Asset',    // Asset name
-                now()->format('Y-m-d'),  // Purchase date (today's date in correct format)
-                '10000',           // Cost in decimal (e.g., 10000.00)
-                '500',             // Depreciation value
-                '1000',            // Salvage value
-                '10',              // Usage lifespan (e.g., 10 years)
-                'IT Equipment',    // Example category
-                'Sony',            // Example manufacturer
-                'Model X',         // Example model
-                'HQ',              // Example location
-                'active'           // Status (can be: active, deployed, need Repair, under Maintenance)
-            ];
+        // Add a row with sample data that matches required fields
+        $sampleData = [
+            'Sample Asset',    // Asset name
+            now()->format('Y-m-d'),  // Purchase date (today's date in correct format)
+            '10000',           // Cost in decimal (e.g., 10000.00)
+            '500',             // Depreciation value
+            '1000',            // Salvage value
+            '10',              // Usage lifespan (e.g., 10 years)
+            'IT Equipment',    // Example category
+            'Sony',            // Example manufacturer
+            'Model X',         // Example model
+            'HQ',              // Example location
+            'active'           // Status (can be: active, deployed, need Repair, under Maintenance)
+        ];
 
-            // Convert the column names and sample data into CSV format
-            $csvContent = implode(",", $columns) . "\n";
-            $csvContent .= implode(",", $sampleData) . "\n"; // Add a sample row
+        // Convert the column names and sample data into CSV format
+        $csvContent = implode(",", $columns) . "\n";
+        $csvContent .= implode(",", $sampleData) . "\n"; // Add a sample row
 
-            // Return the response to download the CSV
-            return response($csvContent)
-                ->header('Content-Type', 'text/csv')
-                ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
-        }
+        // Return the response to download the CSV
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
+    }
 
 
 
