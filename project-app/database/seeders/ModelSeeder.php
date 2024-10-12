@@ -15,24 +15,44 @@ class ModelSeeder extends Seeder
     {
         //
         ModelAsset::create([
-            'name' => 'model 1',
-            'description' => 'NO CHANCES',
+            'name' => 'RK100',
+            'description' => 'keyboard',
             'dept_ID' => 1
         ]);
         ModelAsset::create([
-            'name' => 'model 2',
-            'description' => 'NO CHANCES',
+            'name' => 'Superlight',
+            'description' => 'mouse',
             'dept_ID' => 1
         ]);
         ModelAsset::create([
-            'name' => 'model 3',
-            'description' => 'NO CHANCES',
-            'dept_ID' => 1
+            'name' => 'FX360CW',
+            'description' => 'calculator',
+            'dept_ID' => 2
         ]);
         ModelAsset::create([
-            'name' => 'model 4',
-            'description' => 'NO CHANCES',
-            'dept_ID' => 1
+            'name' => 'Mongol 1',
+            'description' => 'pencil',
+            'dept_ID' => 2
+        ]);
+        ModelAsset::create([
+            'name' => 'Pirelli',
+            'description' => 'tyres',
+            'dept_ID' => 3
+        ]);
+        ModelAsset::create([
+            'name' => 'Brembo',
+            'description' => 'brakes',
+            'dept_ID' => 3
+        ]);
+        ModelAsset::create([
+            'name' => 'Slicer A',
+            'description' => 'For slicing meat',
+            'dept_ID' => 4
+        ]);
+        ModelAsset::create([
+            'name' => 'Compressor X',
+            'description' => 'Increases the pressure',
+            'dept_ID' => 4
         ]);
     }
 }

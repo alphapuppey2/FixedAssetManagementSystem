@@ -18,7 +18,7 @@ class assetModel extends Model
 
     protected $fillable = [ 'id' ,
                             'code',
-                            'qr',
+                            'qr_img',
                             'name',
                             'image',
                             'ctg_ID',
