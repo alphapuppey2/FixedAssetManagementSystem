@@ -1,29 +1,29 @@
 @extends('layouts.app')
 @section('header')
-    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
-        <div class="title">
-            <a href="{{ asset('asset') }}">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Asset
-                </h2>
-            </a>
-        </div>
-        <div class="header-R flex items-center">
-            <button id="openModalBtn">
-                <span>
-                    <x-icons.importIcon />
-                </span>
-            </button>
-            <button>
-                <span>
-                    <x-icons.exportIcon />
-                </span>
-            </button>
-            <div class="searchBox">
-                <x-text-input name="search" id="searchFilt" placeholder="Search" />
-            </div>
+<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+    <div class="title">
+        <a href="{{ asset('asset') }}">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Asset
+            </h2>
+        </a>
+    </div>
+    <div class="header-R flex items-center">
+        <button id="openModalBtn">
+            <span>
+                <x-icons.importIcon />
+            </span>
+        </button>
+        <button>
+            <span>
+                <x-icons.exportIcon />
+            </span>
+        </button>
+        <div class="searchBox">
+            <x-text-input name="search" id="searchFilt" placeholder="Search" />
         </div>
     </div>
+</div>
 @endsection
 
 @section('content')
@@ -108,10 +108,12 @@
                     </div>
                 @endif
             </div>
+            @endif
         </div>
     </div>
+</div>
 
-    @include('dept_head.modal.modalImportAsset')
+@include('dept_head.modal.modalImportAsset')
 
     @if (session('success'))
         <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
@@ -122,34 +124,34 @@
 
     @vite(['resources/js/flashNotification.js'])
 
-    <!-- JavaScript -->
-    <script>
-        // Function to open the modal
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('hidden');
-        }
+<!-- JavaScript -->
+<script>
+    // Function to open the modal
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+    }
 
-        // Function to close the modal
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
+    // Function to close the modal
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('hidden');
+    }
+
+    // Function to handle modal close when clicking outside the modal
+    function closeModalOnClickOutside(modalId, event) {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
             modal.classList.add('hidden');
         }
+    }
 
-        // Function to handle modal close when clicking outside the modal
-        function closeModalOnClickOutside(modalId, event) {
-            const modal = document.getElementById(modalId);
-            if (event.target === modal) {
-                modal.classList.add('hidden');
-            }
-        }
+    // Function to handle asset search
+    function handleSearch(inputId, tableBodyId) {
+        const input = document.getElementById(inputId);
+        const tableBody = document.getElementById(tableBodyId);
 
-        // Function to handle asset search
-        function handleSearch(inputId, tableBodyId) {
-            const input = document.getElementById(inputId);
-            const tableBody = document.getElementById(tableBodyId);
-
-            input.addEventListener('keyup', function() {
+        input.addEventListener('keyup', function() {
                 const query = input.value;
 
                 fetch(`/asset/search/row?search=${query}`, {
@@ -173,6 +175,7 @@
                         <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
                     </tr>
                 `;
+
                             tableBody.innerHTML = noResultsRow;
                         } else {
                             data.forEach(asset => {
@@ -212,16 +215,20 @@
         document.addEventListener('DOMContentLoaded', function() {
             const modalId = 'importModal';
 
+    // DOMContentLoaded event to initialize all event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalId = 'importModal';
 
-            // Modal open and close event listeners
-            document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
-            document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
-            window.addEventListener('click', (e) => closeModalOnClickOutside(modalId, e));
 
-            // Initialize search functionality
-            handleSearch('searchFilt', 'table-body');
-        });
-    </script>
+        // Modal open and close event listeners
+        document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+        document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
+        window.addEventListener('click', (e) => closeModalOnClickOutside(modalId, e));
+
+        // Initialize search functionality
+        handleSearch('searchFilt', 'table-body');
+    });
+</script>
 
 
 @endsection

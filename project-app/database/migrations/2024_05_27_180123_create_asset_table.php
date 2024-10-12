@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->timestamp('purchase_date')->useCurrent();
             $table->integer('usage_Lifespan')->nullable();
-            $table->enum('status', ['active','deployed','need Repair','under Maintenance','dispose'])->default('active');
+            $table->enum('status', ['active', 'deployed', 'need_repair', 'under_maintenance', 'disposed'])->default('active'); //proper wording
+
             $table->binary('custom_fields')->nullable();
 
             $table->unsignedBigInteger('ctg_ID');
