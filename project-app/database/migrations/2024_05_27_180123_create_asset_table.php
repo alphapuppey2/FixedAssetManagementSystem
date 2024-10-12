@@ -18,9 +18,6 @@ return new class extends Migration
             $table->string('qr')->nullable();
             $table->string('code')->unique();
             $table->timestamp('purchase_date')->useCurrent();
-            $table->decimal("cost",10,2)->default(0);
-            $table->decimal("depreciation",10,2)->default(0.00);
-            $table->decimal("salvageVal",10,2)->default(0.00);
             $table->integer('usage_Lifespan')->nullable();
             $table->enum('status', ['active', 'deployed', 'need_repair', 'under_maintenance', 'disposed'])->default('active'); //proper wording
 
@@ -47,12 +44,12 @@ return new class extends Migration
     public function down(): void
     {
         // Disable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         // Drop the table
         Schema::dropIfExists('asset');
 
         // Enable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };

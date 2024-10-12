@@ -21,22 +21,36 @@ class UserController extends Controller{
         // Get and trim the query parameter
         $query = trim($request->get('query'));
 
-        // Check if the query is empty, and if so, fetch all users (limited to a specified number)
-        if (empty($query)) {
-            $results = User::where('dept_id', Auth::user()->dept_id)->select('firstname', 'middlename', 'lastname')
-                ->take(10) // Limit to 10 users
-                ->get();
-        } else {
-            // If a query is provided, search for matching users
-            $results = User::where('firstname', 'LIKE', "%{$query}%")
-                ->orWhere('lastname', 'LIKE', "%{$query}%")
-                ->select('firstname', 'middlename', 'lastname')
-                ->take(10) // Limit to 10 results for better performance
-                ->get();
+        // Get the authenticated user's department ID
+        $departmentId = Auth::user()->dept_id;
+
+        // Build the base query to filter users by the department
+        $userQuery = User::where('dept_id', $departmentId)
+            ->select('id', 'firstname', 'middlename', 'lastname') // Include 'id' in the select
+            ->take(10); // Limit to 10 results for better performance
+
+        // If a query is provided, add conditions to search for matching first or last names
+        if (!empty($query)) {
+            $userQuery->where(function ($q) use ($query) {
+                $q->where('firstname', 'LIKE', "%{$query}%")
+                  ->orWhere('lastname', 'LIKE', "%{$query}%");
+            });
         }
 
+        // Execute the query and get the results
+        $results = $userQuery->get();
+
+        // Transform the results to match the format expected by Select2
+        $formattedResults = $results->map(function ($user) {
+            $fullName = $user->lastname . ',' . $user->firstname . ' ' . $user->middlename;
+            return [
+                'id' => $user->id, // User ID
+                'name' => $fullName, // User full name as the display text
+            ];
+        });
+
         // Return the results with a 200 status
-        return response()->json($results, 200);
+        return response()->json($formattedResults, 200);
     } catch (\Exception $e) {
         // Log the error for debugging purposes
         Log::error('Autocomplete error: ' . $e->getMessage());
@@ -44,6 +58,8 @@ class UserController extends Controller{
         return response()->json(['error' => 'An unexpected server error occurred. Please try again later.'], 500); // Internal Server Error
     }
 }
+
+
 
 
 
