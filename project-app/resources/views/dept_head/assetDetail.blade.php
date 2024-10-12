@@ -43,7 +43,7 @@
             @method('PUT')
 
             {{-- Image Section --}}
-            <div class="imgContainer w-[100%] pb-4 flex justify-center items-center md:col-span-2">
+            <div class="imgContainer w-[100%] pb-4 flex justify-center items-center">
                 <div class="imagepart overflow-hidden relative p-3">
                     <div class="imageField w-32 h-32 relative flex justify-center">
                         <div class="field-Info w-32 h-32 border-3 rounded-md transition ease-in ease-out" for="image">
@@ -75,32 +75,14 @@
             </div>
 
             {{-- Main Asset Details --}}
-            <div class="leftC">
-                <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2">
+            <div class="leftC row-spans-2">
+                <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2 md:grid-cols-2">
                     {{-- Asset name, cost, depreciation, etc. --}}
                     <div id="name" class="info flex flex-wrap items-center">
                         <div class="field-label mr-3 capitalize text-slate-400 inline-block">name</div>
                         <div class="field-Info font-semibold inline-block">{{ $data->name }}</div>
                         <x-text-input class="text-sm edit hidden inline-block" name='name'
                             value="{{ $data->name }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Cost</div>
-                        <div class="field-Info font-semibold">{{ $data->cost }}</div>
-                        <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
-                            name="cost" required value="{{ $data->cost }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Depreciation</div>
-                        <div class="field-Info font-semibold" id="depreciation-value">{{ $data->depreciation }}</div>
-                        <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
-                            name="depreciation" required value="{{ $data->depreciation }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Salvage Value</div>
-                        <div class="field-Info font-semibold">{{ $data->salvageVal }}</div>
-                        <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="^-?\d+(\.\d{1,2})?$"
-                            name="salvageVal" required value="{{ $data->salvageVal }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
                         <div class="field-label mr-3 capitalize text-slate-400">Category</div>
@@ -113,12 +95,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <label class="field-label mr-3 capitalize text-slate-400">Lifespan</label>
-                        <div class="field-Info font-semibold">{{ $data->usage_Lifespan }}</div>
-                        <x-text-input class="text-sm edit hidden" id="usage_Lifespan" name="usage"
-                            value="{{ $data->usage_Lifespan }}" />
                     </div>
                     <div class="info flex pb-1 items-center">
                         <div class="field-label mr-3 capitalize text-slate-400">Model</div>
@@ -170,15 +146,13 @@
                     </div>
                     <div class="info flex pb-1 items-center">
                         <div class="field-label mr-3 capitalize text-slate-400">Last Used</div>
-                        <div class="form-group edit">NONE</div>
+                        <div class="form-group edit">{{ $data->lastname . ',' . $data->firstname . ' ' . $data->middlename ?? 'N/A' }}</div>
 
-                        <div class="relative edit hidden">
-                            <input type="text" id="autocomplete-input"
-                                   class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                                   autocomplete="off" value="">
-                            <div id="suggestions" class="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg hidden max-h-60 overflow-y-auto z-10">
-                                <!-- Suggestions will appear here -->
-                            </div>
+                        <div class="form-group edit hidden w-full h-full">
+                            <label for="userHolder" class="hidden">User</label>
+                            <select id="userHolder" class="form-control" name="usrAct" style="width: 100%;" value='{{ $data->last_used_by }}'>
+                                <option value="">Select a user</option>
+                            </select>
                         </div>
 
                     </div>
@@ -192,16 +166,17 @@
                             <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
                         </div>
                         <div class="addInfoContainer grid grid-rows-5 grid-flow-col w-full">
-                            @if ($fields)
-                                @foreach ($fields as $key => $value)
+
+                            @if (!empty($updatedCustomFields))
+                                @foreach ($updatedCustomFields as $item)
                                     <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
-                                        <div class="field-Key customField capitalize text-slate-400">{{ $key }}
+                                        <div class="field-Key customField capitalize text-slate-400 ">{{ ucfirst($item['name']) }}
                                         </div>
-                                        <div class="field-Info customField">{{ $value }}</div>
-                                        <x-text-input class="hidden" name="field[key][]"
-                                            value="{{ $key }}" />
-                                        <x-text-input class="edit hidden" name="field[value][]"
-                                            value="{{ $value }}" />
+
+                                        <div class="field-Info customField">{{  $item['value'] }}</div>
+                                        <x-text-input class="hidden" name="field[key][]" value="{{ ucfirst($item['name']) }}" />
+                                        <x-text-input class="edit hidden" name="field[value][]" aria-placeholder="Value"
+                                            value="{{  !empty($item['value']) ? 'N/A': $item['value'] }} " />
                                     </div>
                                 @endforeach
                             @else
@@ -215,11 +190,11 @@
             {{-- Maintenance History Section --}}
             <div class="rightC flex flex-col">
                 <div class="maintenance flex flex-col justify-center items-center">
-                    <div class="header w-full flex justify-between">
+                    <div class="header w-full flex justify-around">
                         <h1>MAINTENANCE HISTORY</h1>
                         <a href="{{ route('asset.history', $data->id) }}" class="text-[12px] text-blue-500"> VIEW ALL</a>
                     </div>
-                    <div class="divider w-full h-[1px] border-1 border-slate-500 mt-2 mb-2"></div>
+                    <div class="divider w-[80%] h-[1px] border-1 border-slate-500 mt-2 mb-2"></div>
                     <div class="tableContainer">
                         <table>
                             <thead>
@@ -233,7 +208,7 @@
                                     @foreach ($assetRet as $item)
                                         <tr>
                                             <td>{{ $item->lname . ' , ' . $item->fname }}</td>
-                                            <td>{{ $item->reason }}</td>
+                                            <td class="text-wrap">{{ $item->reason }}</td>
                                             <td>{{ $item->cost }}</td>
                                             <td class="text-slate-400">{{ $item->complete }}</td>
                                         </tr>
@@ -250,9 +225,77 @@
         </form>
     </div>
 
-    @vite(['resources/js/displayImage.js', 'resources/js/updateDetails.js'])
+    @php
+        $scripts = ['resources/js/displayImage.js'];
+
+        if( isset($updatedCustomFields)){
+            $scripts[] = 'resources/js/updateDetails.js';
+        }
+
+    @endphp
+    {{-- 'resources/js/displayImage.js', 'resources/js/updateDetails.js' --}}
+    @vite([...$scripts]);
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Select2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            // Function to fetch users under a specific department
+            function fetchUsersByDepartment(departmentId) {
+                $.ajax({
+                    url: `/asset/user/autocomplete`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(users) {
+                        // Clear the previous options
+                        $('#userHolder').empty();
+
+                        if (users.length > 0) {
+                            // console.log('Users fetched:', users);
+                            // Add a placeholder option
+                            $('#userHolder').append('<option value="">Select a user</option>');
+
+                            // Populate the dropdown with the user data
+                            users.forEach(function(user) {
+                                // Make sure you are using the correct field names returned by the backend
+
+                                $('#userHolder').append(
+                                    `<option value="${user.id}">"${user.name}"</option>`);
+                            });
+                        } else {
+                            // Add a "No users found" option if no users are found
+                            $('#userHolder').append('<option value="">No users found</option>');
+                        }
+
+                        // Reinitialize Select2 for #userHolder
+                        $('#userHolder').select2({
+                            placeholder: 'Select a user',
+                            allowClear: true
+                        });
+                    },
+                    error: function(error) {
+                        console.log('Error fetching users:', error);
+                    }
+                });
+            }
+
+            // Initialize Select2 for userHolder initially
+            $('#userHolder').select2({
+                placeholder: 'Select a user',
+                allowClear: true
+            });
+
+            // Example: Fetch users for a department with ID 1 (you can replace this with dynamic input)
+            const departmentId = 1;
+            fetchUsersByDepartment(departmentId);
+        });
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
             //depcreciation calculation
 
@@ -262,87 +305,21 @@
             const depreciationValue = document.getElementById('depreciation-value');
 
             function calculateDepreciation() {
-    const cost = parseFloat(costInput.value) || 0;
-    const salvageVal = parseFloat(salvageValInput.value) || 0;
-    const lifespan = parseFloat(lifespanInput.value) || 1; // Prevent division by zero
+                const cost = parseFloat(costInput.value) || 0;
+                const salvageVal = parseFloat(salvageValInput.value) || 0;
+                const lifespan = parseFloat(lifespanInput.value) || 1; // Prevent division by zero
 
-    const depreciation = (cost - salvageVal) / lifespan;
-    // depreciationValue.textContent = depreciation.toFixed(2); // Update the displayed value
+                const depreciation = (cost - salvageVal) / lifespan;
+                // depreciationValue.textContent = depreciation.toFixed(2); // Update the displayed value
 
-    // Update the hidden input field with the calculated depreciation
-    const depreciationInput = document.getElementById('depreciation');
-    if (depreciationInput) {
-        depreciationInput.value = depreciation.toFixed(2);
-    }
+                // Update the hidden input field with the calculated depreciation
+                const depreciationInput = document.getElementById('depreciation');
+                if (depreciationInput) {
+                    depreciationInput.value = depreciation.toFixed(2);
+                }
 
-    console.log(`Depreciation calculated: ${depreciation.toFixed(2)}`); // Debugging output
-}
-
-
-        // Event listeners to trigger calculation on input change
-        costInput.addEventListener('input', calculateDepreciation);
-        salvageValInput.addEventListener('input', calculateDepreciation);
-        lifespanInput.addEventListener('input', calculateDepreciation);
-
-            const input = document.getElementById('autocomplete-input');
-            const suggestions = document.getElementById('suggestions');
-
-            // Function to fetch suggestions
-            function fetchSuggestions(query = '') {
-                fetch(`/asset/user/autocomplete?query=${encodeURIComponent(query)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        suggestions.innerHTML = ''; // Clear previous suggestions
-
-                        if (Array.isArray(data) && data.length) {
-                            suggestions.style.display = 'block';
-                            // Limit to showing at least 4 suggestions
-                            const usersToShow = data.slice(0, 4);
-                            usersToShow.forEach(item => {
-                                const fullName = `${item.firstname} ${item.middlename} ${item.lastname}`;
-                                const suggestionItem = document.createElement('a');
-                                suggestionItem.className = 'block p-2 hover:bg-gray-200 cursor-pointer';
-                                suggestionItem.textContent = fullName;
-                                suggestionItem.href = '#';
-                                suggestionItem.addEventListener('click', function() {
-                                    input.value = fullName;
-                                    suggestions.style.display = 'none';
-                                });
-                                suggestions.appendChild(suggestionItem);
-                            });
-                        } else {
-                            suggestions.style.display = 'none';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching autocomplete suggestions:', error);
-                    });
+                console.log(`Depreciation calculated: ${depreciation.toFixed(2)}`); // Debugging output
             }
-
-            // Fetch suggestions when the input is focused
-            input.addEventListener('focus', function() {
-                fetchSuggestions(); // Fetch without query to show default users
-            });
-
-            // Fetch suggestions when typing in the input field
-            input.addEventListener('keyup', function() {
-                const query = input.value;
-                if (query.length >= 2) {
-                    fetchSuggestions(query);
-                }
-            });
-
-            // Hide dropdown when clicked outside
-            document.addEventListener('click', function(event) {
-                if (!input.contains(event.target) && !suggestions.contains(event.target)) {
-                    suggestions.style.display = 'none';
-                }
-            });
         });
     </script>
 @endsection

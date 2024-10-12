@@ -95,15 +95,12 @@ class AsstController extends Controller
         ->join('department', 'asset.dept_ID', '=', 'department.id')
         ->join('category', 'asset.ctg_ID', '=', 'category.id')
         ->where('asset.dept_ID', $userDept)
+        ->where('asset.isDeleted',0)
         ->select(
             'asset.id',
             'asset.code',
             'asset.name',
             'asset.image',
-            'asset.cost',
-            'asset.salvageVal',
-            'asset.depreciation',
-            'asset.usage_Lifespan',
             'asset.status',
             'category.name as category',
             'department.name as department'
@@ -180,7 +177,7 @@ class AsstController extends Controller
 
 
             if($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()){
-                return redirect()->back()->with('failed', 'pag butang sa Setting bago ka mu add!');
+                return redirect()->back()->with('toast', 'Your setting is null. Please set up your settings.');
             }
 
         return view('dept_head.createAsset',compact('addInfos' , 'categories','location' ,'model','manufacturer'));
@@ -211,10 +208,7 @@ class AsstController extends Controller
         'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
         'assetname' => 'required',
         'category' => 'required',
-        'cost' => 'required|numeric|min:0.01',
-        'salvageVal' => 'required|numeric|min:0.01',
         'purchased' => 'required|date',
-        'usage' => 'required',
         'loc' => 'required',
         'mod' => 'required',
         'mcft' => 'required',
@@ -245,7 +239,6 @@ class AsstController extends Controller
     department::where('id', $userDept)->increment('assetSequence', 1);
 
     // Calculate depreciation (Straight Line method)
-    $depreciation = ($request->cost - $request->salvageVal) / $request->usage;
 
     // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
     $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
@@ -264,13 +257,8 @@ class AsstController extends Controller
     DB::table('asset')->insert([
         'image' => $pathFile,
         'name' => $request->assetname,
-        'cost' => $request->cost,
         'code' => $code,
-        'purchase_date' => $request->purchased,
         'ctg_ID' => $request->category,
-        'depreciation' => $depreciation,
-        'salvageVal' => $request->salvageVal,
-        'usage_Lifespan' => $request->usage,
         'custom_fields' => $customFields,
         'dept_ID' => $userDept,
         'loc_key' => $request->loc,
@@ -373,10 +361,8 @@ class AsstController extends Controller
         $validatedData = $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'required|string',
-            'cost' => 'required|numeric',
-            'depreciation' => 'required|numeric',
             'category' => 'required|exists:category,id',
-            'usage' => 'required|numeric',
+            'usrAct' => 'nullable|exists:users,id',
             'mod' => 'required|string',
             'mcft' => 'required|exists:manufacturer,id',
             'loc' => 'required|exists:location,id',
@@ -407,19 +393,18 @@ class AsstController extends Controller
         $updatedRow = DB::table('asset')->where('id', $id)->update([
             'image' => $pathFile,
             'name' => $validatedData["name"],
-            'cost' => $validatedData["cost"],
             'ctg_ID' => $validatedData["category"],
             'manufacturer_key' => $validatedData['mcft'],
             'model_key' => $validatedData["mod"],
             'loc_key' => $validatedData["loc"],
-            'usage_Lifespan' => $validatedData["usage"],
+            'last_used_by' => $validatedData["usrAct"],
             'status' => $validatedData["status"],
             'custom_fields' => $fieldUpdate,
             'updated_at' => now(),
         ]);
 
         if ($updatedRow) {
-            return redirect()->route("asset")->with('success', 'Asset updated successfully!');
+            return redirect()->route("asset")->with('toast', 'Asset updated successfully!');
         } else {
             return redirect()->route("asset")->with('failed', 'Asset update Failed!');
         }
@@ -442,10 +427,12 @@ class AsstController extends Controller
             return response()->json(['error' => 'Internal Server Error', 'errorP' => $e], 500);
         }
     }
-    public function delete($id)
+    public function delete($code)
     {
-        $assetDel = assetModel::findOrFail($id);
+        $assetDel = assetModel::where('asset.code', $code)->get();
 
+        $assetDel = $assetDel[0];
+        // dd($assetDel[0]->image);
         // Get the path of the image from the database
         $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
 
@@ -470,129 +457,157 @@ class AsstController extends Controller
 
     //If modify make sure to update show details in QRUserCotroller.php
     //Both same functionalities but different parameters
-    public function showDetails($code)
-{
-    // Get the logged-in user's department ID and user type
-    $userDept = Auth::user()->dept_id;
-    $userType = Auth::user()->usertype;
+        public function showDetails($code)
+        {
+            // Get the logged-in user's department ID and user type
+            $userDept = Auth::user()->dept_id;
+            $userType = Auth::user()->usertype;
 
-    // Retrieve necessary data from related tables
-    $department = ['list' => DB::table('department')->get()];
-    $categories = [
-        'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
-            return $query->where('dept_ID', $userDept);
-        })->get()
-    ];
-    $location = ['locs' => DB::table('location')->get()];
-    $model = ['mod' => DB::table('model')->get()];
-    $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
-    $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
+            // dd($code);
+            // Retrieve necessary data from related tables
+            $department = ['list' => DB::table('department')->get()];
+            $categories = [
+                'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+                    return $query->where('dept_ID', $userDept);
+                })->get()
+            ];
+            $location = ['locs' => DB::table('location')->get()];
+            $model = ['mod' => DB::table('model')->get()];
+            $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+            $status = ['sts' => ['active', 'deployed', 'need repair', 'under maintenance', 'dispose']];
 
-    // Build the query to retrieve the asset data based on the asset code
-    $retrieveDataQuery = assetModel::where('asset.code', $code)
-        ->join('department', 'asset.dept_ID', '=', 'department.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->join('model', 'asset.model_key', '=', 'model.id')
-        ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
-        ->join('location', 'asset.loc_key', '=', 'location.id')
-        ->select(
-            'asset.id',
-            'asset.depreciation',
-            'asset.image',
-            'asset.name',
-            'asset.code',
-            'asset.cost',
-            'asset.salvageVal',
-            'asset.usage_Lifespan',
-            'asset.status',
-            'asset.custom_fields',
-            'asset.qr',  // Add the QR code path
-            'asset.created_at',
-            'asset.updated_at',
-            'category.name as category',
-            'model.name as model',
-            'location.name as location',
-            'manufacturer.name as manufacturer'
-        );
+            // Build the query to retrieve the asset data based on the asset code
+            // dd($code);
+            $retrieveDataQuery = assetModel::where('code', $code)
+    ->leftJoin('department', 'dept_ID', '=', 'department.id')
+    ->leftJoin('category', 'ctg_ID', '=', 'category.id')
+    ->leftJoin('model', 'model_key', '=', 'model.id')
+    ->leftJoin('manufacturer', 'manufacturer_key', '=', 'manufacturer.id')
+    ->leftJoin('location', 'loc_key', '=', 'location.id')
+    ->leftJoin('users', 'users.id', '=', 'asset.last_used_by')
+    ->select(
+        'asset.id',
+        'asset.image',
+        'asset.name',
+        'asset.code',
+        'asset.status',
+        'asset.last_used_by',
+        'asset.custom_fields',
+        'asset.qr',
+        'asset.created_at',
+        'asset.updated_at',
+        'users.firstname', 'users.lastname', 'users.middlename',
+        'category.name as category',
+        'model.name as model',
+        'location.name as location',
+        'manufacturer.name as manufacturer'
+    );
+                // dd($retrieveDataQuery);
+            // Apply department filter for dept_head and user
+            if ($userType != 'admin') {
+                $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
+            }
 
-    // Apply department filter for dept_head and user
-    if ($userType != 'admin') {
-        $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-    }
+            // Retrieve the asset data
+            $retrieveData = $retrieveDataQuery->first();
 
-    // Retrieve the asset data
-    $retrieveData = $retrieveDataQuery->first();
+            // dd($retrieveData);
+            // If no asset is found, redirect with an error message
+            if (!$retrieveData) {
+                return redirect()->route('asset')->with('error', 'Asset not found.');
+            }
 
-    // If no asset is found, redirect with an error message
-    if (!$retrieveData) {
-        return redirect()->route('asset')->with('error', 'Asset not found.');
-    }
+            // Retrieve asset and department data
+    $asset = assetModel::find($retrieveData->id);
+    $department = Department::find($asset->dept_ID);
 
-    // Decode the custom fields
-    $fields = json_decode($retrieveData->custom_fields, true);
+    // Decode custom_fields from both asset and department (assuming they are stored as JSON)
+    $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
+    $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
 
-    // Retrieve related maintenance data for the asset
-    $assetRet = Maintenance::where('maintenance.completed', 1)
-        ->where('maintenance.requestor', 'user.id')
-        ->join('users', 'maintenance.requestor', '=', 'users.id')
-        ->select(
-            'users.firstname as fname',
-            'users.lastname as lname',
-            'maintenance.cost',
-            'maintenance.reason',
-            'maintenance.completion_date as complete'
-        )
-        ->get();
+    // Create an empty array to hold the updated custom fields
+    $updatedCustomFields = [];
+    // dd($departmentCustomFields);
+    // Loop through the department custom fields and map the values from the asset custom fields
+    foreach ($departmentCustomFields as $deptField) {
+        $fieldName = $deptField['name']; // For example: "RAM"
 
-    // Determine the view based on user type
-    $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
+        // Check if the asset has a value for this field
+        $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
 
-    // Return the appropriate view with the asset data, including the QR code
-    return view($view, compact('retrieveData', 'fields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
-}
+        // dd($deptField);
 
-
-    public function downloadCsvTemplate()
-    {
-        // Define the readable column names that will replace foreign keys
-        $columns = [
-            'name',            // Asset name
-            'purchase_date',   // Purchase date (YYYY-MM-DD format)
-            'cost',            // Cost of the asset
-            'depreciation',    // Depreciation value
-            'salvageVal',      // Salvage value after depreciation
-            'usage_Lifespan',  // Usage lifespan in years (can be null if unknown)
-            'category',        // Asset category name (e.g., IT Equipment)
-            'manufacturer',    // Manufacturer name (e.g., Sony)
-            'model',           // Model name (e.g., Model X)
-            'location',        // Location name (e.g., HQ)
-            'status'           // Asset status (e.g., active, deployed, need Repair)
+        // Add the field to the updated custom fields array
+        $updatedCustomFields[] = [
+            'name' => $fieldName,
+            'value' => $fieldValue, // Take the value from the asset
+            'type' => $deptField['type'], // Keep type from department
+            'helper' => $deptField['helptext'] // Keep helper from department
         ];
-
-        // Add a row with sample data that matches required fields
-        $sampleData = [
-            'Sample Asset',    // Asset name
-            now()->format('Y-m-d'),  // Purchase date (today's date in correct format)
-            '10000',           // Cost in decimal (e.g., 10000.00)
-            '500',             // Depreciation value
-            '1000',            // Salvage value
-            '10',              // Usage lifespan (e.g., 10 years)
-            'IT Equipment',    // Example category
-            'Sony',            // Example manufacturer
-            'Model X',         // Example model
-            'HQ',              // Example location
-            'active'           // Status (can be: active, deployed, need Repair, under Maintenance)
-        ];
-
-        // Convert the column names and sample data into CSV format
-        $csvContent = implode(",", $columns) . "\n";
-        $csvContent .= implode(",", $sampleData) . "\n"; // Add a sample row
-
-        // Return the response to download the CSV
-        return response($csvContent)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
     }
+            // Retrieve related maintenance data for the asset
+            $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
+                ->where('completed', 1)
+                ->join('users', 'users.id', '=', 'maintenance.requestor')
+                ->select(
+                    'users.firstname as fname',
+                    'users.lastname as lname',
+                    'maintenance.cost',
+                    'maintenance.reason',
+                    'maintenance.completion_date as complete'
+                )
+                ->get();
+
+            // Determine the view based on user type
+            $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
+                    // dd($updatedCustomFields[0]);
+            // Return the appropriate view with the asset data, including the QR code
+            return view($view, compact('retrieveData', 'updatedCustomFields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
+        }
+
+
+
+        public function downloadCsvTemplate()
+        {
+            // Define the readable column names that will replace foreign keys
+            $columns = [
+                'name',            // Asset name
+                'purchase_date',   // Purchase date (YYYY-MM-DD format)
+                'cost',            // Cost of the asset
+                'depreciation',    // Depreciation value
+                'salvageVal',      // Salvage value after depreciation
+                'usage_Lifespan',  // Usage lifespan in years (can be null if unknown)
+                'category',        // Asset category name (e.g., IT Equipment)
+                'manufacturer',    // Manufacturer name (e.g., Sony)
+                'model',           // Model name (e.g., Model X)
+                'location',        // Location name (e.g., HQ)
+                'status'           // Asset status (e.g., active, deployed, need Repair)
+            ];
+
+            // Add a row with sample data that matches required fields
+            $sampleData = [
+                'Sample Asset',    // Asset name
+                now()->format('Y-m-d'),  // Purchase date (today's date in correct format)
+                '10000',           // Cost in decimal (e.g., 10000.00)
+                '500',             // Depreciation value
+                '1000',            // Salvage value
+                '10',              // Usage lifespan (e.g., 10 years)
+                'IT Equipment',    // Example category
+                'Sony',            // Example manufacturer
+                'Model X',         // Example model
+                'HQ',              // Example location
+                'active'           // Status (can be: active, deployed, need Repair, under Maintenance)
+            ];
+
+            // Convert the column names and sample data into CSV format
+            $csvContent = implode(",", $columns) . "\n";
+            $csvContent .= implode(",", $sampleData) . "\n"; // Add a sample row
+
+            // Return the response to download the CSV
+            return response($csvContent)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
+        }
 
 
 

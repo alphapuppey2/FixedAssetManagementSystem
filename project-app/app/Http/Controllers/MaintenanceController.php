@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Models\assetModel;
 use App\Models\category;
 use App\Models\locationModel;
 use App\Models\ModelAsset;
 use App\Models\Manufacturer;
 use App\Models\Preventive;
-
+use App\Jobs\RunPredictiveAnalysis;
+use Illuminate\Support\Facades\Log;
 
 
 class MaintenanceController extends Controller
@@ -260,6 +262,10 @@ class MaintenanceController extends Controller
 
         // Find the maintenance request
         $maintenance = Maintenance::findOrFail($id);
+        $asset = assetModel::findOrFail($maintenance->asset_key);
+
+        $asset->status = "under Maintenance";
+        $asset->save();
 
         // Update the status to 'approved'
         $maintenance->status = 'approved';
