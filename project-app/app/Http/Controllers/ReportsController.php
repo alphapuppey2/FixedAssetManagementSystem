@@ -27,19 +27,19 @@ class ReportsController extends Controller
         $assetColumns = ['id', 'name', 'code', 'status', 'created_at'];
         $selectedColumns = session('selected_report_columns', $assetColumns);
         $filters = session('selected_report_filters', []);
-    
+
         // Get the department of the logged-in user
         $userDepartmentId = Auth::user()->dept_id;
-    
+
         // Determine the number of records per page (only relevant for non-export)
         $perPage = $request->input('rows_per_page', 10);
-    
+
         // Fetch categories, manufacturers, models, and locations
         $categories = \App\Models\category::all();
         $manufacturers = \App\Models\Manufacturer::all();
         $models = \App\Models\ModelAsset::all();
         $locations = \App\Models\locationModel::all();
-    
+
         // Start building the query
         $query = \DB::table('asset')
             ->select('asset.*',
@@ -55,12 +55,12 @@ class ReportsController extends Controller
             ->leftJoin('model', 'asset.model_key', '=', 'model.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
             ->where('asset.dept_ID', $userDepartmentId);
-    
+
         // Apply date filters
         $dateFilter = $request->input('date_filter');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date', date('Y-m-d'));
-    
+
         if ($dateFilter) {
             switch ($dateFilter) {
                 case 'today':
@@ -84,17 +84,12 @@ class ReportsController extends Controller
             }
         }
 
-        // Calculate total assets
-        $totalAssets = $query->count();
+        // Calculate total assets and total cost
+        $totalAssets = $query->count(); // Ensure this line is executed before pagination
+        $totalCost = in_array('cost', $selectedColumns) ? $query->sum('asset.cost') : null;
 
-        // Calculate total cost if the 'cost' column is selected
-        $totalCost = null;
-        if (in_array('cost', $selectedColumns)) {
-            $totalCost = $query->sum('asset.cost');
-        }
-        
         // Determine the date display based on the selected filter
-        $dateDisplay = '';
+        $dateDisplay = 'All Time'; // Default value
         switch ($dateFilter) {
             case 'today':
                 $dateDisplay = now()->format('M d, Y');
@@ -113,17 +108,11 @@ class ReportsController extends Controller
                     $dateDisplay = \Carbon\Carbon::parse($startDate)->format('M d, Y') . ' - ' . \Carbon\Carbon::parse($endDate)->format('M d, Y');
                 }
                 break;
-            default:
-                $dateDisplay = 'All Time';
-                break;
         }
+
         // Fetch data with or without pagination
         $assetData = $isExport ? $query->get() : $query->paginate($perPage);
-    
-        if ($isExport) {
-            return $assetData; // For export, just return the data
-        }
-    
+
         // Pass the variables to the view
         return view('dept_head.reports', compact(
             'assetColumns',
@@ -134,13 +123,15 @@ class ReportsController extends Controller
             'manufacturers',
             'models',
             'locations',
-            'totalAssets', // Add total assets
-            'totalCost', // Add total cost
-            'dateDisplay' // Add date display
+            'totalAssets', // Pass total assets to the view
+            'totalCost',    // Pass total cost to the view
+            'dateDisplay'   // Pass date display to the view
         ));
     }
-    
-    
+
+
+
+
     /**
      * Save the selected report columns.
      *
@@ -150,19 +141,19 @@ class ReportsController extends Controller
     public function saveReportColumns(Request $request)
     {
         \Log::info('Received request for saving report columns', $request->all()); // Log the request data for debugging
-    
+
         // Retrieve selected columns
         $columns = $request->input('columns', []);
-    
+
         // Validate that some columns are selected
         if (empty($columns)) {
             \Log::error('No columns selected');
             return response()->json(['success' => false, 'message' => 'No columns selected.']);
         }
-    
+
         // Save the selected columns in the session (or database)
         session(['selected_report_columns' => $columns]);
-    
+
         // Retrieve filter options for dropdown fields
         $filters = [
             'status' => $request->input('status', []),
@@ -172,42 +163,81 @@ class ReportsController extends Controller
             'model_key' => $request->input('model_key', []),
             'loc_key' => $request->input('loc_key', []),
         ];
-    
+
         // Save the filters in the session
         session(['selected_report_filters' => $filters]);
-    
+
         // Return success response
         \Log::info('Successfully saved columns and filters', ['columns' => $columns, 'filters' => $filters]);
         return response()->json(['success' => true, 'columns' => $columns]);
     }
-    
+
 
     public function fetchReportData(Request $request)
     {
         try {
-            $selectedColumns = $request->input('columns', ['id', 'name', 'code', 'status', 'purchase_date']); // Default columns
-    
-            // Ensure the columns exist in the database schema to avoid invalid column errors
-            $validColumns = \Schema::getColumnListing('asset');
-            $selectedColumns = array_filter($selectedColumns, function($column) use ($validColumns) {
-                return in_array($column, $validColumns);
-            });
-    
-            if (empty($selectedColumns)) {
-                \Log::error('No valid columns provided for fetching report data.');
-                return response()->json(['success' => false, 'message' => 'No valid columns selected.'], 400);
-            }
-    
-            // Fetch the data
+            $selectedColumns = $request->input('columns', ['id', 'name', 'code', 'status', 'purchase_date']);
+
+            // Ensure the columns are valid and include related names if needed
+            $columnsToSelect = collect($selectedColumns)->map(function ($column) {
+                switch ($column) {
+                    case 'ctg_ID':
+                        return 'category.name as category_name';
+                    case 'dept_ID':
+                        return 'department.name as department_name';
+                    case 'manufacturer_key':
+                        return 'manufacturer.name as manufacturer_name';
+                    case 'model_key':
+                        return 'model.name as model_name';
+                    case 'loc_key':
+                        return 'location.name as location_name';
+                    default:
+                        return "asset.$column";
+                }
+            })->toArray();
+
+            // Fetch data with the appropriate joins
             $assetData = \DB::table('asset')
-                ->select($selectedColumns)
+                ->select($columnsToSelect)
+                ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+                ->leftJoin('department', 'asset.dept_ID', '=', 'department.id')
+                ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
+                ->leftJoin('model', 'asset.model_key', '=', 'model.id')
+                ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
                 ->get();
-    
-            // Return the data
+
+            // Map the data to ensure proper column names are returned
+            $formattedData = $assetData->map(function ($item) use ($selectedColumns) {
+                $formattedItem = [];
+                foreach ($selectedColumns as $column) {
+                    switch ($column) {
+                        case 'ctg_ID':
+                            $formattedItem[$column] = $item->category_name ?? 'N/A';
+                            break;
+                        case 'dept_ID':
+                            $formattedItem[$column] = $item->department_name ?? 'N/A';
+                            break;
+                        case 'manufacturer_key':
+                            $formattedItem[$column] = $item->manufacturer_name ?? 'N/A';
+                            break;
+                        case 'model_key':
+                            $formattedItem[$column] = $item->model_name ?? 'N/A';
+                            break;
+                        case 'loc_key':
+                            $formattedItem[$column] = $item->location_name ?? 'N/A';
+                            break;
+                        default:
+                            $formattedItem[$column] = $item->$column ?? 'N/A';
+                            break;
+                    }
+                }
+                return $formattedItem;
+            });
+
             return response()->json([
                 'success' => true,
                 'columns' => $selectedColumns,
-                'assetData' => $assetData,
+                'assetData' => $formattedData,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching report data: ' . $e->getMessage());
@@ -215,11 +245,13 @@ class ReportsController extends Controller
         }
     }
 
+
+
     public function export(Request $request)
     {
         $format = $request->query('format', 'csv');
         $selectedColumns = session('selected_report_columns', ['id', 'name', 'code', 'status', 'created_at']);
-    
+
         // Start building the query for fetching data with the same logic as in showReports
         $query = \DB::table('asset')
             ->select('asset.*',
@@ -234,12 +266,12 @@ class ReportsController extends Controller
             ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->leftJoin('model', 'asset.model_key', '=', 'model.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id');
-    
+
         // Apply date filters
         $dateFilter = $request->query('date_filter'); // Use query() to get the date filter from the URL
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date', date('Y-m-d'));
-    
+
         if ($dateFilter) {
             switch ($dateFilter) {
                 case 'today':
@@ -262,14 +294,14 @@ class ReportsController extends Controller
                     break;
             }
         }
-    
+
         // Fetch the data for export based on the applied filters
         $assetData = $query->get();
-    
+
         // Calculate total assets and total cost
         $totalAssets = $assetData->count();
         $totalCost = in_array('cost', $selectedColumns) ? $assetData->sum('cost') : null;
-    
+
         // Determine the date display based on the selected filter
         $dateDisplay = '';
         switch ($dateFilter) {
@@ -294,10 +326,10 @@ class ReportsController extends Controller
                 $dateDisplay = 'All Time';
                 break;
         }
-    
+
         // Pass the filtered data, columns, and additional information to the export class
         $export = new AssetReportExport($assetData, $selectedColumns, $totalAssets, $totalCost, $dateDisplay);
-    
+
         // Export based on the selected format
         switch ($format) {
             case 'xlsx':
@@ -316,18 +348,18 @@ class ReportsController extends Controller
                 return Excel::download($export, 'asset_report.csv');
         }
     }
-    
+
     public function resetColumns()
     {
         try {
             // Clear the session data for selected columns
             session()->forget('selected_report_columns');
-    
+
             // Optionally, clear other session data related to filters if needed
             session()->forget('selected_report_filters');
-    
+
             \Log::info('Columns successfully reset'); // For debugging purposes
-    
+
             // Return a success response
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
@@ -335,7 +367,7 @@ class ReportsController extends Controller
             return response()->json(['success' => false, 'message' => 'An error occurred while resetting columns.'], 500);
         }
     }
-    
-    
-    
+
+
+
 }

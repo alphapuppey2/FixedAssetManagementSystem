@@ -159,6 +159,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
     Route::get('/reports/reset-columns', [ReportsController::class, 'resetColumns'])->name('reports.resetColumns');
 
+
     Route::get('/profile', function () {
         return view('dept_head.profile');
     })->name('profile');

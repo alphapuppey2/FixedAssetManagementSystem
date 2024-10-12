@@ -41,12 +41,12 @@
                         <a href="{{ route('reports.export', ['format' => 'csv', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as CSV</a>
                         <a href="{{ route('reports.export', ['format' => 'xlsx', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as Excel</a>
                         <a href="{{ route('reports.export', ['format' => 'pdf', 'date_filter' => request('date_filter'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Export as PDF</a>
-                    </div>                      
+                    </div>
                 </div>
                 <button onclick="openModal()" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                      </svg>                      
+                      </svg>
                     Customize Report
                 </button>
             </div>
@@ -168,27 +168,35 @@
                     <tr class="hover:bg-gray-50">
                         @foreach($selectedColumns as $column)
                             <td class="px-6 py-4 text-sm text-gray-900">
-                                @if($column == 'ctg_ID')
-                                    {{ $row->category_name ?? 'N/A' }}
-                                @elseif($column == 'dept_ID')
-                                    {{ $row->department_name ?? 'N/A' }}
-                                @elseif($column == 'manufacturer_key')
-                                    {{ $row->manufacturer_name ?? 'N/A' }}
-                                @elseif($column == 'model_key')
-                                    {{ $row->model_name ?? 'N/A' }}
-                                @elseif($column == 'loc_key')
-                                    {{ $row->location_name ?? 'N/A' }}
-                                @elseif($column == 'status')
-                                    {{ ucfirst($row->status) }}
-                                @else
-                                    {{ $row->$column }}
-                                @endif
+                                @switch($column)
+                                    @case('ctg_ID')
+                                        {{ $row->category_name ?? 'N/A' }}
+                                        @break
+                                    @case('dept_ID')
+                                        {{ $row->department_name ?? 'N/A' }}
+                                        @break
+                                    @case('manufacturer_key')
+                                        {{ $row->manufacturer_name ?? 'N/A' }}
+                                        @break
+                                    @case('model_key')
+                                        {{ $row->model_name ?? 'N/A' }}
+                                        @break
+                                    @case('loc_key')
+                                        {{ $row->location_name ?? 'N/A' }}
+                                        @break
+                                    @case('status')
+                                        {{ ucfirst($row->status) }}
+                                        @break
+                                    @default
+                                        {{ $row->$column ?? 'N/A' }}
+                                @endswitch
                             </td>
                         @endforeach
                     </tr>
                 @endforeach
             @endif
         </tbody>
+
     </table>
 </div>
 
@@ -332,7 +340,7 @@
         url.searchParams.delete('start_date');
         url.searchParams.delete('end_date');
         url.searchParams.delete('rows_per_page');
-        
+
         // Redirect to the updated URL
         window.location.href = url.toString();
     }
@@ -398,31 +406,26 @@
         return;
     }
 
-    // Add the selected dropdown values to formData as columns if they are not empty
+    // Add the selected dropdown values to formData
     const dropdowns = ['status', 'ctg_ID', 'dept_ID', 'manufacturer_key', 'model_key', 'loc_key'];
     dropdowns.forEach(dropdown => {
         const selectedOptions = Array.from(document.querySelectorAll(`select[name="${dropdown}[]"] option:checked`))
             .map(option => option.value)
             .filter(value => value !== 'all'); // Ignore "All" option
         if (selectedOptions.length > 0) {
-            formData.append('columns[]', dropdown); // Add the field as a column if selected
+            formData.append('columns[]', dropdown);
         }
     });
 
     fetch('/save-report-columns', {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Ensure this is being rendered by Laravel
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json',
         },
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
             // Fetch updated data and update the table
@@ -437,6 +440,61 @@
         alert('An error occurred while saving columns.');
     });
 }
+
+function fetchUpdatedReportData(columns) {
+    const params = new URLSearchParams();
+    columns.forEach(column => params.append('columns[]', column));
+
+    fetch('/fetch-report-data?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the table with the new data
+            updateTable(columns, data.assetData);
+        } else {
+            alert('Failed to fetch updated report data.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching updated data.');
+    });
+}
+
+function updateTable(columns, assetData) {
+    const tableHead = document.querySelector('table thead tr');
+    tableHead.innerHTML = '';
+
+    columns.forEach(column => {
+        const th = document.createElement('th');
+        th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+        th.textContent = column.replace('_', ' ').toUpperCase();
+        tableHead.appendChild(th);
+    });
+
+    const tableBody = document.querySelector('table tbody');
+    tableBody.innerHTML = '';
+
+    assetData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50';
+
+        columns.forEach(column => {
+            const td = document.createElement('td');
+            td.className = 'px-6 py-4 text-sm text-gray-900';
+            td.textContent = row[column] || 'N/A'; // Display 'N/A' if column data is null
+            tr.appendChild(td);
+        });
+
+        tableBody.appendChild(tr);
+    });
+}
+
 
 
 function fetchUpdatedReportData(columns) {
@@ -570,14 +628,14 @@ function resetColumns() {
             toast = document.createElement('div');
             toast.id = type === 'success' ? 'toast' : 'dateErrorToast';
             toast.className = 'fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg'; // Base styles
-            
+
             // Additional styles based on type
             if (type === 'success') {
                 toast.classList.add('bg-green-500', 'text-white');
             } else {
                 toast.classList.add('bg-red-500', 'text-white');
             }
-            
+
             document.body.appendChild(toast);
         }
 
