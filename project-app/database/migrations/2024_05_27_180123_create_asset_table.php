@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('asset', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('image')->nullable();
-            $table->string('qr')->nullable();
+            $table->string('asst_img')->nullable();
+            $table->string('qr_img')->nullable();
             $table->string('code')->unique();
             $table->timestamp('purchase_date')->useCurrent();
-            $table->integer('usage_Lifespan')->nullable();
-            $table->enum('status', ['active', 'deployed', 'need_repair', 'under_maintenance', 'disposed'])->default('active'); //proper wording
+            $table->integer('usage_lifespan')->nullable();
+            $table->integer('salvage_value')->nullable();
+            $table->integer('purchase_cost')->nullable();
+            $table->integer('depreciation')->nullable();
+            $table->enum('status', ['active', 'deployed', 'under_maintenance', 'disposed'])->default('active');
 
             $table->binary('custom_fields')->nullable();
 
@@ -28,13 +31,16 @@ return new class extends Migration
             $table->unsignedBigInteger('manufacturer_key');
             $table->unsignedBigInteger('model_key');
             $table->unsignedBigInteger('loc_key');
+            $table->unsignedBigInteger('last_used_by')->nullable();
 
+            $table->foreign('last_used_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('model_key')->references('id')->on('model')->onDelete('cascade');
             $table->foreign('loc_key')->references('id')->on('location')->onDelete('cascade');
             $table->foreign('manufacturer_key')->references('id')->on('manufacturer')->onDelete('cascade');
             $table->foreign('ctg_ID')->references('id')->on('category')->onDelete('cascade');
             $table->foreign('dept_ID')->references('id')->on('department')->onDelete('cascade');
             $table->timestamps();
+            $table->boolean('isDeleted')->default(0);
         });
     }
 
