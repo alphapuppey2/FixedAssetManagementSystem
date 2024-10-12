@@ -14,6 +14,7 @@ use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserSideController;
 
@@ -71,6 +72,11 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
 
+    // MAINTENANCE
+    Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
+    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approved'])->name('adminMaintenanceAproved');
+    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'denied'])->name('adminMaintenanceDenied');
+
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
         return view('admin.profile');
@@ -99,6 +105,8 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+    Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
+
 
 
     // IMPORT
@@ -126,17 +134,16 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
+    Route::get('/assets/details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
     Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
 
     Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
     Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
-
-
-    // routes/web.php
     Route::post('/update-maintenance-status', [MaintenanceController::class, 'updateStatus']);
+
+    Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
 
     //setting page

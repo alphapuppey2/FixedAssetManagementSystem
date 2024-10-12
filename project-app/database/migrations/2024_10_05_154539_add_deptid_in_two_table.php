@@ -34,9 +34,20 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('manufacturer');
-        Schema::dropIfExists('model');
-        Schema::dropIfExists('location');
+        Schema::table('manufacturer', function (Blueprint $table) {
+            $table->dropForeign(['dept_ID']); // Drop the foreign key first
+            $table->dropColumn('dept_ID');    // Then drop the column
+        });
+
+        Schema::table('model', function (Blueprint $table) {
+            $table->dropForeign(['dept_ID']); // Drop the foreign key first
+            $table->dropColumn('dept_ID');    // Then drop the column
+        });
+
+        Schema::table('location', function (Blueprint $table) {
+            $table->dropForeign(['dept_ID']); // Drop the foreign key first
+            $table->dropColumn('dept_ID');    // Then drop the column
+        });
 
     }
 };

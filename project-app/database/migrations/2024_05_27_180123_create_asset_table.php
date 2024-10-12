@@ -22,7 +22,8 @@ return new class extends Migration
             $table->decimal("depreciation",10,2)->default(0.00);
             $table->decimal("salvageVal",10,2)->default(0.00);
             $table->integer('usage_Lifespan')->nullable();
-            $table->enum('status', ['active','deployed','need_repair','under_maintenance','disposed'])->default('active');
+            $table->enum('status', ['active', 'deployed', 'need_repair', 'under_maintenance', 'disposed'])->default('active'); //proper wording
+
             $table->binary('custom_fields')->nullable();
 
             $table->unsignedBigInteger('ctg_ID');
