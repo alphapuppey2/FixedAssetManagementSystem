@@ -37,7 +37,6 @@ class UserFactory extends Factory
             'gender' => $this->faker->randomElement(['male', 'female']),
             'contact' => $this->faker->phoneNumber,
             'dept_id' => 1,
-            'status' => 'active',
             'usertype' => $this->faker->randomElement(['user', 'dept_head', 'admin']),
 
         ];

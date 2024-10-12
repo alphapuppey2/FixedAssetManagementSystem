@@ -4,7 +4,7 @@
     // Retrieve asset data and fallback image
     $data = $retrieveData ?? null;
     $imagePath = $data->image ?? 'images/defaultICON.png';
-    $qrCodePath = $data->qr ?? 'images/defaultQR.png'; // Fallback QR code if not available
+    $qrCodePath = $data->qr_img ?? 'images/defaultQR.png'; // Fallback QR code if not available
 @endphp
 
 @section('header')

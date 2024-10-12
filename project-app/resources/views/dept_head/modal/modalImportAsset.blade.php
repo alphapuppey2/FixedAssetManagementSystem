@@ -144,8 +144,8 @@
             csvData.forEach((row, index) => {
                 const rowHTML = `<tr>
             <td><input type="checkbox" class="rowCheckbox" data-index="${index}" checked></td>
-            ${row.map(cell => `<td>${cell}</td>`).join('')}
-        </tr>`;
+                ${row.map(cell => `<td>${cell}</td>`).join('')}
+            </tr>`;
                 previewTableBody.innerHTML += rowHTML;
             });
 
@@ -154,7 +154,6 @@
             updateSelectedSummary(); // Update the checked summary
             setupCheckboxListeners(); // Setup the checkbox interactions
         }
-
 
         // Open and Close Modals
         function openPreviewModal() {
