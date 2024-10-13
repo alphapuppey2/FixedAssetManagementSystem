@@ -3,8 +3,9 @@
 @php
     // Retrieve asset data and fallback image
     $data = $retrieveData ?? null;
-    $imagePath = $data->image ?? 'images/defaultICON.png';
-    $qrCodePath = $data->qr_img ?? 'images/defaultQR.png'; // Fallback QR code if not available
+    // $imagePath = $data->asst_img ?? 'images/defaultICON.png';
+    $imagePath = $data->asst_img ? 'storage/' . $data->asst_img : 'images/no-image.png';
+    $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png';
 @endphp
 
 @section('header')
@@ -47,7 +48,7 @@
                 <div class="imagepart overflow-hidden relative p-3">
                     <div class="imageField w-32 h-32 relative flex justify-center">
                         <div class="field-Info w-32 h-32 border-3 rounded-md transition ease-in ease-out" for="image">
-                            <img src="{{ $imagePath ? asset('storage/' . $imagePath) : asset('images/no-image.jpg') }}"
+                            <img src="{{ asset($imagePath) }}"
                                 id="imageviewOnly"
                                 class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
                                 alt="Asset Image">
@@ -55,7 +56,7 @@
                         <label
                             class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
                             for="image">
-                            <img src="{{ $imagePath ? asset('storage/' . $imagePath) : asset('images/no-image.jpg') }}"
+                            <img src="{{ asset($imagePath) }}"
                                 id="imageDisplay"
                                 class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
                                 alt="Asset Image">
@@ -66,11 +67,17 @@
 
                 {{-- QR Code Section --}}
                 <div class="qrContainer flex flex-col items-center">
-                    <div class="QRBOX w-24 h-24">
-                        <img src="{{ asset('storage/' . $qrCodePath) }}" alt="QR Code"
-                            class="w-full h-full object-contain">
-                    </div>
-                    <a href="{{ asset('storage/' . $qrCodePath) }}" download="{{ $data->code }}">Download QR Code</a>
+                    @if($data->qr_img)
+                        <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}">
+                            <div class="QRBOX w-32 h-32">
+                                <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code" class="w-full h-full object-contain">
+                            </div>
+                        </a>
+                    @else
+                        <div class="QRBOX w-32 h-32">
+                            <img src="{{ asset($qrCodePath) }}" alt="QR Code" class="w-full h-full object-contain">
+                        </div>
+                    @endif
                 </div>
             </div>
 

@@ -222,7 +222,7 @@ class AsstController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $filename, 'public');
+            $path = $image->storeAs('asset_images', $filename, 'public');
             $pathFile = $path;
         }
 
@@ -373,7 +373,7 @@ class AsstController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $filename, 'public');
+            $path = $image->storeAs('asset_images', $filename, 'public');
             $pathFile = $path;
         }
         $updatedRow = DB::table('asset')->where('id', $id)->update([
