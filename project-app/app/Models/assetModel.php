@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -17,10 +18,9 @@ class assetModel extends Model
 
     protected $fillable = [ 'id' ,
                             'code',
-                            'qr',
+                            'qr_img',
                             'name',
                             'image',
-                            'cost',
                             'ctg_ID',
                             'dept_ID',
                             'manufacturer_key',
@@ -29,7 +29,34 @@ class assetModel extends Model
                             'custom_fields',
                             'created_at',
                             'updated_at',
+                            'isDeleted',
                           ];
+
+                           // Override the delete method to mark as soft-deleted
+    public function delete()
+    {
+        $this->isDeleted = 1;
+        $this->save();
+    }
+
+    // Create a restore method to un-delete the record
+    public function restore()
+    {
+        $this->isDeleted = 0;
+        $this->save();
+    }
+
+    // Scope to exclude soft-deleted records by default
+    public function scopeNotDeleted($query)
+    {
+        return $query->where('isDeleted', 0);
+    }
+
+    // Optional: Scope to include only soft-deleted records
+    public function scopeOnlyDeleted($query)
+    {
+        return $query->where('isDeleted', 1);
+    }
 
     // Relationship to the Category model
 

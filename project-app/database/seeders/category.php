@@ -16,24 +16,44 @@ class category extends Seeder
     {
         //
         CategoryModel::create([
-            'name' => 'Category 1',
-            'description'=>"categories",
+            'name' => 'Mouse',
+            'description'=>"peripherals",
             'dept_ID' => 1
         ]);
         CategoryModel::create([
-            'name' => 'Category 2',
-            'description'=>"categories",
+            'name' => 'Keyboard',
+            'description'=>"peripherals",
             'dept_ID' => 1
         ]);
         CategoryModel::create([
-            'name' => 'Category 1',
-            'description'=>"categories",
+            'name' => 'Calculator',
+            'description'=>"for computations",
             'dept_ID' => 2
         ]);
         CategoryModel::create([
-            'name' => 'Category 2',
-            'description'=>"categories",
+            'name' => 'Pencil',
+            'description'=>"for writing that needs erasures",
             'dept_ID' => 2
+        ]);
+        CategoryModel::create([
+            'name' => 'Tyre',
+            'description'=>"Reserve tyres",
+            'dept_ID' => 3
+        ]);
+        CategoryModel::create([
+            'name' => 'Brakes',
+            'description'=>"For safety",
+            'dept_ID' => 3
+        ]);
+        CategoryModel::create([
+            'name' => 'Compressor',
+            'description'=>"Increases the pressure of a gas by reducing its volume",
+            'dept_ID' => 4
+        ]);
+        CategoryModel::create([
+            'name' => 'Slicer',
+            'description'=>"to slice meats, sausages, cheeses and other deli products",
+            'dept_ID' => 4
         ]);
     }
 }

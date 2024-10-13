@@ -262,6 +262,10 @@ class MaintenanceController extends Controller
 
         // Find the maintenance request
         $maintenance = Maintenance::findOrFail($id);
+        $asset = assetModel::findOrFail($maintenance->asset_key);
+
+        $asset->status = "under Maintenance";
+        $asset->save();
 
         // Update the status to 'approved'
         $maintenance->status = 'approved';

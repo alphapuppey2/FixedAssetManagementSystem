@@ -106,28 +106,28 @@ class settingController extends Controller
             case 'model':
                 $deleteFrom = ModelAsset::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'model_key')->exists()){
-                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors("Deletion not allowed due to linked products.")
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'manufacturer':
                 $deleteFrom = manufacturer::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'manufacturer_key')->exists()){
-                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors("Deletion not allowed due to linked products.")
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'location':
                 $deleteFrom = locationModel::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'loc_key')->exists()){
-                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors("Deletion not allowed due to linked products.")
                      ->withInput(); // Fallback URL
                 }
                 break;
             case 'category':
                 $deleteFrom = category::findOrFail($id);
                 if($deleteFrom->hasMany(assetModel::class, 'ctg_ID')->exists()){
-                    return redirect()->back()->withErrors('Cannot be deleted as there are linked products.')
+                    return redirect()->back()->withErrors("Deletion not allowed due to linked products.")
                      ->withInput(); // Fallback URL
                 }
                 break;

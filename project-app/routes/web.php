@@ -109,8 +109,6 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
     Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
 
-
-
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');

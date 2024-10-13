@@ -25,8 +25,8 @@
                 {
                     label: 'Under Maintenance Assets',
                     data: maintenanceCounts,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 165, 0, 1)',
+                    backgroundColor: 'rgba(255, 165, 0, 0.2)',
                     fill: false
                 }
             ]
@@ -37,6 +37,11 @@
                 legend: {
                     position: 'top',
                 },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true // Ensures the y-axis starts at 0
+                }
             }
         }
     });
