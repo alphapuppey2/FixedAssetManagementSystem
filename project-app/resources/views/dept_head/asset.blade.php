@@ -1,36 +1,36 @@
 @extends('layouts.app')
 @section('header')
-    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
-        <div class="title">
-            <a href="{{ asset('asset') }}">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Asset
-                </h2>
-            </a>
-        </div>
-        <div class="header-R flex items-center">
-            <button id="openModalBtn">
-                <span>
-                    <x-icons.importIcon />
-                </span>
-            </button>
-            <button>
-                <span>
-                    <x-icons.exportIcon />
-                </span>
-            </button>
-            <div class="searchBox">
-                <x-text-input name="search" id="searchFilt" placeholder="Search" />
-            </div>
+<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+    <div class="title">
+        <a href="{{ asset('asset') }}">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Asset
+            </h2>
+        </a>
+    </div>
+    <div class="header-R flex items-center">
+        <button id="openModalBtn">
+            <span>
+                <x-icons.importIcon />
+            </span>
+        </button>
+        <button>
+            <span>
+                <x-icons.exportIcon />
+            </span>
+        </button>
+        <div class="searchBox">
+            <x-text-input name="search" id="searchFilt" placeholder="Search" />
         </div>
     </div>
+</div>
 @endsection
 
 @section('content')
 @if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
 @endif
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
@@ -50,37 +50,37 @@
             </thead>
             <tbody id="table-body">
                 @if (!$asset->isEmpty())
-                    @foreach ($asset as $asst)
-                        <tr>
-                            <th class="align-middle text-center text-sm text-gray-900  " scope="col">
-                                {{ $asst->code ? $asst->code : 'NONE' }}
-                            </th>
-                            <td class="align-middle text-center text-sm text-gray-900 py-2 text-balance">
-                                {{ $asst->name }}
-                            </td>
-                            <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->category }}</td>
-                            <td class="align-middle text-center text-sm text-gray-900 py-2">
-                                @include('components.asset-status', ['status' => $asst->status])
-                            </td>
-                            <td class="w-40">
-                                <div class="grp flex gap-2 justify-center">
-                                    <a href="{{ route('assetDetails', $asst->code) }}"
-                                        class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                                        <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
-                                    </a>
-                                    <form action="{{ route('asset.delete', $asst->code) }}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
-                                            onclick="return confirm('Are you sure you want to delete this asset?');">
-                                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                @foreach ($asset as $asst)
+                <tr>
+                    <th class="align-middle text-center text-sm text-gray-900  " scope="col">
+                        {{ $asst->code ? $asst->code : 'NONE' }}
+                    </th>
+                    <td class="align-middle text-center text-sm text-gray-900 py-2 text-balance">
+                        {{ $asst->name }}
+                    </td>
+                    <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->category }}</td>
+                    <td class="align-middle text-center text-sm text-gray-900 py-2">
+                        @include('components.asset-status', ['status' => $asst->status])
+                    </td>
+                    <td class="w-40">
+                        <div class="grp flex gap-2 justify-center">
+                            <a href="{{ route('assetDetails', $asst->code) }}"
+                                class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                                <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                            </a>
+                            <form action="{{ route('asset.delete', $asst->code) }}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                    onclick="return confirm('Are you sure you want to delete this asset?');">
+                                    <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
                 @else
                 <tr class="text-center text-gray-800">
                     <td colspan='7' style="color: rgb(177, 177, 177)">No List</td>
@@ -113,15 +113,6 @@
 </div>
 
 @include('dept_head.modal.modalImportAsset')
-
-@if (session('success'))
-    <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-        {{ session('success') }}
-    </div>
-@endif
-
-
-@vite(['resources/js/flashNotification.js'])
 
 <!-- JavaScript -->
 <script>

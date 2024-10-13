@@ -12,38 +12,34 @@ use Illuminate\Support\Facades\DB;;
 class assetModel extends Model
 {
     use HasFactory;
-
-    protected $table = 'asset'; // Ensure the table name matches
+    protected $table = 'asset';
 
     public $timestamps = true;
 
     protected $fillable = [
         'id',
-        'name',
-        'asst_img',  // Updated to match your new table structure
-        'qr_img',
         'code',
-        'purchase_date',
-        'usage_lifespan',
-        'salvage_value',
-        'purchase_cost',
-        'depreciation',
-        'status',
-        'custom_fields',
+        'qr_img',
+        'name',
+        'asst_img',
         'ctg_ID',
         'dept_ID',
         'manufacturer_key',
         'model_key',
         'loc_key',
-        'last_used_by',
+        'custom_fields',
+        'purchase_date',
+        'purchase_cost',
+        'depreciation',
+        'salvage_value',
+        'usage_lifespan',
+        'status',
+        'isDeleted',
         'created_at',
         'updated_at',
-        'isDeleted',
     ];
 
-    /**
-     * Override the delete method to mark as soft-deleted.
-     */
+    // Override the delete method to mark as soft-deleted
     public function delete()
     {
         $this->isDeleted = 1;
@@ -79,7 +75,7 @@ class assetModel extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'ctg_ID');
+        return $this->belongsTo(category::class, 'ctg_ID');
     }
 
     public function manufacturer()
@@ -94,7 +90,7 @@ class assetModel extends Model
 
     public function location()
     {
-        return $this->belongsTo(LocationModel::class, 'loc_key');
+        return $this->belongsTo(locationModel::class, 'loc_key');
     }
 
     public function preventive()
