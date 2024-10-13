@@ -101,8 +101,8 @@ class UserController extends Controller
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = 'profile_' . strtolower($user->lastname) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/profile_photos'), $filename);
-            $user->userPicture = $filename;
+            $path = $file->storeAs('profile_photos', $filename, 'public'); // Save to storage/app/public/profile_photos
+            $user->userPicture = $path; // Store the relative path for future use
         }
 
         // Update other user detalis
@@ -195,8 +195,8 @@ class UserController extends Controller
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = 'profile_' . strtolower($validated['lastname']) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/profile_photos'), $filename);
-            $profilePicturePath = $filename;
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+            $profilePicturePath = $path; // Store the relative path for future use
         }
 
         // Create the new user

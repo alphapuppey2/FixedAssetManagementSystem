@@ -1,13 +1,13 @@
-@if ($asst->status === 'active')
+@if ($status === 'active')
     <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>
     <span>Active</span>
-@elseif ($asst->status === 'deployed')
+@elseif ($status === 'deployed')
     <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500"></span>
     <span>Deployed</span>
-@elseif ($asst->status === 'under_maintenance')
+@elseif ($status === 'under_maintenance')
     <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
     <span>Under Maintenance</span>
-@elseif ($asst->status === 'disposed')
+@elseif ($status === 'disposed')
     <span class="inline-block w-2.5 h-2.5 rounded-full bg-gray-500"></span>
     <span>Disposed</span>
 @else
