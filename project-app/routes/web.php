@@ -16,6 +16,8 @@ use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
+use App\Http\Controllers\ReportsController;
+
 
 
 
@@ -165,7 +167,12 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
+    //Reports
+    Route::get('/reports', [ReportsController::class, 'AssetReport'])->name('reports.asset');
+
 });
+
+
 
 
 // User Routes
