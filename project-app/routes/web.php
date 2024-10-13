@@ -149,6 +149,13 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
 
+
+    // Route for Notifications
+    Route::get('/notification', function () {
+        return view('layouts.notification');
+    })->name('notification');
+
+
     Route::get('/report', function () {
         return view('dept_head.reports');
     })->name('report');

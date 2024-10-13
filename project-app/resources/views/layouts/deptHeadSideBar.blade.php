@@ -80,7 +80,7 @@
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link href="#" class="flex transition ease-in mb-1 p-1 rounded-md">
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('notification')" :active="request()->routeIs('notification')">
                     <x-bellIcon />
                     <span class="ml-2 max-md:hidden lg:block">Notification</span>
                 </x-nav-link>
