@@ -12,27 +12,34 @@ use Illuminate\Support\Facades\DB;
 class assetModel extends Model
 {
     use HasFactory;
-    protected $table ='asset';
+    protected $table = 'asset';
 
     public $timestamps = true;
 
-    protected $fillable = [ 'id' ,
-                            'code',
-                            'qr_img',
-                            'name',
-                            'image',
-                            'ctg_ID',
-                            'dept_ID',
-                            'manufacturer_key',
-                            'model_key',
-                            'loc_key',
-                            'custom_fields',
-                            'created_at',
-                            'updated_at',
-                            'isDeleted',
-                          ];
+    protected $fillable = [
+        'id',
+        'code',
+        'qr_img',
+        'name',
+        'asst_img',
+        'ctg_ID',
+        'dept_ID',
+        'manufacturer_key',
+        'model_key',
+        'loc_key',
+        'custom_fields',
+        'purchase_date',
+        'purchase_cost',
+        'depreciation',
+        'salvage_value',
+        'usage_lifespan',
+        'status',
+        'isDeleted',
+        'created_at',
+        'updated_at',
+    ];
 
-                           // Override the delete method to mark as soft-deleted
+    // Override the delete method to mark as soft-deleted
     public function delete()
     {
         $this->isDeleted = 1;
@@ -60,19 +67,23 @@ class assetModel extends Model
 
     // Relationship to the Category model
 
-    public function category() {
+    public function category()
+    {
         return $this->belongsTo(category::class, 'ctg_ID');
     }
 
-    public function manufacturer() {
+    public function manufacturer()
+    {
         return $this->belongsTo(Manufacturer::class, 'manufacturer_key');
     }
 
-    public function model() {
+    public function model()
+    {
         return $this->belongsTo(ModelAsset::class, 'model_key');
     }
 
-    public function location() {
+    public function location()
+    {
         return $this->belongsTo(locationModel::class, 'loc_key');
     }
 

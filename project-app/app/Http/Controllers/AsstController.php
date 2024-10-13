@@ -222,7 +222,7 @@ class AsstController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $filename, 'public');
+            $path = $image->storeAs('asset_images', $filename, 'public');
             $pathFile = $path;
         }
 
@@ -345,6 +345,7 @@ class AsstController extends Controller
     public function update(Request $request, $id)
     {
         $userDept = Auth::user()->dept_id;
+    
         $validatedData = $request->validate([
             'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'required|string',
@@ -353,29 +354,32 @@ class AsstController extends Controller
             'mod' => 'required|string',
             'mcft' => 'required|exists:manufacturer,id',
             'loc' => 'required|exists:location,id',
-            'status' => 'required|nullable|string|max:511',
+            'status' => 'nullable|string|max:511',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
+            'current_image' => 'nullable|string', // For retaining current image
         ]);
-
-        //code for image fileName
-        $department = DB::table('department')->where('id', $userDept)->get();
-
-        $departmentCode = $department[0]->name;
-        $lastID =  department::where('name', $departmentCode)->max('assetSequence');
+    
+        // Retrieve department information for generating the asset code
+        $department = DB::table('department')->where('id', $userDept)->first();
+        $departmentCode = $department->name;
+        $lastID = department::where('name', $departmentCode)->max('assetSequence');
         $seq = $lastID ? $lastID + 1 : 1;
         $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-
+    
         $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
-
-        //image
-        $pathFile = NULL;
+    
+        // Handle image upload or retain the current image
+        $pathFile = $request->input('current_image'); // Use current image path by default
+    
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('images', $filename, 'public');
-            $pathFile = $path;
+            $path = $image->storeAs('asset_images', $filename, 'public');
+            $pathFile = $path; // Update with the new image path
         }
+    
+        // Update asset data in the database
         $updatedRow = DB::table('asset')->where('id', $id)->update([
             'asst_img' => $pathFile,
             'name' => $validatedData["name"],
@@ -388,13 +392,19 @@ class AsstController extends Controller
             'custom_fields' => $fieldUpdate,
             'updated_at' => now(),
         ]);
+    
+        // Retrieve the asset code from the updated asset
+        $asset = DB::table('asset')->where('id', $id)->first();
 
         if ($updatedRow) {
-            return redirect()->route("asset")->with('toast', 'Asset updated successfully!');
+            return redirect()->route('assetDetails', ['id' => $asset->code])
+                ->with('success', 'Asset updated successfully!');
         } else {
-            return redirect()->route("asset")->with('failed', 'Asset update Failed!');
+            return redirect()->route('assetDetails', ['id' => $asset->code])
+                ->with('failed', 'Asset update failed!');
         }
     }
+    
 
     public function searchFiltering(Request $request)
     {
