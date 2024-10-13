@@ -17,7 +17,7 @@ use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserSideController;
-use App\Http\Controllers\ReportController;
+
 
 
 
@@ -174,7 +174,12 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/reports', [ReportController::class, 'maintenanceReport'])->name('reports');
 
+    //Reports
+    Route::get('/reports', [ReportsController::class, 'AssetReport'])->name('reports.asset');
+
 });
+
+
 
 
 // User Routes
