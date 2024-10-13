@@ -16,7 +16,7 @@ use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
-
+use App\Http\Controllers\NotificationController;
 
 
 Route::get('/', function(){
@@ -42,6 +42,16 @@ Route::middleware('auth')->group(function () {
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/delete', [NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/delete-all', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
+
+    // Route::get('/notification', function () {
+    //     return view('layouts.notification');
+    // })->name('notification');
 
 });
 
@@ -148,13 +158,6 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');
     Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
-
-
-    // Route for Notifications
-    Route::get('/notification', function () {
-        return view('layouts.notification');
-    })->name('notification');
-
 
     Route::get('/report', function () {
         return view('dept_head.reports');

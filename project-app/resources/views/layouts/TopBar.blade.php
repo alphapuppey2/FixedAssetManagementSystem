@@ -24,7 +24,7 @@
         </span>
     </div>
 
-    @if(Auth::user()->usertype !== 'user')
+
     <nav class="flex items-center space-x-4 relative">
         <!-- Notification Icon with Click Event -->
         <div x-data="{ open: false }" class="relative">
@@ -41,7 +41,7 @@
 
                 <!-- Actions: View All & Clear -->
                 <div class="border-b border-gray-200 flex justify-between items-center px-3 py-2 bg-gray-50">
-                    <a href="{{route('notification')}}" class="text-blue-500 hover:underline text-sm">
+                    <a href="{{ route('notifications.index') }}" class="text-blue-500 hover:underline text-sm">
                         View All
                     </a>
                     <button
@@ -68,40 +68,42 @@
         </div>
 
         <!-- Create New Dropdown -->
-        <x-dropdown2>
-            <x-slot name="trigger">
-                <div class="div">Create New</div>
-            </x-slot>
+        @if(Auth::user()->usertype === 'admin' || Auth::user()->usertype === 'dept_head')
+            <x-dropdown2>
+                <x-slot name="trigger">
+                    <div class="div">Create New</div>
+                </x-slot>
 
-            <x-slot name="content">
-                @if (Auth::user()->usertype === 'admin')
-                <li>
-                    <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
-                        {{ __('Users') }}
-                    </x-dropdown-link>
-                </li>
-                @endif
-                @if(Auth::user()->usertype === 'dept_head')
-                <li>
-                    <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
-                        {{ __('Asset') }}
-                    </x-dropdown-link>
-                </li>
-                <li>
-                    <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('formMaintenance')">
-                        {{ __('Maintenance') }}
-                    </x-dropdown-link>
-                </li>
-                <li>
-                    <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
-                        {{ __('Report') }}
-                    </x-dropdown-link>
-                </li>
-                @endif
-            </x-slot>
-        </x-dropdown2>
+                <x-slot name="content">
+                    @if (Auth::user()->usertype === 'admin')
+                    <li>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
+                            {{ __('Users') }}
+                        </x-dropdown-link>
+                    </li>
+                    @endif
+
+                    @if (Auth::user()->usertype === 'dept_head')
+                    <li>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                            {{ __('Asset') }}
+                        </x-dropdown-link>
+                    </li>
+                    <li>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('formMaintenance')">
+                            {{ __('Maintenance') }}
+                        </x-dropdown-link>
+                    </li>
+                    <li>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                            {{ __('Report') }}
+                        </x-dropdown-link>
+                    </li>
+                    @endif
+                </x-slot>
+            </x-dropdown2>
+        @endif
     </nav>
-    @endif
 </div>
 
 <!-- Alpine.js -->
