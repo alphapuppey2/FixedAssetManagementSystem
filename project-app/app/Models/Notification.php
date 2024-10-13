@@ -19,7 +19,7 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'title', 'message', 'status', 'is_deleted'
+        'user_id', 'title', 'message', 'status', 'is_deleted', 'authorized_by'
     ];
 
     /**
@@ -53,4 +53,11 @@ class Notification extends Model
     {
         $this->update(['is_deleted' => 1]);
     }
+
+    public function authorizedUser()
+    {
+        return $this->belongsTo(User::class, 'authorized_by');
+    }
+
+
 }

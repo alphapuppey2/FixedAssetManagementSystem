@@ -12,13 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
+
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Links to the users table
-            $table->string('title'); // Title of the notification
-            $table->text('message'); // Detailed message
-            $table->enum('status', ['unread', 'read'])->default('unread'); // Read status
-            $table->boolean('is_deleted')->default(0); // 0 = not deleted, 1 = deleted
-            $table->timestamps(); // created_at & updated_at timestamps
+            $table->string('title');
+            $table->text('message');
+            $table->enum('status', ['unread', 'read'])->default('unread');
+            $table->boolean('is_deleted')->default(0);
+
+            $table->unsignedBigInteger('authorized_by')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+
+            $table->foreign('authorized_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->timestamps();
         });
     }
 

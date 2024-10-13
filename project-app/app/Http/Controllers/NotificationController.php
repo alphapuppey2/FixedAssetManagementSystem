@@ -14,9 +14,11 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Notification::where('user_id', Auth::id())
-            ->where('is_deleted', 0)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        ->where('is_deleted', 0)
+        ->with('authorizedUser')  // Eager load the authorized user
+        ->orderBy('created_at', 'desc')
+        ->get();
+
 
         // Update this to use the correct view path
         return view('layouts.notification', compact('notifications'));

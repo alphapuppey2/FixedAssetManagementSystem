@@ -15,6 +15,7 @@ use App\Models\Manufacturer;
 use App\Models\Preventive;
 use App\Jobs\RunPredictiveAnalysis;
 use Illuminate\Support\Facades\Log;
+use App\Models\Notification;
 
 
 class MaintenanceController extends Controller
@@ -255,6 +256,8 @@ class MaintenanceController extends Controller
     {
         $user = Auth::user();
 
+        Log::info('Approving request with user ID: ' . $user->id);
+
         // Ensure the user is a department head
         if ($user->usertype !== 'dept_head') {
             return redirect()->route('user.home');
@@ -264,7 +267,7 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key);
 
-        $asset->status = "under Maintenance";
+        $asset->status = "under_maintenance";
         $asset->save();
 
         // Update the status to 'approved'
@@ -272,6 +275,18 @@ class MaintenanceController extends Controller
         $maintenance->authorized_by = $user->id;
         $maintenance->authorized_at = now();
         $maintenance->save();
+
+        // Notify the user about the approval
+        $notification = Notification::create([
+            'user_id' => $maintenance->requestor,  // Assuming the requestor field stores the user ID
+            'title' => 'Maintenance Request Approved',
+            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been approved.",
+            'status' => 'unread',
+            'is_deleted' => 0,
+            'authorized_by' => $user->id,
+        ]);
+
+        Log::info('Notification created: ' . json_encode($notification));
 
         return redirect()->route('maintenance')->with('status', 'Request approved successfully.');
     }
@@ -288,6 +303,7 @@ class MaintenanceController extends Controller
 
         // Find the maintenance request
         $maintenance = Maintenance::findOrFail($id);
+        $asset = assetModel::findOrFail($maintenance->asset_key); // Get the associated asset
 
         // Validate the reason
         $request->validate([
@@ -300,6 +316,16 @@ class MaintenanceController extends Controller
         $maintenance->authorized_at = now();
         $maintenance->reason = $request->input('reason');
         $maintenance->save();
+
+        // Notify the user about the denial
+        Notification::create([
+            'user_id' => $maintenance->requestor,  // Assuming the requestor field stores the user ID
+            'title' => 'Maintenance Request Denied',
+            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been denied. Reason: ". $request->input('reason'),
+            'status' => 'unread',
+            'is_deleted' => 0,
+            'authorized_by' => $user->id,
+        ]);
 
         return redirect()->route('maintenance')->with('status', 'Request denied.');
     }
