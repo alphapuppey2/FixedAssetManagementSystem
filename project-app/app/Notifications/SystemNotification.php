@@ -28,8 +28,8 @@ class SystemNotification extends Notification
         return [
             'title' => $this->data['title'],
             'message' => $this->data['message'],
-            'authorized_by' => $this->data['authorized_by'],
-            'authorized_user_name' => $this->data['authorized_user_name'], // Add this field
+            'authorized_by' => $this->data['authorized_by'] ?? null,
+            'authorized_user_name' => $this->data['authorized_user_name'] ?? 'System',
             'asset_name' => $this->data['asset_name'],
             'asset_code' => $this->data['asset_code'],
             'action_url' => $this->data['action_url'] ?? null,
@@ -43,7 +43,10 @@ class SystemNotification extends Notification
             ->greeting("Hello, {$notifiable->firstname}!")
             ->line($this->data['message'])
             ->line("Asset: {$this->data['asset_name']} (Code: {$this->data['asset_code']})")
-            ->line("Authorized by: {$this->data['authorized_user_name']}")
+            ->when(
+                isset($this->data['authorized_user_name']),
+                fn($mail) => $mail->line("By: {$this->data['authorized_user_name']}")
+            )
             ->action('View Request', url($this->data['action_url'] ?? '#'))
             ->line('Thank you for using the system!');
     }

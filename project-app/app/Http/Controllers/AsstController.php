@@ -194,6 +194,7 @@ class AsstController extends Controller
     public function create(Request $request)
     {
         $userDept = Auth::user()->dept_id;
+        $deptHead = Auth::user();
         // Validate the request
         $request->validate([
             'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
@@ -258,6 +259,23 @@ class AsstController extends Controller
             'qr_img' => $qrCodePath,  // Store the path to the QR code image file
             'created_at' => now(),
         ]);
+
+        // Notify the admin about the new asset creation
+        $notificationData = [
+            'title' => 'New Asset Created',
+            'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added via system input.",
+            'asset_name' => $request->assetname,
+            'asset_code' => $code,
+            'action_url' => route('asset'), // Adjust the route as needed
+            'authorized_by' => $deptHead->id,
+            'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+        ];
+
+        // Send the notification to all admins
+        $admins = \App\Models\User::where('usertype', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
+        }
 
         return redirect()->to('/asset')->with('success', 'New Asset Created');
     }
