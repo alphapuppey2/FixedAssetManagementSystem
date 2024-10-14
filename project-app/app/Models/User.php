@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\department; // Import Department model
+use App\Models\Maintenance;
 
 class User extends Authenticatable
 {
@@ -51,18 +53,21 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+    
     /**
      * Get the department that the user belongs to.
      */
     public function department()
     {
-        return $this->belongsTo(Department::class, 'dept_id');
+        return $this->belongsTo(department::class, 'dept_id');
+    }
+
+    public function maintenanceRequests()
+    {
+        return $this->hasMany(Maintenance::class, 'requestor');
     }
 }

@@ -16,6 +16,11 @@ use App\Models\Preventive;
 use App\Jobs\RunPredictiveAnalysis;
 use Illuminate\Support\Facades\Log;
 use App\Models\Notification;
+use App\Notifications\SystemNotification;
+use Illuminate\Notifications\Notification as NotificationFacade; // Alias the facade
+use App\Models\User;
+
+
 
 
 class MaintenanceController extends Controller
@@ -270,23 +275,27 @@ class MaintenanceController extends Controller
         $asset->status = "under_maintenance";
         $asset->save();
 
-        // Update the status to 'approved'
-        $maintenance->status = 'approved';
-        $maintenance->authorized_by = $user->id;
-        $maintenance->authorized_at = now();
-        $maintenance->save();
+        // Generate the action URL for the request list
+        $actionUrl = route('requests.list');
 
-        // Notify the user about the approval
-        $notification = Notification::create([
-            'user_id' => $maintenance->requestor,  // Assuming the requestor field stores the user ID
+        $notificationData = [
             'title' => 'Maintenance Request Approved',
             'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been approved.",
-            'status' => 'unread',
-            'is_deleted' => 0,
             'authorized_by' => $user->id,
-        ]);
+            'authorized_user_name' => "{$user->firstname} {$user->lastname}",
+            'asset_name' => $asset->name,
+            'asset_code' => $asset->code,
+            'action_url' => $actionUrl,  // Add the action URL
+        ];
 
-        Log::info('Notification created: ' . json_encode($notification));
+        $requestor = User::find($maintenance->requestor);
+
+        if ($requestor) {
+            $requestor->notify(new SystemNotification($notificationData));
+            Log::info('Notification sent successfully to user ID: ' . $requestor->id);
+        } else {
+            Log::error('Requestor not found.');
+        }
 
         return redirect()->route('maintenance')->with('status', 'Request approved successfully.');
     }
@@ -317,15 +326,26 @@ class MaintenanceController extends Controller
         $maintenance->reason = $request->input('reason');
         $maintenance->save();
 
-        // Notify the user about the denial
-        Notification::create([
-            'user_id' => $maintenance->requestor,  // Assuming the requestor field stores the user ID
+        $actionUrl = route('requests.list'); // Generate the request list URL
+
+        $notificationData = [
             'title' => 'Maintenance Request Denied',
-            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been denied. Reason: ". $request->input('reason'),
-            'status' => 'unread',
-            'is_deleted' => 0,
+            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been denied. Reason: {$maintenance->reason}.", 
             'authorized_by' => $user->id,
-        ]);
+            'authorized_user_name' => "{$user->firstname} {$user->lastname}",
+            'asset_name' => $asset->name,
+            'asset_code' => $asset->code,
+            'action_url' => $actionUrl,  // Add the action URL
+        ];
+    
+        $requestor = User::find($maintenance->requestor);
+    
+        if ($requestor) {
+            $requestor->notify(new SystemNotification($notificationData));
+            Log::info('Notification sent successfully to user ID: ' . $requestor->id);
+        } else {
+            Log::error('Requestor not found.');
+        }
 
         return redirect()->route('maintenance')->with('status', 'Request denied.');
     }

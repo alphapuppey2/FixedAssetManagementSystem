@@ -2,11 +2,11 @@
 @extends('layouts.app')
 
 @section('header')
-<h2 class="font-semibold text-xl text-gray-800 leading-tight">Notifications</h2>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">Notifications</h2>
 @endsection
 
 @section('content')
-<div class="p-6 bg-white rounded-md shadow-md">
+<div class="p-6 bg-white h-full rounded-md shadow-md">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Latest Updates</h3>
@@ -20,11 +20,11 @@
     <!-- Notification List -->
     <ul class="divide-y divide-gray-300 max-h-[40rem] overflow-y-auto">
         @forelse ($notifications as $notification)
-            <li onclick="markAsRead({{ $notification->id }})"
+            <li onclick="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
                 class="p-4 hover:bg-gray-100 cursor-pointer flex items-center space-x-4">
 
                 <!-- Unread Indicator -->
-                @if ($notification->status === 'unread')
+                @if (is_null($notification->read_at))
                     <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
                 @else
                     <div class="w-3 h-3"></div>
@@ -33,23 +33,22 @@
                 <!-- Notification Content -->
                 <div class="flex justify-between items-center w-full">
                     <div>
-                        <h4 class="font-semibold text-gray-800">{{ $notification->title }}</h4>
-                        <p class="text-sm text-gray-600">{{ $notification->message }}</p>
+                        <h4 class="font-semibold text-gray-800">{{ $notification->data['title'] ?? 'No Title' }}</h4>
+                        <p class="text-sm text-gray-600">{{ $notification->data['message'] ?? 'No Message' }}</p>
                         <span class="text-xs text-gray-500">
-                            By: {{ $notification->authorizedUser->firstname ?? 'System' }}
-                            {{ $notification->authorizedUser->lastname ?? '' }}
+                            By: {{ $notification->data['authorized_user_name'] ?? 'System' }}
                         </span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="text-xs text-gray-400">
                             {{ $notification->created_at->diffForHumans() }}
                         </span>
-                        <button onclick="deleteNotification({{ $notification->id }})"
+                        <button onclick="deleteNotification('{{ $notification->id }}')"
                                 class="text-red-500 hover:text-red-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                                    d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
                             </svg>
                         </button>
                     </div>
@@ -112,6 +111,13 @@ function deleteNotification(id) {
         }
     }).catch(error => console.error('Error:', error));
 }
+
+// Navigate to the action URL and mark the notification as read
+function navigateTo(url, id) {
+    if (url !== '#') {
+        markAsRead(id); // Mark the notification as read
+        window.location.href = url; // Redirect to the action URL
+    }
+}
 </script>
 @endsection
-

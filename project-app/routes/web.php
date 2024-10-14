@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
     //     return view('layouts.notification');
     // })->name('notification');
 
+    Route::get('/send-test-email', [NotificationController::class, 'sendTestEmail']);
+
+
 });
 
 // Admin Routes

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Notification extends Model
 {
@@ -57,6 +58,11 @@ class Notification extends Model
     public function authorizedUser()
     {
         return $this->belongsTo(User::class, 'authorized_by');
+    }
+
+    public function recipient()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 

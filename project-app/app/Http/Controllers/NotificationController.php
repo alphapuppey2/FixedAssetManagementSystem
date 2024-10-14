@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\TestEmail;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationController extends Controller
 {
@@ -13,58 +14,49 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = Notification::where('user_id', Auth::id())
-        ->where('is_deleted', 0)
-        ->with('authorizedUser')  // Eager load the authorized user
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-
-        // Update this to use the correct view path
+        $notifications = Auth::user()->notifications()
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
         return view('layouts.notification', compact('notifications'));
     }
-
 
     /**
      * Mark a notification as read.
      */
     public function markAsRead($id)
     {
-        $notification = Notification::findOrFail($id);
+        $notification = Auth::user()->notifications()->find($id);
 
-        // Check if the notification belongs to the logged-in user
-        if ($notification->user_id === Auth::id()) {
-            $notification->update(['status' => 'read']);
+        if ($notification) {
+            $notification->markAsRead();
             return back()->with('success', 'Notification marked as read.');
         }
 
-        return back()->with('error', 'Unauthorized action.');
+        return back()->with('error', 'Notification not found or unauthorized.');
     }
 
     /**
-     * Delete (mark as deleted) a specific notification.
+     * Delete a specific notification.
      */
     public function delete($id)
     {
-        $notification = Notification::findOrFail($id);
+        $notification = Auth::user()->notifications()->find($id);
 
-        // Check if the notification belongs to the logged-in user
-        if ($notification->user_id === Auth::id()) {
-            $notification->update(['is_deleted' => 1]);
+        if ($notification) {
+            $notification->delete();
             return response()->json(['message' => 'Notification deleted.'], 200);
         }
 
-        return response()->json(['message' => 'Unauthorized action.'], 403);
+        return response()->json(['message' => 'Notification not found or unauthorized.'], 403);
     }
 
     /**
-     * Mark all notifications as read for the authenticated user.
+     * Mark all notifications as read.
      */
     public function markAllAsRead()
     {
-        Notification::where('user_id', Auth::id())
-            ->where('status', 'unread')
-            ->update(['status' => 'read']);
+        Auth::user()->unreadNotifications->markAsRead();
 
         return back()->with('success', 'All notifications marked as read.');
     }
@@ -74,9 +66,15 @@ class NotificationController extends Controller
      */
     public function deleteAll()
     {
-        Notification::where('user_id', Auth::id())
-            ->update(['is_deleted' => 1]);
+        Auth::user()->notifications()->delete();
 
         return response()->json(['message' => 'All notifications deleted.'], 200);
     }
+
+    public function sendTestEmail()
+    {
+        Mail::to('abrigoslourdsam@gmail.com')->send(new TestEmail());
+        return 'Test email sent!';
+    }
+
 }
