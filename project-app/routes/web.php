@@ -168,7 +168,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
     //Reports
-    Route::get('/reports', [ReportsController::class, 'AssetReport'])->name('reports.asset');
+    Route::get('/report', [ReportsController::class, 'AssetReport'])->name('report');
 
 });
 

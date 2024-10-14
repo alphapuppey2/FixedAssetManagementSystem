@@ -55,10 +55,11 @@
                 </x-nav-link>
             </li>
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
-                    <x-chartIcon></x-chartIcon>
-                    <span class="ml-2 max-md:hidden lg:block">Report</span>
-                </x-nav-link>
+                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')":active="request()->routeIs('report')">
+                <x-chartIcon></x-chartIcon>
+                <span class="ml-2 max-md:hidden lg:block">Report</span>
+            </x-nav-link>
+
             </li>
             <li>
                 <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">

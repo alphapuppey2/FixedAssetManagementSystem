@@ -108,13 +108,15 @@
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->code }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->purchase_date }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->usage_lifespan }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->salvageVal }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->cost }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->salvage_value }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->purchase_cost }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->depreciation }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->status }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->category->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->manufacturer->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $asset->location->name }}</td>
+
+                        <!-- Use Null Checks for Relationships -->
+                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->category)->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->manufacturer)->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->location)->name ?? 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -122,6 +124,7 @@
                     </tr>
                 @endforelse
             </tbody>
+
         </table>
     </div>
 </div>
