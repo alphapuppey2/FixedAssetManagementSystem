@@ -15,6 +15,12 @@
     $notifications = Auth::user()->unreadNotifications; // Fetch unread notifications
 @endphp
 
+<style>
+    [x-cloak] {
+        display: none !important;
+    }
+</style>
+
 <div
     class="flex bg-white items-center shadow-md justify-between p-2 fixed h-[40px] md:left-[205px] z-10 md:w-[calc(100%_-_205px)] max-md:left-[50px] max-md:w-[calc(100%_-_50px)]">
     
@@ -28,14 +34,25 @@
     <!-- Navigation Section -->
     <nav class="flex items-center space-x-4 relative">
         <!-- Notification Icon -->
-        <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open" class="relative focus:outline-none">
+        <div 
+            x-data="{ open: false }" 
+            @click.away="open = false" 
+            x-init="open = false" 
+            class="relative">
+            
+            <button 
+                @click="open = !open" 
+                class="relative focus:outline-none">
+                
+                <!-- Bell Icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-600 transition hover:scale-110 hover:text-blue-500">
+                    stroke-width="1.5" stroke="currentColor" 
+                    class="w-6 h-6 text-gray-600 transition hover:scale-110 hover:text-blue-500">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                 </svg>
 
+                <!-- Notification Badge -->
                 @if ($notifications->count() > 0)
                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-4 h-4 rounded-full flex items-center justify-center">
                         {{ $notifications->count() }}
@@ -44,7 +61,15 @@
             </button>
 
             <!-- Notification Dropdown -->
-            <div x-show="open" @click.away="open = false"
+            <div 
+                x-show="open" 
+                x-cloak
+                x-transition:enter="transition ease-out duration-100" 
+                x-transition:enter-start="opacity-0 scale-95" 
+                x-transition:enter-end="opacity-100 scale-100" 
+                x-transition:leave="transition ease-in duration-75" 
+                x-transition:leave-start="opacity-100 scale-100" 
+                x-transition:leave-end="opacity-0 scale-95" 
                 class="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden z-50">
 
                 <!-- Header -->
@@ -60,7 +85,8 @@
                 <!-- Notification List -->
                 <ul class="divide-y divide-gray-200 max-h-56 overflow-y-auto">
                     @forelse ($notifications as $notification)
-                        <li onclick="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
+                        <li 
+                            @click="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')" 
                             class="p-3 hover:bg-gray-100 cursor-pointer flex items-start space-x-4">
 
                             <!-- Unread Indicator -->
@@ -82,43 +108,6 @@
                 </ul>
             </div>
         </div>
-
-        <!-- Create New Dropdown -->
-        @if(Auth::user()->usertype === 'admin' || Auth::user()->usertype === 'dept_head')
-            <x-dropdown2>
-                <x-slot name="trigger">
-                    <div class="div">Create New</div>
-                </x-slot>
-
-                <x-slot name="content">
-                    @if (Auth::user()->usertype === 'admin')
-                        <li>
-                            <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
-                                {{ __('Users') }}
-                            </x-dropdown-link>
-                        </li>
-                    @endif
-
-                    @if (Auth::user()->usertype === 'dept_head')
-                        <li>
-                            <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
-                                {{ __('Asset') }}
-                            </x-dropdown-link>
-                        </li>
-                        <li>
-                            <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('formMaintenance')">
-                                {{ __('Maintenance') }}
-                            </x-dropdown-link>
-                        </li>
-                        <li>
-                            <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
-                                {{ __('Report') }}
-                            </x-dropdown-link>
-                        </li>
-                    @endif
-                </x-slot>
-            </x-dropdown2>
-        @endif
     </nav>
 </div>
 
