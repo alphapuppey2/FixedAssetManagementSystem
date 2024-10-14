@@ -87,7 +87,7 @@
                 </div>
                 <select name="status" class="edit hidden w-full border-gray-300 text-base">
                     @foreach ($status['sts'] as $stat)
-                    <option value="{{ $stat }}" @selected($data->status == $stat)>{{ $stat }}</option>
+                    <option value="{{ $stat }}" @selected($data->status == $stat)>{{ $stat === "under_maintenance" ? 'under maintenance' : $stat }}</option>
                     @endforeach
                 </select>
             </div>
