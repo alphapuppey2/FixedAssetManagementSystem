@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance</h2>
+    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Scheduling</h2>
 @endsection
 
 @section('content')
@@ -74,10 +74,10 @@
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
                 <li class="mr-4">
-                    <a href="{{ route('maintenance_sched') }}" class="inline-block px-4 py-2 {{ $tab === 'preventive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Preventive Maintenance</a>
+                    <a href="{{ route('maintenance_sched') }}" class="inline-block px-4 py-2 {{ $tab === 'preventive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Preventive</a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance_sched.predictive') }}" class="inline-block px-4 py-2 {{ $tab === 'predictive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Predictive Maintenance</a>
+                    <a href="{{ route('maintenance_sched.predictive') }}" class="inline-block px-4 py-2 {{ $tab === 'predictive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Predictive</a>
                 </li>
             </ul>
         </div>

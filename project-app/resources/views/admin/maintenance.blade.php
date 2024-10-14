@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Request</h2>
+    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance</h2>
 @endsection
 
 @section('content')
@@ -69,13 +69,13 @@
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
                 <li class="mr-4">
-                    <a href="{{ route('maintenance') }}" class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Requests</a>
+                    <a href="{{ route('adminMaintenance') }}" class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Requests</a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.approved') }}" class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Approved</a>
+                    <a href="{{ route('adminMaintenanceAproved') }}" class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Approved</a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.denied') }}" class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Denied</a>
+                    <a href="{{ route('adminMaintenanceDenied') }}" class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Denied</a>
                 </li>
             </ul>
         </div>
@@ -129,14 +129,14 @@
                             <td class="px-6 py-4 text-sm text-gray-900">
                                 @if($tab === 'requests')
                                     <!-- Approve and Deny buttons for Requests tab -->
-                                    <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                                    <form id="approveForm_{{ $maintenance->id }}" action="{{ route('adminMaintenanceAproved', $maintenance->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
                                     </form>
                                     <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
                                         @csrf
                                         <input type="hidden" name="reason" value="N/A">
-                                        <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('maintenance.deny', $maintenance->id) }}">Deny</button>
+                                        <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('adminMaintenanceDenied', $maintenance->id) }}">Deny</button>
                                     </form>
                                 @elseif($tab === 'approved')
                                     <a href="javascript:void(0)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 block w-48 text-center" onclick="openEditModal({{ $maintenance->id }})">Edit (Approved)</a>

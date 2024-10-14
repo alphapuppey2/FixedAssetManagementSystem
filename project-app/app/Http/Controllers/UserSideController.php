@@ -53,12 +53,12 @@ class UserSideController extends Controller
                 'maintenance.*',
                 'asset.code as asset_code',
                 'asset.status as asset_status',
-                'asset.image as asset_image',
-                'asset.qr as qr_code',
+                'asset.asst_img as asset_image', // Use the correct column name
+                'asset.qr_img as qr_code', // Use the correct QR column name
                 'asset.name as asset_name',
                 'asset.depreciation',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
+                'asset.salvage_value as salvageVal', // Use correct column name
+                'asset.usage_lifespan as usage_Lifespan', // Correct casing
                 'category.name as category',
                 'model.name as model',
                 'manufacturer.name as manufacturer',
@@ -78,6 +78,7 @@ class UserSideController extends Controller
         ]);
     }
 
+
     public function createRequest(Request $request)
     {
         // Validate the input from the form
@@ -90,7 +91,7 @@ class UserSideController extends Controller
         // Create a new maintenance request with 'pending' status
         Maintenance::create([
             'description' => $request->input('issue_description'), // Issue description
-            'status' => 'pending', // Set status to 'pending'
+            'status' => 'request', // Set status to 'pending'
             'asset_key' => $request->input('asset_id'), // Asset reference
             'requestor' => Auth::id(), // Logged-in user as requestor
             'type' => $request->input('type'), // Request type
@@ -106,8 +107,8 @@ class UserSideController extends Controller
         $request = Maintenance::findOrFail($id);
 
         // Check if the request is pending; only pending requests can be canceled
-        if ($request->status !== 'pending') {
-            return redirect()->back()->withErrors('Only pending requests can be canceled.');
+        if ($request->status !== 'request') {
+            return redirect()->back()->withErrors('Only requests can be canceled.');
         }
 
         // Ensure the user is authenticated
@@ -177,15 +178,17 @@ class UserSideController extends Controller
             ->join('model', 'asset.model_key', '=', 'model.id')
             ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->join('location', 'asset.loc_key', '=', 'location.id')
+            ->leftJoin('maintenance', 'maintenance.asset_key', '=', 'asset.id') // Join with the maintenance table
+            ->leftJoin('users', 'maintenance.authorized_by', '=', 'users.id') // Join with the users table to get approver details
             ->select(
                 'asset.id',
                 'asset.code',
                 'asset.name',
-                'asset.image',
-                'asset.cost',
+                'asset.asst_img as image', // Use the correct column and alias it as 'image'
+                'asset.purchase_cost as cost', // Use the correct column and alias it as 'cost'
                 'asset.depreciation',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
+                'asset.salvage_value as salvageVal', // Adjusted to match the new column name
+                'asset.usage_lifespan as usage_Lifespan', // Adjusted casing to match
                 'asset.status',
                 'asset.ctg_ID',
                 'asset.dept_ID',
@@ -193,14 +196,21 @@ class UserSideController extends Controller
                 'asset.model_key',
                 'asset.loc_key',
                 'asset.custom_fields',
-                'asset.qr',
+                'asset.qr_img as qr', // Adjusted to use the correct QR image column
                 'asset.created_at',
                 'asset.updated_at',
                 'category.name as category',
                 'model.name as model',
                 'location.name as location',
                 'manufacturer.name as manufacturer',
-                'department.name as department'
+                'department.name as department',
+                'maintenance.reason', // Add the reason field
+                'maintenance.status as request_status', // Add the status of the request
+                'maintenance.authorized_at', // Add the authorized_at field
+                'users.firstname as authorized_firstname',
+                'users.middlename as authorized_middlename',
+                'users.lastname as authorized_lastname',
+                'department.name as authorized_department'
             );
 
         // If the user is not an admin, restrict by department
@@ -219,7 +229,10 @@ class UserSideController extends Controller
         // Decode custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-        // Pass the asset data, custom fields, and QR code to the view
+        // Pass the asset data, custom fields, reason, and request status to the view
         return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
+
+
+
 }

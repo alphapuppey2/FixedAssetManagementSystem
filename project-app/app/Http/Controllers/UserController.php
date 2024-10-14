@@ -2,18 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 
-class UserController extends Controller{
+class UserController extends Controller
+{
+    public function autocomplete(Request $request)
+    {
+        try {
+            // Get and trim the query parameter
+            $query = trim($request->get('query'));
+
+            // Get the authenticated user's department ID
+            $departmentId = Auth::user()->dept_id;
+
+            // Build the base query to filter users by the department
+            $userQuery = User::where('dept_id', $departmentId)
+                ->select('id', 'firstname', 'middlename', 'lastname') // Include 'id' in the select
+                ->take(10); // Limit to 10 results for better performance
+
+            // If a query is provided, add conditions to search for matching first or last names
+            if (!empty($query)) {
+                $userQuery->where(function ($q) use ($query) {
+                    $q->where('firstname', 'LIKE', "%{$query}%")
+                        ->orWhere('lastname', 'LIKE', "%{$query}%");
+                });
+            }
+
+            // Execute the query and get the results
+            $results = $userQuery->get();
+
+            // Transform the results to match the format expected by Select2
+            $formattedResults = $results->map(function ($user) {
+                $fullName = $user->lastname . ',' . $user->firstname . ' ' . $user->middlename;
+                return [
+                    'id' => $user->id, // User ID
+                    'name' => $fullName, // User full name as the display text
+                ];
+            });
+
+            // Return the results with a 200 status
+            return response()->json($formattedResults, 200);
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Autocomplete error: ' . $e->getMessage());
+            // Return a generic error message
+            return response()->json(['error' => 'An unexpected server error occurred. Please try again later.'], 500); // Internal Server Error
+        }
+    }
+
     // SHOWS USER LIST
-    public function getUserList(Request $request){
+    public function getUserList(Request $request)
+    {
         // Get the number of rows to display per page (default is 10)
         $perPage = $request->input('perPage', 10);
 
@@ -23,9 +72,10 @@ class UserController extends Controller{
 
         return view('admin.userList', ['userList' => $userList]);
     }
-    
+
     // EDIT/UPDATE USER DETAILS
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         // Validate the request
         $request->validate([
             'id' => 'required|integer|exists:users,id',
@@ -51,8 +101,8 @@ class UserController extends Controller{
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = 'profile_' . strtolower($user->lastname) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/profile_photos'), $filename);
-            $user->userPicture = $filename;
+            $path = $file->storeAs('profile_photos', $filename, 'public'); // Save to storage/app/public/profile_photos
+            $user->userPicture = $path; // Store the relative path for future use
         }
 
         // Update other user detalis
@@ -76,7 +126,8 @@ class UserController extends Controller{
     }
 
     // SENDS EMAIL FOR CHANGE PASSWORD
-    public function changePassword(Request $request){
+    public function changePassword(Request $request)
+    {
         $request->validate([
             'email' => 'requried|email',
         ]);
@@ -86,13 +137,13 @@ class UserController extends Controller{
         );
 
         return $request === Password::RESET_LINK_SENT
-                    ? back()->with(['status' => __($status)])
-                    : back()->withErrors(['email' => __($status)]);
-
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
     }
 
     // HARD DELETE
-    public function delete($id){
+    public function delete($id)
+    {
         // Find the user and delete
         $user = User::findOrFail($id);
         $user->delete();
@@ -100,7 +151,8 @@ class UserController extends Controller{
         return redirect()->route('userList')->with('success', 'User deleted successfully.');
     }
 
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         $query = $request->input('query');
         $perPage = $request->input('perPage', 10); // Get rows per page from the request
 
@@ -111,11 +163,12 @@ class UserController extends Controller{
             ->orWhere('email', 'like', "%{$query}%")
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
-    
+
         return view('admin.userList', ['userList' => $userList]);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         // Validate the incoming request data
         $validated = $request->validate([
             'firstname' => 'required|string|max:255',
@@ -142,8 +195,8 @@ class UserController extends Controller{
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = 'profile_' . strtolower($validated['lastname']) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/profile_photos'), $filename);
-            $profilePicturePath = $filename;
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+            $profilePicturePath = $path; // Store the relative path for future use
         }
 
         // Create the new user
@@ -187,5 +240,4 @@ class UserController extends Controller{
         // Redirect or return response after creation
         return redirect()->route('userList')->with('success', 'User created successfully!');
     }
-
 }

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('password');
             $table->unsignedBigInteger('dept_id');
             $table->foreign('dept_id')->references('id')->on('department')->onDelete('cascade');
-            $table->enum('status', ['active','inactive'])->default('active');
+            $table->boolean('is_deleted')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

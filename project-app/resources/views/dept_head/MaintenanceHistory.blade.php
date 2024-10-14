@@ -50,9 +50,9 @@
                         </tr>
                     @endforeach
                 @else
-                    <tr class="bg-blue-100/50">
+                    <tr class="">
                         <td colspan='7'
-                            class="text-left px-6 py-3 text-left text-xs font-medium text-gray-400/50 tracking-wider">
+                            class="text-left px-6 py-3 text-center text-xs font-medium text-gray-400 tracking-wider">
                             No maintenance history</td>
                     </tr>
                 @endif

@@ -25,7 +25,7 @@ class Maintenance extends Model
         'asset_key',
         'authorized_by',
         'requestor',
-        'completed'
+        'is_completed'
     ];
 
     // Cast timestamps to Carbon instances

@@ -2,7 +2,7 @@
 @extends('user.home')
 @include('components.icons')
 
-@section('profile_password-content')
+@section('content')
 <div class="max-w-xl mx-auto">
     <!-- Profile Photo and User Name -->
     <div class="text-center mb-6">

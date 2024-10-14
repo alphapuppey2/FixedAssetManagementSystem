@@ -14,13 +14,14 @@ use App\Http\Controllers\QRUserController;
 use App\Http\Controllers\MaintenanceSchedController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
 
 
 
-Route::get('/', function(){
-    if(Auth::check()){
-        switch(Auth::user()->usertype){
+Route::get('/', function () {
+    if (Auth::check()) {
+        switch (Auth::user()->usertype) {
             case 'admin':
                 return redirect()->route('admin.home');
             case 'dept_head':
@@ -33,19 +34,18 @@ Route::get('/', function(){
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/asset/department', [departmentCtrl::class,'index'])->name('department');
-    Route::post('/asset/newdepartment', [departmentCtrl::class,'create'])->name('newdepartment');
+    Route::get('/asset/department', [departmentCtrl::class, 'index'])->name('department');
+    Route::post('/asset/newdepartment', [departmentCtrl::class, 'create'])->name('newdepartment');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 // Admin Routes
-Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
+Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/home', function () {
         return view('admin.home');
     })->name('admin.home');
@@ -70,6 +70,11 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
 
+    // MAINTENANCE
+    Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
+    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approved'])->name('adminMaintenanceAproved');
+    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'denied'])->name('adminMaintenanceDenied');
+
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
         return view('admin.profile');
@@ -81,24 +86,23 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     })->name('admin.profile_password');
 
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
-
 });
 
 // DeptHead Routes
-Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
+Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
-    Route::get('/dept_head/home', [AsstController::class , 'assetCount'])->name('dept_head.home');
+    Route::get('/dept_head/home', [AsstController::class, 'assetCount'])->name('dept_head.home');
 
-    Route::get('/asset', [AsstController::class,'showDeptAsset'])->name('asset');
-    Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
+    Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
+    Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
     route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
-    Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
-    Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
-    Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
-    Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
+    Route::get('asset/{id}', [AsstController::class, 'showDetails'])->name('assetDetails');
+    Route::put('asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
+    Route::delete('asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
+    Route::get('/newasset', [AsstController::class, 'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
-
+    Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
 
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
@@ -109,6 +113,10 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
+
+    // SHOWS COMPLETED AND CANCELLED MAINTENANCE
+    Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');
+    Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
 
     Route::get('/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('maintenance.editApproved');
     Route::get('/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('maintenance.editDenied');
@@ -125,24 +133,23 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
     Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::get('/assets/details/{id}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
+    Route::get('/assets/details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
     Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
 
     Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
     Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
-
-
-    // routes/web.php
     Route::post('/update-maintenance-status', [MaintenanceController::class, 'updateStatus']);
+
+    Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
 
     //setting page
-    Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
-    Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');
-    Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
-    Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
+    Route::get('/setting', [settingController::class, 'showSettings'])->name('setting');
+    Route::post('/setting/{tab}', [settingController::class, 'store'])->name('setting.create');
+    Route::delete('/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('setting.delete');
+    Route::put('/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('setting.edit');
 
     Route::get('/report', function () {
         return view('dept_head.reports');
@@ -159,12 +166,11 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     })->name('dept_head.profile_password');
 
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
-
 });
 
 
 // User Routes
-Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
+Route::middleware(['workerUserType', 'auth', 'verified'])->group(function () {
     Route::get('/user/home', function () {
         return view('user.home');
     })->name('user.home');
@@ -211,4 +217,4 @@ Route::get('back', function () {
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
