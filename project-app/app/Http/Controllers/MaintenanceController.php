@@ -264,7 +264,7 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key);
 
-        $asset->status = "under Maintenance";
+        $asset->status = "under_maintenance";
         $asset->save();
 
         // Update the status to 'approved'
@@ -528,32 +528,33 @@ class MaintenanceController extends Controller
     // In your MaintenanceController updateApproved function
     public function updateApproved(Request $request, $id)
     {
-
         $request->validate([
             'cost' => 'required|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
-            'completion_date' => 'nullable|date',
+            'completion_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         // Find the maintenance request by ID
         $maintenance = Maintenance::findOrFail($id);
+
+        // Determine if the request is marked as completed
+        $isCompleted = $request->has('set_as_completed');
 
         // Update the maintenance details
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
             'cost' => $request->cost,
-            'completed' => $request->has('set_as_completed'),
-            // 'completion_date' => $request->completion_date,
-            'completion_date' => $request->has('set_as_completed') ? now() : null,
-
+            'is_completed' => $isCompleted, // Boolean handling
+            'completion_date' => $isCompleted ? now() : null,
         ]);
 
         // Redirect back with success message
         return redirect()->route('maintenance.approved')
             ->with('status', 'Maintenance request updated successfully.');
     }
+
 
     public function editDenied($id)
     {

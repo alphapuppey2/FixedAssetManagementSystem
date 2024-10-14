@@ -113,6 +113,27 @@ class MaintenanceSchedController extends Controller
         ]);
     }
 
+    public function calculateNextMaintenance($preventives)
+    {
+        foreach ($preventives as $preventive) {
+            // Use updated_at or the last maintenance date
+            $lastMaintenance = Carbon::parse($preventive->updated_at);
+
+            // Calculate the next maintenance date (using seconds for testing)
+            $nextMaintenanceDate = $lastMaintenance->addSeconds(15); // Change to `addDays()` for actual logic
+
+            // Pass the next maintenance date as a timestamp for frontend countdown
+            $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp ?? null;
+
+            // Log the next maintenance timestamp for debugging
+            Log::info('Next Maintenance Timestamp:', [
+                'timestamp' => $nextMaintenanceDate->timestamp,
+                'asset_key' => $preventive->asset_key
+            ]);
+        }
+    }
+
+
     public function showPredictive(Request $request)
     {
         // Get the logged-in user's department ID
@@ -131,16 +152,16 @@ class MaintenanceSchedController extends Controller
         // Adjust sorting logic based on whether the sorting column belongs to asset or category
         $predictives = Predictive::whereHas('asset', function ($query) use ($userDeptId, $searchQuery) {
             $query->where('dept_ID', $userDeptId)
-                  ->where(function($q) use ($searchQuery) {
-                      $q->where('code', 'like', "%{$searchQuery}%")
+                ->where(function ($q) use ($searchQuery) {
+                    $q->where('code', 'like', "%{$searchQuery}%")
                         ->orWhere('name', 'like', "%{$searchQuery}%");
-                  });
+                });
         })
-        ->join('asset', 'predictive.asset_key', '=', 'asset.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->orderBy($sortBy, $sortOrder) // Sort by asset or predictive columns
-        ->select('predictive.*')
-        ->paginate($perPage);
+            ->join('asset', 'predictive.asset_key', '=', 'asset.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->orderBy($sortBy, $sortOrder) // Sort by asset or predictive columns
+            ->select('predictive.*')
+            ->paginate($perPage);
 
         return view('dept_head.maintenance_sched', [
             'tab' => 'predictive',
