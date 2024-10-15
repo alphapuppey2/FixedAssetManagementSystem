@@ -553,6 +553,37 @@ class MaintenanceController extends Controller
             'ends' => $ends,  // 0 for "never", a number for occurrences
         ]);
 
+        // Retrieve asset and admin user for notification
+        $asset = assetModel::find($validatedData['asset_code']);
+        $admin = User::where('usertype', 'admin')->first();
+        $deptHead = auth()->user(); // Get the logged-in department head
+
+        // Prepare ends and occurrences message (if applicable)
+        $endsMessage = $ends > 0 ? " up to {$ends} occurrence/s" : " with no end limit";
+
+        // Check if admin exists to send the notification
+        if ($admin) {
+            $notificationData = [
+                'title' => 'Preventive Maintenance Created',
+                'message' => "Preventive maintenance for asset '{$asset->name}' (Code: {$asset->code}) is scheduled every {$frequencyDays} day/s{$endsMessage}",
+                'asset_name' => $asset->name,
+                'asset_code' => $asset->code,
+                'authorized_by' => $deptHead->id,
+                'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+                'action_url' => route('maintenance_sched'), // Link to the schedule page
+            ];
+
+            \Log::info('Sending preventive maintenance notification to admin.', [
+                'admin_id' => $admin->id,
+                'notification_data' => $notificationData,
+            ]);
+
+            // Send the notification to the admin
+            $admin->notify(new SystemNotification($notificationData));
+        } else {
+            \Log::warning('No admin found to notify for the new preventive maintenance.');
+        }
+
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
 
@@ -619,10 +650,36 @@ class MaintenanceController extends Controller
         // Find the maintenance request by ID
         $maintenance = Maintenance::findOrFail($id);
 
+        // Get associated asset
+        $asset = assetModel::findOrFail($maintenance->asset_key); 
+        // Get the department head (logged-in user)
+        $deptHead = Auth::user();
+
         // Update only the status
         $maintenance->update([
             'status' => $request->status,
         ]);
+
+        $requestor = User::find($maintenance->requestor);
+
+        if ($requestor) {
+            // Prepare notification data
+            $notificationData = [
+                'title' => 'Maintenance Request Status Updated',
+                'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been changed from denied to approved.",
+                'authorized_by' => $deptHead->id,
+                'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+                'asset_name' => $asset->name,
+                'asset_code' => $asset->code,
+                'action_url' => route('requests.list'), // URL to view the request list
+            ];
+
+            // Send the notification
+            $requestor->notify(new SystemNotification($notificationData));
+            Log::info('Notification sent to user ID: ' . $requestor->id, ['notification_data' => $notificationData]);
+        } else {
+            Log::warning('Requestor not found for maintenance request ID: ' . $id);
+        }
 
         // Redirect back with success message
         return redirect()->route('maintenance.denied')
