@@ -30,7 +30,7 @@ class User extends Authenticatable
         'dept_id',
         'address',
         'contact',
-        'status',
+        'is_deleted',
         'created_at',
         'remember_token',
         'userPicture',

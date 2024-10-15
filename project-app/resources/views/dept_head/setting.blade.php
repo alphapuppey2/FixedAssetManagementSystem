@@ -9,6 +9,7 @@
     </div>
 @endsection
 @section('content')
+
     <div class="cont relative p-1 h-full">
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -19,72 +20,90 @@
                 </ul>
             </div>
         @endif
-        <div class="container relative p-2 grid grid-rows-1 gap-2">
-            <ul class="flex border-b max-w-max border-gray-300 inline-block">
-                <li class="mr-1">
-                    <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
-                        href="{{ url('/setting?tab=model') }}">
-                        Model
-                    </a>
-                </li>
-                <li class="mr-1">
-                    <a class="inline-block py-2 px-4 {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
-                        href="{{ url('/setting?tab=manufacturer') }}">
-                        Manufacturer
-                    </a>
-                </li>
-                <li class="mr-1">
-                    <a class="inline-block py-2 px-4 {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
-                        href="{{ url('/setting?tab=location') }}">
-                        Location
-                    </a>
-                </li>
-                <li class="mr-1">
-                    <a class="inline-block py-2 px-4 {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
-                        href="{{ url('/setting?tab=category') }}">
-                        Category
-                    </a>
-                </li>
-                <li class="mr-1">
-                    <a class="inline-block py-2 px-4 {{ $activeTab === 'customFields' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
-                        href="{{ url('/setting?tab=customFields') }}">
-                        Custom Field
-                    </a>
-                </li>
-            </ul>
+        <div class="container relative h-full p-2 flex flex-col gap-2">
+            <div class="flex justify-between">
+                <ul class="flex border-b max-w-max border-gray-300 inline-block">
+                    <li class="mr-1">
+                        <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                            href="{{ url('/setting?tab=model') }}">
+                            Model
+                        </a>
+                    </li>
+                    <li class="mr-1">
+                        <a class="inline-block py-2 px-4 {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                            href="{{ url('/setting?tab=manufacturer') }}">
+                            Manufacturer
+                        </a>
+                    </li>
+                    <li class="mr-1">
+                        <a class="inline-block py-2 px-4 {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                            href="{{ url('/setting?tab=location') }}">
+                            Location
+                        </a>
+                    </li>
+                    <li class="mr-1">
+                        <a class="inline-block py-2 px-4 {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                            href="{{ url('/setting?tab=category') }}">
+                            Category
+                        </a>
+                    </li>
+                    <li class="mr-1">
+                        <a class="inline-block py-2 px-4 {{ $activeTab === 'customFields' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                            href="{{ url('/setting?tab=customFields') }}">
+                            Custom Field
+                        </a>
+                    </li>
+                </ul>
+                <!-- Button to Open the Modal -->
+                <button onclick="openModal()" class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">New Setting</button>
 
-            <div class="tab-content relative h-full overflow-y-auto">
+                <!-- Include the Modal -->
+                @include('dept_head.modal.newSettingModal')
+            </div>
 
-                <table class="table table-hover">
-                    <thead>
+
+            <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto">
+
+                <table class="w-full gap-2">
+                    <thead class="bg-gray-100">
                         <tr>
                             @if ($activeTab !== 'customFields')
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Name</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Description</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</td>
                             @else
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Helper Text</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Name</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Type</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Helper Text</td>
+                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Action</td>
                             @endif
                         </tr>
                     </thead>
                     <tbody>
                         @if (isset($data) && count($data) > 0)
                             @foreach ($data as $key => $dataItem)
-                                <tr id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
+                                <tr class="" id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
-                                        <td class="w-64">
-                                            <span class="name-text text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $dataItem->name }}</span>
-                                            <input type="text" class="name-input" style="display: none"
+                                        <td class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <span
+                                                class="name-text">{{ $dataItem->name }}</span>
+                                            <input type="text" class="name-input px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="w-[50%]">
-                                            <span class="desc-text text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider">{{ $dataItem->description }}</span>
-                                            <input type="text" class="desc-input text-left px-6 py-3 text-left text-xs font-medium text-slate-900 tracking-wider" style="display: none"
-                                                value="{{ $dataItem->description }}">
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <span
+                                                class="desc-text ">{{ $dataItem->description }}</span>
+                                            <input type="text"
+                                                class="desc-input"
+                                                style="display: none" value="{{ $dataItem->description }}">
                                         </td>
                                         <td>
                                             <a class="btn btn-outline-primary edit-btn"
@@ -103,23 +122,23 @@
                                             </form>
                                         </td>
                                     @else
-                                        <td>
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td>
-                                            <span class="type-text">{{ $dataItem->type }}</span>
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <span class="type-text ">{{ $dataItem->type }}</span>
                                             <input type="text" class="type-input" style="display: none"
                                                 value="{{ $dataItem->type }}">
                                         </td>
-                                        <td>
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td>
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <a class="btn btn-outline-primary edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="btn btn-outline-success save-btn" data-row-id="{{ $key }}"
@@ -146,22 +165,10 @@
                     </tbody>
                 </table>
             </div>
-            <div class="addSetting">
-                <form action="{{ route('setting.create', $activeTab) }}" method="post">
-                    @csrf
-                    <input type="text" id="name" name="nameSet" placeholder="Name" required />
-                    @if ($activeTab !== 'customFields')
-                        <input type="text" id="decr" name="description" placeholder="description" required />
-                    @else
-                        <input type="text" id="type" name="type" placeholder="type" required />
-                        <input type="text" id="helptxt" name="helptxt" placeholder="Helper Text" required />
-                    @endif
-                    <button type="submit" class="btn btn-primary">New Setting</button>
-                </form>
-            </div>
         </div>
     </div>
     <script>
+
         document.querySelectorAll('.edit-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const urlParams = new URLSearchParams(window.location.search);

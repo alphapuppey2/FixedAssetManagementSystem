@@ -53,12 +53,12 @@ class UserSideController extends Controller
                 'maintenance.*',
                 'asset.code as asset_code',
                 'asset.status as asset_status',
-                'asset.image as asset_image',
-                'asset.qr as qr_code',
+                'asset.asst_img as asset_image', // Use the correct column name
+                'asset.qr_img as qr_code', // Use the correct QR column name
                 'asset.name as asset_name',
                 'asset.depreciation',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
+                'asset.salvage_value as salvageVal', // Use correct column name
+                'asset.usage_lifespan as usage_Lifespan', // Correct casing
                 'category.name as category',
                 'model.name as model',
                 'manufacturer.name as manufacturer',
@@ -77,6 +77,7 @@ class UserSideController extends Controller
             'to_date' => $to_date
         ]);
     }
+
 
     public function createRequest(Request $request)
     {
@@ -183,11 +184,11 @@ class UserSideController extends Controller
                 'asset.id',
                 'asset.code',
                 'asset.name',
-                'asset.image',
-                'asset.cost',
+                'asset.asst_img as image', // Use the correct column and alias it as 'image'
+                'asset.purchase_cost as cost', // Use the correct column and alias it as 'cost'
                 'asset.depreciation',
-                'asset.salvageVal',
-                'asset.usage_Lifespan',
+                'asset.salvage_value as salvageVal', // Adjusted to match the new column name
+                'asset.usage_lifespan as usage_Lifespan', // Adjusted casing to match
                 'asset.status',
                 'asset.ctg_ID',
                 'asset.dept_ID',
@@ -195,7 +196,7 @@ class UserSideController extends Controller
                 'asset.model_key',
                 'asset.loc_key',
                 'asset.custom_fields',
-                'asset.qr',
+                'asset.qr_img as qr', // Adjusted to use the correct QR image column
                 'asset.created_at',
                 'asset.updated_at',
                 'category.name as category',

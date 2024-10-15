@@ -26,21 +26,18 @@ class DatabaseSeeder extends Seeder
             ModelSeeder::class,
             location::class,
             category::class,
-            // assetSeeder::class,
+            assetSeeder::class,
+            MaintenanceSeeder::class,
         ]);
-        // User::factory()->count(6)->create([
-        //     //Optional: you can specify attributes here if needed
-        // ]);
-
 
         // For specific records, you can use:
         // test accounts
         User::create([
             'employee_id' => 'FMS-USR001',
-            'email' => 'testuser@gmail.com',
-            'firstname' => 'Test',
+            'email' => 'userIT@gmail.com',
+            'firstname' => 'IT',
             'lastname' => 'User',
-            'middlename' => 'Lorem',
+            'middlename' => 'Test',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
             'gender' => 'male',
@@ -54,10 +51,10 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'employee_id' => 'FMS-DPT_IT001',
-            'email' => 'testit@gmail.com',
-            'firstname' => 'Test',
+            'email' => 'it@gmail.com',
+            'firstname' => 'IT',
             'lastname' => 'DeptHead',
-            'middlename' => 'Lorem',
+            'middlename' => 'Test',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
             'gender' => 'male',
@@ -71,10 +68,10 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'employee_id' => 'FMS-DPT_SLS001',
-            'email' => 'testsales@gmail.com',
-            'firstname' => 'Test',
+            'email' => 'sales@gmail.com',
+            'firstname' => 'Sales',
             'lastname' => 'DeptHead',
-            'middlename' => 'Lorem',
+            'middlename' => 'Test',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
             'gender' => 'male',
@@ -88,10 +85,10 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'employee_id' => 'FMS-DPT_FLT001',
-            'email' => 'testfleet@gmail.com',
-            'firstname' => 'Test',
+            'email' => 'fleet@gmail.com',
+            'firstname' => 'Fleet',
             'lastname' => 'DeptHead',
-            'middlename' => 'Lorem',
+            'middlename' => 'Test',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
             'gender' => 'male',
@@ -105,10 +102,10 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'employee_id' => 'FMS-DPT_PRD001',
-            'email' => 'testproduction@gmail.com',
-            'firstname' => 'Test',
+            'email' => 'production@gmail.com',
+            'firstname' => 'Production',
             'lastname' => 'DeptHead',
-            'middlename' => 'Lorem',
+            'middlename' => 'Test',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
             'gender' => 'male',
@@ -122,9 +119,9 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'employee_id' => 'FMS-ADMN001',
-            'email' => 'testadmin@gmail.com',
-            'firstname' => 'Test',
-            'lastname' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'firstname' => 'Admin',
+            'lastname' => 'Test',
             'middlename' => 'Lorem',
             'address' => 'Babag',
             'birthdate' => '2000-06-24',
@@ -150,6 +147,23 @@ class DatabaseSeeder extends Seeder
             'dept_id'=> 1,
             'password' => '12345678',
             'usertype' => 'admin',
+            'remember_token' => Str::random(10),
+            'email_verified_at' => now(),
+        ]);
+
+        User::factory()->create([
+            'employee_id' => 'FMS-DPT_ALLEN',
+            'email' => 'userSales@gmail.com',
+            'firstname' => 'Sales',
+            'lastname' => 'User',
+            'middlename' => 'Test',
+            'address' => 'default St. Address',
+            'birthdate' => Carbon::parse('2000-10-04'),
+            'gender' => 'male',
+            'contact' => '09123456789',
+            'dept_id'=> 2,
+            'password' => '12345678',
+            'usertype' => 'user',
             'remember_token' => Str::random(10),
             'email_verified_at' => now(),
         ]);

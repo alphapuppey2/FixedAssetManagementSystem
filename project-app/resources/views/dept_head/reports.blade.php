@@ -1,4 +1,3 @@
-<!-- resources/views/dept_head/reports.blade.php -->
 @extends('layouts.app')
 
 @section('header')
