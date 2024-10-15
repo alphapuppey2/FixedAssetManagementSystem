@@ -114,9 +114,9 @@
                         <td class="px-6 py-4 whitespace-nowrap">{{ $asset->status }}</td>
 
                         <!-- Use Null Checks for Relationships -->
-                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->category)->name ?? 'N/A' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->manufacturer)->name ?? 'N/A' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ optional($asset->location)->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-wrap">{{ optional($asset->category)->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-wrap">{{ optional($asset->manufacturer)->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-wrap">{{ optional($asset->location)->name ?? 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr>
