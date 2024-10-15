@@ -21,9 +21,9 @@ use App\Http\Controllers\ReportsController;
 
 
 
-Route::get('/', function(){
-    if(Auth::check()){
-        switch(Auth::user()->usertype){
+Route::get('/', function () {
+    if (Auth::check()) {
+        switch (Auth::user()->usertype) {
             case 'admin':
                 return redirect()->route('admin.home');
             case 'dept_head':
@@ -36,19 +36,18 @@ Route::get('/', function(){
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/asset/department', [departmentCtrl::class,'index'])->name('department');
-    Route::post('/asset/newdepartment', [departmentCtrl::class,'create'])->name('newdepartment');
+    Route::get('/asset/department', [departmentCtrl::class, 'index'])->name('department');
+    Route::post('/asset/newdepartment', [departmentCtrl::class, 'create'])->name('newdepartment');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 // Admin Routes
-Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
+Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/home', function () {
         return view('admin.home');
     })->name('admin.home');
@@ -89,21 +88,20 @@ Route::middleware(['adminUserType','auth', 'verified'])->group(function(){
     })->name('admin.profile_password');
 
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
-
 });
 
 // DeptHead Routes
-Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
+Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
-    Route::get('/dept_head/home', [AsstController::class , 'assetCount'])->name('dept_head.home');
+    Route::get('/dept_head/home', [AsstController::class, 'assetCount'])->name('dept_head.home');
 
-    Route::get('/asset', [AsstController::class,'showDeptAsset'])->name('asset');
-    Route::post('/asset', [AsstController::class,'create'])->name('asset.create');
+    Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
+    Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
     route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
-    Route::get('asset/{id}',[AsstController::class,'showDetails'])->name('assetDetails');
-    Route::put('asset/edit/{id}',[AsstController::class,'update'])->name('assetDetails.edit');
-    Route::delete('asset/delete/{id}',[AsstController::class,'delete'])->name('asset.delete');
-    Route::get('/newasset', [AsstController::class,'showForm'])->name('newasset');
+    Route::get('asset/{id}', [AsstController::class, 'showDetails'])->name('assetDetails');
+    Route::put('asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
+    Route::delete('asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
+    Route::get('/newasset', [AsstController::class, 'showForm'])->name('newasset');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
     route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
     Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
@@ -117,6 +115,10 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
     Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
+
+    // SHOWS COMPLETED AND CANCELLED MAINTENANCE
+    Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');
+    Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
 
     Route::get('/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('maintenance.editApproved');
     Route::get('/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('maintenance.editDenied');
@@ -146,10 +148,10 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
 
     //setting page
-    Route::get('/setting',[ settingController::class , 'showSettings'])->name('setting');
-    Route::post('/setting/{tab}',[ settingController::class , 'store'])->name('setting.create');
-    Route::delete('/setting/destroy/{tab}/{id}',[ settingController::class , 'destroy'])->name('setting.delete');
-    Route::put('/setting/update/{tab}/{id}' , [settingController::class , 'updateSettings'])->name('setting.edit');
+    Route::get('/setting', [settingController::class, 'showSettings'])->name('setting');
+    Route::post('/setting/{tab}', [settingController::class, 'store'])->name('setting.create');
+    Route::delete('/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('setting.delete');
+    Route::put('/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('setting.edit');
 
     Route::get('/report', function () {
         return view('dept_head.reports');
@@ -176,7 +178,7 @@ Route::middleware(['deptHeadUserType','auth', 'verified'])->group(function(){
 
 
 // User Routes
-Route::middleware(['workerUserType','auth', 'verified'])->group(function(){
+Route::middleware(['workerUserType', 'auth', 'verified'])->group(function () {
     Route::get('/user/home', function () {
         return view('user.home');
     })->name('user.home');
@@ -223,4 +225,4 @@ Route::get('back', function () {
 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

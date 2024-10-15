@@ -101,7 +101,6 @@ class MaintenanceController extends Controller
         }
     }
 
-
     // Search functionality
     public function search(Request $request)
     {
@@ -148,6 +147,7 @@ class MaintenanceController extends Controller
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'approved')
+            ->where('maintenance.is_completed', 0)
             ->select('maintenance.*');
 
         // Apply department filter for department heads
@@ -193,9 +193,7 @@ class MaintenanceController extends Controller
         return redirect()->route('user.home');
     }
 
-
     // Show the list of denied maintenance requests
-
     public function denied(Request $request)
     {
         $user = Auth::user();
@@ -264,7 +262,7 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key);
 
-        $asset->status = "under Maintenance";
+        $asset->status = "under_maintenance";
         $asset->save();
 
         // Update the status to 'approved'
@@ -528,32 +526,33 @@ class MaintenanceController extends Controller
     // In your MaintenanceController updateApproved function
     public function updateApproved(Request $request, $id)
     {
-
         $request->validate([
             'cost' => 'required|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
-            'completion_date' => 'nullable|date',
+            'completion_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         // Find the maintenance request by ID
         $maintenance = Maintenance::findOrFail($id);
+
+        // Determine if the request is marked as completed
+        $isCompleted = $request->has('set_as_completed');
 
         // Update the maintenance details
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
             'cost' => $request->cost,
-            'completed' => $request->has('set_as_completed'),
-            // 'completion_date' => $request->completion_date,
-            'completion_date' => $request->has('set_as_completed') ? now() : null,
-
+            'is_completed' => $isCompleted, // Boolean handling
+            'completion_date' => $isCompleted ? now() : null,
         ]);
 
         // Redirect back with success message
         return redirect()->route('maintenance.approved')
             ->with('status', 'Maintenance request updated successfully.');
     }
+
 
     public function editDenied($id)
     {
@@ -593,5 +592,71 @@ class MaintenanceController extends Controller
         Preventive::where('asset_key', $assetKey)->update(['status' => $status]);
 
         return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function showRecords(Request $request)
+    {
+        $user = Auth::user();
+        $tab = $request->query('tab', 'completed'); // Default tab is 'completed'
+        $searchQuery = $request->input('query', '');
+        $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
+
+        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+            ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
+            ->select(
+                'maintenance.*',
+                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
+                'category.name AS category_name',
+                'location.name AS location_name',
+                'asset.code as asset_code'
+            );
+
+        // Apply filters based on the selected tab
+        if ($tab === 'completed') {
+            $query->where('maintenance.status', 'approved')
+                ->where('maintenance.is_completed', 1);
+        } elseif ($tab === 'cancelled') {
+            $query->where('maintenance.status', 'cancelled');
+        }
+
+        // Apply department filter if the user is a department head
+        if ($user->usertype === 'dept_head') {
+            $query->where('asset.dept_ID', $user->dept_id);
+        } elseif ($user->usertype === 'user') {
+            $query->where('maintenance.requestor', $user->id);
+        }
+
+        // Apply search filter if a query is provided
+        if ($searchQuery) {
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.type', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.reason', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%")
+                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%");
+            });
+        }
+
+        // Fetch the filtered and paginated results
+        $records = $query->paginate($perPage);
+
+        // Return the appropriate view based on the user type
+        $view = $user->usertype === 'admin' ? 'admin.records' : 'dept_head.maintenance_records';
+
+        return view($view, [
+            'records' => $records,
+            'tab' => $tab,
+            'searchQuery' => $searchQuery,
+            'perPage' => $perPage,
+        ]);
     }
 }

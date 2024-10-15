@@ -8,9 +8,9 @@
 @section('content')
     <div class="flex flex-col gap-2 h-full w-full">
         {{-- Cards --}}
-        <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row gap-2">
+        <div class="grid grid-cols-4 gap-4 p-2">
             @foreach ($asset as $key => $item)
-                <x-cards :title="$key === 'um' ? 'under maintenance' : $key" :counts="$item"></x-cards>
+                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item"></x-cards>
             @endforeach
         </div>
         {{-- Recent Activity --}}

@@ -85,7 +85,7 @@
 
         <!-- Set as Completed -->
         <div class="flex items-center mb-3">
-            <input type="checkbox" name="set_as_completed" id="set_as_completed" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" {{ $maintenance->completed ? 'checked' : '' }}>
+            <input type="checkbox" name="set_as_completed" id="set_as_completed" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" {{ $maintenance->is_completed ? 'checked' : '' }}>
             <label for="set_as_completed" class="ml-2 block text-sm font-medium text-gray-700">Set As Completed</label>
         </div>
 
