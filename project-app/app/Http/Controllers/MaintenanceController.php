@@ -328,16 +328,16 @@ class MaintenanceController extends Controller
 
         $notificationData = [
             'title' => 'Maintenance Request Denied',
-            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been denied. Reason: {$maintenance->reason}.", 
+            'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been denied. Reason: {$maintenance->reason}.",
             'authorized_by' => $user->id,
             'authorized_user_name' => "{$user->firstname} {$user->lastname}",
             'asset_name' => $asset->name,
             'asset_code' => $asset->code,
             'action_url' => $actionUrl,  // Add the action URL
         ];
-    
+
         $requestor = User::find($maintenance->requestor);
-    
+
         if ($requestor) {
             $requestor->notify(new SystemNotification($notificationData));
             Log::info('Notification sent successfully to user ID: ' . $requestor->id);
@@ -625,6 +625,14 @@ class MaintenanceController extends Controller
             'completion_date' => $isCompleted ? now() : null,
         ]);
 
+        //trigger predictive maintenance when an approved request is set as completed (checkbox)
+        if ($isCompleted) {
+            // Trigger the predictive analysis directly by calling the analyze() method
+            $predictiveController = new \App\Http\Controllers\PredictiveController();
+            $predictiveController->analyze(); // Run the analysis directly
+            \Log::info('Predictive analysis triggered directly after completion.');
+        }
+
         // Redirect back with success message
         return redirect()->route('maintenance.approved')
             ->with('status', 'Maintenance request updated successfully.');
@@ -651,7 +659,7 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
 
         // Get associated asset
-        $asset = assetModel::findOrFail($maintenance->asset_key); 
+        $asset = assetModel::findOrFail($maintenance->asset_key);
         // Get the department head (logged-in user)
         $deptHead = Auth::user();
 
