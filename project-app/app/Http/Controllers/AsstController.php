@@ -679,19 +679,19 @@ class AsstController extends Controller
                 Log::info('Category created or retrieved.', ['category_id' => $category->id]);
 
                 $location = locationModel::firstOrCreate(
-                    ['name' => $rowData['location']],
+                    ['name' => $rowData['location'], 'dept_ID' => $userDept],
                     ['description' => 'new item description']
                 );
                 Log::info('Location created or retrieved.', ['location_id' => $location->id]);
 
                 $manufacturer = Manufacturer::firstOrCreate(
-                    ['name' => $rowData['manufacturer']],
+                    ['name' => $rowData['manufacturer'], 'dept_ID' => $userDept],
                     ['description' => 'new item description']
                 );
                 Log::info('Manufacturer created or retrieved.', ['manufacturer_id' => $manufacturer->id]);
 
                 $model = ModelAsset::firstOrCreate(
-                    ['name' => $rowData['model']],
+                    ['name' => $rowData['model'], 'dept_ID' => $userDept],
                     ['description' => 'new item description']
                 );
                 Log::info('Model created or retrieved.', ['model_id' => $model->id]);
