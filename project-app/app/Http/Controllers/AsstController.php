@@ -656,73 +656,97 @@ class AsstController extends Controller
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
                     Log::warning('Skipping a row due to insufficient columns.', ['row' => $row]);
-                    continue;
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Insufficient columns in a row. Check the CSV format.',
+                        'row' => $row
+                    ], 400);
                 }
 
                 $rowData = array_combine($headers, $row);
                 Log::info('Processing row data.', $rowData);
 
+                // Validate and convert date
                 try {
-                    // Convert purchase_date to MySQL format (YYYY-MM-DD)
-                    $purchaseDate = Carbon::createFromFormat('d/m/Y', $rowData['purchase_date'])
-                        ->format('Y-m-d');
+                    $purchaseDate = null;
+                    $formats = ['d/m/Y', 'Y-m-d', 'm-d-Y', 'd-M-Y']; // Add more if needed
+
+                    foreach ($formats as $format) {
+                        try {
+                            $purchaseDate = Carbon::createFromFormat($format, $rowData['purchase_date']);
+                            break; // Stop if a valid date is found
+                        } catch (\Exception $e) {
+                            continue; // Try the next format
+                        }
+                    }
+
+                    if ($purchaseDate) {
+                        $purchaseDate = $purchaseDate->format('Y-m-d'); // Convert to MySQL format
+                    } else {
+                        throw new \Exception('Invalid date format.');
+                    }
                 } catch (\Exception $e) {
-                    Log::error('Invalid date format in row.', ['row' => $rowData, 'error' => $e->getMessage()]);
-                    continue; // Skip this row if the date format is invalid
+                    Log::error('Invalid date format in row.', [
+                        'row' => $rowData,
+                        'error' => $e->getMessage()
+                    ]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid date format in row.',
+                        'row' => $rowData
+                    ], 400);
                 }
-
-                // Create or retrieve related models
-                $category = category::firstOrCreate(
-                    ['name' => $rowData['category'], 'dept_ID' => $userDept],
-                    ['description' => 'new item description']
-                );
-                Log::info('Category created or retrieved.', ['category_id' => $category->id]);
-
-                $location = locationModel::firstOrCreate(
-                    ['name' => $rowData['location'], 'dept_ID' => $userDept],
-                    ['description' => 'new item description']
-                );
-                Log::info('Location created or retrieved.', ['location_id' => $location->id]);
-
-                $manufacturer = Manufacturer::firstOrCreate(
-                    ['name' => $rowData['manufacturer'], 'dept_ID' => $userDept],
-                    ['description' => 'new item description']
-                );
-                Log::info('Manufacturer created or retrieved.', ['manufacturer_id' => $manufacturer->id]);
-
-                $model = ModelAsset::firstOrCreate(
-                    ['name' => $rowData['model'], 'dept_ID' => $userDept],
-                    ['description' => 'new item description']
-                );
-                Log::info('Model created or retrieved.', ['model_id' => $model->id]);
-
-                // Generate asset code based on department sequence
-                $department = DB::table('department')->where('id', $userDept)->first();
-                $departmentCode = $department->name ?? 'UNKNOWN';
-                $lastID = department::where('name', $departmentCode)->max('assetSequence');
-                $seq = $lastID ? $lastID + 1 : 1;
-                $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-                department::where('id', $userDept)->increment('assetSequence', 1);
-
-                Log::info('Generated asset code: ' . $assetCode);
-
-                // Define QR code path
-                $qrCodePath = 'qrcodes/' . $assetCode . '.png';
-                $qrStoragePath = storage_path('app/public/' . $qrCodePath);
-
-                // Ensure directory exists
-                if (!file_exists(storage_path('app/public/qrcodes'))) {
-                    mkdir(storage_path('app/public/qrcodes'), 0777, true);
-                    Log::info('Created QR codes directory.');
-                }
-
-                // Generate QR code
-                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-                    ->size(250)
-                    ->generate($assetCode, $qrStoragePath);
-                Log::info('QR code generated and saved.', ['path' => $qrCodePath]);
 
                 try {
+                    // Create or retrieve related models
+                    $category = category::firstOrCreate(
+                        ['name' => $rowData['category'], 'dept_ID' => $userDept],
+                        ['description' => 'new item description']
+                    );
+                    Log::info('Category created or retrieved.', ['category_id' => $category->id]);
+
+                    $location = locationModel::firstOrCreate(
+                        ['name' => $rowData['location'], 'dept_ID' => $userDept],
+                        ['description' => 'new item description']
+                    );
+                    Log::info('Location created or retrieved.', ['location_id' => $location->id]);
+
+                    $manufacturer = Manufacturer::firstOrCreate(
+                        ['name' => $rowData['manufacturer'], 'dept_ID' => $userDept],
+                        ['description' => 'new item description']
+                    );
+                    Log::info('Manufacturer created or retrieved.', ['manufacturer_id' => $manufacturer->id]);
+
+                    $model = ModelAsset::firstOrCreate(
+                        ['name' => $rowData['model'], 'dept_ID' => $userDept],
+                        ['description' => 'new item description']
+                    );
+                    Log::info('Model created or retrieved.', ['model_id' => $model->id]);
+
+                    // Generate asset code based on department sequence
+                    $department = DB::table('department')->where('id', $userDept)->first();
+                    $departmentCode = $department->name ?? 'UNKNOWN';
+                    $lastID = department::where('name', $departmentCode)->max('assetSequence');
+                    $seq = $lastID ? $lastID + 1 : 1;
+                    $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+                    department::where('id', $userDept)->increment('assetSequence', 1);
+
+                    Log::info('Generated asset code: ' . $assetCode);
+
+                    // Define QR code path and ensure directory exists
+                    $qrCodePath = 'qrcodes/' . $assetCode . '.png';
+                    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+                    if (!file_exists(storage_path('app/public/qrcodes'))) {
+                        mkdir(storage_path('app/public/qrcodes'), 0777, true);
+                    }
+
+                    // Generate QR code
+                    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+                        ->size(250)
+                        ->generate($assetCode, $qrStoragePath);
+                    Log::info('QR code generated and saved.', ['path' => $qrCodePath]);
+
                     // Create the asset
                     assetModel::create([
                         'code' => $assetCode,
@@ -743,14 +767,27 @@ class AsstController extends Controller
                     Log::info('Asset created successfully.', ['code' => $assetCode]);
                 } catch (\Exception $e) {
                     Log::error('Error inserting asset: ' . $e->getMessage(), ['row' => $rowData]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error inserting asset.',
+                        'row' => $rowData,
+                        'error' => $e->getMessage()
+                    ], 400);
                 }
             }
 
             Log::info('CSV uploaded successfully.');
-            return response()->json(['success' => true, 'message' => 'CSV uploaded successfully']);
+            return response()->json([
+                'success' => true,
+                'message' => 'CSV uploaded successfully'
+            ]);
         } catch (\Throwable $th) {
             Log::error('Error during CSV upload: ' . $th->getMessage());
-            return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading CSV. Check logs.',
+                'error' => $th->getMessage()
+            ], 500);
         }
     }
 }
