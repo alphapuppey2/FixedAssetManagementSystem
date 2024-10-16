@@ -27,7 +27,7 @@
     <!-- Logo Section -->
     <div class="logo">
         <span>
-            <a href="{{ $homeRoute }}" class="text-xl font-bold text-gray-800">FAMAS</a>
+            <a href="{{ $homeRoute }}" class="text-xl font-bold text-gray-800">FAMS</a>
         </span>
     </div>
 

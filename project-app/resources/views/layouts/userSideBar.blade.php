@@ -1,24 +1,25 @@
 <aside class="h-screen transition ease-in max-md:w-[50px] md:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
 <!-- Sidebar -->
-    <x-nav-link :href="route('user.profile')">
-        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg transition ease-in">
-            <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
-                <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
-                         class="absolute bg-white top-1/2 left-1/2 lg:w-auto lg:h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                         alt="User Profile Photo">
-             </div>
-            <!-- Profile Section -->
-            <div class="profileUser grid grid-col-2 ml-2 text-[12px] w-full max-md:hidden lg:block">
-                <span class="font-normal">
-                    {{ Auth::user()->lastname.','.Auth::user()->firstname }}
-                </span>
-                <br>
-                <span>
-                 Worker
-                </span>
-            </div>
+<!-- User Profile Section -->
+<x-nav-link :href="route('user.profile')" class="mt-3 flex items-center justify-center md:justify-start">
+    <div class="profileAccount flex items-center p-2 transition-all duration-300 ease-in-out">
+        <!-- Image changes size smoothly based on sidebar state -->
+        <div class="imagepart overflow-hidden rounded-full relative border-2 border-slate-500 
+                    transition-all duration-300 ease-in-out w-[45px] h-[45px] md:w-[60px] md:h-[60px]">
+            <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" 
+                 class="absolute inset-0 object-cover w-full h-full rounded-full" 
+                 alt="User Profile Photo">
         </div>
-    </x-nav-link>
+        <!-- Sidebar Text - Hidden in compressed state -->
+        <div class="ml-2 sidebar-text hidden md:block transition-all duration-300 ease-in-out">
+            <span>{{ Auth::user()->lastname }}, {{ Auth::user()->firstname }}</span><br>
+            <span>Worker</span>
+        </div>
+    </div>
+</x-nav-link>
+
+
+
 
     <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
     <nav class="flex flex-col w-full font-semibold">

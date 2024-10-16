@@ -38,10 +38,10 @@
     <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
         <button onclick="startScanning()" class="bg-blue-900  text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button>
-        <button onclick="document.getElementById('uploadInput').click()" class="bg-white-500 text-blue-900 px-4 py-2 rounded hover:text-blue-400">Upload Image</button>
+        <button onclick="document.getElementById('uploadInput').click()" class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">Upload Image</button>
     </div>
 
-    <!-- Hidden File Input for Image Upload -->
+    <!-- Hidden File Input for Image Upload --> 
     <input type="file" id="uploadInput" name="qr_image" accept="image/*" style="display: none;" onchange="handleImageChange(event)">
 
     <!-- ZXing Library for QR Code Scanning -->

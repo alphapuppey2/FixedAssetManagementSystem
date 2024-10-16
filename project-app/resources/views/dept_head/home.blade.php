@@ -1,55 +1,60 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
         {{ 'Dashboard' }}
     </h2>
 @endsection
+
 @section('content')
-    <div class="flex flex-col gap-2 h-full w-full">
-        {{-- Cards --}}
-        <div class="grid grid-cols-4 gap-4 p-2">
+    <div class="flex flex-col gap-4 h-full w-full">
+        {{-- Cards Section --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-2">
             @foreach ($asset as $key => $item)
-                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item"/>
+                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item" class="text-center"  />
             @endforeach
         </div>
-        {{-- Recent Activity --}}
-        <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2">
-            <div class="chartArea bg-white rounded-xl shadow-md">
 
-                <x-chart
-                    :weeks="$Amonths"
-                    :activeCounts="$Acounts"
-                    :maintenanceCounts="$UMcounts"
+        {{-- Recent Activity Section --}}
+        <div class="container grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_500px] gap-4 p-2">
+            {{-- Chart Area --}}
+            <div class="chartArea bg-white rounded-xl shadow-md p-4">
+                <x-chart 
+                    :weeks="$Amonths" 
+                    :activeCounts="$Acounts" 
+                    :maintenanceCounts="$UMcounts" 
                 />
             </div>
-            <div class="RecentNew overflow-hidden flex flex-col w-full rounded-md h-full bg-white shadow-md">
-                <span class="font-bold uppercase text-lg bg-blue-100 text-center h-8 border-b w-full">
+
+            {{-- Recent New Assets Table --}}
+            <div class="RecentNew flex flex-col w-full bg-white rounded-md shadow-md overflow-hidden">
+                <span class="font-bold uppercase text-lg bg-blue-100 text-center py-2 border-b">
                     New Assets
                 </span>
-                <div class="overflow-auto">
+                <div class="overflow-auto max-h-80">
                     <table class="min-w-full">
-                        <thead class="border-b  m-2">
+                        <thead class="border-b">
                             <tr>
-                                <th class="text-center text-sm font-medium text-gray-700">Name</th>
-                                <th class="text-center text-sm font-medium text-gray-700">Code</th>
-                                <th class="text-center text-sm font-medium text-gray-700">Date Acquired</th>
+                                <th class="text-center text-sm font-medium text-gray-700 px-4 py-2">Name</th>
+                                <th class="text-center text-sm font-medium text-gray-700 px-4 py-2">Code</th>
+                                <th class="text-center text-sm font-medium text-gray-700 px-4 py-2">Date Acquired</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (isset($newAssetCreated) && !$newAssetCreated->isEmpty())
-                           @foreach ($newAssetCreated as $item)
-                            <tr>
-                                <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">{{ $item->name }}</td>
-                                <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">{{ $item->code }}</td>
-                                <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">{{ $item->created_at }}</td>
-                            </tr>
-                           @endforeach
-
+                                @foreach ($newAssetCreated as $item)
+                                    <tr class="hover:bg-gray-50 transition duration-150">
+                                        <td class="text-center text-sm font-medium text-gray-700 px-4 py-2">{{ $item->name }}</td>
+                                        <td class="text-center text-sm font-medium text-gray-700 px-4 py-2">{{ $item->code }}</td>
+                                        <td class="text-center text-sm font-medium text-gray-700 px-4 py-2">{{ $item->created_at }}</td>
+                                    </tr>
+                                @endforeach
                             @else
-                            <tr>
-                                <td colspan="3" class="px-6 py-4 text-center text-gray-500 bg-gray-200/50">No New Assets</td>
-                            </tr>
+                                <tr>
+                                    <td colspan="3" class="text-center text-gray-500 bg-gray-200/50 px-4 py-2">
+                                        No New Assets
+                                    </td>
+                                </tr>
                             @endif
                         </tbody>
                     </table>
