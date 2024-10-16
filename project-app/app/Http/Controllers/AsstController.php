@@ -288,13 +288,16 @@ class AsstController extends Controller
     $asset['active'] = DB::table('asset')
         ->where('status', '=', 'active')
         ->where('dept_ID', '=', $userDept)
-        ->whereRaw('MONTH(IFNULL(updated_at, created_at)) = ?', [Carbon::now()->month])
+        ->count();
+
+    $asset['deploy'] = DB::table('asset')
+        ->where('status', '=', 'deployed')
+        ->where('dept_ID', '=', $userDept)
         ->count();
 
     $asset['under_maintenance'] = DB::table('asset')
         ->where('status', '=', 'under_maintenance')
         ->where('dept_ID', '=', $userDept)
-        ->whereRaw('MONTH(IFNULL(updated_at, created_at)) = ?', [Carbon::now()->month])
         ->count();
 
     $asset['dispose'] = DB::table('asset')
@@ -302,10 +305,6 @@ class AsstController extends Controller
         ->where('dept_ID', '=', $userDept)
         ->count();
 
-    $asset['deploy'] = DB::table('asset')
-        ->where('status', '=', 'deployed')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
 
     $newAssetCreated = assetModel::where('dept_ID', $userDept)
         ->whereMonth('created_at', Carbon::now()->month)
@@ -567,15 +566,21 @@ class AsstController extends Controller
         // Retrieve related maintenance data for the asset
         $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
             ->where('is_completed', 1)
-            ->join('users', 'users.id', '=', 'maintenance.requestor')
+            ->leftjoin('users', 'users.id', '=', 'maintenance.requestor')
+            ->leftjoin('users as authorized', 'authorized.id', '=', 'maintenance.authorized_by')
             ->select(
                 'users.firstname as fname',
                 'users.lastname as lname',
+                'maintenance.type',
+                'authorized.firstname as authorized_fname',
+                'authorized.lastname as authorized_lname',
+                'maintenance.created_at',
                 'maintenance.cost',
                 'maintenance.reason',
                 'maintenance.completion_date as complete'
             )
-            ->get();
+            ->get()
+            ;
 
         // Determine the view based on user type
         $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
