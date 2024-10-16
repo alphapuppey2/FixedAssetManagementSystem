@@ -281,93 +281,93 @@ class AsstController extends Controller
     }
 
     public static function assetCount()
-{
-    // Dashboard
-    $userDept = Auth::user()->dept_id;
+    {
+        // Dashboard
+        $userDept = Auth::user()->dept_id;
 
-    $asset['active'] = DB::table('asset')
-        ->where('status', '=', 'active')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
+        $asset['active'] = DB::table('asset')
+            ->where('status', '=', 'active')
+            ->where('dept_ID', '=', $userDept)
+            ->count();
 
-    $asset['deploy'] = DB::table('asset')
-        ->where('status', '=', 'deployed')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
+        $asset['deploy'] = DB::table('asset')
+            ->where('status', '=', 'deployed')
+            ->where('dept_ID', '=', $userDept)
+            ->count();
 
-    $asset['under_maintenance'] = DB::table('asset')
-        ->where('status', '=', 'under_maintenance')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
+        $asset['under_maintenance'] = DB::table('asset')
+            ->where('status', '=', 'under_maintenance')
+            ->where('dept_ID', '=', $userDept)
+            ->count();
 
-    $asset['dispose'] = DB::table('asset')
-        ->where('status', '=', 'dispose')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
+        $asset['dispose'] = DB::table('asset')
+            ->where('status', '=', 'dispose')
+            ->where('dept_ID', '=', $userDept)
+            ->count();
 
 
-    $newAssetCreated = assetModel::where('dept_ID', $userDept)
-        ->whereMonth('created_at', Carbon::now()->month)
-        ->orderBy('created_at', 'desc')
-        ->take(5)
-        ->get();
+        $newAssetCreated = assetModel::where('dept_ID', $userDept)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-    // Initialize arrays for month data
-    $monthsActive = [];
-    $monthsUnderMaintenance = [];
-    for ($i = 4; $i >= 0; $i--) {
-        $date = Carbon::now()->subMonths($i);
-        $monthYear = $date->format('M Y');
-        $monthsActive[$monthYear] = 0;
-        $monthsUnderMaintenance[$monthYear] = 0;
+        // Initialize arrays for month data
+        $monthsActive = [];
+        $monthsUnderMaintenance = [];
+        for ($i = 4; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthYear = $date->format('M Y');
+            $monthsActive[$monthYear] = 0;
+            $monthsUnderMaintenance[$monthYear] = 0;
+        }
+
+        // Retrieve data for Active assets grouped by month and year
+        $dataActive = assetModel::where('dept_ID', $userDept)
+            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
+                Carbon::now()->subMonths(4)->format('Y-m'),
+                Carbon::now()->format('Y-m')
+            ])
+            ->where('status', 'active')
+            ->select(
+                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('monthYear')
+            ->get();
+
+        // Retrieve data for Under Maintenance assets grouped by month and year
+        $dataUnderMaintenance = assetModel::where('dept_ID', $userDept)
+            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
+                Carbon::now()->subMonths(4)->format('Y-m'),
+                Carbon::now()->format('Y-m')
+            ])
+            ->where('status', 'under_maintenance')
+            ->select(
+                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('monthYear')
+            ->get();
+
+        // Map the retrieved data to the month arrays
+        foreach ($dataActive as $record) {
+            $monthsActive[$record->monthYear] = $record->count;
+        }
+        foreach ($dataUnderMaintenance as $record) {
+            $monthsUnderMaintenance[$record->monthYear] = $record->count;
+        }
+
+        // Return the view with the data
+        return view('dept_head.home', [
+            'asset' => $asset,
+            'newAssetCreated' => $newAssetCreated,
+            'Amonths' => array_keys($monthsActive),
+            'Acounts' => array_values($monthsActive),
+            'UMmonths' => array_keys($monthsUnderMaintenance),
+            'UMcounts' => array_values($monthsUnderMaintenance),
+        ]);
     }
-
-    // Retrieve data for Active assets grouped by month and year
-    $dataActive = assetModel::where('dept_ID', $userDept)
-        ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-            Carbon::now()->subMonths(4)->format('Y-m'),
-            Carbon::now()->format('Y-m')
-        ])
-        ->where('status', 'active')
-        ->select(
-            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-            DB::raw('COUNT(*) as count')
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Retrieve data for Under Maintenance assets grouped by month and year
-    $dataUnderMaintenance = assetModel::where('dept_ID', $userDept)
-        ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-            Carbon::now()->subMonths(4)->format('Y-m'),
-            Carbon::now()->format('Y-m')
-        ])
-        ->where('status', 'under_maintenance')
-        ->select(
-            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-            DB::raw('COUNT(*) as count')
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Map the retrieved data to the month arrays
-    foreach ($dataActive as $record) {
-        $monthsActive[$record->monthYear] = $record->count;
-    }
-    foreach ($dataUnderMaintenance as $record) {
-        $monthsUnderMaintenance[$record->monthYear] = $record->count;
-    }
-
-    // Return the view with the data
-    return view('dept_head.home', [
-        'asset' => $asset,
-        'newAssetCreated' => $newAssetCreated,
-        'Amonths' => array_keys($monthsActive),
-        'Acounts' => array_values($monthsActive),
-        'UMmonths' => array_keys($monthsUnderMaintenance),
-        'UMcounts' => array_values($monthsUnderMaintenance),
-    ]);
-}
 
     public function update(Request $request, $id)
     {
@@ -579,8 +579,7 @@ class AsstController extends Controller
                 'maintenance.reason',
                 'maintenance.completion_date as complete'
             )
-            ->get()
-            ;
+            ->get();
 
         // Determine the view based on user type
         $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
@@ -663,6 +662,15 @@ class AsstController extends Controller
                 $rowData = array_combine($headers, $row);
                 Log::info('Processing row data.', $rowData);
 
+                try {
+                    // Convert purchase_date to MySQL format (YYYY-MM-DD)
+                    $purchaseDate = Carbon::createFromFormat('d/m/Y', $rowData['purchase_date'])
+                        ->format('Y-m-d');
+                } catch (\Exception $e) {
+                    Log::error('Invalid date format in row.', ['row' => $rowData, 'error' => $e->getMessage()]);
+                    continue; // Skip this row if the date format is invalid
+                }
+
                 // Create or retrieve related models
                 $category = category::firstOrCreate(
                     ['name' => $rowData['category'], 'dept_ID' => $userDept],
@@ -721,7 +729,7 @@ class AsstController extends Controller
                         'name' => $rowData['name'],
                         'salvage_value' => (int) $rowData['salvage_value'],
                         'depreciation' => (int) $rowData['depreciation'],
-                        'purchase_date' => $rowData['purchase_date'],
+                        'purchase_date' => $purchaseDate,
                         'purchase_cost' => (int) $rowData['purchase_cost'],
                         'usage_lifespan' => !empty($rowData['usage_lifespan']) ? (int) $rowData['usage_lifespan'] : null,
                         'ctg_ID' => $category->id,
@@ -745,5 +753,4 @@ class AsstController extends Controller
             return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
         }
     }
-
 }
