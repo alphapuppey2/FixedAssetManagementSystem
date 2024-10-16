@@ -270,8 +270,17 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key);
 
+        // Update asset status to 'under Maintenance'
         $asset->status = "under_maintenance";
         $asset->save();
+
+        // Set the authorized user details and timestamp
+        $maintenance->authorized_by = $user->id;
+        $maintenance->authorized_at = now(); // Set the authorized timestamp
+        $maintenance->status = 'approved'; // Update request status to 'approved'
+        $maintenance->save();
+
+        Log::info('Maintenance request approved for asset ID: ' . $asset->id);
 
         // Generate the action URL for the request list
         $actionUrl = route('requests.list');
