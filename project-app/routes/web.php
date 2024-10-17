@@ -66,9 +66,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
+    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+
+    // USER UPDATES
     Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
     Route::patch('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
-    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+    Route::post('/user/{id}/reactivate', [UserController::class, 'reactivate'])->name('user.reactivate');
 
     // CREATE USER
     Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');

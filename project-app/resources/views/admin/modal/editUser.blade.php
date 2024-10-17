@@ -23,10 +23,20 @@
             <div class="flex mb-4 space-x-4">
                 <div class="flex-none">
                     <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border">
-                        <img id="currentProfilePhoto" src="/images/default_profile.jpg" alt="Current Profile Photo" class="w-full h-full object-cover">
+                        <img
+                            id="currentProfilePhoto"
+                            src="{{ isset($user) && $user->userPicture ? asset('storage/' . $user->userPicture) : asset('images/default_profile.jpg') }}"
+                            alt="Current Profile Photo"
+                            class="w-full h-full object-cover">
                     </div>
-                    <input type="file" name="profile_photo" id="profile_photo" class="mt-2 block w-full text-sm text-gray-700" accept="image/*">
+                    <input
+                        type="file"
+                        name="profile_photo"
+                        id="profile_photo"
+                        class="mt-2 block w-full text-sm text-gray-700"
+                        accept="image/*">
                 </div>
+
 
                 <div class="flex-1">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -77,23 +87,29 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
-                    <select name="dept_id" id="department" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <select name="dept_id" id="department"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         <option value="1">IT</option>
                         <option value="2">Sales</option>
                         <option value="3">Fleet</option>
                         <option value="4">Production</option>
                     </select>
                 </div>
-                <div class="mb-4">
-                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <input
-                        type="text"
-                        id="status"
-                        name="status"
-                        readonly
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-100" />
-                </div>
 
+                <div class="grid grid-cols-2 gap-4 items-end">
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <input type="text" id="status" name="status" readonly
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-100">
+                    </div>
+
+                    <div id="reactivateContainer" class="hidden">
+                        <button type="button" id="reactivateUserBtn"
+                            class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                            Reactivate User
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <hr class="my-4 border-gray-700">
@@ -130,9 +146,10 @@
                 </div>
                 <div>
                     <label for="account_updated" class="block text-sm font-medium text-gray-700">Account Updated</label>
-                    <input type="text" name="account_updated" id="account_updated" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100" readonly>
+                    <input type="text" id="account_updated" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100" readonly>
                 </div>
             </div>
+
             <div class="flex justify-end">
                 <button type="button" id="cancelEdit" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button>
                 <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save</button>
@@ -145,4 +162,35 @@
     function closeModal() {
         document.getElementById('editUserModal').classList.add('hidden');
     }
+
+    // Show Reactivate Button if the User is Inactive
+    function showReactivateButton(isDeleted) {
+        const reactivateContainer = document.getElementById('reactivateContainer');
+        if (isDeleted === '1') {
+            reactivateContainer.classList.remove('hidden');
+        } else {
+            reactivateContainer.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('reactivateUserBtn')?.addEventListener('click', () => {
+        const userId = document.getElementById('id').value;
+        fetch(`/user/${userId}/reactivate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('User reactivated successfully.');
+                    location.reload();
+                } else {
+                    alert('Failed to reactivate the user.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
 </script>

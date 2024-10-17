@@ -113,6 +113,14 @@
             const status = isDeleted == '0' ? 'Active' : 'Inactive';
             document.getElementById('status').value = status;
 
+            showReactivateButton(isDeleted);
+
+            // Set created_at and updated_at fields
+            const createdAt = btn.getAttribute('data-account-created');
+            const updatedAt = btn.getAttribute('data-account-updated');
+            document.getElementById('account_created').value = formatDate(createdAt);
+            document.getElementById('account_updated').value = formatDate(updatedAt);
+
             const photoPath = btn.getAttribute('data-photo');
             document.getElementById('currentProfilePhoto').src = photoPath;
 
@@ -120,6 +128,17 @@
         });
     });
 
+    // Helper function to format the date
+    function formatDate(dateString) {
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
 
     document.getElementById('cancelEdit').addEventListener('click', () => {
         document.getElementById('editUserModal').classList.add('hidden');

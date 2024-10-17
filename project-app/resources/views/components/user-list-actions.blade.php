@@ -2,7 +2,7 @@
 <a href="#" class="text-blue-500 editUserBtn"
     data-id="{{ $item->id }}"
     data-employee_id="{{ $item->employee_id }}"
-    data-photo="{{ $item->userPicture ? asset('uploads/profile_photos/' . $item->userPicture) : asset('images/default_profile.jpg') }}"
+    data-photo="{{ $item->userPicture ? asset('storage/' . $item->userPicture) : asset('images/default_profile.jpg') }}"
     data-firstname="{{ $item->firstname }}"
     data-middlename="{{ $item->middlename }}"
     data-lastname="{{ $item->lastname }}"

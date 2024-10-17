@@ -29,10 +29,11 @@ class AsstController extends Controller
 {
     public function showAllAssets()
     {
+        
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc')
             ->paginate(10);
 
@@ -44,7 +45,7 @@ class AsstController extends Controller
         $query = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc');
 
         // If department is selected, filter by department ID
@@ -479,8 +480,6 @@ class AsstController extends Controller
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
 
-    //If modify make sure to update show details in QRUserCotroller.php
-    //Both same functionalities but different parameters
     public function showDetails($code)
     {
         // Get the logged-in user's department ID and user type
