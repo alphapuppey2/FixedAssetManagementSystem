@@ -17,8 +17,7 @@ use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\ReportsController;
-
-
+use App\Http\Controllers\NotificationController;
 
 
 Route::get('/', function () {
@@ -44,6 +43,20 @@ Route::middleware('auth')->group(function () {
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/delete', [NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/delete-all', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
+
+    // Route::get('/notification', function () {
+    //     return view('layouts.notification');
+    // })->name('notification');
+
+    Route::get('/send-test-email', [NotificationController::class, 'sendTestEmail']);
+
+
 });
 
 // Admin Routes
