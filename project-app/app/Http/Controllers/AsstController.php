@@ -29,7 +29,6 @@ class AsstController extends Controller
 {
     public function showAllAssets()
     {
-
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
@@ -162,7 +161,6 @@ class AsstController extends Controller
     {
         $usrDPT = Auth::user()->dept_id;
         $department = department::find($usrDPT);
-
 
         $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
         $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
