@@ -723,7 +723,12 @@ class AsstController extends Controller
             }
 
             $userDept = Auth::user()->dept_id;
+            $deptHead = Auth::user(); // The department head who uploaded the CSV
+            $department = DB::table('department')->where('id', $userDept)->first();
             Log::info('Authenticated user department ID: ' . $userDept);
+
+            // Initialize the $assets array to collect asset names and codes
+            $assets = [];
 
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
@@ -836,7 +841,10 @@ class AsstController extends Controller
                         'status' => $rowData['status'] ?? 'active',
                         'qr_img' => $qrCodePath,
                     ]);
+                    // Add asset name and code to the $assets array
+                    $assets[] = ['name' => $rowData['name'], 'code' => $assetCode];
                     Log::info('Asset created successfully.', ['code' => $assetCode]);
+
                 } catch (\Exception $e) {
                     Log::error('Error inserting asset: ' . $e->getMessage(), ['row' => $rowData]);
                     return response()->json([
@@ -846,6 +854,24 @@ class AsstController extends Controller
                         'error' => $e->getMessage()
                     ], 400);
                 }
+            }
+
+            // Use the first asset's details for notification
+            $firstAsset = $assets[0] ?? ['name' => 'Unknown', 'code' => 'Unknown'];
+
+            $notificationData = [
+                'title' => 'New Assets Added via CSV Import',
+                'message' => "New assets were added in '{$department->name}' Department.",
+                'asset_name' => 'Multiple Assets',
+                'asset_code' => 'System Generated Code',
+                'authorized_by' => $deptHead->id,
+                'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+                'action_url' => route('asset'),
+            ];
+
+            $admins = User::where('usertype', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\SystemNotification($notificationData));
             }
 
             Log::info('CSV uploaded successfully.');
