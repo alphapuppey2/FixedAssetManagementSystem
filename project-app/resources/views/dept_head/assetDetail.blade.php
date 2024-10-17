@@ -7,15 +7,7 @@ $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png
 @endphp
 
 @section('header')
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+
 
 <div class="flex items-center justify-between w-full">
     <div class="flex items-center space-x-2">
@@ -29,7 +21,16 @@ $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png
 @endsection
 
 @section('content')
-<div class="w-full h-full">
+<div class="w-full h-full ">
+    @if ($errors->any())
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
     {{-- Tabs --}}
     <div class="tabs-container border-b-2 mb-4 flex space-x-4">
         <button
