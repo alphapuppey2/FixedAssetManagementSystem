@@ -1,4 +1,4 @@
-{{-- 
+{{--
     THIS IS A MODAL THAT CAN BE OPENED FROM THE USER LIST TABLE, AND CLICKING THE EDIT ICON (BUTTON) IN THE ACTION TAB
     THIS WILL DISPLAY A USERS INFORMATION.
     ALLOWS THE ADMIN TO EDIT THE USER INFORMATION
@@ -11,7 +11,7 @@
         <button type="button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-3xl font-bold" onclick="closeModal()">
             &times;
         </button>
-        
+
         <h2 class="text-xl font-semibold mb-4">Edit User</h2>
 
         <hr class="my-4 border-gray-700">
@@ -84,13 +84,16 @@
                         <option value="4">Production</option>
                     </select>
                 </div>
-                <div>
+                <div class="mb-4">
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+                    <input
+                        type="text"
+                        id="status"
+                        name="status"
+                        readonly
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-100" />
                 </div>
+
             </div>
 
             <hr class="my-4 border-gray-700">

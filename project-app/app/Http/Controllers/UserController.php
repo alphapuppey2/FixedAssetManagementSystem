@@ -141,15 +141,19 @@ class UserController extends Controller
             : back()->withErrors(['email' => __($status)]);
     }
 
-    // HARD DELETE
+    // SOFT DELETE
     public function delete($id)
     {
-        // Find the user and delete
+        // Find the user by ID
         $user = User::findOrFail($id);
-        $user->delete();
 
-        return redirect()->route('userList')->with('success', 'User deleted successfully.');
+        // Set is_deleted to 1 (soft delete)
+        $user->is_deleted = 1;
+        $user->save();
+
+        return redirect()->route('userList')->with('success', 'User deactivated successfully.');
     }
+
 
     public function search(Request $request)
     {
