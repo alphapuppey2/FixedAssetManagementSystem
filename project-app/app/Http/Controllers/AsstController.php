@@ -546,7 +546,7 @@ class AsstController extends Controller
 
         // Create an empty array to hold the updated custom fields
         $updatedCustomFields = [];
-        // dd($departmentCustomFields);
+
         // Loop through the department custom fields and map the values from the asset custom fields
         foreach ($departmentCustomFields as $deptField) {
             $fieldName = $deptField['name']; // For example: "RAM"

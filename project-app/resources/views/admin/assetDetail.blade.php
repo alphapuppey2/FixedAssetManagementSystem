@@ -1,215 +1,105 @@
 @extends('layouts.app')
 
 @php
-    // Retrieve asset data and fallback image
-    $data = $retrieveData ?? null;
-    $imagePath = $data->image ?? 'images/defaultICON.png';
+$data = $retrieveData ?? null;
+$imagePath = $data->asst_img ? 'storage/' . $data->asst_img : 'images/no-image.png';
+$qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png';
 @endphp
 
 @section('header')
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight flex w-24">
-        <a href="{{ route('back') }}">Asset</a>
-        <div class="direct ml-5">></div>
-    </h2>
-    <h2 class="assetID font-semibold text-xl w-24">
-        {{ $data->code ?? 'No Code' }}
-    </h2>
-    <button id="editBTN" type="submit" class="text-blue-500 text-[12px]">EDIT</button>
-    <button id="saveBTN" type="submit" form="formEdit" class="text-blue-500 mr-2 text-[12px] hidden">SAVE</button>
-    <button id="cancelBTN" class="text-blue-500 text-[12px] mr-2 hidden">CANCEL</button>
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+<div class="flex items-center justify-between w-full">
+    <div class="flex items-center space-x-2">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight flex">
+            <a href="{{ route('back') }}">Asset</a>
+            <div class="direct ml-2">></div>
+        </h2>
+        <h2 class="assetID font-semibold text-xl">{{ $data->code ?? 'No Code' }}</h2>
+    </div>
+</div>
 @endsection
 
 @section('content')
-    <div class="w-full h-full">
-        @if ($errors->any())
-            <div class="err">
-                INVALID
-            </div>
-        @endif
-        <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" class="details relative w-full min-h-full grid grid-row-[1fr_minmax(50%,100px)] gap-2"
-            method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-
-            {{-- Image Section --}}
-            <div class="imgContainer w-[100%] pb-4 flex justify-center items-center md:col-span-2">
-                <div class="imagepart overflow-hidden relative p-3">
-                    <div class="imageField w-32 h-32 relative flex justify-center">
-                        <div class="field-Info w-32 h-32 border-3 rounded-md transition ease-in ease-out" for="image">
-                            <img src="{{ asset('storage/' . $imagePath) }}" id="imageviewOnly"
-                                class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                                alt="Asset Image">
-                        </div>
-                        <label class="edit hidden w-32 h-32 border-3 rounded-md hover:border-4 hover:border-blue-400 transition ease-in ease-out"
-                            for="image">
-                            <img src="{{ asset('storage/' . $imagePath) }}" id="imageDisplay"
-                                class="absolute top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                                alt="Asset Image">
-                        </label>
-                    </div>
-                    <x-text-input type="file" id="image" name='image' class="hidden" />
-                </div>
-                <div class="qrContainer flex flex-col items-center">
-                    <div class="QRBOX w-24 h-24 bg-red-300"></div>
-                    <a href="#" target="_blank" rel="noopener noreferrer">Print QR Code</a>
-                </div>
-            </div>
-
-            {{-- Main Asset Details --}}
-            <div class="leftC">
-                <div class="mainDetail lg:grid lg:grid-rows-6 max-sm:grid-cols-1 grid-flow-col gap-2">
-                    <div id="name" class="info flex flex-wrap items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400 inline-block">name</div>
-                        <div class="field-Info font-semibold inline-block">{{ $data->name }}</div>
-                        <x-text-input class="text-sm edit hidden inline-block" name='name' value="{{ $data->name }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">cost</div>
-                        <div class="field-Info font-semibold">{{ $data->cost }}</div>
-                        <x-text-input inputmode="decimal" id="cost" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
-                            name='cost' required value="{{ $data->cost }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">depreciation</div>
-                        <div class="field-Info font-semibold">{{ $data->depreciation }}</div>
-                        <x-text-input inputmode="decimal" id="depreciation" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
-                            name='depreciation' required value="{{ $data->depreciation }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Salvage Value</div>
-                        <div class="field-Info font-semibold">{{ $data->salvageVal }}</div>
-                        <x-text-input inputmode="decimal" id="salvageVal" class="edit hidden" pattern="[0-9]*[.,]?[0-9]*"
-                            name='salvageVal' required value="{{ $data->salvageVal }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Category</div>
-                        <div class="field-Info font-semibold">{{ $data->category }}</div>
-                        <div class="form-group edit hidden">
-                            <select name="category" id="category" class="w-full">
-                                @foreach ($categories['ctglist'] as $category)
-                                    <option value={{ $category->id }} @selected($data->category == $category->name)>{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <label class="field-label mr-3 capitalize text-slate-400">lifespan</label>
-                        <div class="field-Info font-semibold">{{ $data->usage_Lifespan }}</div>
-                        <x-text-input class="text-sm edit hidden" id="usage" name="usage" value="{{ $data->usage_Lifespan }}" />
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Model</div>
-                        <div class="field-Info font-semibold">{{ $data->model }}</div>
-                        <div class="form-group edit hidden">
-                            <select name="mod" id="mod" class="w-full flex flex-col">
-                                @foreach ($model['mod'] as $model)
-                                    <option value={{ $model->id }} @selected($data->model == $model->name)>{{ $model->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Manufacturer</div>
-                        <div class="field-Info font-semibold">{{ $data->manufacturer }}</div>
-                        <div class="form-group edit hidden">
-                            <select name="mcft" id="mcft" class="w-full">
-                                @foreach ($manufacturer['mcft'] as $manufacturer)
-                                    <option value={{ $manufacturer->id }} @selected($data->manufacturer == $manufacturer->name)>{{ $manufacturer->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <label class="field-label mr-3 capitalize text-slate-400">Location</label>
-                        <div class="field-Info font-semibold">{{ $data->location }}</div>
-                        <div class="form-group edit hidden">
-                            <select name="loc" id="loc" class="w-full">
-                                @foreach ($location['locs'] as $location)
-                                    <option value={{ $location->id }} @selected($data->location == $location->name)>{{ $location->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Status</div>
-                        <div class="field-Info font-semibold">{{ $data->status }}</div>
-                        <div class="form-group edit hidden">
-                            <select name="status" id="status" class="w-full">
-                                @foreach ($status['sts'] as $stats)
-                                    <option value="{{ $stats }}" @selected($data->status == $stats)>{{ $stats }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="info flex pb-1 items-center">
-                        <div class="field-label mr-3 capitalize text-slate-400">Last Used</div>
-                        <div class="field-display font-semibold">NONE</div>
-                    </div>
-                </div>
-
-                {{-- Additional Information --}}
-                <div class="MoreInfo">
-                    <div class="addInformation">
-                        <div class="title font-bold m-2 text-[15px] opacity-50 capitalize">
-                            Additional information
-                            <div class="divider w-20 h-[2px] bg-slate-400 opacity-50 mb-2 mt-2"></div>
-                        </div>
-                        <div class="addInfoContainer grid grid-rows-5 grid-flow-col w-full">
-                            @if ($fields)
-                                @foreach ($fields as $key => $value)
-                                    <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_20%] gap-2">
-                                        <div class="field-Info customField capitalize text-slate-400">{{ $key }}</div>
-                                        <div class="field-Info customField">{{ $value }}</div>
-                                        <x-text-input class="edit hidden" name="field[key][]" value="{{ $key }}" />
-                                        <x-text-input class="edit hidden" name="field[value][]" value="{{ $value }}" />
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="noneField">No Additional Information</div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="flex w-full justify-center edit hidden">
-                        <button id='addMoreFields' class="p-1 block text-blue-700 border-1 border-blue-700 rounded-md transition ease-in ease-out hover:bg-blue-700 hover:text-slate-100">
-                            Add Field
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Maintenance History Section --}}
-            <div class="rightC flex flex-col">
-                <div class="maintenance flex flex-col justify-center items-center">
-                    <div class="header w-full flex justify-between">
-                        <h1>MAINTENANCE HISTORY</h1>
-                        <a href="{{ route('asset.history', $data->id) }}" class="text-[12px] text-blue-500"> VIEW ALL</a>
-                    </div>
-                    <div class="divider w-full h-[1px] border-1 border-slate-500 mt-2 mb-2"></div>
-                    <table class="w-full">
-                        <thead>
-                            <th>Work Description</th>
-                            <th>Date</th>
-                            <th>Date Completed</th>
-                            <th>Status</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan='4' class="text-center">NO MAINTENANCE HISTORY</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-        </form>
+<div class="w-full h-full">
+    {{-- Tabs --}}
+    <div class="tabs-container border-b-2 mb-4 flex space-x-4">
+        <button
+            class="tab-btn pb-2 border-b-2 transition-all duration-300 ease-in-out border-transparent"
+            data-target="#generalInfo">
+            General Information
+        </button>
+        <button
+            class="tab-btn pb-2 border-b-2 transition-all duration-300 ease-in-out border-transparent"
+            data-target="#maintenanceHistory">
+            Maintenance History
+        </button>
+        <button
+            class="tab-btn pb-2 border-b-2 transition-all duration-300 ease-in-out border-transparent"
+            data-target="#usageLog">
+            Usage Log
+        </button>
     </div>
 
-    @vite(['resources/js/displayImage.js', 'resources/js/updateDetails.js', 'resources/js/addInfoField.js'])
+    {{-- Tab Content --}}
+    <div id="generalInfo" class="tab-content">
+        @include('admin.partials.generalInfo', [
+        'data' => $data,
+        'categories' => $categories,
+        'model' => $model,
+        'manufacturer' => $manufacturer,
+        'location' => $location,
+        'status' => $status
+        ])
+    </div>
+
+    <div id="maintenanceHistory" class="tab-content hidden">
+        @include('admin.partials.maintenanceHistory', ['assetRet' => $assetRet])
+    </div>
+
+    <div id="usageLog" class="tab-content hidden">
+        @include('admin.partials.usageLog')
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Set the first tab as active on load
+        tabButtons[0].classList.add('border-blue-500', 'text-blue-600');
+        tabButtons[0].classList.remove('border-transparent');
+        tabContents[0].classList.remove('hidden');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Reset all tabs to inactive state
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('border-blue-500', 'text-blue-600');
+                    btn.classList.add('border-transparent');
+                });
+
+                // Hide all content
+                tabContents.forEach(content => content.classList.add('hidden'));
+
+                // Activate the clicked tab
+                button.classList.add('border-blue-500', 'text-blue-600');
+                button.classList.remove('border-transparent');
+
+                // Show corresponding content
+                const target = document.querySelector(button.dataset.target);
+                target.classList.remove('hidden');
+            });
+        });
+    });
+</script>
 @endsection

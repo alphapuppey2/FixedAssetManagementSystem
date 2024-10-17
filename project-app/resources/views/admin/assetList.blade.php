@@ -84,7 +84,7 @@
                 <td class="align-middle text-center text-sm text-gray-900">{{ $asset->status }}</td>
                 <td class="w-40">
                     <div class="grp flex justify-between">
-                        <a href="{{ route('adminAssetDetails', $asset->id) }}" class="btn btn-outline-primary">View</a>
+                        <a href="{{ route('adminAssetDetails', $asset->code) }}" class="btn btn-outline-primary">View</a>
                         <form action="{{ route('asset.delete', $asset->id) }}" method="post">
                             @csrf
                             @method('DELETE')
