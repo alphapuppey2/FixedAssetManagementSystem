@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\assetModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // Import DB facade
-use Illuminate\Support\Facades\Auth; // Import DB facade
 
 class ReportsController extends Controller
 {
@@ -23,7 +22,6 @@ class ReportsController extends Controller
             // ->leftJoin('category', 'category.id', '=','asset.ctg_ID')
             // ->leftJoin('manufacturer','manufacturer.id',  '=', 'asset.manufacturer_key')
             // ->leftJoin('location', 'location.id', '=','asset.loc_key')
-            ->where('dept_ID',Auth::user()->dept_id)
             ->select(
                 'asset.id',
                 'asset.name',
@@ -54,6 +52,4 @@ class ReportsController extends Controller
 
 
     }
-
-
 }
