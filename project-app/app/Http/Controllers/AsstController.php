@@ -194,7 +194,6 @@ class AsstController extends Controller
     public function create(Request $request)
     {
         $userDept = Auth::user()->dept_id;
-        $deptHead = Auth::user();
         // Validate the request
         $request->validate([
             'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
@@ -260,114 +259,98 @@ class AsstController extends Controller
             'created_at' => now(),
         ]);
 
-        // Notify the admin about the new asset creation
-        $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added via system input.",
-            'asset_name' => $request->assetname,
-            'asset_code' => $code,
-            'action_url' => route('asset'), // Adjust the route as needed
-            'authorized_by' => $deptHead->id,
-            'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
-        ];
-
-        // Send the notification to all admins
-        $admins = \App\Models\User::where('usertype', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
-        }
-
         return redirect()->to('/asset')->with('success', 'New Asset Created');
     }
 
     public static function assetCount()
-    {
-        // Dashboard
-        $userDept = Auth::user()->dept_id;
+{
+    // Dashboard
+    $userDept = Auth::user()->dept_id;
 
-        $asset['active'] = DB::table('asset')
-            ->where('status', '=', 'active')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['active'] = DB::table('asset')
+        ->where('status', '=', 'active')
+        ->where('dept_ID', '=', $userDept)
+        ->whereRaw('MONTH(IFNULL(updated_at, created_at)) = ?', [Carbon::now()->month])
+        ->count();
 
-        $asset['deploy'] = DB::table('asset')
-            ->where('status', '=', 'deployed')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['under_maintenance'] = DB::table('asset')
+        ->where('status', '=', 'under_maintenance')
+        ->where('dept_ID', '=', $userDept)
+        ->whereRaw('MONTH(IFNULL(updated_at, created_at)) = ?', [Carbon::now()->month])
+        ->count();
 
-        $asset['under_maintenance'] = DB::table('asset')
-            ->where('status', '=', 'under_maintenance')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['dispose'] = DB::table('asset')
+        ->where('status', '=', 'dispose')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
-        $asset['dispose'] = DB::table('asset')
-            ->where('status', '=', 'dispose')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['deploy'] = DB::table('asset')
+        ->where('status', '=', 'deployed')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
+    $newAssetCreated = assetModel::where('dept_ID', $userDept)
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
 
-        $newAssetCreated = assetModel::where('dept_ID', $userDept)
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-
-        // Initialize arrays for month data
-        $monthsActive = [];
-        $monthsUnderMaintenance = [];
-        for ($i = 4; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthYear = $date->format('M Y');
-            $monthsActive[$monthYear] = 0;
-            $monthsUnderMaintenance[$monthYear] = 0;
-        }
-
-        // Retrieve data for Active assets grouped by month and year
-        $dataActive = assetModel::where('dept_ID', $userDept)
-            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-                Carbon::now()->subMonths(4)->format('Y-m'),
-                Carbon::now()->format('Y-m')
-            ])
-            ->where('status', 'active')
-            ->select(
-                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->groupBy('monthYear')
-            ->get();
-
-        // Retrieve data for Under Maintenance assets grouped by month and year
-        $dataUnderMaintenance = assetModel::where('dept_ID', $userDept)
-            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-                Carbon::now()->subMonths(4)->format('Y-m'),
-                Carbon::now()->format('Y-m')
-            ])
-            ->where('status', 'under_maintenance')
-            ->select(
-                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->groupBy('monthYear')
-            ->get();
-
-        // Map the retrieved data to the month arrays
-        foreach ($dataActive as $record) {
-            $monthsActive[$record->monthYear] = $record->count;
-        }
-        foreach ($dataUnderMaintenance as $record) {
-            $monthsUnderMaintenance[$record->monthYear] = $record->count;
-        }
-
-        // Return the view with the data
-        return view('dept_head.home', [
-            'asset' => $asset,
-            'newAssetCreated' => $newAssetCreated,
-            'Amonths' => array_keys($monthsActive),
-            'Acounts' => array_values($monthsActive),
-            'UMmonths' => array_keys($monthsUnderMaintenance),
-            'UMcounts' => array_values($monthsUnderMaintenance),
-        ]);
+    // Initialize arrays for month data
+    $monthsActive = [];
+    $monthsUnderMaintenance = [];
+    for ($i = 4; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i);
+        $monthYear = $date->format('M Y');
+        $monthsActive[$monthYear] = 0;
+        $monthsUnderMaintenance[$monthYear] = 0;
     }
+
+    // Retrieve data for Active assets grouped by month and year
+    $dataActive = assetModel::where('dept_ID', $userDept)
+        ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'),
+            Carbon::now()->format('Y-m')
+        ])
+        ->where('status', 'active')
+        ->select(
+            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+            DB::raw('COUNT(*) as count')
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Retrieve data for Under Maintenance assets grouped by month and year
+    $dataUnderMaintenance = assetModel::where('dept_ID', $userDept)
+        ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
+            Carbon::now()->subMonths(4)->format('Y-m'),
+            Carbon::now()->format('Y-m')
+        ])
+        ->where('status', 'under_maintenance')
+        ->select(
+            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+            DB::raw('COUNT(*) as count')
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Map the retrieved data to the month arrays
+    foreach ($dataActive as $record) {
+        $monthsActive[$record->monthYear] = $record->count;
+    }
+    foreach ($dataUnderMaintenance as $record) {
+        $monthsUnderMaintenance[$record->monthYear] = $record->count;
+    }
+
+    // Return the view with the data
+    return view('dept_head.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'Amonths' => array_keys($monthsActive),
+        'Acounts' => array_values($monthsActive),
+        'UMmonths' => array_keys($monthsUnderMaintenance),
+        'UMcounts' => array_values($monthsUnderMaintenance),
+    ]);
+}
 
     public function update(Request $request, $id)
     {
@@ -566,15 +549,10 @@ class AsstController extends Controller
         // Retrieve related maintenance data for the asset
         $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
             ->where('is_completed', 1)
-            ->leftjoin('users', 'users.id', '=', 'maintenance.requestor')
-            ->leftjoin('users as authorized', 'authorized.id', '=', 'maintenance.authorized_by')
+            ->join('users', 'users.id', '=', 'maintenance.requestor')
             ->select(
                 'users.firstname as fname',
                 'users.lastname as lname',
-                'maintenance.type',
-                'authorized.firstname as authorized_fname',
-                'authorized.lastname as authorized_lname',
-                'maintenance.created_at',
                 'maintenance.cost',
                 'maintenance.reason',
                 'maintenance.completion_date as complete'
@@ -656,104 +634,71 @@ class AsstController extends Controller
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
                     Log::warning('Skipping a row due to insufficient columns.', ['row' => $row]);
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Insufficient columns in a row. Check the CSV format.',
-                        'row' => $row
-                    ], 400);
+                    continue;
                 }
 
                 $rowData = array_combine($headers, $row);
                 Log::info('Processing row data.', $rowData);
 
-                // Validate and convert date
-                try {
-                    $purchaseDate = null;
-                    $formats = ['d/m/Y', 'Y-m-d', 'm-d-Y', 'd-M-Y']; // Add more if needed
+                // Create or retrieve related models
+                $category = category::firstOrCreate(
+                    ['name' => $rowData['category'], 'dept_ID' => $userDept],
+                    ['description' => 'new item description']
+                );
+                Log::info('Category created or retrieved.', ['category_id' => $category->id]);
 
-                    foreach ($formats as $format) {
-                        try {
-                            $purchaseDate = Carbon::createFromFormat($format, $rowData['purchase_date']);
-                            break; // Stop if a valid date is found
-                        } catch (\Exception $e) {
-                            continue; // Try the next format
-                        }
-                    }
+                $location = locationModel::firstOrCreate(
+                    ['name' => $rowData['location']],
+                    ['description' => 'new item description']
+                );
+                Log::info('Location created or retrieved.', ['location_id' => $location->id]);
 
-                    if ($purchaseDate) {
-                        $purchaseDate = $purchaseDate->format('Y-m-d'); // Convert to MySQL format
-                    } else {
-                        throw new \Exception('Invalid date format.');
-                    }
-                } catch (\Exception $e) {
-                    Log::error('Invalid date format in row.', [
-                        'row' => $rowData,
-                        'error' => $e->getMessage()
-                    ]);
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid date format in row.',
-                        'row' => $rowData
-                    ], 400);
+                $manufacturer = Manufacturer::firstOrCreate(
+                    ['name' => $rowData['manufacturer']],
+                    ['description' => 'new item description']
+                );
+                Log::info('Manufacturer created or retrieved.', ['manufacturer_id' => $manufacturer->id]);
+
+                $model = ModelAsset::firstOrCreate(
+                    ['name' => $rowData['model']],
+                    ['description' => 'new item description']
+                );
+                Log::info('Model created or retrieved.', ['model_id' => $model->id]);
+
+                // Generate asset code based on department sequence
+                $department = DB::table('department')->where('id', $userDept)->first();
+                $departmentCode = $department->name ?? 'UNKNOWN';
+                $lastID = department::where('name', $departmentCode)->max('assetSequence');
+                $seq = $lastID ? $lastID + 1 : 1;
+                $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+                department::where('id', $userDept)->increment('assetSequence', 1);
+
+                Log::info('Generated asset code: ' . $assetCode);
+
+                // Define QR code path
+                $qrCodePath = 'qrcodes/' . $assetCode . '.png';
+                $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+                // Ensure directory exists
+                if (!file_exists(storage_path('app/public/qrcodes'))) {
+                    mkdir(storage_path('app/public/qrcodes'), 0777, true);
+                    Log::info('Created QR codes directory.');
                 }
 
+                // Generate QR code
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+                    ->size(250)
+                    ->generate($assetCode, $qrStoragePath);
+                Log::info('QR code generated and saved.', ['path' => $qrCodePath]);
+
                 try {
-                    // Create or retrieve related models
-                    $category = category::firstOrCreate(
-                        ['name' => $rowData['category'], 'dept_ID' => $userDept],
-                        ['description' => 'new item description']
-                    );
-                    Log::info('Category created or retrieved.', ['category_id' => $category->id]);
-
-                    $location = locationModel::firstOrCreate(
-                        ['name' => $rowData['location'], 'dept_ID' => $userDept],
-                        ['description' => 'new item description']
-                    );
-                    Log::info('Location created or retrieved.', ['location_id' => $location->id]);
-
-                    $manufacturer = Manufacturer::firstOrCreate(
-                        ['name' => $rowData['manufacturer'], 'dept_ID' => $userDept],
-                        ['description' => 'new item description']
-                    );
-                    Log::info('Manufacturer created or retrieved.', ['manufacturer_id' => $manufacturer->id]);
-
-                    $model = ModelAsset::firstOrCreate(
-                        ['name' => $rowData['model'], 'dept_ID' => $userDept],
-                        ['description' => 'new item description']
-                    );
-                    Log::info('Model created or retrieved.', ['model_id' => $model->id]);
-
-                    // Generate asset code based on department sequence
-                    $department = DB::table('department')->where('id', $userDept)->first();
-                    $departmentCode = $department->name ?? 'UNKNOWN';
-                    $lastID = department::where('name', $departmentCode)->max('assetSequence');
-                    $seq = $lastID ? $lastID + 1 : 1;
-                    $assetCode = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-                    department::where('id', $userDept)->increment('assetSequence', 1);
-
-                    Log::info('Generated asset code: ' . $assetCode);
-
-                    // Define QR code path and ensure directory exists
-                    $qrCodePath = 'qrcodes/' . $assetCode . '.png';
-                    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
-
-                    if (!file_exists(storage_path('app/public/qrcodes'))) {
-                        mkdir(storage_path('app/public/qrcodes'), 0777, true);
-                    }
-
-                    // Generate QR code
-                    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-                        ->size(250)
-                        ->generate($assetCode, $qrStoragePath);
-                    Log::info('QR code generated and saved.', ['path' => $qrCodePath]);
-
                     // Create the asset
                     assetModel::create([
                         'code' => $assetCode,
                         'name' => $rowData['name'],
                         'salvage_value' => (int) $rowData['salvage_value'],
                         'depreciation' => (int) $rowData['depreciation'],
-                        'purchase_date' => $purchaseDate,
+                        'purchase_date' => $rowData['purchase_date'],
                         'purchase_cost' => (int) $rowData['purchase_cost'],
                         'usage_lifespan' => !empty($rowData['usage_lifespan']) ? (int) $rowData['usage_lifespan'] : null,
                         'ctg_ID' => $category->id,
@@ -767,27 +712,15 @@ class AsstController extends Controller
                     Log::info('Asset created successfully.', ['code' => $assetCode]);
                 } catch (\Exception $e) {
                     Log::error('Error inserting asset: ' . $e->getMessage(), ['row' => $rowData]);
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Error inserting asset.',
-                        'row' => $rowData,
-                        'error' => $e->getMessage()
-                    ], 400);
                 }
             }
 
             Log::info('CSV uploaded successfully.');
-            return response()->json([
-                'success' => true,
-                'message' => 'CSV uploaded successfully'
-            ]);
+            return response()->json(['success' => true, 'message' => 'CSV uploaded successfully']);
         } catch (\Throwable $th) {
             Log::error('Error during CSV upload: ' . $th->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error uploading CSV. Check logs.',
-                'error' => $th->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Error uploading CSV. Check logs.'], 500);
         }
     }
+
 }

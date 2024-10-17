@@ -6,10 +6,8 @@ use Illuminate\Http\Request;
 use Zxing\QrReader;
 use App\Models\assetModel;
 use App\Models\Maintenance;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Notifications\SystemNotification;
 
 class UserSideController extends Controller
 {
@@ -98,28 +96,6 @@ class UserSideController extends Controller
             'requestor' => Auth::id(), // Logged-in user as requestor
             'type' => $request->input('type'), // Request type
         ]);
-
-        $asset = assetModel::find($request->input('asset_id'));
-        $user = Auth::user();
-
-        $deptHead = User::where('usertype', 'dept_head')
-                        ->where('dept_id', $user->dept_id)
-                        ->first();
-
-        if ($deptHead) {
-            $notificationData = [
-                'title' => 'New Maintenance Request',
-                'message' => "Maintenance request for asset '{$asset->name}' (Code: {$asset->code})",
-                'asset_name' => $asset->name,
-                'asset_code' => $asset->code,
-                'authorized_by' => $user->id,
-                'authorized_user_name' => "{$user->firstname} {$user->lastname}",
-                'action_url' => route('maintenance'),
-            ];
-
-            $deptHead->notify(new SystemNotification($notificationData));
-        }
-
 
         // Redirect back with a success message
         return redirect()->back()->with('status', 'Maintenance request submitted successfully.');

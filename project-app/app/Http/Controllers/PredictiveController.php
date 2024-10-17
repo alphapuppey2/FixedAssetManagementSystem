@@ -18,27 +18,18 @@ class PredictiveController extends Controller
                 DB::raw('COUNT(maintenance.id) as repair_count'),
                 DB::raw('AVG(maintenance.cost) as average_cost'),
                 DB::raw('DATEDIFF(MAX(maintenance.completion_date), MIN(maintenance.start_date)) as time_between_repairs'),
-                'asset.purchase_cost as asset_cost',
-                'asset.name as asset_name',  // Add this line
-                'asset.code as asset_code',  // Add this line
-                'asset.dept_ID as dept_ID'  // Include dept_ID here
+                'asset.cost as asset_cost'
             )
-            ->where('maintenance.is_completed', 1) // Only completed repairs
-            ->groupBy(
-                'maintenance.asset_key',
-                'asset.purchase_cost',
-                'asset.name',
-                'asset.code',
-                'asset.dept_ID'  // Add dept_ID to the GROUP BY clause
-            )
+            ->where('maintenance.completed', 1) // Only completed repairs
+            ->groupBy('maintenance.asset_key', 'asset.cost')
             ->get();
 
         // Step 2: Loop through the data and apply the conditions
         foreach ($maintenanceData as $data) {
             // Condition 1: Repair count must be more than 4
-            if ($data->repair_count > 1) {
+            if ($data->repair_count > 3) {
                 // Condition 2: Average cost must exceed 60% of the asset's purchase cost
-                $cost_threshold = $data->asset_cost * 0.40; // 60% of asset cost
+                $cost_threshold = $data->asset_cost * 0.60; // 60% of asset cost
                 if ($data->average_cost > $cost_threshold) {
                     // Condition 3: Time between repairs must decrease by 20-30%
                     // Assuming time_between_repairs is decreasing (you can enhance this logic based on previous time intervals)
@@ -64,34 +55,7 @@ class PredictiveController extends Controller
                                 'updated_at' => now()
                             ]
                         );
-
-                        // Step 6: Send Notification
-                        $notificationData = [
-                            'title' => 'Predictive Maintenance Generated',
-                            'message' => "Predictive maintenance for asset '{$data->asset_name}' (Code: {$data->asset_code}) has been generated. Recommendation: {$prediction}.",
-                            'asset_name' => $data->asset_name,  // Ensure this is included
-                            'asset_code' => $data->asset_code,  // Ensure this is included
-                            'action_url' => route('maintenance_sched.predictive')
-                        ];
-
-                        // Log notification data for debugging
-                        \Log::info('Notification Data:', $notificationData);
-
-                        $deptHead = \App\Models\User::where('usertype', 'dept_head')
-                            ->where('dept_id', $data->dept_ID)
-                            ->first();
-
-                        if ($deptHead) {
-                            $deptHead->notify(new \App\Notifications\SystemNotification($notificationData));
-                            \Log::info('Notification sent to dept head for predictive maintenance.', ['asset_key' => $data->asset_key]);
-                        } else {
-                            \Log::warning('No department head found to notify.');
-                        }
-
-                        } else {
-                            \Log::error('Flask API error: ' . $response->body());
                     }
-
                 }
             }
         }
