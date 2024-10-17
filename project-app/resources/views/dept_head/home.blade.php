@@ -11,7 +11,11 @@
         {{-- Cards Section --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-2">
             @foreach ($asset as $key => $item)
-                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item" class="text-center"  />
+                <x-cards 
+                    :title="$key === 'under_maintenance' ? 'under maintenance' : $key" 
+                    :counts="$item" 
+                    class="text-center text-xs sm:text-sm md:text-base lg:text-lg"
+                />
             @endforeach
         </div>
 

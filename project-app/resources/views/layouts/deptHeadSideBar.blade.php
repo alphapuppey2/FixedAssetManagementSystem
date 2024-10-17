@@ -48,7 +48,7 @@
                 <button id="maintenanceDropdown" 
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all">
                     <x-wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
-                    <span class="hidden md:inline">Maintenance</span>
+                    <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
                     <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown arrow -->
                 </button>
                 <ul id="maintenanceDropdownMenu" class="hidden flex-col mt-1 space-y-1">

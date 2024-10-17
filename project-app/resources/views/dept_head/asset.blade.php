@@ -1,24 +1,18 @@
 @extends('layouts.app')
 @section('header')
-<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+<div class="header flex flex-wrap w-full justify-between pr-3 pl-3 items-center gap-2">
     <div class="title">
         <a href="{{ asset('asset') }}">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight">
                 Asset
             </h2>
         </a>
     </div>
-    <div class="header-R flex items-center">
+    <div class="header-R flex items-center gap-2">
         <button id="openModalBtn">
-            <span>
-                <x-icons.importIcon />
-            </span>
+            <span><x-icons.importIcon /></span>
         </button>
-        <button>
-            <span>
-                <x-icons.exportIcon />
-            </span>
-        </button>
+        <button><span><x-icons.exportIcon /></span></button>
         <div class="searchBox">
             <x-text-input name="search" id="searchFilt" placeholder="Search" />
         </div>
@@ -28,208 +22,164 @@
 
 @section('content')
 @if (session('error'))
-<div class="alert alert-danger">
-    {{ session('error') }}
-</div>
+<div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
-    <div class="tableContainer overflow-auto rounded-md h-full w-full">
-        <table class="w-full">
-            <thead class="p-5 bg-gray-100 border-b">
-                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    code</th>
-                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    name</th>
-                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    category</th>
-                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    status</th>
-                <th class="px-6 py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions</th>
+<!-- Main Content Wrapper -->
+<div class="ccAL relative flex flex-col bg-white border mt-4 rounded-lg w-full h-full overflow-hidden p-[2px]">
+
+    <!-- Table Layout for Larger Screens -->
+    <div class="tableContainer overflow-auto rounded-md h-full w-full hidden lg:block">
+        <table class="w-full text-center table-fixed">
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    <th class="py-3 px-2 text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Code
+                    </th>
+                    <th class="py-3 px-2 text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                    </th>
+                    <th class="py-3 px-2 text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Category
+                    </th>
+                    <th class="py-3 px-2 text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th class="py-3 px-2 text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
             </thead>
             <tbody id="table-body">
                 @if (!$asset->isEmpty())
-                @foreach ($asset as $asst)
-                <tr>
-                    <th class="align-middle text-center text-sm text-gray-900  " scope="col">
-                        {{ $asst->code ? $asst->code : 'NONE' }}
-                    </th>
-                    <td class="align-middle text-center text-sm text-gray-900 py-2 text-balance">
-                        {{ $asst->name }}
-                    </td>
-                    <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->category }}</td>
-                    <td class="align-middle text-center text-sm text-gray-900 py-2">
-                        @include('components.asset-status', ['status' => $asst->status])
-                    </td>
-                    <td class="w-40">
-                        <div class="grp flex gap-2 justify-center">
-                            <a href="{{ route('assetDetails', $asst->code) }}"
-                                class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                                <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
-                            </a>
-                            <form action="{{ route('asset.delete', $asst->code) }}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
-                                    onclick="return confirm('Are you sure you want to delete this asset?');">
-                                    <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
+                    @foreach ($asset as $asst)
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="py-2 px-2 text-xs sm:text-sm">{{ $asst->code ?? 'NONE' }}</td>
+                        <td class="py-2 px-2 text-xs sm:text-sm">{{ $asst->name }}</td>
+                        <td class="py-2 px-2 text-xs sm:text-sm">{{ $asst->category }}</td>
+                        <td class="py-2 px-2 text-xs sm:text-sm">
+                            @include('components.asset-status', ['status' => $asst->status])
+                        </td>
+                        <td class="py-2 px-2 w-40">
+                            <div class="flex justify-center gap-2">
+                                <a href="{{ route('assetDetails', $asst->code) }}" class="w-6 h-6">
+                                    <x-icons.view-icon class="text-blue-900 hover:text-blue-700" />
+                                </a>
+                                <form action="{{ route('asset.delete', $asst->code) }}" method="post">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-6 h-6"
+                                        onclick="return confirm('Are you sure you want to delete this asset?');">
+                                        <x-icons.cancel-icon class="text-red-500 hover:text-red-600" />
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
                 @else
-                <tr class="text-center text-gray-800">
-                    <td colspan='7' style="color: rgb(177, 177, 177)">No List</td>
-                </tr>
+                    <tr class="text-center text-gray-800">
+                        <td colspan="5" class="text-gray-400">No List</td>
+                    </tr>
                 @endif
             </tbody>
         </table>
     </div>
-    <div class="page flex justify-between px-4 py-3">
-        <div class="paginator">
-            @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
-            <div class="">
-                <!-- Number of Items Loaded -->
-                <div class="text-gray-600">
-                    Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
-                        class="font-semibold">{{ $asset->lastItem() }}</span> of <span
-                        class="font-semibold">{{ $asset->total() }}</span> items
-                </div>
-
-                <!-- Pagination Buttons -->
-                <div class="">
-                    <div class="text-gray-500">
-                        {{ $asset->appends(['query' => request()->query('query')])->links() }}
-                    </div>
+    
+    <!-- Card Layout for Small Screens -->
+    <div class="grid grid-cols-1 gap-2 lg:hidden">
+        @foreach ($asset as $asst)
+        <div class="border rounded-lg p-4 shadow-md">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-sm font-semibold">{{ $asst->name }}</h3>
+                <div class="flex gap-2">
+                    <a href="{{ route('assetDetails', $asst->code) }}" class="w-6 h-6">
+                        <x-icons.view-icon class="text-blue-900 hover:text-blue-700" />
+                    </a>
+                    <form action="{{ route('asset.delete', $asst->code) }}" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-6 h-6"
+                            onclick="return confirm('Are you sure you want to delete this asset?');">
+                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600" />
+                        </button>
+                    </form>
                 </div>
             </div>
-            @endif
+            <p class="text-xs text-gray-600"><strong>Code:</strong> {{ $asst->code ?? 'NONE' }}</p>
+            <p class="text-xs text-gray-600"><strong>Category:</strong> {{ $asst->category }}</p>
+            <p class="text-xs text-gray-600"><strong>Status:</strong> 
+                @include('components.asset-status', ['status' => $asst->status])
+            </p>
         </div>
+        @endforeach
+    </div>
+
+    <!-- Pagination Section -->
+    <div class="pagination-container mt-4 w-full bg-white shadow-md lg:mt-auto lg:fixed lg:bottom-0">
+        @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
+        <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-2 px-4 py-3">
+            <div class="pagination-links w-full sm:w-auto flex justify-center sm:justify-end">
+                <div class="text-xs sm:text-sm">
+                    {{ $asset->appends(['query' => request()->query('query')])->links() }}
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 
+
+
+
+
 @include('dept_head.modal.modalImportAsset')
 
-<!-- JavaScript -->
 <script>
-    // DOMContentLoaded event to initialize all event listeners
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const modalId = 'importModal';
-
-        // Modal open and close event listeners
         document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
         document.getElementById('closeModalBtn').addEventListener('click', () => closeModal(modalId));
         window.addEventListener('click', (e) => closeModalOnClickOutside(modalId, e));
 
-        // Initialize search functionality
         handleSearch('searchFilt', 'table-body');
     });
 
-    // Function to open the modal
     function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove('hidden');
+        document.getElementById(modalId).classList.remove('hidden');
     }
 
-    // Function to close the modal
     function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.add('hidden');
+        document.getElementById(modalId).classList.add('hidden');
     }
 
-    // Function to handle modal close when clicking outside the modal
     function closeModalOnClickOutside(modalId, event) {
-        const modal = document.getElementById(modalId);
-        if (event.target === modal) {
-            modal.classList.add('hidden');
+        if (event.target === document.getElementById(modalId)) {
+            closeModal(modalId);
         }
     }
 
-    // Function to handle asset search
     function handleSearch(inputId, tableBodyId) {
         const input = document.getElementById(inputId);
-        const tableBody = document.getElementById(tableBodyId);
-
-        input.addEventListener('keyup', function() {
+        input.addEventListener('keyup', function () {
             const query = input.value;
-
             fetch(`/asset/search/row?search=${query}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json();
-                })
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => response.json())
                 .then(data => {
-                    tableBody.innerHTML = '';
-
-                    if (data.length === 0) {
-                        const noResultsRow = `
-                    <tr class="text-center text-gray-800">
-                        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
-                    </tr>
-                `;
-
-                        tableBody.innerHTML = noResultsRow;
-                    } else {
-                        data.forEach(asset => {
-                            let statusText = '';
-
-                            // Handle asset status using JavaScript
-                            if (asset.status === 'active') {
-                                statusText = '<span>Active</span>';
-                            } else if (asset.status === 'deployed') {
-                                statusText = '<span>Deployed</span>';
-                            } else if (asset.status === 'under_maintenance') {
-                                statusText = '<span>Under Maintenance</span>';
-                            } else if (asset.status === 'disposed') {
-                                statusText = '<span>Disposed</span>';
-                            } else {
-                                statusText = '<span>Unknown Status</span>';
-                            }
-                            const row = `
+                    const tableBody = document.getElementById(tableBodyId);
+                    tableBody.innerHTML = data.length ? data.map(asset => `
                         <tr>
-                            <th class="align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-                            <td class="align-middle text-center text-sm text-gray-900">${asset.name}</td>
-                            <td class="align-middle text-center text-sm text-gray-900">${asset.category}</td>
-                            <td class="align-middle text-center text-sm text-gray-900">
-                                ${statusText}
-                            </td>
-                            <td class="w-40">
-                                <div class="grp flex gap-2 justify-center">
-                                    <a href="/assetDetails/${asset.code}"
-                                       class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                                        <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
-                                    </a>
-                                    <form action="/asset/delete/${asset.code}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
-                                            onclick="return confirm('Are you sure you want to delete this asset?');">
-                                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            <td>${asset.code || 'NONE'}</td>
+                            <td>${asset.name}</td>
+                            <td>${asset.category}</td>
+                            <td>${asset.status}</td>
                         </tr>
-                    `;
-                            tableBody.innerHTML += row;
-                        });
-                    }
-                })
-                .catch(error => console.log('Error:', error));
+                    `).join('') : '<tr><td colspan="5">Asset not found</td></tr>';
+                });
         });
     }
 </script>
-
-
 @endsection

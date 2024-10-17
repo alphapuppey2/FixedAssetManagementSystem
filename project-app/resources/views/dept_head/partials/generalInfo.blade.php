@@ -17,21 +17,21 @@
         </button>
     </div>
 
-
-    <div class="grid grid-cols-3 gap-8 p-6">
+    {{-- Grid Layout --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+        {{-- Asset Details Section --}}
         <div class="col-span-2 space-y-6">
-            {{-- Asset Name --}}
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Name:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->name }}</div>
-                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-base" value="{{ $data->name }}" />
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Name:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->name }}</div>
+                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->name }}" />
             </div>
 
-            {{-- Category --}}
             <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Category:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->category }}</div>
-                <select name="category" class="edit hidden w-full border-gray-300 text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Category:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->category }}</div>
+                <select name="category" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($categories['ctglist'] as $category)
                     <option value="{{ $category->id }}" @selected($data->category == $category->name)>
                         {{ $category->name }}
@@ -40,11 +40,10 @@
                 </select>
             </div>
 
-            {{-- Model --}}
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Model:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->model }}</div>
-                <select name="mod" class="edit hidden w-full border-gray-300 text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Model:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->model }}</div>
+                <select name="mod" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($model['mod'] as $model)
                     <option value="{{ $model->id }}" @selected($data->model == $model->name)>
                         {{ $model->name }}
@@ -53,11 +52,10 @@
                 </select>
             </div>
 
-            {{-- Manufacturer --}}
             <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Manufacturer:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->manufacturer }}</div>
-                <select name="mcft" class="edit hidden w-full border-gray-300 text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Manufacturer:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->manufacturer }}</div>
+                <select name="mcft" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($manufacturer['mcft'] as $manufacturer)
                     <option value="{{ $manufacturer->id }}" @selected($data->manufacturer == $manufacturer->name)>
                         {{ $manufacturer->name }}
@@ -66,11 +64,10 @@
                 </select>
             </div>
 
-            {{-- Location --}}
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Location:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->location }}</div>
-                <select name="loc" class="edit hidden w-full border-gray-300 text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Location:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->location }}</div>
+                <select name="loc" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($location['locs'] as $location)
                     <option value="{{ $location->id }}" @selected($data->location == $location->name)>
                         {{ $location->name }}
@@ -79,52 +76,44 @@
                 </select>
             </div>
 
-            {{-- Status --}}
             <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Status:</label>
-                <div class="field-Info font-semibold view-only text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Status:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
                     @include('components.asset-status', ['status' => $data->status])
                 </div>
-                <select name="status" class="edit hidden w-full border-gray-300 text-base">
+                <select name="status" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($status['sts'] as $stat)
-                    <option value="{{ $stat }}" @selected($data->status == $stat)>{{ $stat === "under_maintenance" ? 'under maintenance' : $stat }}</option>
+                    <option value="{{ $stat }}" @selected($data->status == $stat)>{{ $stat }}</option>
                     @endforeach
                 </select>
             </div>
 
-            {{-- Last Used By --}}
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Last Used By:</label>
-                <div class="field-Info font-semibold view-only text-base">{{ $data->lastname . ', ' . $data->firstname }}</div>
-                <select name="usrAct" class="edit hidden w-full border-gray-300 text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Last Used By:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->lastname . ', ' . $data->firstname }}
+                </div>
+                <select name="usrAct" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     <option value="">Select a user</option>
                 </select>
             </div>
         </div>
 
-
-        {{-- Right Column: Asset Image and QR Code --}}
-        <div class="col-span-1 space-y-8">
-            {{-- Asset Image --}}
+        {{-- Image Section --}}
+        <div class="col-span-1 space-y-8 lg:col-start-3">
             <div class="imgContainer flex flex-col items-center space-y-4">
-                <label class="font-semibold text-gray-700">Asset Image</label>
-                <div class="imageField w-40 h-40 relative flex justify-center items-center border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
-                    <img
-                        src="{{ asset($imagePath) }}"
-                        id="imagePreview"
-                        alt="Asset Image"
-                        class="w-full h-full object-cover">
+                <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
+                <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
+                    <img src="{{ asset($imagePath) }}" id="imagePreview" alt="Asset Image" class="w-full h-full object-cover">
                 </div>
-
                 <label for="image" class="text-blue-500 cursor-pointer hover:underline edit hidden">
                     Select New Image
                     <x-text-input type="file" id="image" name="image" class="hidden" />
                 </label>
             </div>
 
-            {{-- QR Code --}}
             <div class="qrContainer flex flex-col items-center space-y-4">
-                <label class="font-semibold text-gray-700">QR Code</label>
+                <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">QR Code</label>
                 @if($data->qr_img)
                 <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}" class="block w-40 h-40">
                     <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code" class="w-full h-full object-contain">
@@ -137,17 +126,8 @@
             </div>
         </div>
     </div>
-
-
 </form>
 
-@if (session('success'))
-<div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow">
-    {{ session('success') }}
-</div>
-@endif
-
-@vite(['resources/js/flashNotification.js'])
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
