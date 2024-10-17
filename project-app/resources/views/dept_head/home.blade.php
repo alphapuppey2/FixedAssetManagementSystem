@@ -10,12 +10,12 @@
         {{-- Cards --}}
         <div class="grid grid-cols-4 gap-4 p-2">
             @foreach ($asset as $key => $item)
-                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item"></x-cards>
+                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item"/>
             @endforeach
         </div>
         {{-- Recent Activity --}}
         <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2">
-            <div class="chartArea">
+            <div class="chartArea bg-white rounded-xl shadow-md">
 
                 <x-chart
                     :weeks="$Amonths"
