@@ -81,16 +81,25 @@
                 <td class="align-middle text-center text-sm text-gray-900">{{ $asset->category }}</td>
                 <td class="align-middle text-center text-sm text-gray-900">{{ $asset->department }}</td>
                 <td class="align-middle text-center text-sm text-gray-900">{{ $asset->depreciation }}</td>
-                <td class="align-middle text-center text-sm text-gray-900">{{ $asset->status }}</td>
+                <td class="align-middle text-center text-sm text-gray-900">
+                    @include('components.asset-status', ['status' => $asset->status])
+                </td>
                 <td class="w-40">
-                    <div class="grp flex justify-between">
-                        <a href="{{ route('adminAssetDetails', $asset->code) }}" class="btn btn-outline-primary">View</a>
-                        <form action="{{ route('asset.delete', $asset->id) }}" method="post">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this asset?');">Delete</button>
-                        </form>
-                    </div>
+                    <div class="grp flex gap-2 justify-center">
+                            <a href="{{ route('adminAssetDetails', $asset->code) }}"
+                                class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                                <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                            </a>
+                            <form action="{{ route('asset.delete', $asset->code) }}" method="post">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+                                    onclick="return confirm('Are you sure you want to delete this asset?');">
+                                    <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                                </button>
+                            </form>
+                        </div>
                 </td>
             </tr>
             @endforeach

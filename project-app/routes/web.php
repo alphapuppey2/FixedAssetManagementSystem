@@ -54,8 +54,6 @@ Route::middleware('auth')->group(function () {
     // })->name('notification');
 
     Route::get('/send-test-email', [NotificationController::class, 'sendTestEmail']);
-
-
 });
 
 // Admin Routes
@@ -87,7 +85,10 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
 
-    // MAINTENANCE
+    // ASSET UPDATES
+    Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
+
+    // MAINTENANCE REQUEST-APPROVE-DENY
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
     Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approved'])->name('adminMaintenanceAproved');
     Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'denied'])->name('adminMaintenanceDenied');

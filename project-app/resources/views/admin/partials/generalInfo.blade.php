@@ -1,4 +1,4 @@
-<form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" method="POST" enctype="multipart/form-data">
+<form id="formEdit" action="{{ route('adminAssetDetails.edit', $data->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
