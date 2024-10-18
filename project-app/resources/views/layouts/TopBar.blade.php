@@ -26,17 +26,25 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
     <!-- Logo Section -->
     <div class="flex items-center space-x-6">
         <span>
-            <a href="{{ $homeRoute }}" class="text-xl font-bold text-gray-800">FAMAS</a>
+            <a href="{{ $homeRoute }}" class="flex items-center space-x-2">
+                <img src="{{ asset('images/system_logo.png') }}" alt="FAMAS Logo" class="h-10 w-10">
+                <span class="text-xl font-bold text-gray-800">FAMAS</span> <!-- Optional text next to the logo -->
+            </a>
         </span>
 
-        <!-- Search Input (aligned next to the logo) -->
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-red-500 text-white py-2 px-4 rounded shadow opacity-100 transition-opacity duration-300 hidden">
+            Please enter a search term.
+        </div>
+
+        <!-- Global Search Input -->
         <div class="search-container">
-            <form action="{{ route('search.global') }}" method="GET">
-                <x-search-input 
+            <form action="{{ route('search.global') }}" method="GET" onsubmit="return validateSearchInput();">
+                <x-search-input
                     placeholder="{{ Auth::user()->usertype == 'admin'
                                 ? 'Search for users, assets, or maintenance...'
                                 : 'Search for assets or maintenance in your department...' 
-                                }}" 
+                                }}"
                     class="w-96" />
             </form>
         </div>
@@ -198,5 +206,30 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 console.error('Failed to mark notification as read.');
             }
         }).catch(error => console.error('Error:', error));
+    }
+
+    function validateSearchInput() {
+        const searchInput = document.querySelector('[data-search-input]');
+        const toast = document.getElementById('toast');
+
+        if (!searchInput.value.trim()) {
+            if (toast) {
+                toast.classList.remove('hidden'); // Show toast
+                toast.classList.remove('opacity-0'); // Ensure visibility
+
+                // Re-run the flash notification logic from your script
+                setTimeout(() => {
+                    toast.classList.add('opacity-0'); // Fade out
+                    setTimeout(() => {
+                        toast.remove(); // Remove from DOM
+                    }, 300); // After animation finishes
+                }, 3000); // After 3 seconds
+            }
+
+            searchInput.focus(); // Focus back on input
+            return false; // Prevent form submission
+        }
+
+        return true; // Allow form submission if input is valid
     }
 </script>

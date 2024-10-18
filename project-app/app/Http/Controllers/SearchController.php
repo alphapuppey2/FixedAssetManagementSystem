@@ -25,12 +25,18 @@ class SearchController extends Controller
         // Admin Search: Search all tables and departments
         if ($userType === 'admin') {
             // Admin logic: Search all assets and maintenance records
+            $users = User::where('firstname', 'LIKE', "%$query%")
+                ->orWhere('lastname', 'LIKE', "%$query%")
+                ->orWhere('email', 'LIKE', "%$query%")
+                ->orWhere('employee_id', 'LIKE', "%$query%")
+                ->get();
+
             $assets = assetModel::where('name', 'LIKE', "%$query%")
                 ->orWhere('code', 'LIKE', "%$query%")
                 ->get();
-    
+
             $assetIds = $assets->pluck('id'); // Get IDs of matching assets
-    
+
             $maintenanceRecords = Maintenance::whereIn('asset_key', $assetIds)
                 ->orWhere('description', 'LIKE', "%$query%")
                 ->orWhere('type', 'LIKE', "%$query%")
@@ -40,16 +46,16 @@ class SearchController extends Controller
             $assets = assetModel::where('dept_ID', $deptId)
                 ->where(function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%$query%")
-                      ->orWhere('code', 'LIKE', "%$query%");
+                        ->orWhere('code', 'LIKE', "%$query%");
                 })
                 ->get();
-    
+
             $assetIds = $assets->pluck('id'); // Get IDs of matching assets
-    
+
             $maintenanceRecords = Maintenance::whereIn('asset_key', $assetIds)
                 ->orWhere(function ($q) use ($query) {
                     $q->where('description', 'LIKE', "%$query%")
-                      ->orWhere('type', 'LIKE', "%$query%");
+                        ->orWhere('type', 'LIKE', "%$query%");
                 })
                 ->get();
         }
