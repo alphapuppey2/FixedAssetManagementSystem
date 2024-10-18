@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\department;
 use App\Models\Maintenance;
 use App\Models\assetModel;
-
+use App\Models\AssignedToUser;
 use App\Models\category;
 use App\Models\locationModel;
 use App\Models\Manufacturer;
 use App\Models\ModelAsset;
+use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -90,7 +91,7 @@ class AsstController extends Controller
     {
         $userDept = Auth::user()->dept_id;
 
-        $asset = DB::table('asset')
+        $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('asset.dept_ID', $userDept)
@@ -101,13 +102,13 @@ class AsstController extends Controller
                 'asset.name',
                 'asset.asst_img',
                 'asset.status',
-                'category.name as category',
+                'category.name as category_name',
                 'department.name as department'
             )
             ->orderByRaw("
             CASE
                 WHEN asset.status = 'active' THEN 0
-                WHEN asset.status = 'under Maintenance' THEN 1
+                WHEN asset.status = 'under_maintenance' THEN 1
                 WHEN asset.status = 'deployed' THEN 2
                 WHEN asset.status = 'disposed' THEN 3
                 ELSE 4
@@ -117,7 +118,7 @@ class AsstController extends Controller
             ->orderBy('asset.created_at', 'desc') // Then sort by created_at
             ->paginate(10);
 
-        return view("dept_head.asset", compact('asset'));
+        return view("dept_head.asset", compact('assets'));
     }
 
     //Maintenance History of the
@@ -280,93 +281,94 @@ class AsstController extends Controller
     }
 
     public static function assetCount()
-    {
-        // Dashboard
-        $userDept = Auth::user()->dept_id;
+{
+    // Dashboard
+    $userDept = Auth::user()->dept_id;
 
-        $asset['active'] = DB::table('asset')
-            ->where('status', '=', 'active')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['active'] = DB::table('asset')
+        ->where('status', '=', 'active')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
-        $asset['deploy'] = DB::table('asset')
-            ->where('status', '=', 'deployed')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['deploy'] = DB::table('asset')
+        ->where('status', '=', 'deployed')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
-        $asset['under_maintenance'] = DB::table('asset')
-            ->where('status', '=', 'under_maintenance')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['under_maintenance'] = DB::table('asset')
+        ->where('status', '=', 'under_maintenance')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
-        $asset['dispose'] = DB::table('asset')
-            ->where('status', '=', 'dispose')
-            ->where('dept_ID', '=', $userDept)
-            ->count();
+    $asset['dispose'] = DB::table('asset')
+        ->where('status', '=', 'dispose')
+        ->where('dept_ID', '=', $userDept)
+        ->count();
 
 
-        $newAssetCreated = assetModel::where('dept_ID', $userDept)
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+    $newAssetCreated = assetModel::where('dept_ID', $userDept)
+        ->whereMonth('created_at', Carbon::now()->month)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
 
-        // Initialize arrays for month data
-        $monthsActive = [];
-        $monthsUnderMaintenance = [];
-        for ($i = 4; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthYear = $date->format('M Y');
-            $monthsActive[$monthYear] = 0;
-            $monthsUnderMaintenance[$monthYear] = 0;
-        }
-
-        // Retrieve data for Active assets grouped by month and year
-        $dataActive = assetModel::where('dept_ID', $userDept)
-            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-                Carbon::now()->subMonths(4)->format('Y-m'),
-                Carbon::now()->format('Y-m')
-            ])
-            ->where('status', 'active')
-            ->select(
-                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->groupBy('monthYear')
-            ->get();
-
-        // Retrieve data for Under Maintenance assets grouped by month and year
-        $dataUnderMaintenance = assetModel::where('dept_ID', $userDept)
-            ->whereBetween(DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%Y-%m")'), [
-                Carbon::now()->subMonths(4)->format('Y-m'),
-                Carbon::now()->format('Y-m')
-            ])
-            ->where('status', 'under_maintenance')
-            ->select(
-                DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->groupBy('monthYear')
-            ->get();
-
-        // Map the retrieved data to the month arrays
-        foreach ($dataActive as $record) {
-            $monthsActive[$record->monthYear] = $record->count;
-        }
-        foreach ($dataUnderMaintenance as $record) {
-            $monthsUnderMaintenance[$record->monthYear] = $record->count;
-        }
-
-        // Return the view with the data
-        return view('dept_head.home', [
-            'asset' => $asset,
-            'newAssetCreated' => $newAssetCreated,
-            'Amonths' => array_keys($monthsActive),
-            'Acounts' => array_values($monthsActive),
-            'UMmonths' => array_keys($monthsUnderMaintenance),
-            'UMcounts' => array_values($monthsUnderMaintenance),
-        ]);
+    // Initialize the months array for the last 4 months (including the current month)
+    $months = [];
+    for ($i = 3; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i); // Get the date for each month
+        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
+        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
     }
+
+    // Query to fetch and group active assets by month
+    $dataActive = assetModel::where('status', 'active')
+        ->where('dept_ID', Auth::user()->dept_id)
+        ->select(
+            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+            DB::raw('COUNT(*) as count')
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Query to fetch and group under maintenance assets by month
+    $dataUnderMaintenance = assetModel::where('status', 'under_maintenance')
+    ->where('dept_ID', Auth::user()->dept_id)
+        ->select(
+            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+            DB::raw('COUNT(*) as count')
+        )
+        ->groupBy('monthYear')
+        ->get();
+
+    // Map the data into the months array (only for the last 4 months)
+    foreach ($dataActive as $record) {
+        if (isset($months[$record->monthYear])) {
+            $months[$record->monthYear]['active'] = $record->count;
+        }
+    }
+
+    foreach ($dataUnderMaintenance as $record) {
+        if (isset($months[$record->monthYear])) {
+            $months[$record->monthYear]['under_maintenance'] = $record->count;
+        }
+    }
+
+    // Prepare data for the view
+    $labels = array_keys($months); // Month labels (e.g., 'Jul 2024')
+    $activeCounts = array_column($months, 'active'); // Active asset counts
+    $maintenanceCounts = array_column($months, 'under_maintenance'); // Under maintenance counts
+
+    // Return the view with the data
+    return view('dept_head.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'labels' => $labels,
+        'activeCounts' => $activeCounts,
+        // 'UMmonths' => array_keys($monthsUnderMaintenance),
+        'maintenanceCounts' => $maintenanceCounts,
+    ]);
+}
+
 
     public function update(Request $request, $id)
     {
@@ -387,6 +389,8 @@ class AsstController extends Controller
             'field.value.*' => 'nullable|string|max:255',
             'current_image' => 'nullable|string', // Retain current image if not updated
         ]);
+        // dd($request);
+
 
         // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
@@ -411,8 +415,11 @@ class AsstController extends Controller
             $pathFile = $path; // Use new image path
         }
 
-        // Update the asset record
-        $updatedRow = DB::table('asset')->where('id', $id)->update([
+        // Update asset data in the database
+        $updatedRow = assetModel::findOrFail($id);
+
+        $oldLastUser = $updatedRow->last_used_by;
+        $updatedRow->update([
             'asst_img' => $pathFile,
             'name' => $validatedData["name"],
             'ctg_ID' => $validatedData["category"],
@@ -424,6 +431,17 @@ class AsstController extends Controller
             'custom_fields' => $fieldUpdate,
             'updated_at' => now(),
         ]);
+
+        $settingUsageLogs = new AsstController();
+        $assetKey = assetModel::findOrFail($id);
+        if(isset($validatedData['usrAct'])){
+
+            $settingUsageLogs->assetAcquiredBy($validatedData["usrAct"],$assetKey->id );
+        }
+        if($oldLastUser !== $validatedData["usrAct"]){
+            $settingUsageLogs->assetReturnedBy($validatedData["usrAct"],$assetKey->id);
+        }
+
 
         // Retrieve the updated asset to get the code
         $asset = DB::table('asset')->where('id', $id)->first();
@@ -447,52 +465,90 @@ class AsstController extends Controller
     }
 
 
+    // app/Http/Controllers/AssetController.php
+
     public function searchFiltering(Request $request)
-    {
-        $search = $request->input('search');
+{
+    // Get search input (default to empty string if not provided)
+    $search = $request->input('search', '');
 
-        try {
-            // Assuming you are searching the 'name' and 'code' columns
-            $assets = assetModel::where('dept_ID', Auth::user()->dept_id)->where('name', 'LIKE', "%{$search}%")
-                ->orWhere('code', 'LIKE', "%{$search}%")
-                ->get();
+    // Allowed statuses in predefined order
+    $allowedStatuses = ['active', 'under_maintenance', 'deployed', 'disposed'];
 
+    // Initialize query with necessary joins and filters
+    $assetsQuery = assetModel::leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', Auth::user()->dept_id)
+        ->whereIn('asset.status', $allowedStatuses)
+        ->select('asset.*', 'category.name as category_name');
 
-            return response()->json($assets);
-        } catch (\Exception $e) {
-
-            return response()->json(['error' => 'Internal Server Error', 'errorP' => $e], 500);
-        }
+    // Apply search filter if input is provided
+    if (!empty($search)) {
+        $assetsQuery->where(function ($query) use ($search) {
+            $query->where('asset.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.code', 'LIKE', "%{$search}%")
+                  ->orWhere('category.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.status', 'LIKE', "%{$search}%");
+        });
     }
+
+    // Sort by category name (alphabetically) and then by status in custom order
+    $assetsQuery->orderByRaw("
+                                CASE
+                                    WHEN asset.status = 'active' THEN 0
+                                    WHEN asset.status = 'under_maintenance' THEN 1
+                                    WHEN asset.status = 'deployed' THEN 2
+                                    WHEN asset.status = 'disposed' THEN 3
+                                    ELSE 4
+                                END
+                            ")
+        ->orderBy('code', 'asc')
+        ->orderBy('asset.created_at', 'desc');
+
+    // Paginate results
+    $assets = $assetsQuery->paginate(10)->appends($request->all());
+
+    // Return the view with filtered and sorted results
+    return view('dept_head.asset', compact('assets'));
+}
+
+
+
 
     public function delete($code)
     {
-        $assetDel = assetModel::where('asset.code', $code)->get();
+        $assetDel = assetModel::where('asset.code', $code)->firstOrFail();
 
-        $assetDel = $assetDel[0];
-        // dd($assetDel[0]->image);
-        // Get the path of the image from the database
-        $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
+        // $assetDel = $assetDel[0];
+        // // dd($assetDel[0]->image);
+        // // Get the path of the image from the database
+        // $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
 
-        // Delete the image file from the server
-        if ($imagePath && Storage::exists('public/' . $imagePath)) {
-            Storage::delete('public/' . $imagePath);
-        }
+        // // Delete the image file from the server
+        // if ($imagePath && Storage::exists('public/' . $imagePath)) {
+        //     Storage::delete('public/' . $imagePath);
+        // }
 
-        // Get the path of the QR code from the database
-        $qrCodePath = $assetDel->qr_img; // assuming 'qr' is the column name for the QR code path
+        // // Get the path of the QR code from the database
+        // $qrCodePath = $assetDel->qr_img; // assuming 'qr' is the column name for the QR code path
 
-        // Delete the QR code file from the server
-        if ($qrCodePath && Storage::exists('public/' . $qrCodePath)) {
-            Storage::delete('public/' . $qrCodePath);
-        }
+        // // Delete the QR code file from the server
+        // if ($qrCodePath && Storage::exists('public/' . $qrCodePath)) {
+        //     Storage::delete('public/' . $qrCodePath);
+        // }
+
+        $assetDel->updated_at = now();
 
         // Delete the asset record from the database
         $assetDel->delete();
 
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
-
+    public function UsageHistory($id){
+        return AssignedToUser::with(['assetUserBy','assignedBy'])
+                                ->where('asset_id',$id)->get();
+    }
+    //If modify make sure to update show details in QRUserCotroller.php
+    //Both same functionalities but different parameters
     public function showDetails($code)
     {
         // Get the logged-in user's department ID and user type
@@ -510,6 +566,13 @@ class AsstController extends Controller
         $model = ['mod' => DB::table('model')->get()];
         $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
         $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
+        $allUserInDept = User::where('dept_id' , $userDept)
+                                    ->select(
+                                        'Users.id',
+                                        'Users.firstname',
+                                        'Users.lastname',
+                                    )
+                                    ->get();
 
         // Build the query to retrieve the asset data based on the asset code
         $retrieveDataQuery = assetModel::where('code', $code)
@@ -538,28 +601,29 @@ class AsstController extends Controller
                 'location.name as location',
                 'manufacturer.name as manufacturer'
             );
+            // Apply department filter for dept_head and user
+            if ($userType != 'admin') {
+                $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
+            }
+            // Retrieve the asset data
+            $retrieveData = $retrieveDataQuery->first();
 
-        // Apply department filter for dept_head and user
-        if ($userType != 'admin') {
-            $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-        }
-        // Retrieve the asset data
-        $retrieveData = $retrieveDataQuery->first();
-        // If no asset is found, redirect with an error message
-        if (!$retrieveData) {
-            return redirect()->route('asset')->with('error', 'Asset not found.');
-        }
-        // Retrieve asset and department data
-        $asset = assetModel::find($retrieveData->id);
-        $department = Department::find($asset->dept_ID);
+            // dd($retrieveData);
+            // If no asset is found, redirect with an error message
+            if (!$retrieveData) {
+                return redirect()->route('asset')->with('error', 'Asset not found.');
+            }
+            // Retrieve asset and department data
+            $asset = assetModel::find($retrieveData->id);
+            $department = Department::find($asset->dept_ID);
 
-        // Decode custom_fields from both asset and department (assuming they are stored as JSON)
-        $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
-        $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
+            // Decode custom_fields from both asset and department (assuming they are stored as JSON)
+            $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
+            $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
 
-        // Create an empty array to hold the updated custom fields
-        $updatedCustomFields = [];
-
+            // Create an empty array to hold the updated custom fields
+            $updatedCustomFields = [];
+            // dd($departmentCustomFields);
         // Loop through the department custom fields and map the values from the asset custom fields
         foreach ($departmentCustomFields as $deptField) {
             $fieldName = $deptField['name']; // For example: "RAM"
@@ -590,13 +654,32 @@ class AsstController extends Controller
                 'maintenance.cost',
                 'maintenance.reason',
                 'maintenance.completion_date as complete'
-            )
-            ->get();
+                )
+                ->get()
+                ;
+
+                // fetching
+                $usageLogsAsset = $this->UsageHistory($retrieveData->id);
+
+
+                // dd($usageLogsAsset);
+            // dd($allUserInDept);
 
         // Determine the view based on user type
         $view = ($userType == 'admin') ? 'admin.assetDetail' : 'dept_head.assetDetail';
         // Return the appropriate view with the asset data, including the QR code
-        return view($view, compact('retrieveData', 'updatedCustomFields', 'department', 'categories', 'location', 'model', 'status', 'manufacturer', 'assetRet'));
+        return view($view, compact('retrieveData',
+                                   'updatedCustomFields',
+                                   'department',
+                                   'categories',
+                                   'location',
+                                   'model',
+                                   'status',
+                                   'manufacturer',
+                                   'assetRet',
+                                   'allUserInDept',
+                                   'usageLogsAsset'
+                                ));
     }
 
     public function downloadCsvTemplate()
@@ -663,7 +746,12 @@ class AsstController extends Controller
             }
 
             $userDept = Auth::user()->dept_id;
+            $deptHead = Auth::user(); // The department head who uploaded the CSV
+            $department = DB::table('department')->where('id', $userDept)->first();
             Log::info('Authenticated user department ID: ' . $userDept);
+
+            // Initialize the $assets array to collect asset names and codes
+            $assets = [];
 
             foreach ($rows as $row) {
                 if (count($row) < count($headers)) {
@@ -776,7 +864,10 @@ class AsstController extends Controller
                         'status' => $rowData['status'] ?? 'active',
                         'qr_img' => $qrCodePath,
                     ]);
+                    // Add asset name and code to the $assets array
+                    $assets[] = ['name' => $rowData['name'], 'code' => $assetCode];
                     Log::info('Asset created successfully.', ['code' => $assetCode]);
+
                 } catch (\Exception $e) {
                     Log::error('Error inserting asset: ' . $e->getMessage(), ['row' => $rowData]);
                     return response()->json([
@@ -786,6 +877,24 @@ class AsstController extends Controller
                         'error' => $e->getMessage()
                     ], 400);
                 }
+            }
+
+            // Use the first asset's details for notification
+            $firstAsset = $assets[0] ?? ['name' => 'Unknown', 'code' => 'Unknown'];
+
+            $notificationData = [
+                'title' => 'New Assets Added via CSV Import',
+                'message' => "New assets were added in '{$department->name}' Department.",
+                'asset_name' => 'Multiple Assets',
+                'asset_code' => 'System Generated Code',
+                'authorized_by' => $deptHead->id,
+                'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+                'action_url' => route('asset'),
+            ];
+
+            $admins = User::where('usertype', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\SystemNotification($notificationData));
             }
 
             Log::info('CSV uploaded successfully.');

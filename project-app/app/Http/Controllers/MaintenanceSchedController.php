@@ -82,8 +82,11 @@ class MaintenanceSchedController extends Controller
         $searchQuery = $request->input('query', '');
 
         // Sorting
-        $sortBy = $request->input('sort_by', 'asset.name');
-        $sortOrder = $request->input('sort_order', 'asc');
+        // $sortBy = $request->input('sort_by', 'asset.name');
+        // $sortOrder = $request->input('sort_order', 'asc');
+
+        $sortBy = $request->input('sort_by', 'preventive.created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
 
         // Fetch preventive records based on user role
         $preventives = Preventive::whereHas('asset', function ($query) use ($userRole, $userDeptId, $searchQuery) {
@@ -146,8 +149,8 @@ class MaintenanceSchedController extends Controller
         $searchQuery = $request->input('query', '');
 
         // Sorting logic
-        $sortBy = $request->input('sort_by', 'asset.name'); // Default sort by asset name
-        $sortOrder = $request->input('sort_order', 'asc'); // Default sort order is ascending
+        $sortBy = $request->input('sort_by', 'predictive.created_at'); // Default sort by asset name
+        $sortOrder = $request->input('sort_order', 'desc'); // Default sort order is ascending
 
         // Adjust sorting logic based on whether the sorting column belongs to asset or category
         $predictives = Predictive::whereHas('asset', function ($query) use ($userDeptId, $searchQuery) {

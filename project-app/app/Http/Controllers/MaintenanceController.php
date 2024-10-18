@@ -70,6 +70,9 @@ class MaintenanceController extends Controller
             });
         }
 
+        // Order by latest created_at to show newest first
+        $query->orderBy('maintenance.requested_at', 'desc');
+
         // Fetch the filtered and paginated results
         $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
             ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
@@ -121,7 +124,8 @@ class MaintenanceController extends Controller
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'request')
-            ->select('maintenance.*');
+            ->select('maintenance.*')
+            ->orderBy('maintenance.requested_at', 'desc');
 
         if ($user->usertype === 'dept_head') {
             $deptId = $user->dept_id;
@@ -154,7 +158,8 @@ class MaintenanceController extends Controller
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'approved')
             ->where('maintenance.is_completed', 0)
-            ->select('maintenance.*');
+            ->select('maintenance.*')
+            ->orderBy('maintenance.authorized_at', 'desc');
 
         // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
@@ -208,7 +213,8 @@ class MaintenanceController extends Controller
 
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'denied')
-            ->select('maintenance.*');
+            ->select('maintenance.*')
+            ->orderBy('maintenance.authorized_at', 'desc');
 
         // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
@@ -270,8 +276,12 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key);
 
-        // Update asset status to 'under Maintenance'
-        $asset->status = "under_maintenance";
+        $maintenance->status = 'approved';
+        $maintenance->authorized_by = $user->id;
+        $maintenance->authorized_at = now();
+        $maintenance->save();
+
+        $asset->status = 'under_maintenance';
         $asset->save();
 
         // Set the authorized user details and timestamp
@@ -723,9 +733,11 @@ class MaintenanceController extends Controller
         // Apply filters based on the selected tab
         if ($tab === 'completed') {
             $query->where('maintenance.status', 'approved')
-                ->where('maintenance.is_completed', 1);
+                ->where('maintenance.is_completed', 1)
+                ->orderBy('maintenance.updated_at', 'desc');
         } elseif ($tab === 'cancelled') {
-            $query->where('maintenance.status', 'cancelled');
+            $query->where('maintenance.status', 'cancelled')
+                ->orderBy('maintenance.updated_at', 'desc');
         }
 
         // Apply department filter if the user is a department head
