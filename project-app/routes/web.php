@@ -94,6 +94,10 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
 
+    // MAINTENANCE PREVENTIVE-PREDICTIVE
+    Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
+    Route::get('/admin/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('adminMaintenance_sched.predictive');
+
     // CREATE MAINTENANCE
     Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
     Route::post('/admin/create-maintenance', [MaintenanceController::class, 'store'])->name('adminMaintenance.store');

@@ -120,8 +120,8 @@
 
                     <!-- Maintenance Scheduling -->
                     <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
-                        :href="''"
-                        :active="request()->routeIs('maintenance_sched') || request()->routeIs('maintenance_sched.predictive')">
+                        :href="route('adminMaintenance_sched', ['mntncDropdown' => 'open'])"
+                        :active="request()->routeIs('adminMaintenance_sched') || request()->routeIs('adminMaintenance_sched.predictive')">
                         <x-calendarIcon />
                         <span class="ml-2 sm:hidden lg:block">Scheduling</span>
                     </x-nav-link>

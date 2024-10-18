@@ -492,6 +492,9 @@ class MaintenanceController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $userType = $user->usertype;
+
         // Validate the form input
         $validatedData = $request->validate([
             'asset_code' => 'required|exists:asset,id',
@@ -577,7 +580,10 @@ class MaintenanceController extends Controller
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
 
-        return redirect()->route('maintenance_sched')->with('success', 'Maintenance schedule created successfully!');
+        $route = $userType === 'admin'
+            ? 'adminMaintenance_sched'
+            : 'maintenance_sched';
+        return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
     }
 
     // MaintenanceController.php
