@@ -1,18 +1,18 @@
 @php
-    $routes = [route('user.scanQR'), route('dept_head.home'), route('admin.home')];
-    $homeRoute = null;
-    switch (Auth::user()->usertype) {
-        case 'user':
-            $homeRoute = $routes[0];
-            break;
-        case 'dept_head':
-            $homeRoute = $routes[1];
-            break;
-        case 'admin':
-            $homeRoute = $routes[2];
-            break;
-    }
-    $notifications = Auth::user()->unreadNotifications; // Fetch unread notifications
+$routes = [route('user.scanQR'), route('dept_head.home'), route('admin.home')];
+$homeRoute = null;
+switch (Auth::user()->usertype) {
+case 'user':
+$homeRoute = $routes[0];
+break;
+case 'dept_head':
+$homeRoute = $routes[1];
+break;
+case 'admin':
+$homeRoute = $routes[2];
+break;
+}
+$notifications = Auth::user()->unreadNotifications; // Fetch unread notifications
 @endphp
 
 <style>
@@ -21,14 +21,25 @@
     }
 </style>
 
-<div
-    class="flex bg-white items-center shadow-md justify-between p-2 fixed h-[40px] md:left-[205px] z-10 md:w-[calc(100%_-_205px)] max-md:left-[50px] max-md:w-[calc(100%_-_50px)]">
+<div class="flex bg-white items-center shadow-md justify-between p-4 fixed h-[60px] md:left-[205px] z-10 md:w-[calc(100%_-_205px)] max-md:left-[50px] max-md:w-[calc(100%_-_50px)]">
 
     <!-- Logo Section -->
-    <div class="logo">
+    <div class="flex items-center space-x-6">
         <span>
             <a href="{{ $homeRoute }}" class="text-xl font-bold text-gray-800">FAMAS</a>
         </span>
+
+        <!-- Search Input (aligned next to the logo) -->
+        <div class="search-container">
+            <form action="{{ route('search.global') }}" method="GET">
+                <x-search-input 
+                    placeholder="{{ Auth::user()->usertype == 'admin'
+                                ? 'Search for users, assets, or maintenance...'
+                                : 'Search for assets or maintenance in your department...' 
+                                }}" 
+                    class="w-96" />
+            </form>
+        </div>
     </div>
 
     <!-- Navigation Section -->
@@ -54,9 +65,9 @@
 
                 <!-- Notification Badge -->
                 @if ($notifications->count() > 0)
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-4 h-4 rounded-full flex items-center justify-center">
-                        {{ $notifications->count() }}
-                    </span>
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-4 h-4 rounded-full flex items-center justify-center">
+                    {{ $notifications->count() }}
+                </span>
                 @endif
             </button>
 
@@ -85,25 +96,25 @@
                 <!-- Notification List -->
                 <ul class="divide-y divide-gray-200 max-h-56 overflow-y-auto">
                     @forelse ($notifications as $notification)
-                        <li
-                            @click="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
-                            class="p-3 hover:bg-gray-100 cursor-pointer flex items-start space-x-4">
+                    <li
+                        @click="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
+                        class="p-3 hover:bg-gray-100 cursor-pointer flex items-start space-x-4">
 
-                            <!-- Unread Indicator -->
-                            <div class="w-3 h-3 {{ is_null($notification->read_at) ? 'bg-blue-500' : '' }} rounded-full"></div>
+                        <!-- Unread Indicator -->
+                        <div class="w-3 h-3 {{ is_null($notification->read_at) ? 'bg-blue-500' : '' }} rounded-full"></div>
 
-                            <!-- Notification Content -->
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-gray-800">{{ $notification->data['title'] ?? 'No Title' }}</h4>
-                                <p class="text-sm text-gray-600">{{ $notification->data['message'] ?? 'No Message' }}</p>
-                                <span class="text-xs text-gray-500">By: {{ $notification->data['authorized_user_name'] ?? 'System' }}</span>
-                                <span class="block text-xs text-gray-400 mt-1">
-                                    {{ $notification->created_at->diffForHumans() }}
-                                </span>
-                            </div>
-                        </li>
+                        <!-- Notification Content -->
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">{{ $notification->data['title'] ?? 'No Title' }}</h4>
+                            <p class="text-sm text-gray-600">{{ $notification->data['message'] ?? 'No Message' }}</p>
+                            <span class="text-xs text-gray-500">By: {{ $notification->data['authorized_user_name'] ?? 'System' }}</span>
+                            <span class="block text-xs text-gray-400 mt-1">
+                                {{ $notification->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                    </li>
                     @empty
-                        <li class="p-3 text-center text-gray-500">No new notifications.</li>
+                    <li class="p-3 text-center text-gray-500">No new notifications.</li>
                     @endforelse
                 </ul>
             </div>
