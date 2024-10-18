@@ -91,7 +91,7 @@ class AsstController extends Controller
     {
         $userDept = Auth::user()->dept_id;
 
-        $asset = DB::table('asset')
+        $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('asset.dept_ID', $userDept)
@@ -102,7 +102,7 @@ class AsstController extends Controller
                 'asset.name',
                 'asset.asst_img',
                 'asset.status',
-                'category.name as category',
+                'category.name as category_name',
                 'department.name as department'
             )
             ->orderByRaw("
@@ -118,7 +118,7 @@ class AsstController extends Controller
             ->orderBy('asset.created_at', 'desc') // Then sort by created_at
             ->paginate(10);
 
-        return view("dept_head.asset", compact('asset'));
+        return view("dept_head.asset", compact('assets'));
     }
 
     //Maintenance History of the
@@ -451,43 +451,52 @@ class AsstController extends Controller
     }
 
 
+    // app/Http/Controllers/AssetController.php
+
     public function searchFiltering(Request $request)
 {
-    // Validate the search input (optional search parameter)
-    $validatedData = $request->validate([
-        'search' => 'nullable|string',
-    ]);
+    // Get search input (default to empty string if not provided)
+    $search = $request->input('search', '');
 
-    $search = $validatedData['search'] ?? null;
+    // Allowed statuses in predefined order
+    $allowedStatuses = ['active', 'under_maintenance', 'deployed', 'disposed'];
 
-    try {
-        // Query to fetch assets and apply search filtering if provided
-        $assetsQuery = assetModel::leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('asset.dept_ID', Auth::user()->dept_id)
-            ->select('asset.*', 'category.name as category_name');
+    // Initialize query with necessary joins and filters
+    $assetsQuery = assetModel::leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', Auth::user()->dept_id)
+        ->whereIn('asset.status', $allowedStatuses)
+        ->select('asset.*', 'category.name as category_name');
 
-        // Apply search filter only if the search term is provided
-        if ($search) {
-            $assetsQuery->where(function ($query) use ($search) {
-                $query->where('asset.name', 'LIKE', "%{$search}%")
-                      ->orWhere('asset.code', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Paginate the results with 10 assets per page
-        $assets = $assetsQuery->paginate(10);
-
-        // Return the view with the paginated assets
-        return view('dept_head.asset', ['asset' => $assets]);
-
-    } catch (\Exception $e) {
-        // Log the error for debugging purposes
-        Log::error('Search Filtering Error: ' . $e->getMessage());
-
-        // Handle errors gracefully by returning a JSON response with status 500
-        return response()->json(['error' => 'Internal Server Error'], 500);
+    // Apply search filter if input is provided
+    if (!empty($search)) {
+        $assetsQuery->where(function ($query) use ($search) {
+            $query->where('asset.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.code', 'LIKE', "%{$search}%")
+                  ->orWhere('category.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.status', 'LIKE', "%{$search}%");
+        });
     }
+
+    // Sort by category name (alphabetically) and then by status in custom order
+    $assetsQuery->orderByRaw("
+                                CASE
+                                    WHEN asset.status = 'active' THEN 0
+                                    WHEN asset.status = 'under_maintenance' THEN 1
+                                    WHEN asset.status = 'deployed' THEN 2
+                                    WHEN asset.status = 'disposed' THEN 3
+                                    ELSE 4
+                                END
+                            ")
+        ->orderBy('code', 'asc')
+        ->orderBy('asset.created_at', 'desc');
+
+    // Paginate results
+    $assets = $assetsQuery->paginate(10)->appends($request->all());
+
+    // Return the view with filtered and sorted results
+    return view('dept_head.asset', compact('assets'));
 }
+
 
 
 
