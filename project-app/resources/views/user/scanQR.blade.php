@@ -38,25 +38,36 @@
 
     <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
-        <button onclick="startScanning()" class="bg-blue-900  text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button>
+        {{-- <button onclick="startScanning()" class="bg-blue-900  text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button> --}}
+        <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button> <!-- Changed this to a dynamic button -->
         <button onclick="document.getElementById('uploadInput').click()" class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">Upload Image</button>
     </div>
 
-    <!-- Hidden File Input for Image Upload --> 
+    <!-- Hidden File Input for Image Upload -->
     <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
 
 
     <!-- ZXing Library for QR Code Scanning -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+
     <script>
         let codeReader = new ZXing.BrowserQRCodeReader();
         let isScanning = false;
+
+        function toggleScan() {
+            if (isScanning) {
+                stopScanning();  // If scanning, stop it
+            } else {
+                startScanning();  // If not scanning, start it
+            }
+        }
 
         function startScanning() {
             // Ensure only one scanning process is active
             if (isScanning) return;
             isScanning = true;
 
+            document.getElementById('scanButton').textContent = 'Cancel Scan';
             document.getElementById('placeholderImage').style.display = 'none';
             document.getElementById('qr-scanner-container').style.display = 'block';
 
@@ -77,6 +88,7 @@
             isScanning = false;
 
             // Hide the video scanner and show placeholder
+            document.getElementById('scanButton').textContent = 'Scan QR Code';
             document.getElementById('qr-scanner-container').style.display = 'none';
             document.getElementById('placeholderImage').style.display = 'block';
         }

@@ -14,7 +14,9 @@
         </button>
         <button><span><x-icons.exportIcon /></span></button>
         <div class="searchBox">
-            <x-text-input name="search" id="searchFilt" placeholder="Search" />
+            <form action="{{ route('assets.search') }}" method="GET">
+                <x-text-input name="search" id="searchFilt" placeholder="Search" />
+            </form>
         </div>
     </div>
 </div>
@@ -85,7 +87,7 @@
             </tbody>
         </table>
     </div>
-    
+
     <!-- Card Layout for Small Screens -->
     <div class="grid grid-cols-1 gap-2 lg:hidden">
         @foreach ($asset as $asst)
@@ -108,7 +110,7 @@
             </div>
             <p class="text-xs text-gray-600"><strong>Code:</strong> {{ $asst->code ?? 'NONE' }}</p>
             <p class="text-xs text-gray-600"><strong>Category:</strong> {{ $asst->category }}</p>
-            <p class="text-xs text-gray-600"><strong>Status:</strong> 
+            <p class="text-xs text-gray-600"><strong>Status:</strong>
                 @include('components.asset-status', ['status' => $asst->status])
             </p>
         </div>

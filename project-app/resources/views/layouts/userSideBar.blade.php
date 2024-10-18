@@ -4,10 +4,10 @@
 <x-nav-link :href="route('user.profile')" class="mt-3 flex items-center justify-center md:justify-start">
     <div class="profileAccount flex items-center p-2 transition-all duration-300 ease-in-out">
         <!-- Image changes size smoothly based on sidebar state -->
-        <div class="imagepart overflow-hidden rounded-full relative border-2 border-slate-500 
+        <div class="imagepart overflow-hidden rounded-full relative border-2 border-slate-500
                     transition-all duration-300 ease-in-out w-[45px] h-[45px] md:w-[60px] md:h-[60px]">
-            <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" 
-                 class="absolute inset-0 object-cover w-full h-full rounded-full" 
+            <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
+                 class="absolute inset-0 object-cover w-full h-full rounded-full"
                  alt="User Profile Photo">
         </div>
         <!-- Sidebar Text - Hidden in compressed state -->
@@ -64,7 +64,7 @@
     const sidebarToggle = document.getElementById('sidebarToggle');
 
     // Sidebar Toggle for Mobile View
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-    });
+    // sidebarToggle.addEventListener('click', () => {
+    //     sidebar.classList.toggle('-translate-x-full');
+    // });
 </script>

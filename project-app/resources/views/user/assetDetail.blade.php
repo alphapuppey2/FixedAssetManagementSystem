@@ -101,7 +101,8 @@
 
         <!-- Repair Request Modal (Initially Hidden) -->
         <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
-            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative">
+            {{-- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative"> --}}
+            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative sm:max-w-md sm:p-6">
                 <!-- Close Button (Top-Right) -->
                 <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +110,8 @@
                     </svg>
                 </button>
 
-                <h3 class="text-xl font-semibold mb-6 text-gray-800">Reason for Request</h3>
+                {{-- <h3 class="text-xl font-semibold mb-6 text-gray-800">Reason for Request</h3> --}}
+                <h3 class="text-xl font-semibold mb-6 text-gray-800 text-center sm:text-left">Reason for Request</h3>
 
                 <!-- Display Validation Errors -->
                 @if ($errors->any())
@@ -143,6 +145,8 @@
                             <option value="maintenance">Maintenance</option>
                             <option value="upgrade">Upgrade</option>
                             <option value="inspection">Inspection</option>
+                            <option value="replacement">Replacement</option>
+                            <option value="calibration">Calibration</option>
                         </select>
                     </div>
 
