@@ -5,7 +5,7 @@
 
 <script>
       // Accessing the PHP variables passed to the component
-    const weeks = @json($weeks);
+    const labels = @json($labels);
     const activeCounts = @json($activeCounts);
     const maintenanceCounts = @json($maintenanceCounts);
 
@@ -13,13 +13,13 @@
     const assetStatusChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: weeks,
+            labels: labels,
             datasets: [
                 {
                     label: 'Active Assets',
                     data: activeCounts,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(134, 239, 172,1)',
+                    backgroundColor: 'rgba(134, 239, 172,0.2)',
                     fill: false
                 },
                 {

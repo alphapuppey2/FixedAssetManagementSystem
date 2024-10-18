@@ -20,7 +20,9 @@
             </span>
         </button>
         <div class="searchBox">
-            <x-text-input name="search" id="searchFilt" placeholder="Search" />
+            <form action="{{ route('assets.search') }}" method="GET">
+                <x-text-input name="search" id="searchFilt" placeholder="Search" />
+            </form>
         </div>
     </div>
 </div>
@@ -58,7 +60,7 @@
                     <td class="align-middle text-center text-sm text-gray-900 py-2 text-balance">
                         {{ $asst->name }}
                     </td>
-                    <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ $asst->category }}</td>
+                    <td class="align-middle text-center text-sm text-gray-900 py-2 ">{{ optional($asst->category)->name }}</td>
                     <td class="align-middle text-center text-sm text-gray-900 py-2">
                         @include('components.asset-status', ['status' => $asst->status])
                     </td>
@@ -92,7 +94,7 @@
     <div class="page flex justify-between px-4 py-3">
         <div class="paginator">
             @if ($asset instanceof \Illuminate\Pagination\LengthAwarePaginator || $asset instanceof \Illuminate\Pagination\Paginator)
-            <div class="">
+            <div id="pagination">
                 <!-- Number of Items Loaded -->
                 <div class="text-gray-600">
                     Showing <span class="font-semibold">{{ $asset->firstItem() }}</span> to <span
@@ -147,87 +149,6 @@
         if (event.target === modal) {
             modal.classList.add('hidden');
         }
-    }
-
-    // Function to handle asset search
-    function handleSearch(inputId, tableBodyId) {
-        const input = document.getElementById(inputId);
-        const tableBody = document.getElementById(tableBodyId);
-
-        input.addEventListener('keyup', function() {
-            const query = input.value;
-
-            fetch(`/asset/search/row?search=${query}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    tableBody.innerHTML = '';
-
-                    if (data.length === 0) {
-                        const noResultsRow = `
-                    <tr class="text-center text-gray-800">
-                        <td colspan="7" style="color: rgb(177, 177, 177)">Asset not found</td>
-                    </tr>
-                `;
-
-                        tableBody.innerHTML = noResultsRow;
-                    } else {
-                        data.forEach(asset => {
-                            let statusText = '';
-
-                            // Handle asset status using JavaScript
-                            if (asset.status === 'active') {
-                                statusText = '<span>Active</span>';
-                            } else if (asset.status === 'deployed') {
-                                statusText = '<span>Deployed</span>';
-                            } else if (asset.status === 'under_maintenance') {
-                                statusText = '<span>Under Maintenance</span>';
-                            } else if (asset.status === 'disposed') {
-                                statusText = '<span>Disposed</span>';
-                            } else {
-                                statusText = '<span>Unknown Status</span>';
-                            }
-                            const row = `
-                        <tr>
-                            <th class="align-middle text-center text-sm text-gray-900" scope="col">${asset.code ? asset.code : 'NONE'}</th>
-                            <td class="align-middle text-center text-sm text-gray-900">${asset.name}</td>
-                            <td class="align-middle text-center text-sm text-gray-900">${asset.category}</td>
-                            <td class="align-middle text-center text-sm text-gray-900">
-                                ${statusText}
-                            </td>
-                            <td class="w-40">
-                                <div class="grp flex gap-2 justify-center">
-                                    <a href="/assetDetails/${asset.code}"
-                                       class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                                        <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
-                                    </a>
-                                    <form action="/asset/delete/${asset.code}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
-                                            onclick="return confirm('Are you sure you want to delete this asset?');">
-                                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                            tableBody.innerHTML += row;
-                        });
-                    }
-                })
-                .catch(error => console.log('Error:', error));
-        });
     }
 </script>
 
