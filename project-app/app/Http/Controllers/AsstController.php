@@ -33,7 +33,7 @@ class AsstController extends Controller
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc')
             ->paginate(10);
 
@@ -45,7 +45,7 @@ class AsstController extends Controller
         $query = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc');
 
         // If department is selected, filter by department ID
@@ -162,7 +162,6 @@ class AsstController extends Controller
     {
         $usrDPT = Auth::user()->dept_id;
         $department = department::find($usrDPT);
-
 
         $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
         $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
@@ -373,7 +372,9 @@ class AsstController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userDept = Auth::user()->dept_id;
+        $user = Auth::user(); // Get the authenticated user
+        $userType = $user->usertype; // Check user type (admin or dept_head)
+        $userDept = $user->dept_id; // Get the user's department ID
 
         $validatedData = $request->validate([
             'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -386,28 +387,32 @@ class AsstController extends Controller
             'status' => 'nullable|string|max:511',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
-            'current_image' => 'nullable|string', // For retaining current image
+            'current_image' => 'nullable|string', // Retain current image if not updated
         ]);
         // dd($request);
 
 
-        // Retrieve department information for generating the asset code
+        // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
         $departmentCode = $department->name;
         $lastID = department::where('name', $departmentCode)->max('assetSequence');
         $seq = $lastID ? $lastID + 1 : 1;
         $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+        // Convert custom fields into JSON
+        $fieldUpdate = $this->convertJSON(
+            $request->input('field.key'),
+            $request->input('field.value')
+        );
 
         // Handle image upload or retain the current image
-        $pathFile = $request->input('current_image'); // Use current image path by default
+        $pathFile = $request->input('current_image'); // Default to current image path
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('asset_images', $filename, 'public');
-            $pathFile = $path; // Update with the new image path
+            $pathFile = $path; // Use new image path
         }
 
         // Update asset data in the database
@@ -438,14 +443,23 @@ class AsstController extends Controller
         }
 
 
-        // Retrieve the asset code from the updated asset
+        // Retrieve the updated asset to get the code
         $asset = DB::table('asset')->where('id', $id)->first();
 
         if ($updatedRow) {
-            return redirect()->route('assetDetails', ['id' => $asset->code])
+            // Redirect based on user type
+            $route = $userType === 'admin'
+                ? 'adminAssetDetails'
+                : 'assetDetails';
+
+            return redirect()->route($route, ['id' => $asset->code])
                 ->with('success', 'Asset updated successfully!');
         } else {
-            return redirect()->route('assetDetails', ['id' => $asset->code])
+            $route = $userType === 'admin'
+                ? 'adminAssetDetails'
+                : 'assetDetails';
+
+            return redirect()->route($route, ['id' => $asset->code])
                 ->with('failed', 'Asset update failed!');
         }
     }

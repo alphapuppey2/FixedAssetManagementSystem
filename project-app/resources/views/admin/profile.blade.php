@@ -51,7 +51,7 @@
                     <div class="text-center pb-6 mb-6">
                         <div class="relative flex justify-center mb-4">
                             <!-- Profile Photo with Camera Icon (Initially Hidden) -->
-                            <img id="profilePhoto" src="{{ auth()->user()->userPicture ? asset('uploads/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+                            <img id="profilePhoto" src="{{ auth()->user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
                             <label id="cameraIcon" for="profile_photo" class="hidden absolute bottom-3 bg-gray-200 p-2 rounded-full cursor-pointer shadow-md transform translate-x-1/2 translate-y-1/2">
                                 <input type="file" id="profile_photo" name="profile_photo" class="hidden" accept="image/*" onchange="previewImage(event)" />
                                 @yield('cameraIcon')
