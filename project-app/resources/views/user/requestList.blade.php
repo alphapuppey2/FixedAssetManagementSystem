@@ -34,7 +34,7 @@
 </div>
 
 <!-- Request List Table -->
-<div class="overflow-x-auto">
+<div class="overflow-x-auto hidden md:block">
     <table class="min-w-full bg-white border rounded-md">
         <thead class="bg-gray-100 border-b">
             <tr>
@@ -116,6 +116,42 @@
             @endif
         </tbody>
     </table>
+</div>
+
+<!-- Mobile Card View added for small screens -->
+<div class="block md:hidden space-y-4">
+    @if ($requests->isEmpty())
+    <div class="text-center text-gray-500">No requests found.</div>
+    @else
+    @foreach ($requests as $request)
+    <div class="bg-white shadow-md rounded-md p-3 sm:p-4">
+        <h3 class="font-bold text-lg mb-2">Request ID: {{ $request->id }}</h3>
+        <p class="break-words"><strong>Description:</strong> {{ $request->description }}</p>
+        <p><strong>Type:</strong> {{ $request->type }}</p>
+        <p><strong>Created At:</strong> {{ $request->created_at }}</p>
+        <p>
+            <strong>Status:</strong> 
+            <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
+                {{ ucfirst($request->status) }}
+            </span>
+        </p>
+        <p><strong>Asset Code:</strong> {{ $request->asset_code }}</p>
+        <div class="flex justify-end space-x-4 mt-4">
+            <!-- View Icon Button -->
+            <button onclick="showModal('{{ $request->asset_code }}', ...)" class="w-8 h-8" aria-label="View Request">
+                <x-icons.view-icon class="w-6 h-6 text-blue-900 hover:text-blue-700" />
+            </button>
+
+            @if ($request->status === 'request')
+            <!-- Cancel Icon Button -->
+            <button onclick="showCancelModal({{ $request->id }})" class="w-8 h-8">
+                <x-icons.cancel-icon class="w-6 h-6 text-red-500 hover:text-red-600" />
+            </button>
+            @endif
+        </div>
+    </div>
+    @endforeach
+    @endif
 </div>
 
 <!-- Pagination -->

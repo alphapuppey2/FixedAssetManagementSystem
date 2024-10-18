@@ -12,12 +12,12 @@
     <p class="text-center">Choose one of the options below:</p>
 
     <div id="placeholderImage">
-        <img src="{{ asset('images/scanQRImage.png') }}" alt="QR Code Scanning" class="mt-4 w-full max-w-lg mx-auto">
+        <img src="{{ asset('images/scanQRImage.png') }}" alt="QR Code Scanning" class="w-full max-w-md mx-auto">
     </div>
 
     <!-- QR Scanner Container -->
     <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
-        <div id="qr-scanner-container" style="display: none; position: relative; width: 500px; height: 500px;">
+        <div id="qr-scanner-container" class="hidden relative w-full max-w-md aspect-square bg-black">
             <video id="video" style="width: 100%; height: 100%; border: 1px solid black; object-fit: cover; background-color: #000;"></video>
             <!-- QR box -->
             <div id="qr-bar" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border: 2px solid rgb(236, 220, 220);"></div>
@@ -25,7 +25,8 @@
     </div>
 
     <!-- Success Notification -->
-    <div id="scan-success" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #564caf; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-success" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-md shadow-md">
+
         Scan Successful: <span id="qr-result"></span>
     </div>
 
@@ -42,7 +43,8 @@
     </div>
 
     <!-- Hidden File Input for Image Upload --> 
-    <input type="file" id="uploadInput" name="qr_image" accept="image/*" style="display: none;" onchange="handleImageChange(event)">
+    <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
+
 
     <!-- ZXing Library for QR Code Scanning -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
