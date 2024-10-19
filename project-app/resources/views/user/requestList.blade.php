@@ -33,80 +33,140 @@
     </div>
 </div>
 
-<!-- Request List Table -->
-<table class="min-w-full bg-white border rounded-md">
-    <!-- Header -->
-    <thead class="bg-gray-100 border-b">
-        <tr class="bg-gray-50 ">
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'id', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                    Request ID
-                    <x-icons.sort-icon :direction="request('sort_by') === 'id' ? request('sort_direction') : null" />
-                </a>
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'type', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                    Type
-                    <x-icons.sort-icon :direction="request('sort_by') === 'type' ? request('sort_direction') : null" />
-                </a>
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'created_at', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                    Created At
-                    <x-icons.sort-icon :direction="request('sort_by') === 'created_at' ? request('sort_direction') : null" />
-                </a>
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'status', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                    Status
-                    <x-icons.sort-icon :direction="request('sort_by') === 'status' ? request('sort_direction') : null" />
-                </a>
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'asset_code', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                    Asset Code
-                    <x-icons.sort-icon :direction="request('sort_by') === 'asset_code' ? request('sort_direction') : null" />
-                </a>
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-        </tr>
-    </thead>
+<!-- Desktop View: Request List Table -->
+<div class="hidden md:block overflow-x-auto"> <!-- Added hidden on small screens -->
+    <!-- Request List Table -->
+    <table class="min-w-full bg-white border rounded-md">
+        <!-- Header -->
+        <thead class="bg-gray-100 border-b">
+            <tr class="bg-gray-50 ">
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'id', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                        Request ID
+                        <x-icons.sort-icon :direction="request('sort_by') === 'id' ? request('sort_direction') : null" />
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'type', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                        Type
+                        <x-icons.sort-icon :direction="request('sort_by') === 'type' ? request('sort_direction') : null" />
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'created_at', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                        Created At
+                        <x-icons.sort-icon :direction="request('sort_by') === 'created_at' ? request('sort_direction') : null" />
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'status', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                        Status
+                        <x-icons.sort-icon :direction="request('sort_by') === 'status' ? request('sort_direction') : null" />
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="{{ route('requests.list', array_merge(request()->query(), ['sort_by' => 'asset_code', 'sort_direction' => request('sort_direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                        Asset Code
+                        <x-icons.sort-icon :direction="request('sort_by') === 'asset_code' ? request('sort_direction') : null" />
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+        </thead>
 
-    <!-- Table Rows -->
+        <!-- Table Rows -->
+        @if ($requests->isEmpty())
+            <tr>
+                <td colspan="7" class="py-4 text-center text-gray-500">No requests found.</td>
+            </tr>
+        @else
+            @foreach ($requests as $request)
+                <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
+                    <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->id }}</td>
+                    <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->description }}</td>
+                    <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->type }}</td>
+                    <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->created_at }}</td>
+                    <td class="py-2 px-3 text-center">
+                        @php
+                            $statusClasses = [
+                                'approved' => 'bg-green-100 text-green-800',
+                                'request' => 'bg-yellow-100 text-yellow-800',
+                                'cancelled' => 'bg-gray-200 text-gray-600',
+                                'denied' => 'bg-red-100 text-red-800',
+                                'in_progress' => 'bg-blue-100 text-blue-800',
+                            ];
+                            $statusClass = $statusClasses[$request->status] ?? 'bg-purple-100 text-purple-800';
+                        @endphp
+                        <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
+                            {{ ucfirst($request->status) }}
+                        </span>
+                    </td>
+                    <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->asset_code }}</td>
+
+                    <!-- Action (View and Cancel Buttons) -->
+                    <td class="py-2 px-3 flex justify-center items-center space-x-2">
+                        <button type="button" onclick="showModal(
+                                '{{ $request->asset_code }}',
+                                '{{ $request->asset_image }}',
+                                '{{ $request->asset_name }}',
+                                '{{ $request->cost }}',
+                                '{{ $request->depreciation }}',
+                                '{{ $request->salvageVal }}',
+                                '{{ $request->category }}',
+                                '{{ $request->usage_Lifespan }}',
+                                '{{ $request->model }}',
+                                '{{ $request->manufacturer }}',
+                                '{{ $request->location }}',
+                                '{{ $request->asset_status }}',
+                                '{{ $request->description }}',
+                                '{{ $request->id }}',
+                                '{{ $request->status }}',
+                                '{{ $request->qr_code }}',
+                                '{{ $request->reason }}' // Add this line to pass the denial reason
+                            )" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                            <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
+                        </button>
+
+                        @if ($request->status === 'request')
+                        <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                        </button>
+                    @endif
+
+                    </td>
+                </tr>
+            @endforeach
+        @endif
+    </table>
+</div>
+
+<!-- Mobile View: Cards -->
+<div class="block md:hidden space-y-4"> <!-- Display only on small screens -->
     @if ($requests->isEmpty())
-        <tr>
-            <td colspan="7" class="py-4 text-center text-gray-500">No requests found.</td>
-        </tr>
+        <div class="text-center text-gray-500">No requests found.</div>
     @else
         @foreach ($requests as $request)
-            <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
-                <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->id }}</td>
-                <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->description }}</td>
-                <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->type }}</td>
-                <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->created_at }}</td>
-                <td class="py-2 px-3 text-center">
-                    @php
-                        $statusClasses = [
-                            'approved' => 'bg-green-100 text-green-800',
-                            'request' => 'bg-yellow-100 text-yellow-800',
-                            'cancelled' => 'bg-gray-200 text-gray-600',
-                            'denied' => 'bg-red-100 text-red-800',
-                            'in_progress' => 'bg-blue-100 text-blue-800',
-                        ];
-                        $statusClass = $statusClasses[$request->status] ?? 'bg-purple-100 text-purple-800';
-                    @endphp
+            <div class="bg-white shadow-md rounded-md p-4">
+                <h3 class="font-bold text-lg">Request ID: {{ $request->id }}</h3>
+                <p><strong>Description:</strong> {{ $request->description }}</p>
+                <p><strong>Type:</strong> {{ $request->type }}</p>
+                <p><strong>Created At:</strong> {{ $request->created_at }}</p>
+                <p>
+                    <strong>Status:</strong>
                     <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
                         {{ ucfirst($request->status) }}
                     </span>
-                </td>
-                <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->asset_code }}</td>
+                </p>
+                <p><strong>Asset Code:</strong> {{ $request->asset_code }}</p>
 
-                <!-- Action (View and Cancel Buttons) -->
-                <td class="py-2 px-3 flex justify-center items-center space-x-2">
-                    <button type="button" onclick="showModal(
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-2 mt-4">
+                    <!-- View Button -->
+                    <button
+                        onclick="showModal(
                             '{{ $request->asset_code }}',
                             '{{ $request->asset_image }}',
                             '{{ $request->asset_name }}',
@@ -123,28 +183,50 @@
                             '{{ $request->id }}',
                             '{{ $request->status }}',
                             '{{ $request->qr_code }}',
-                            '{{ $request->reason }}' // Add this line to pass the denial reason
-                        )" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                            '{{ $request->reason }}'
+                        )"
+                        class="w-8 h-8" aria-label="View Request">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                     </button>
 
+                    <!-- Cancel Button -->
                     @if ($request->status === 'request')
-                    <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
-                        <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                    </button>
-                @endif
-
-                </td>
-            </tr>
+                        <button
+                            onclick="showCancelModal({{ $request->id }})"
+                            class="w-8 h-8">
+                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                        </button>
+                    @endif
+                </div>
+            </div>
         @endforeach
     @endif
-</table>
-
+</div>
 
 <!-- Pagination Links -->
 <div class="mt-4 flex justify-center">
     {{ $requests->appends(request()->query())->links('vendor.pagination.tailwind') }}
 </div>
+
+<script>
+    function showModal(
+    assetCode, assetImage, assetName, cost, depreciation, salvageVal,
+    category, lifespan, model, manufacturer, location, assetStatus,
+    description, id, status, qrCode, reason
+    ) {
+        // Example: Use console to ensure the data is passed correctly
+        console.log({ assetCode, assetName, cost });
+
+        // Inject the data into the modal (or display it as needed)
+        document.getElementById('modalTitle').textContent = `Asset Code: ${assetCode}`;
+        document.getElementById('modalDescription').textContent = description;
+        document.getElementById('modalImage').src = assetImage;
+
+        // Show the modal
+        document.getElementById('assetModal').classList.remove('hidden');
+    }
+
+</script>
 
 <!-- Include the modal for the search filter -->
 @include('user.modalSearchFilter') <!-- Search Modal -->

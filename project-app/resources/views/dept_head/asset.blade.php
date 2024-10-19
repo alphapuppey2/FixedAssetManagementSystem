@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+<div class="header flex flex-wrap w-full justify-between pr-3 pl-3 items-center gap-2">
     <div class="title">
         <a href="{{ route('asset') }}">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
+            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight">Asset</h2>
         </a>
     </div>
-    <div class="header-R flex items-center">
+    <div class="header-R flex items-center gap-2">
         <button id="openModalBtn">
             <x-icons.importIcon />
         </button>
@@ -130,8 +130,13 @@
                 </div>
             @endif
         </div>
+        @endif
     </div>
 </div>
+
+
+
+
 
 @include('dept_head.modal.modalImportAsset')
 @endsection

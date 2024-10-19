@@ -1,17 +1,21 @@
 @extends('layouts.app')
 
 @section('header')
-    <div class="title">
-        <h2 class="my-2 font-semibold text-2xl text-black-800 leading-tight">
-            Dashboard
-        </h2>
-    </div>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
+        {{ 'Dashboard' }}
+    </h2>
 @endsection
+
 @section('content')
-    <div class="w-full h-full ">
-        <div class="grid grid-cols-4 gap-4 p-2">
+    <div class="flex flex-col gap-4 h-full w-full">
+        {{-- Cards Section --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-2">
             @foreach ($asset as $key => $item)
-                <x-cards :title="$key === 'under_maintenance' ? 'under maintenance' : $key" :counts="$item" />
+                <x-cards
+                    :title="$key === 'under_maintenance' ? 'under maintenance' : $key"
+                    :counts="$item"
+                    class="text-center text-xs sm:text-sm md:text-base lg:text-lg"
+                />
             @endforeach
         </div>
         <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2">
