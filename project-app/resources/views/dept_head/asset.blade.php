@@ -1,13 +1,14 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="header flex flex-wrap w-full justify-between pr-3 pl-3 items-center gap-2">
+<div class="header flex w-full justify-between pr-3 pl-3 items-center">
     <div class="title">
         <a href="{{ route('asset') }}">
-            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight">Asset</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
         </a>
     </div>
-    <div class="header-R flex items-center gap-2">
+
+    <div class="header-R flex items-center">
         <button id="openModalBtn">
             <x-icons.importIcon />
         </button>
@@ -16,16 +17,24 @@
         </button>
 
         <!-- Search Form -->
-        <div class="searchBox">
-            <form action="{{ route('assets.search') }}" method="GET" id="searchForm">
+        <div class="relative searchBox w-full max-w-lg">
+            <form action="{{ route('assets.search') }}" method="GET" id="searchForm" class="relative flex items-center">
+                <!-- Filter Button Inside Search Input -->
+                <button type="button" id="openFilterModalBtn"
+                    class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
+                    <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
+                </button>
+
+                <!-- Search Input Field -->
                 <x-text-input
                     name="search"
                     id="searchFilt"
-                    placeholder="Search"
+                    placeholder="Search by Code, Name, Category, etc..."
                     value="{{ request('search') }}"
-                    class="mr-2" />
+                    class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
             </form>
         </div>
+
     </div>
 </div>
 @endsection
@@ -37,28 +46,28 @@
             <thead class="p-5 bg-gray-100 border-b">
                 <tr>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                            class="flex items-center justify-center gap-1">
                             Code
                             <x-icons.sort-icon :direction="request('sort') === 'code' ? request('direction') : null" />
                         </a>
                     </th>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                            class="flex items-center justify-center gap-1">
                             Name
                             <x-icons.sort-icon :direction="request('sort') === 'name' ? request('direction') : null" />
                         </a>
                     </th>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                            class="flex items-center justify-center gap-1">
                             Category
                             <x-icons.sort-icon :direction="request('sort') === 'category_name' ? request('direction') : null" />
                         </a>
                     </th>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                            class="flex items-center justify-center gap-1">
                             Status
                             <x-icons.sort-icon :direction="request('sort') === 'status' ? request('direction') : null" />
@@ -69,6 +78,7 @@
                     </th>
                 </tr>
             </thead>
+
 
             <tbody id="table-body">
                 @forelse ($assets as $asset)
@@ -130,13 +140,19 @@
                 </div>
             @endif
         </div>
-        @endif
     </div>
 </div>
 
-
-
-
-
 @include('dept_head.modal.modalImportAsset')
+@include('dept_head.modal.filterAssetTable')
+
+<script>
+    document.getElementById('openFilterModalBtn').addEventListener('click', function () {
+        document.getElementById('filterModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', function () {
+        document.getElementById('filterModal').classList.add('hidden');
+    });
+</script>
 @endsection
