@@ -135,39 +135,46 @@ class AsstController extends Controller
         return view('admin.assetList', compact('assets'));
     }
 
-    public function showDeptAsset()
+
+    //KANI
+    public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;
+
+        // Get search query, sort field, and direction
+        $search = $request->input('search');
+        $sortField = $request->input('sort', 'code'); // Default sort field
+        $sortDirection = $request->input('direction', 'asc'); // Default direction
+
+        // Allow only these fields to be sorted
+        $validSortFields = ['code', 'name', 'category_name', 'status'];
+        if (!in_array($sortField, $validSortFields)) {
+            $sortField = 'code';
+        }
 
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('asset.dept_ID', $userDept)
             ->where('asset.isDeleted', 0)
+            ->when($search, function ($query, $search) {
+                return $query->where('asset.name', 'like', "%{$search}%");
+            })
             ->select(
                 'asset.id',
                 'asset.code',
                 'asset.name',
-                'asset.asst_img',
                 'asset.status',
                 'category.name as category_name',
                 'department.name as department'
             )
-            ->orderByRaw("
-            CASE
-                WHEN asset.status = 'active' THEN 0
-                WHEN asset.status = 'under_maintenance' THEN 1
-                WHEN asset.status = 'deployed' THEN 2
-                WHEN asset.status = 'disposed' THEN 3
-                ELSE 4
-            END
-        ")
-            ->orderBy('code', 'asc')
-            ->orderBy('asset.created_at', 'desc') // Then sort by created_at
+            ->orderBy($sortField, $sortDirection)
             ->paginate(10);
 
-        return view("dept_head.asset", compact('assets'));
+        return view('dept_head.asset', compact('assets'));
     }
+
+
 
     //Maintenance History of the
     public function showHistory($id)

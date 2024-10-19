@@ -36,23 +36,40 @@
         <table class="w-full  border-gray-300">
             <thead class="p-5 bg-gray-100 border-b">
                 <tr>
-                    <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Code
+                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <a href="{{ route('asset', ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                           class="flex items-center justify-center gap-1">
+                            Code
+                            <x-icons.sort-icon :direction="request('sort') === 'code' ? request('direction') : null" />
+                        </a>
                     </th>
-                    <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
+                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <a href="{{ route('asset', ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                           class="flex items-center justify-center gap-1">
+                            Name
+                            <x-icons.sort-icon :direction="request('sort') === 'name' ? request('direction') : null" />
+                        </a>
                     </th>
-                    <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
+                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <a href="{{ route('asset', ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                           class="flex items-center justify-center gap-1">
+                            Category
+                            <x-icons.sort-icon :direction="request('sort') === 'category_name' ? request('direction') : null" />
+                        </a>
                     </th>
-                    <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <a href="{{ route('asset', ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc', 'search' => request('search')]) }}"
+                           class="flex items-center justify-center gap-1">
+                            Status
+                            <x-icons.sort-icon :direction="request('sort') === 'status' ? request('direction') : null" />
+                        </a>
                     </th>
-                    <th class="px-6 py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                         Actions
                     </th>
                 </tr>
             </thead>
+
             <tbody id="table-body">
                 @forelse ($assets as $asset)
                     <tr>
@@ -108,7 +125,7 @@
 
                     <!-- Pagination Buttons -->
                     <div class="text-gray-500">
-                        {{ $assets->appends(['search' => request()->search])->links() }}
+                        {{ $assets->appends(request()->except('page'))->links() }}
                     </div>
                 </div>
             @endif
