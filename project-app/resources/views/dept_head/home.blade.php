@@ -14,37 +14,39 @@
                 <x-cards
                     :title="$key === 'under_maintenance' ? 'under maintenance' : $key"
                     :counts="$item"
-                    class="text-center text-xs sm:text-sm md:text-base lg:text-lg"
+                    class="text-center text-xs sm:text-[10px] md:text-base lg:text-lg"
                 />
             @endforeach
         </div>
-        <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2">
+        {{-- <div class="container grid grid-cols-[minmax(300px,1fr)_500px] gap-2"> --}}
+        <div class="container grid grid-cols-1 md:grid-cols-[minmax(300px,1fr)_500px] gap-4">
             <div class="chartArea bg-white rounded-xl shadow-md">
 
                 <x-chart :labels="$labels" :activeCounts="$activeCounts" :maintenanceCounts="$maintenanceCounts" />
             </div>
-            <div class="RecentNew overflow-hidden flex flex-col w-full rounded-md h-full bg-white shadow-md">
-                <span class="font-bold uppercase text-lg bg-blue-100 text-center h-8 border-b w-full">
+            <div class="RecentNew overflow-hidden flex flex-col w-full rounded-md h-full bg-white shadow-md overflow-hidden">
+                {{-- <span class="font-bold uppercase text-lg bg-blue-100 text-center h-8 border-b w-full"> --}}
+                <span class="font-bold uppercase text-base sm:text-lg bg-blue-100 text-center h-8 border-b w-full">
                     New Assets
                 </span>
                 <div class="overflow-auto">
                     <table class="min-w-full">
                         <thead class="border-b  m-2">
                             <tr>
-                                <th class="text-center text-sm font-medium text-gray-700">Name</th>
-                                <th class="text-center text-sm font-medium text-gray-700">Code</th>
-                                <th class="text-center text-sm font-medium text-gray-700">Date Acquired</th>
+                                <th class="text-center text-xs sm:text-sm font-medium text-gray-700">Name</th>
+                                <th class="text-center text-xs sm:text-sm font-medium text-gray-700">Code</th>
+                                <th class="text-center text-xs sm:text-sm font-medium text-gray-700">Date Acquired</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (isset($newAssetCreated) && !$newAssetCreated->isEmpty())
                                 @foreach ($newAssetCreated as $item)
                                     <tr>
-                                        <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">
+                                        <td class="px-2 sm:px-6 py-3 text-center text-xs sm:text-sm font-medium text-gray-700">
                                             {{ $item->name }}</td>
-                                        <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">
+                                        <td class="px-2 sm:px-6 py-3 text-center text-xs sm:text-sm font-medium text-gray-700">
                                             {{ $item->code }}</td>
-                                        <td class="px-6 py-3 text-center text-sm font-medium text-gray-700">
+                                        <td class="px-2 sm:px-6 py-3 text-center text-xs sm:text-sm font-medium text-gray-700">
                                             {{ $item->created_at }}</td>
                                     </tr>
                                 @endforeach

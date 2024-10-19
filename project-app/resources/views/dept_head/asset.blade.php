@@ -113,13 +113,23 @@
                 </div>
             @endif
         </div>
-        @endif
     </div>
 </div>
 
-
-
-
-
 @include('dept_head.modal.modalImportAsset')
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalId = 'importModal';
+        document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+    });
+
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+</script>
 @endsection
