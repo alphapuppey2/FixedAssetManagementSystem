@@ -83,20 +83,18 @@
     }
 
     function populateTable(data) {
-    const tableBody = document.querySelector('tbody');
-    tableBody.innerHTML = ''; // Clear existing rows
+        const tableBody = document.querySelector('tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
 
-    data.forEach(asset => {
-        const row = document.createElement('tr');
-        Object.values(asset).forEach(value => {
-            const cell = document.createElement('td');
-            cell.textContent = value || 'N/A'; // Handle null values
-            row.appendChild(cell);
+        data.forEach(asset => {
+            const row = document.createElement('tr');
+            Object.values(asset).forEach(value => {
+                const cell = document.createElement('td');
+                cell.textContent = value || 'N/A'; // Handle null values
+                row.appendChild(cell);
+            });
+            tableBody.appendChild(row);
         });
-        tableBody.appendChild(row);
-    });
-}
-
+    }
 </script>
-
 @endsection
