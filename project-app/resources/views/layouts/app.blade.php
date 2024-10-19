@@ -50,9 +50,9 @@
         </main>
     </div>
 
-    @if (session('toast'))
+    @if (session('noSettings'))
         <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
-           {{ session('toast') }}
+           {{ session('noSettings') }}
         </div>
     @endif
 
