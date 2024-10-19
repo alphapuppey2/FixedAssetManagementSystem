@@ -8,6 +8,9 @@
 
     <title>{{ config('app.name', 'FAMS') }}</title>
 
+    <!-- LOGO ICON IN TAB -->
+    <link rel="icon" href="{{ asset('images/system_logo.png') }}" type="image/png">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -50,9 +53,9 @@
         </main>
     </div>
 
-    @if (session('toast'))
+    @if (session('noSettings'))
         <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
-           {{ session('toast') }}
+           {{ session('noSettings') }}
         </div>
     @endif
 

@@ -15,7 +15,11 @@
 <div>
     <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
         <!-- Search Input and Button -->
-        <x-search-input placeholder="Search by name or email" />
+        <div class="relative search-container">
+            <x-search-input
+                placeholder="Search by name or email"
+                class="w-72" />
+        </div>
         <!-- Rows per page dropdown -->
         <div class="flex justify-between items-center mb-4">
             <!-- Rows per page dropdown (Left) -->

@@ -18,7 +18,7 @@ use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
-
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     Route::post('/notifications/delete-all', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
 
+    Route::get('/search', [SearchController::class, 'globalSearch'])->name('search.global');
+
     // Route::get('/notification', function () {
     //     return view('layouts.notification');
     // })->name('notification');
@@ -59,9 +61,8 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
-    Route::get('/admin/home', function () {
-        return view('admin.home');
-    })->name('admin.home');
+
+    Route::get('/admin/home', [AsstController::class, 'assetCount'])->name('admin.home');
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
