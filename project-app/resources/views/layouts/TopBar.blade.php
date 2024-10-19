@@ -28,7 +28,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
         <span>
             <a href="{{ $homeRoute }}" class="flex items-center space-x-2">
                 <img src="{{ asset('images/system_logo.png') }}" alt="FAMAS Logo" class="h-10 w-10">
-                <span class="text-xl font-bold text-gray-800">FAMAS</span> <!-- Optional text next to the logo -->
+                <span class="text-xl font-bold text-gray-800">FAMS</span> <!-- Optional text next to the logo -->
             </a>
         </span>
 
@@ -43,7 +43,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 <x-search-input
                     placeholder="{{ Auth::user()->usertype == 'admin'
                                 ? 'Search for users, assets, or maintenance...'
-                                : 'Search for assets or maintenance in your department...' 
+                                : 'Search for assets or maintenance in your department...'
                                 }}"
                     class="w-96" />
             </form>

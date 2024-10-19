@@ -87,7 +87,7 @@ class UserSideController extends Controller
         $request->validate([
             'asset_id' => 'required|exists:asset,id', // Ensure the asset exists
             'issue_description' => 'required|string|max:1000',
-            'type' => 'required|in:repair,maintenance,upgrade,inspection', // Validate the request type
+            'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration', // Validate the request type
         ]);
 
         // Create a new maintenance request with 'pending' status
