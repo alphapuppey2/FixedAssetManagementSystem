@@ -17,7 +17,7 @@ use App\Http\Controllers\PreventiveMaintenanceController;
 use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\NotificationController;
-
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/delete', [NotificationController::class, 'delete'])->name('notifications.delete');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     Route::post('/notifications/delete-all', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
+
+    Route::get('/search', [SearchController::class, 'globalSearch'])->name('search.global');
 
     // Route::get('/notification', function () {
     //     return view('layouts.notification');

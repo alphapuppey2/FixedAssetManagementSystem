@@ -1,10 +1,19 @@
 <div class="flex">
     <div class="relative items-center">
         <!-- Search Input -->
-        <input type="text" name="query" value="{{ request('query') }}" placeholder="{{ $placeholder }}"
-            class="border border-gray-300 rounded-l px-4 py-2 w-72 focus:outline-none pr-8" id="searchInput">
+        <input
+            type="text"
+            name="query"
+            value="{{ request('query') }}"
+            placeholder="{{ $placeholder }}"
+            class="border border-gray-300 rounded-l px-4 py-2 focus:outline-none pr-8 {{ $attributes->get('class') }}"
+            data-search-input>
+
         <!-- Clear "X" button inside the search bar -->
-        <button type="button" id="clearBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent text-gray-500 hidden focus:outline-none">
+        <button
+            type="button"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent text-gray-500 hidden focus:outline-none"
+            data-clear-btn>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -19,36 +28,38 @@
 </div>
 
 <script>
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearBtn');
+    document.querySelectorAll('.search-container').forEach((container) => {
+        const searchInput = container.querySelector('[data-search-input]');
+        const clearBtn = container.querySelector('[data-clear-btn]');
 
-    // Show "X" button when input is clicked and has value
-    searchInput.addEventListener('focus', () => {
-        if (searchInput.value.length > 0) {
-            clearBtn.classList.remove('hidden');
-        }
-    });
+        // Show "X" button when input has value
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        });
 
-    // Show "X" button when user types
-    searchInput.addEventListener('input', () => {
-        if (searchInput.value.length > 0) {
-            clearBtn.classList.remove('hidden');
-        } else {
+        // Clear input and hide "X" button when clicked
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
             clearBtn.classList.add('hidden');
-        }
-    });
+            searchInput.focus(); // Refocus the input after clearing
+        });
 
-    // Hide "X" button when input loses focus, unless there is still a value
-    searchInput.addEventListener('blur', () => {
-        setTimeout(() => {
-            clearBtn.classList.add('hidden');
-        }, 200); // Delay to allow clicking on the "X" button before hiding it
-    });
+        // Show "X" button on focus if input has value
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            }
+        });
 
-    // Clear input when "X" button is clicked
-    clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        clearBtn.classList.add('hidden');
-        searchInput.focus(); // Refocus on the input after clearing
+        // Hide "X" button on blur, with a small delay
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                clearBtn.classList.add('hidden');
+            }, 200); // Delay to allow clicking on "X" button before hiding
+        });
     });
 </script>
