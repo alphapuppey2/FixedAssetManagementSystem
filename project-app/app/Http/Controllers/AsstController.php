@@ -34,7 +34,21 @@ class AsstController extends Controller
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderBy('asset.code', 'asc')
+            ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ")
+            ->orderBy(DB::raw("
+            IF(asset.name REGEXP '[0-9]+$',
+                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+                asset.id
+            )
+        "), 'asc')
             ->paginate(10);
 
         return view("admin.assetList", compact('assets'));
@@ -52,6 +66,25 @@ class AsstController extends Controller
         if ($dept) {
             $query->where('asset.dept_ID', $dept);
         }
+
+        $query
+        ->orderBy('asset.name', 'asc')
+        ->orderByRaw("
+            CASE
+                WHEN asset.status = 'active' THEN 0
+                WHEN asset.status = 'under_maintenance' THEN 1
+                WHEN asset.status = 'deployed' THEN 2
+                WHEN asset.status = 'disposed' THEN 3
+                ELSE 4
+            END
+        ")->orderBy(DB::raw("
+        IF(asset.name REGEXP '[0-9]+$',
+            CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+            asset.id
+        )
+    "), 'asc')
+            ;
+
 
         $assets = $query->paginate(10);
 
@@ -80,7 +113,22 @@ class AsstController extends Controller
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->orderBy('asset.name', 'asc') // Order by name or another column if needed
+            ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ")
+            ->orderBy('department', 'asc')
+            ->orderBy(DB::raw("
+            IF(asset.name REGEXP '[0-9]+$',
+                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+                asset.id
+            )
+        "), 'asc')// Order by name or another column if needed
             ->paginate($perPage);
 
         // Return the view with the filtered assets
@@ -171,7 +219,7 @@ class AsstController extends Controller
 
 
         if ($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()) {
-            return redirect()->back()->with('toast', 'Your setting is null. Please set up your settings.');
+            return redirect()->back()->with('noSettings', 'Your setting is null. Please set up your settings.');
         }
 
         return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
@@ -284,8 +332,18 @@ class AsstController extends Controller
 {
     // Dashboard
     $userDept = Auth::user()->dept_id;
+    $usertype = Auth::user()->usertype;
 
-    $asset['active'] = DB::table('asset')
+    // Initialize the months array for the last 4 months (including the current month)
+    $months = [];
+    for ($i = 3; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i); // Get the date for each month
+        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
+        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
+    }
+
+    if($usertype !== 'admin'){
+        $asset['active'] = DB::table('asset')
         ->where('status', '=', 'active')
         ->where('dept_ID', '=', $userDept)
         ->count();
@@ -305,20 +363,59 @@ class AsstController extends Controller
         ->where('dept_ID', '=', $userDept)
         ->count();
 
+     // Query to fetch and group active assets by month
+     $dataActive = assetModel::where('status', 'active')
+     ->where('dept_ID', Auth::user()->dept_id)
+     ->select(
+         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+         DB::raw('COUNT(*) as count')
+     )
+     ->groupBy('monthYear')
+     ->get();
 
-    $newAssetCreated = assetModel::where('dept_ID', $userDept)
-        ->whereMonth('created_at', Carbon::now()->month)
+ // Query to fetch and group under maintenance assets by month
+ $dataUnderMaintenance = assetModel::where('status', 'under_maintenance')
+ ->where('dept_ID', Auth::user()->dept_id)
+ ->select(
+         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+         DB::raw('COUNT(*) as count')
+     )
+     ->groupBy('monthYear')
+     ->get();
+     $newAssetCreated = assetModel::where('dept_ID', $userDept)
+         ->whereMonth('created_at', Carbon::now()->month)
+         ->orderBy('created_at', 'desc')
+         ->take(5)
+         ->get();
+
+    }
+    else{
+
+        //admin Dashboard
+        $asset['active'] = DB::table('asset')
+        ->where('status', '=', 'active')
+        ->count();
+
+    $asset['deploy'] = DB::table('asset')
+        ->where('status', '=', 'deployed')
+        ->count();
+
+    $asset['under_maintenance'] = DB::table('asset')
+        ->where('status', '=', 'under_maintenance')
+        ->count();
+
+    $asset['dispose'] = DB::table('asset')
+        ->where('status', '=', 'dispose')
+        ->count();
+
+        $newAssetCreated = assetModel::whereMonth('created_at', Carbon::now()->month)
         ->orderBy('created_at', 'desc')
         ->take(5)
         ->get();
-
-    // Initialize the months array for the last 4 months (including the current month)
-    $months = [];
-    for ($i = 3; $i >= 0; $i--) {
-        $date = Carbon::now()->subMonths($i); // Get the date for each month
-        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
-        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
     }
+
+
+
 
     // Query to fetch and group active assets by month
     $dataActive = assetModel::where('status', 'active')
@@ -359,14 +456,24 @@ class AsstController extends Controller
     $maintenanceCounts = array_column($months, 'under_maintenance'); // Under maintenance counts
 
     // Return the view with the data
+   if($usertype === 'admin'){
+    return view('admin.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'labels' => $labels,
+        'activeCounts' => $activeCounts,
+        'maintenanceCounts' => $maintenanceCounts,
+    ]);
+   }else{
     return view('dept_head.home', [
         'asset' => $asset,
         'newAssetCreated' => $newAssetCreated,
         'labels' => $labels,
         'activeCounts' => $activeCounts,
-        // 'UMmonths' => array_keys($monthsUnderMaintenance),
         'maintenanceCounts' => $maintenanceCounts,
     ]);
+
+   }
 }
 
 
