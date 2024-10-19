@@ -23,11 +23,13 @@
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            <!-- Image Section -->
-            <div class="flex justify-center items-center">
-                <img id="assetImage" src="https://via.placeholder.com/150x150" alt="Asset Image"
-                    class="rounded-md shadow-md object-cover" style="width: 150px; height: 150px;">
+                <!-- Legit nga Image -->
+            <div class="col-span-1 grid grid-cols-1 gap-4">
+                <div class="col-span-1 flex items-center justify-center">
+                    <img id="assetImage"src="{{ asset('/images/no-image.png') }}"alt="Asset Image"class="rounded-md shadow-md"style="width: 200px; height: 200px; object-fit: cover;">
+                </div>
             </div>
+
 
             <!-- Asset Details -->
             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -78,7 +80,7 @@
             </div>
 
             <!-- Image -->
-            <div class="col-span-1 grid grid-cols-1 gap-4">
+            {{-- <div class="col-span-1 grid grid-cols-1 gap-4">
                 <div class="col-span-1 flex items-center justify-center">
                     <img
                         id="assetImage"
@@ -87,15 +89,26 @@
                         class="rounded-md shadow-md"
                         style="width: 200px; height: 200px; object-fit: cover;">
                 </div>
-            </div>
+            </div> --}}
+
         </div>
+
+        {{-- <div class="grid grid-cols-3 gap-6 mt-6">
+            <!-- Cost -->
+            <div class="col-span-2 grid grid-cols-1 gap-4">
+                <div>
+                    <label for="cost" class="block text-sm font-medium text-gray-700">Cost</label>
+                    <input type="number" step=".01" id="cost" name="cost" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" value="1">
+                </div>
+            </div>
+        </div> --}}
 
         <!-- Additional Details Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             <div>
                 <label for="cost" class="block text-sm font-medium text-gray-700">Cost</label>
                 <input type="number" step=".01" name="cost" id="cost"
-                    class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
             </div>
 
             <div>
@@ -234,23 +247,30 @@
                         $('#asset_code').append(assetCodeOption).trigger('change.select2'); // Add and trigger Select2 change
                     }
 
+                    //     $('#asset_name').val(response.name).trigger('change.select2');
+                    // $('#asset_code').val(response.code).trigger('change.select2');
+                    $('#model').val(response.model ? response.model.name : '').trigger('input');
+                    $('#category').val(response.category ? response.category.name : '').trigger('input');
+                    $('#location').val(response.location ? response.location.name : '').trigger('input');
+                    $('#manufacturer').val(response.manufacturer ? response.manufacturer.name : '').trigger('input');
+
                     // Populate the other related fields
-                    if (response.model) {
-                        console.log('Setting Model to: ' + response.model.name);
-                        $('#model').val(response.model.id).trigger('change.select2'); // Populate model dropdown
-                    }
-                    if (response.category) {
-                        console.log('Setting Category to: ' + response.category.name);
-                        $('#category').val(response.category.id).trigger('change.select2'); // Populate category dropdown
-                    }
-                    if (response.location) {
-                        console.log('Setting Location to: ' + response.location.name);
-                        $('#location').val(response.location.id).trigger('change.select2'); // Populate location dropdown
-                    }
-                    if (response.manufacturer) {
-                        console.log('Setting Manufacturer to: ' + response.manufacturer.name);
-                        $('#manufacturer').val(response.manufacturer.id).trigger('change.select2'); // Populate manufacturer dropdown
-                    }
+                    // if (response.model) {
+                    //     console.log('Setting Model to: ' + response.model.name);
+                    //     $('#model').val(response.model.id).trigger('change.select2'); // Populate model dropdown
+                    // }
+                    // if (response.category) {
+                    //     console.log('Setting Category to: ' + response.category.name);
+                    //     $('#category').val(response.category.id).trigger('change.select2'); // Populate category dropdown
+                    // }
+                    // if (response.location) {
+                    //     console.log('Setting Location to: ' + response.location.name);
+                    //     $('#location').val(response.location.id).trigger('change.select2'); // Populate location dropdown
+                    // }
+                    // if (response.manufacturer) {
+                    //     console.log('Setting Manufacturer to: ' + response.manufacturer.name);
+                    //     $('#manufacturer').val(response.manufacturer.id).trigger('change.select2'); // Populate manufacturer dropdown
+                    // }
 
                     // Update the asset image
                     var assetImage = response.image_url ? response.image_url : '/images/no-image.png';
