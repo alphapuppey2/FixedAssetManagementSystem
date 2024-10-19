@@ -33,8 +33,22 @@ class AsstController extends Controller
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderBy('asset.code', 'asc')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ")
+            ->orderBy(DB::raw("
+            IF(asset.name REGEXP '[0-9]+$',
+                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+                asset.id
+            )
+        "), 'asc')
             ->paginate(10);
 
         return view("admin.assetList", compact('assets'));
@@ -45,13 +59,32 @@ class AsstController extends Controller
         $query = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
+            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
             ->orderBy('asset.code', 'asc');
 
         // If department is selected, filter by department ID
         if ($dept) {
             $query->where('asset.dept_ID', $dept);
         }
+
+        $query
+        ->orderBy('asset.name', 'asc')
+        ->orderByRaw("
+            CASE
+                WHEN asset.status = 'active' THEN 0
+                WHEN asset.status = 'under_maintenance' THEN 1
+                WHEN asset.status = 'deployed' THEN 2
+                WHEN asset.status = 'disposed' THEN 3
+                ELSE 4
+            END
+        ")->orderBy(DB::raw("
+        IF(asset.name REGEXP '[0-9]+$',
+            CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+            asset.id
+        )
+    "), 'asc')
+            ;
+
 
         $assets = $query->paginate(10);
 
@@ -80,7 +113,22 @@ class AsstController extends Controller
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->orderBy('asset.name', 'asc') // Order by name or another column if needed
+            ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ")
+            ->orderBy('department', 'asc')
+            ->orderBy(DB::raw("
+            IF(asset.name REGEXP '[0-9]+$',
+                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+                asset.id
+            )
+        "), 'asc')// Order by name or another column if needed
             ->paginate($perPage);
 
         // Return the view with the filtered assets
@@ -91,7 +139,7 @@ class AsstController extends Controller
     {
         $userDept = Auth::user()->dept_id;
 
-        $asset = DB::table('asset')
+        $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('asset.dept_ID', $userDept)
@@ -102,7 +150,7 @@ class AsstController extends Controller
                 'asset.name',
                 'asset.asst_img',
                 'asset.status',
-                'category.name as category',
+                'category.name as category_name',
                 'department.name as department'
             )
             ->orderByRaw("
@@ -118,7 +166,7 @@ class AsstController extends Controller
             ->orderBy('asset.created_at', 'desc') // Then sort by created_at
             ->paginate(10);
 
-        return view("dept_head.asset", compact('asset'));
+        return view("dept_head.asset", compact('assets'));
     }
 
     //Maintenance History of the
@@ -163,7 +211,6 @@ class AsstController extends Controller
         $usrDPT = Auth::user()->dept_id;
         $department = department::find($usrDPT);
 
-
         $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
         $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
         $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
@@ -172,7 +219,7 @@ class AsstController extends Controller
 
 
         if ($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()) {
-            return redirect()->back()->with('toast', 'Your setting is null. Please set up your settings.');
+            return redirect()->back()->with('noSettings', 'Your setting is null. Please set up your settings.');
         }
 
         return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
@@ -285,8 +332,18 @@ class AsstController extends Controller
 {
     // Dashboard
     $userDept = Auth::user()->dept_id;
+    $usertype = Auth::user()->usertype;
 
-    $asset['active'] = DB::table('asset')
+    // Initialize the months array for the last 4 months (including the current month)
+    $months = [];
+    for ($i = 3; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i); // Get the date for each month
+        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
+        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
+    }
+
+    if($usertype !== 'admin'){
+        $asset['active'] = DB::table('asset')
         ->where('status', '=', 'active')
         ->where('dept_ID', '=', $userDept)
         ->count();
@@ -306,20 +363,59 @@ class AsstController extends Controller
         ->where('dept_ID', '=', $userDept)
         ->count();
 
+     // Query to fetch and group active assets by month
+     $dataActive = assetModel::where('status', 'active')
+     ->where('dept_ID', Auth::user()->dept_id)
+     ->select(
+         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+         DB::raw('COUNT(*) as count')
+     )
+     ->groupBy('monthYear')
+     ->get();
 
-    $newAssetCreated = assetModel::where('dept_ID', $userDept)
-        ->whereMonth('created_at', Carbon::now()->month)
+ // Query to fetch and group under maintenance assets by month
+ $dataUnderMaintenance = assetModel::where('status', 'under_maintenance')
+ ->where('dept_ID', Auth::user()->dept_id)
+ ->select(
+         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
+         DB::raw('COUNT(*) as count')
+     )
+     ->groupBy('monthYear')
+     ->get();
+     $newAssetCreated = assetModel::where('dept_ID', $userDept)
+         ->whereMonth('created_at', Carbon::now()->month)
+         ->orderBy('created_at', 'desc')
+         ->take(5)
+         ->get();
+
+    }
+    else{
+
+        //admin Dashboard
+        $asset['active'] = DB::table('asset')
+        ->where('status', '=', 'active')
+        ->count();
+
+    $asset['deploy'] = DB::table('asset')
+        ->where('status', '=', 'deployed')
+        ->count();
+
+    $asset['under_maintenance'] = DB::table('asset')
+        ->where('status', '=', 'under_maintenance')
+        ->count();
+
+    $asset['dispose'] = DB::table('asset')
+        ->where('status', '=', 'dispose')
+        ->count();
+
+        $newAssetCreated = assetModel::whereMonth('created_at', Carbon::now()->month)
         ->orderBy('created_at', 'desc')
         ->take(5)
         ->get();
-
-    // Initialize the months array for the last 4 months (including the current month)
-    $months = [];
-    for ($i = 3; $i >= 0; $i--) {
-        $date = Carbon::now()->subMonths($i); // Get the date for each month
-        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
-        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
     }
+
+
+
 
     // Query to fetch and group active assets by month
     $dataActive = assetModel::where('status', 'active')
@@ -360,20 +456,32 @@ class AsstController extends Controller
     $maintenanceCounts = array_column($months, 'under_maintenance'); // Under maintenance counts
 
     // Return the view with the data
+   if($usertype === 'admin'){
+    return view('admin.home', [
+        'asset' => $asset,
+        'newAssetCreated' => $newAssetCreated,
+        'labels' => $labels,
+        'activeCounts' => $activeCounts,
+        'maintenanceCounts' => $maintenanceCounts,
+    ]);
+   }else{
     return view('dept_head.home', [
         'asset' => $asset,
         'newAssetCreated' => $newAssetCreated,
         'labels' => $labels,
         'activeCounts' => $activeCounts,
-        // 'UMmonths' => array_keys($monthsUnderMaintenance),
         'maintenanceCounts' => $maintenanceCounts,
     ]);
+
+   }
 }
 
 
     public function update(Request $request, $id)
     {
-        $userDept = Auth::user()->dept_id;
+        $user = Auth::user(); // Get the authenticated user
+        $userType = $user->usertype; // Check user type (admin or dept_head)
+        $userDept = $user->dept_id; // Get the user's department ID
 
         $validatedData = $request->validate([
             'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -386,28 +494,32 @@ class AsstController extends Controller
             'status' => 'nullable|string|max:511',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
-            'current_image' => 'nullable|string', // For retaining current image
+            'current_image' => 'nullable|string', // Retain current image if not updated
         ]);
         // dd($request);
 
 
-        // Retrieve department information for generating the asset code
+        // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
         $departmentCode = $department->name;
         $lastID = department::where('name', $departmentCode)->max('assetSequence');
         $seq = $lastID ? $lastID + 1 : 1;
         $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        $fieldUpdate = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+        // Convert custom fields into JSON
+        $fieldUpdate = $this->convertJSON(
+            $request->input('field.key'),
+            $request->input('field.value')
+        );
 
         // Handle image upload or retain the current image
-        $pathFile = $request->input('current_image'); // Use current image path by default
+        $pathFile = $request->input('current_image'); // Default to current image path
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('asset_images', $filename, 'public');
-            $pathFile = $path; // Update with the new image path
+            $pathFile = $path; // Use new image path
         }
 
         // Update asset data in the database
@@ -438,56 +550,74 @@ class AsstController extends Controller
         }
 
 
-        // Retrieve the asset code from the updated asset
+        // Retrieve the updated asset to get the code
         $asset = DB::table('asset')->where('id', $id)->first();
 
         if ($updatedRow) {
-            return redirect()->route('assetDetails', ['id' => $asset->code])
+            // Redirect based on user type
+            $route = $userType === 'admin'
+                ? 'adminAssetDetails'
+                : 'assetDetails';
+
+            return redirect()->route($route, ['id' => $asset->code])
                 ->with('success', 'Asset updated successfully!');
         } else {
-            return redirect()->route('assetDetails', ['id' => $asset->code])
+            $route = $userType === 'admin'
+                ? 'adminAssetDetails'
+                : 'assetDetails';
+
+            return redirect()->route($route, ['id' => $asset->code])
                 ->with('failed', 'Asset update failed!');
         }
     }
 
 
+    // app/Http/Controllers/AssetController.php
+
     public function searchFiltering(Request $request)
 {
-    // Validate the search input (optional search parameter)
-    $validatedData = $request->validate([
-        'search' => 'nullable|string',
-    ]);
+    // Get search input (default to empty string if not provided)
+    $search = $request->input('search', '');
 
-    $search = $validatedData['search'] ?? null;
+    // Allowed statuses in predefined order
+    $allowedStatuses = ['active', 'under_maintenance', 'deployed', 'disposed'];
 
-    try {
-        // Query to fetch assets and apply search filtering if provided
-        $assetsQuery = assetModel::leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('asset.dept_ID', Auth::user()->dept_id)
-            ->select('asset.*', 'category.name as category_name');
+    // Initialize query with necessary joins and filters
+    $assetsQuery = assetModel::leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', Auth::user()->dept_id)
+        ->whereIn('asset.status', $allowedStatuses)
+        ->select('asset.*', 'category.name as category_name');
 
-        // Apply search filter only if the search term is provided
-        if ($search) {
-            $assetsQuery->where(function ($query) use ($search) {
-                $query->where('asset.name', 'LIKE', "%{$search}%")
-                      ->orWhere('asset.code', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Paginate the results with 10 assets per page
-        $assets = $assetsQuery->paginate(10);
-
-        // Return the view with the paginated assets
-        return view('dept_head.asset', ['asset' => $assets]);
-
-    } catch (\Exception $e) {
-        // Log the error for debugging purposes
-        Log::error('Search Filtering Error: ' . $e->getMessage());
-
-        // Handle errors gracefully by returning a JSON response with status 500
-        return response()->json(['error' => 'Internal Server Error'], 500);
+    // Apply search filter if input is provided
+    if (!empty($search)) {
+        $assetsQuery->where(function ($query) use ($search) {
+            $query->where('asset.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.code', 'LIKE', "%{$search}%")
+                  ->orWhere('category.name', 'LIKE', "%{$search}%")
+                  ->orWhere('asset.status', 'LIKE', "%{$search}%");
+        });
     }
+
+    // Sort by category name (alphabetically) and then by status in custom order
+    $assetsQuery->orderByRaw("
+                                CASE
+                                    WHEN asset.status = 'active' THEN 0
+                                    WHEN asset.status = 'under_maintenance' THEN 1
+                                    WHEN asset.status = 'deployed' THEN 2
+                                    WHEN asset.status = 'disposed' THEN 3
+                                    ELSE 4
+                                END
+                            ")
+        ->orderBy('code', 'asc')
+        ->orderBy('asset.created_at', 'desc');
+
+    // Paginate results
+    $assets = $assetsQuery->paginate(10)->appends($request->all());
+
+    // Return the view with filtered and sorted results
+    return view('dept_head.asset', compact('assets'));
 }
+
 
 
 

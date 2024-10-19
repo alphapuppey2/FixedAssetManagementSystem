@@ -8,7 +8,7 @@
     <x-nav-link :href="route('profile')" class="mt-3 items-center justify-center">
         <div class="profileAccount flex items-center p-2 rounded-lg transition-all">
             <div class="imagepart overflow-hidden rounded-full w-[30px] h-[30px] md:w-[60px] md:h-[60px] border-2 border-slate-500">
-                <img src="{{ Auth::user()->userPicture ? asset('uploads/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" 
+                <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                     class="w-full h-full object-cover rounded-full" alt="User Profile Photo">
             </div>
             <div class="profileUser flex-col ml-2 text-[12px] hidden lg:flex">
@@ -29,7 +29,7 @@
     <nav class="w-full">
         <ul class="flex flex-col w-full space-y-1">
             <li>
-                <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')" 
+                <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')"
                     class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
                     <x-dashIcon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Dashboard</span>
@@ -37,7 +37,7 @@
             </li>
 
             <li>
-                <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')" 
+                <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')"
                     class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
                     <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Asset</span>
@@ -45,24 +45,24 @@
             </li>
 
             <li class="relative">
-                <button id="maintenanceDropdown" 
+                <button id="maintenanceDropdown"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all">
                     <x-wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
                     <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown arrow -->
                 </button>
                 <ul id="maintenanceDropdownMenu" class="hidden flex-col mt-1 space-y-1">
-                    <x-nav-link :href="route('maintenance', ['dropdown' => 'open'])" 
+                    <x-nav-link :href="route('maintenance', ['dropdown' => 'open'])"
                         class="flex items-center p-2 space-x-2 transition-all">
                         <x-envelopeIcon class="w-6 h-6" />
                         <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
-                    <x-nav-link :href="route('maintenance_sched', ['dropdown' => 'open'])" 
+                    <x-nav-link :href="route('maintenance_sched', ['dropdown' => 'open'])"
                         class="flex items-center p-2 space-x-2 transition-all">
                         <x-calendarIcon class="w-6 h-6" />
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
-                    <x-nav-link :href="route('maintenance.records', ['status' => 'completed', 'dropdown' => 'open'])" 
+                    <x-nav-link :href="route('maintenance.records', ['status' => 'completed', 'dropdown' => 'open'])"
                         class="flex items-center p-2 space-x-2 transition-all">
                         <x-icons.records-icon  class="w-6 h-6" />
                         <span class="hidden sm:inline">Records</span>
@@ -71,7 +71,7 @@
             </li>
 
             <li>
-                <x-nav-link :href="route('report')" :active="request()->routeIs('report')" 
+                <x-nav-link :href="route('report')" :active="request()->routeIs('report')"
                     class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
                     <x-chartIcon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Report</span>
@@ -79,7 +79,7 @@
             </li>
 
             <li>
-                <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')" 
+                <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')"
                     class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
                     <x-gearIcon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Settings</span>
@@ -87,7 +87,7 @@
             </li>
 
             <li>
-                <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')" 
+                <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
                     class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
                     <x-bellIcon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Notifications</span>

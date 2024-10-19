@@ -149,7 +149,7 @@ class MaintenanceController extends Controller
     }
 
     // Show the list of approved maintenance requests
-    public function approved(Request $request)
+    public function approvedList(Request $request)
     {
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
@@ -205,7 +205,7 @@ class MaintenanceController extends Controller
     }
 
     // Show the list of denied maintenance requests
-    public function denied(Request $request)
+    public function deniedList(Request $request)
     {
         $user = Auth::user();
         $searchQuery = ''; // Initialize to empty string
@@ -283,6 +283,14 @@ class MaintenanceController extends Controller
 
         $asset->status = 'under_maintenance';
         $asset->save();
+
+        // Set the authorized user details and timestamp
+        $maintenance->authorized_by = $user->id;
+        $maintenance->authorized_at = now(); // Set the authorized timestamp
+        $maintenance->status = 'approved'; // Update request status to 'approved'
+        $maintenance->save();
+
+        Log::info('Maintenance request approved for asset ID: ' . $asset->id);
 
         // Generate the action URL for the request list
         $actionUrl = route('requests.list');
@@ -443,27 +451,12 @@ class MaintenanceController extends Controller
             ->header('Content-Disposition', 'attachment; filename="maintenance_' . $tab . '_' . now()->format('Y-m-d_H:i:s') . '.csv"');
     }
 
-
-    // public function create() {
-    //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
-    //     return view('dept_head.createmaintenance', compact('assets'));
-    // }
-
-    // public function create() {
-    //     $assets = assetModel::all(['id', 'code', 'name']); // Retrieve asset id, code, and name
-    //     $categories = category::all(['id', 'name']);       // Retrieve category id and name
-    //     $locations = locationModel::all(['id', 'name']);        // Retrieve location id and name
-    //     $models = ModelAsset::all(['id', 'name']);              // Retrieve model id and name
-    //     $manufacturers = Manufacturer::all(['id', 'name']); // Retrieve manufacturer id and name
-
-    //     return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
-    // }
-
     public function create()
     {
         // Get the currently authenticated user
         $user = Auth::user();
-
+        $userType = $user->usertype;
+        // dd($userType);
         // Only retrieve assets that belong to the same department as the user
         $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
 
@@ -473,30 +466,26 @@ class MaintenanceController extends Controller
         $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
         $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
 
-        return view('dept_head.createmaintenance', compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
+        $route = $userType === 'admin' ? 'admin.createmaintenance' : 'dept_head.createmaintenance';
+
+        return view($route, compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
     }
 
-    // public function getAssetDetails($id) {
-    //     // Retrieve the asset details based on its id
-    //     $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
-
-    //     // Prepare the image URL or set to "No Image" placeholder
-    //     $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png');
-
-    //     // Return the asset details as JSON
-    //     return response()->json($asset);
-    // }
     public function getAssetDetails($id)
     {
         // Retrieve the asset details based on its id, including relationships
-        $asset = assetModel::where('id', $id)->with(['category', 'manufacturer', 'model', 'location'])->first();
+        $asset = assetModel::where('id', $id)
+            ->with(['category', 'manufacturer', 'model', 'location'])
+            ->first();
 
         if (!$asset) {
             return response()->json(['error' => 'Asset not found'], 404); // Error handling
         }
 
         // Prepare the image URL or set to "No Image" placeholder
-        $asset->image_url = $asset->image ? asset('storage/' . $asset->image) : asset('images/no-image.png');
+        $asset->asst_img = $asset->asst_img
+            ? asset('storage/' . $asset->asst_img)
+            : asset('images/no-image.png');
 
         // Return the asset details as a custom JSON response
         return response()->json([
@@ -507,12 +496,15 @@ class MaintenanceController extends Controller
             'category' => $asset->category ? ['id' => $asset->category->id, 'name' => $asset->category->name] : null,
             'location' => $asset->location ? ['id' => $asset->location->id, 'name' => $asset->location->name] : null,
             'manufacturer' => $asset->manufacturer ? ['id' => $asset->manufacturer->id, 'name' => $asset->manufacturer->name] : null,
-            'image_url' => $asset->image_url // Image URL
+            'image_url' => $asset->asst_img // Image URL
         ]);
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $userType = $user->usertype;
+
         // Validate the form input
         $validatedData = $request->validate([
             'asset_code' => 'required|exists:asset,id',
@@ -598,7 +590,10 @@ class MaintenanceController extends Controller
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
 
-        return redirect()->route('maintenance_sched')->with('success', 'Maintenance schedule created successfully!');
+        $route = $userType === 'admin'
+            ? 'adminMaintenance_sched'
+            : 'maintenance_sched';
+        return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
     }
 
     // MaintenanceController.php
