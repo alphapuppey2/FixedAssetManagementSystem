@@ -59,9 +59,8 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
-    Route::get('/admin/home', function () {
-        return view('admin.home');
-    })->name('admin.home');
+
+    Route::get('/admin/home', [AsstController::class, 'assetCount'])->name('admin.home');
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
