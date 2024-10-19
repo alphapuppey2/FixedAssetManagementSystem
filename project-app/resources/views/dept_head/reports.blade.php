@@ -7,21 +7,10 @@
 @section('content')
 <div class="px-6 py-4">
     <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center w-1/2">
-            <form action="" method="GET" class="w-full flex">
-                <input type="text" name="query" placeholder="Search assets..." value="{{ request('query') }}"
-                    class="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="search-container flex items-center w-full">
+            <form action="{{ route('report') }}" method="GET" class="w-full flex">
+                <x-search-input class="w-72" />
             </form>
-        </div>
-
-        <div class="flex items-center space-x-4">
-            <a href="#" onclick="showAssetFilterModal()"
-               class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                Customs
-            </a>
         </div>
     </div>
 
@@ -64,37 +53,10 @@
                 @endforelse
             </tbody>
         </table>
+
+        <div class="mt-4">
+            {{ $assets->appends(request()->query())->links() }}
+        </div>
     </div>
 </div>
-
-<!-- Include the custom filter modal -->
-@include('dept_head.modal.assetCustomFilter')
-
-@endsection
-
-@section('scripts')
-<script>
-    function showAssetFilterModal() {
-        document.getElementById('assetFilterModal').classList.remove('hidden');
-    }
-
-    function hideAssetFilterModal() {
-        document.getElementById('assetFilterModal').classList.add('hidden');
-    }
-
-    function populateTable(data) {
-        const tableBody = document.querySelector('tbody');
-        tableBody.innerHTML = ''; // Clear existing rows
-
-        data.forEach(asset => {
-            const row = document.createElement('tr');
-            Object.values(asset).forEach(value => {
-                const cell = document.createElement('td');
-                cell.textContent = value || 'N/A'; // Handle null values
-                row.appendChild(cell);
-            });
-            tableBody.appendChild(row);
-        });
-    }
-</script>
 @endsection

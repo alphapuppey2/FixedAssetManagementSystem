@@ -173,16 +173,11 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
-
     //setting page
     Route::get('/setting', [settingController::class, 'showSettings'])->name('setting');
     Route::post('/setting/{tab}', [settingController::class, 'store'])->name('setting.create');
     Route::delete('/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('setting.edit');
-
-    Route::get('/report', function () {
-        return view('dept_head.reports');
-    })->name('report');
 
     Route::get('/profile', function () {
         return view('dept_head.profile');
@@ -198,13 +193,11 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     //Reports
     Route::get('/report', [ReportsController::class, 'AssetReport'])->name('report');
-    Route::post('/generate-custom-report', [ReportsController::class, 'generateCustomReport'])->name('generate.custom.report');
-
+    Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
+    Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
+    Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
 
 });
-
-
-
 
 // User Routes
 Route::middleware(['workerUserType', 'auth', 'verified'])->group(function () {

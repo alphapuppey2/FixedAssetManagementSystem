@@ -15,8 +15,8 @@
                 <span class="font-normal">{{ Auth::user()->lastname }}, {{ Auth::user()->firstname }}</span>
                 <span>
                     @switch(Auth::user()->usertype)
-                        @case('dept_head') Department Head @break
-                        @case(2) Admin @break
+                    @case('dept_head') Department Head @break
+                    @case(2) Admin @break
                     @endswitch
                 </span>
             </div>
@@ -45,38 +45,65 @@
             </li>
 
             <li class="relative">
-                <button id="maintenanceDropdown"
-                    class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all">
+                <button id="maintenanceDropdownToggle"
+                    class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
+                    aria-expanded="false">
                     <x-wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
-                    <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown arrow -->
+                    <i class="fas fa-chevron-down ml-auto"></i>
                 </button>
-                <ul id="maintenanceDropdownMenu" class="hidden flex-col mt-1 space-y-1">
+
+                <ul id="maintenanceDropdownMenu"
+                    class="hidden flex-col mt-1 space-y-1 pl-8"> <!-- Added padding-left -->
                     <x-nav-link :href="route('maintenance', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance')"
                         class="flex items-center p-2 space-x-2 transition-all">
                         <x-envelopeIcon class="w-6 h-6" />
                         <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
+
                     <x-nav-link :href="route('maintenance_sched', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance_sched')"
                         class="flex items-center p-2 space-x-2 transition-all">
                         <x-calendarIcon class="w-6 h-6" />
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
+
                     <x-nav-link :href="route('maintenance.records', ['status' => 'completed', 'dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance.records')"
                         class="flex items-center p-2 space-x-2 transition-all">
-                        <x-icons.records-icon  class="w-6 h-6" />
+                        <x-icons.records-icon class="w-6 h-6" />
                         <span class="hidden sm:inline">Records</span>
                     </x-nav-link>
                 </ul>
             </li>
 
-            <li>
-                <x-nav-link :href="route('report')" :active="request()->routeIs('report')"
-                    class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
+            <li class="relative">
+                <button id="reportsDropdownToggle"
+                    class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
+                    aria-expanded="false">
                     <x-chartIcon class="w-8 h-8 md:w-6 md:h-6" />
-                    <span class="hidden md:inline">Report</span>
-                </x-nav-link>
+                    <span class="hidden md:inline">&nbsp;&nbsp;Reports</span>
+                    <i class="fas fa-chevron-down ml-auto"></i>
+                </button>
+
+                <ul id="reportsDropdownMenu"
+                    class="hidden flex-col mt-1 space-y-1 pl-8"> <!-- Added padding-left -->
+                    <x-nav-link :href="route('custom.report', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('custom.report')"
+                        class="flex items-center p-2 space-x-2 transition-all hover:bg-gray-100">
+                        <x-envelopeIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Assets</span>
+                    </x-nav-link>
+
+                    <a href="#"
+                        class="flex items-center p-2 space-x-2 transition-all hover:bg-gray-100">
+                        <x-calendarIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Maintenance</span>
+                    </a>
+                </ul>
             </li>
+
 
             <li>
                 <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')"
@@ -107,29 +134,47 @@
     </nav>
 </aside>
 
+
 <!-- JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const hamburgerToggle = document.getElementById('hamburgerToggle');
-        const sidebar = document.getElementById('sidebar');
-        const maintenanceDropdownButton = document.getElementById('maintenanceDropdown');
-        const maintenanceDropdownMenu = document.getElementById('maintenanceDropdownMenu');
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleDropdown = (toggleButton, dropdownMenu, storageKey) => {
+            const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+            toggleButton.setAttribute('aria-expanded', !isExpanded);
+            dropdownMenu.classList.toggle('hidden', isExpanded);
 
-        // Toggle sidebar collapse/expand
-        hamburgerToggle.addEventListener('click', function () {
-            sidebar.classList.toggle('w-[50px]');
-            sidebar.classList.toggle('md:w-[205px]');
+            // Save the state in localStorage
+            localStorage.setItem(storageKey, !isExpanded);
+        };
+
+        const restoreDropdownState = (toggleButton, dropdownMenu, storageKey) => {
+            const savedState = localStorage.getItem(storageKey) === 'true';
+            toggleButton.setAttribute('aria-expanded', savedState);
+            dropdownMenu.classList.toggle('hidden', !savedState);
+        };
+
+        // Sidebar toggle logic
+        document.getElementById('hamburgerToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('w-[50px]');
+            document.getElementById('sidebar').classList.toggle('md:w-[205px]');
         });
 
-        // Toggle maintenance dropdown visibility
-        maintenanceDropdownButton.addEventListener('click', function () {
-            maintenanceDropdownMenu.classList.toggle('hidden');
+        // Maintenance dropdown logic
+        const maintenanceToggle = document.getElementById('maintenanceDropdownToggle');
+        const maintenanceMenu = document.getElementById('maintenanceDropdownMenu');
+        maintenanceToggle.addEventListener('click', () => {
+            toggleDropdown(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
         });
 
-        // Keep dropdown open based on URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('dropdown') === 'open') {
-            maintenanceDropdownMenu.classList.remove('hidden');
-        }
+        // Reports dropdown logic
+        const reportsToggle = document.getElementById('reportsDropdownToggle');
+        const reportsMenu = document.getElementById('reportsDropdownMenu');
+        reportsToggle.addEventListener('click', () => {
+            toggleDropdown(reportsToggle, reportsMenu, 'reportsDropdownOpen');
+        });
+
+        // Restore the state on page load
+        restoreDropdownState(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
+        restoreDropdownState(reportsToggle, reportsMenu, 'reportsDropdownOpen');
     });
 </script>
