@@ -20,9 +20,6 @@ class ReportsController extends Controller
 
             // Fetch assets using raw SQL with relationships
             $assets = assetModel::with(['category','manufacturer','location'])
-            // ->leftJoin('category', 'category.id', '=','asset.ctg_ID')
-            // ->leftJoin('manufacturer','manufacturer.id',  '=', 'asset.manufacturer_key')
-            // ->leftJoin('location', 'location.id', '=','asset.loc_key')
             ->where('dept_ID',Auth::user()->dept_id)
             ->select(
                 'asset.id',
@@ -54,6 +51,35 @@ class ReportsController extends Controller
 
 
     }
+
+    public function generateCustomReport(Request $request)
+{
+    // Get selected fields and date range from the request
+    $fields = $request->input('fields', []);
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+
+    // Validate that at least one field is selected
+    if (empty($fields)) {
+        return response()->json(['status' => 'error', 'message' => 'Please select at least one field.'], 400);
+    }
+
+    // Build the query based on selected fields and date range
+    $query = DB::table('assets')->select($fields);
+
+    if ($startDate && $endDate) {
+        $query->whereBetween('purchase_date', [$startDate, $endDate]);
+    }
+
+    $data = $query->get();
+
+    // Return the data as a JSON response
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Report generated successfully.',
+        'data' => $data
+    ]);
+}
 
 
 }

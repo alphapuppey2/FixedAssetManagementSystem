@@ -184,6 +184,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     //Reports
     Route::get('/report', [ReportsController::class, 'AssetReport'])->name('report');
+    Route::post('/generate-custom-report', [ReportsController::class, 'generateCustomReport'])->name('generate.custom.report');
+
 
 });
 

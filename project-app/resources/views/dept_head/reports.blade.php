@@ -81,5 +81,22 @@
     function hideAssetFilterModal() {
         document.getElementById('assetFilterModal').classList.add('hidden');
     }
+
+    function populateTable(data) {
+    const tableBody = document.querySelector('tbody');
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    data.forEach(asset => {
+        const row = document.createElement('tr');
+        Object.values(asset).forEach(value => {
+            const cell = document.createElement('td');
+            cell.textContent = value || 'N/A'; // Handle null values
+            row.appendChild(cell);
+        });
+        tableBody.appendChild(row);
+    });
+}
+
 </script>
+
 @endsection

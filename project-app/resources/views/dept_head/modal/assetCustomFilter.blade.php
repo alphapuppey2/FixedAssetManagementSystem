@@ -104,16 +104,41 @@
     }
 
     function applyFilters() {
-        const dateRange = document.getElementById('dateRange').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+    const selectedFields = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
-        console.log(`Applying filters with:
-            Date Range: ${dateRange},
-            Start Date: ${startDate},
-            End Date: ${endDate}`);
-
-        // Add logic to apply the selected filters (e.g., AJAX call to refresh asset table)
-        hideAssetFilterModal();
+    if (selectedFields.length === 0) {
+        alert('Please select at least one field.');
+        return;
     }
+
+    fetch('{{ route('generate.custom.report') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            fields: selectedFields,
+            startDate: startDate,
+            endDate: endDate
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+    if (data.status === 'success') {
+        populateTable(data.data);
+        alert(data.message);
+    } else {
+        alert(data.message);
+    }
+    hideAssetFilterModal();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to generate report.');
+    });
+}
+
 </script>
