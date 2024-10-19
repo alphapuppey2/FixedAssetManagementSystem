@@ -17,11 +17,15 @@
     </head>
     <body class="font-sans antialiased h-screen w-screen max-md:text-xs">
 
-        <div class="h-full bg-gradient-to-tl from-sky-950 from-40% via-sky-950 via-[41.9%] to-white-100 to-[42%]">
-
+        <div class="min-h-screen w-full" style="background: linear-gradient(135deg, white 50%, #0A2942 50%); background-size: cover; background-position: center; background-repeat: no-repeat;">
             {{ $slot }}
-
         </div>
+   
+        {{-- nice sad na bg --}}
+        {{-- <div class="min-h-screen w-full" style="background: linear-gradient(135deg, white 35%, #0A2942 65%); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            {{ $slot }}
+        </div> --}}
+
         {{-- <script src="js/form.js"></script> --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     </body>
