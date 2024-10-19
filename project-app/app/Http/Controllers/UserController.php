@@ -86,26 +86,25 @@ class UserController extends Controller
             'email' => 'required|email|max:255',
             'contact' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
-            'gender' => 'required|in:male,female,other',
+            'gender' => 'required|in:male,female',
             'dept_id' => 'required|integer|in:1,2,3,4',
-            'status' => 'required|in:active,inactive',
             'birthdate' => 'required|date',
             'usertype' => 'required|in:user,dept_head,admin',
-            'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Find the user and update their information
+        // Find the user by ID
         $user = User::findOrFail($request->id);
 
-        // Handle profile photo upload
+        // Handle profile photo upload if a new one is provided
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = 'profile_' . strtolower($user->lastname) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('profile_photos', $filename, 'public'); // Save to storage/app/public/profile_photos
-            $user->userPicture = $path; // Store the relative path for future use
+            $user->userPicture = $path; // Store the relative path
         }
 
-        // Update other user detalis
+        // Update other user details
         $user->employee_id = $request->employee_id;
         $user->firstname = $request->firstname;
         $user->middlename = $request->middlename;
@@ -115,13 +114,14 @@ class UserController extends Controller
         $user->address = $request->address;
         $user->gender = $request->gender;
         $user->dept_id = $request->dept_id;
-        $user->status = $request->status;
         $user->birthdate = $request->birthdate;
         $user->usertype = $request->usertype;
         $user->updated_at = now(); // Update the timestamp
 
+        // Save the user record
         $user->save();
 
+        // Redirect to the user list with a success message
         return redirect()->route('userList')->with('success', 'User updated successfully.');
     }
 
@@ -141,15 +141,19 @@ class UserController extends Controller
             : back()->withErrors(['email' => __($status)]);
     }
 
-    // HARD DELETE
+    // SOFT DELETE
     public function delete($id)
     {
-        // Find the user and delete
+        // Find the user by ID
         $user = User::findOrFail($id);
-        $user->delete();
 
-        return redirect()->route('userList')->with('success', 'User deleted successfully.');
+        // Set is_deleted to 1 (soft delete)
+        $user->is_deleted = 1;
+        $user->save();
+
+        return redirect()->route('userList')->with('success', 'User deactivated successfully.');
     }
+
 
     public function search(Request $request)
     {
@@ -239,5 +243,14 @@ class UserController extends Controller
 
         // Redirect or return response after creation
         return redirect()->route('userList')->with('success', 'User created successfully!');
+    }
+
+    public function reactivate($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_deleted = 0; // Set is_deleted to 0 to reactivate the user
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'User reactivated successfully']);
     }
 }

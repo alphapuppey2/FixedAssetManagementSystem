@@ -19,7 +19,7 @@
         </ul>
     </div>
 
-    <form action="{{ route('maintenance.store') }}" method="POST" id="maintenanceForm">
+    <form action="{{ route('adminMaintenance.store') }}" method="POST" id="maintenanceForm">
         @csrf
         <div class="grid grid-cols-3 gap-6">
             <!-- Asset Code, Asset Name, Model -->
@@ -78,7 +78,6 @@
                         style="width: 200px; height: 200px; object-fit: cover;">
                 </div>
             </div>
-
         </div>
 
         <div class="grid grid-cols-3 gap-6 mt-6">
@@ -205,7 +204,7 @@
 
             console.log('Fetching asset details for ID: ' + assetId);
             $.ajax({
-                url: '/assets/details/' + assetId,
+                url: '/admin/mntc-asset-details/' + assetId,
                 method: 'GET',
                 success: function(response) {
                     console.log('AJAX Success:', response);

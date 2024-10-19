@@ -55,8 +55,6 @@ Route::middleware('auth')->group(function () {
     // })->name('notification');
 
     Route::get('/send-test-email', [NotificationController::class, 'sendTestEmail']);
-
-
 });
 
 // Admin Routes
@@ -67,9 +65,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
-    Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
     Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+
+    // USER UPDATES
+    Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
+    Route::patch('/admin/user-{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::post('/user/{id}/reactivate', [UserController::class, 'reactivate'])->name('user.reactivate');
 
     // CREATE USER
     Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
@@ -84,11 +85,23 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
+    Route::get('/admin/mntc-asset-details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('adminAssetsDetails.mntc');
 
-    // MAINTENANCE
+    // ASSET UPDATES
+    Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
+
+    // MAINTENANCE REQUEST-APPROVE-DENY
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
-    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approved'])->name('adminMaintenanceAproved');
-    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'denied'])->name('adminMaintenanceDenied');
+    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
+    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+
+    // MAINTENANCE PREVENTIVE-PREDICTIVE
+    Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
+    Route::get('/admin/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('adminMaintenance_sched.predictive');
+
+    // CREATE MAINTENANCE
+    Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
+    Route::post('/admin/create-maintenance', [MaintenanceController::class, 'store'])->name('adminMaintenance.store');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
@@ -124,8 +137,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
-    Route::get('/maintenance/approved', [MaintenanceController::class, 'approved'])->name('maintenance.approved');
-    Route::get('/maintenance/denied', [MaintenanceController::class, 'denied'])->name('maintenance.denied');
+    Route::get('/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('maintenance.approved');
+    Route::get('/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('maintenance.denied');
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
 
@@ -146,8 +159,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
     Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
 
-    Route::get('/createmaintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
-    Route::post('/createmaintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::get('/create-maintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
+    Route::post('/create-maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
     Route::get('/assets/details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
