@@ -90,7 +90,8 @@
                     <div class="imgContainer flex flex-col items-center space-y-4">
                         <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
                         <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
-                            <img src="{{ asset('images/no-image.png') }}" id="imagePreview" alt="Asset Image" class="w-full h-full object-cover">
+                            <img src="{{ asset('images/no-image.png') }}" id="imagePreview" alt="Asset Image"
+                                class="w-full h-full object-cover">
                         </div>
                         <label for="image" class="text-blue-500 cursor-pointer hover:underline">
                             Select New Image
@@ -125,8 +126,9 @@
                 </div>
                 <div class="butn mt-2 w-full flex justify-center">
                     <x-primary-button
-                        class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create
-                        Asset</x-primary-button>
+                        class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">
+                        Create Asset
+                    </x-primary-button>
                 </div>
         </form>
     </div>
@@ -140,18 +142,16 @@
 
 
         document.addEventListener('DOMContentLoaded', function() {
-        imageInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         });
-    });
-
-
     </script>
 @endsection
