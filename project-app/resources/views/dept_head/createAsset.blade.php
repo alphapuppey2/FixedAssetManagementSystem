@@ -1,4 +1,20 @@
 @extends('layouts.app')
+
+<style>
+    /* Hides spinners in Chrome, Edge, and Safari */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Hides spinners in Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+    </style>
+
+
 @section('header')
     <div class="headerTitle">
         <h2 class="font-semibold text-xl uppercase font-bold text-gray-800 leading-tight">
@@ -29,23 +45,38 @@
                             <x-input-label for='assetname'>asset Name</x-input-label>
                             <x-text-input id="assetname" name='assetname' required />
                         </div>
-                        <div class="grpInline">
+                        <div class="grpInline grid grid-cols-2 gap-2">
                             <div class="form-group">
-                                <x-input-label for='purchased'>Purchase Cost</x-input-label>
-                                <x-text-input type="date" id="purchased" name='purchased' required />
+                                <x-input-label for='pCost'>Purchase Cost</x-input-label>
+                                <x-text-input
+                                id="pCost"
+                                name="pCost"
+                                step="0.01"
+                                min="0"
+                                required
+                            />
+                            </div>
+                            <div class="form-group">
+                                <x-input-label for='pDate'>Purchase Date</x-input-label>
+                                <x-text-input type="date" id="pDate" name='purchasedDate' pattern="^\d*\.?\d*$" required />
                             </div>
                         </div>
-                        <div class="grpInline">
+                        <div class="grpInline grid grid-cols-2 gap-2">
                             <div class="form-group">
-                                <x-input-label for='purchased'>Lifespan</x-input-label>
-                                <x-text-input type="date" id="purchased" name='purchased' required />
+                                <x-input-label for='lifespan'>Lifespan</x-input-label>
+                                <x-text-input type="number" id="lifespan" name='lifespan' required />
+                            </div>
+                            <div class="form-group">
+                                <x-input-label for='depreciation'>Depreciation</x-input-label>
+                                <x-text-input type="text" id="depreciation" name='depreciation' pattern="^\d*\.?\d*$" required />
                             </div>
                         </div>
-                        <div class="grpInline">
+                        <div class="grpInline grid">
                             <div class="form-group">
-                                <x-input-label for='purchased'>Depreciation</x-input-label>
-                                <x-text-input type="date" id="purchased" name='purchased' required />
-                            </div>
+                                <x-input-label for='salvageValue'>Salvage value</x-input-label>
+                                <x-text-input id="salvageValue" name="salvageValue" pattern="^\d*\.?\d*$" required />
+                            </div>q
+
                         </div>
                         <div class="grpInline grid grid-cols-2 gap-2">
                             <div class="form-group">
@@ -90,12 +121,11 @@
                     <div class="imgContainer flex flex-col items-center space-y-4">
                         <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
                         <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
-                            <img src="{{ asset('images/no-image.png') }}" id="imagePreview" alt="Asset Image"
-                                class="w-full h-full object-cover">
+                            <img src="{{ asset('images/no-image.png') }}" id="imagePreview" alt="Asset Image" class="w-full h-full object-cover">
                         </div>
                         <label for="image" class="text-blue-500 cursor-pointer hover:underline">
                             Select New Image
-                            <x-text-input type="file" id="image" name="image" class="hidden" />
+                            <x-text-input type="file" id="image" name="asst_img" class="hidden" />
                         </label>
                     </div>
                     <div class="form-group row-start-2 images flex items-center flex-col AdditionalInfo">
@@ -126,9 +156,8 @@
                 </div>
                 <div class="butn mt-2 w-full flex justify-center">
                     <x-primary-button
-                        class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">
-                        Create Asset
-                    </x-primary-button>
+                        class="bg-blue-900 text-slate-100 transition ease-in ease-out hover:text-slate-100  hover:bg-blue-700 ">Create
+                        Asset</x-primary-button>
                 </div>
         </form>
     </div>
@@ -136,22 +165,26 @@
     <script>
         // Get today's date in YYYY-MM-DD format
 
+
         const today = new Date().toISOString().split('T')[0];
         // Set the value of the date input to today's date
-        document.getElementById('purchased').value = today;
+        document.getElementById('pDate').value = today;
 
 
-        document.addEventListener('DOMContentLoaded', function() {
-            imageInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         });
+
+
     </script>
 @endsection
