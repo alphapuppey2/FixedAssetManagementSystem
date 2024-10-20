@@ -92,8 +92,8 @@
             </div>
 
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Assigned to:</label>
-                <div class="field-Info font-semibold view-only text-base">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Assigned to:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
                     {{ isset($data->lastname) ? $data->lastname . ', ' . $data->firstname : 'N/A' }}</div>
                 <select name="usrAct" id="selectUsers" class="edit hidden w-full border-gray-300 text-base">
                     @foreach ($allUserInDept as $itemOption)
