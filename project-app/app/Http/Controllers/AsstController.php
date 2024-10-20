@@ -179,6 +179,15 @@ public function showDeptAsset(Request $request)
             'category.name as category_name',
             'department.name as department'
         )
+        ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ") //hello
         ->orderBy($sortField, $sortDirection)
         ->paginate(10);
 
