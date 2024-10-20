@@ -9,6 +9,11 @@
                 {{ $errors->first('email') }}
             </div>
             @endif
+            @if ($errors->has('InavlidPage'))
+            <div class="mb-4 p-4 text-red-700 bg-red-100 border border-red-700 rounded">
+                {{ $errors->first('InavlidPage') }}
+            </div>
+            @endif
 
             <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate>
                 @csrf

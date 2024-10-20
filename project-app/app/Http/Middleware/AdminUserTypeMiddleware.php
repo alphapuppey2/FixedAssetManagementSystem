@@ -23,6 +23,6 @@ class AdminUserTypeMiddleware
         }
 
 
-        abort(401);
+        return redirect('/login')->with('error', 'Unauthorized access.');
     }
 }
