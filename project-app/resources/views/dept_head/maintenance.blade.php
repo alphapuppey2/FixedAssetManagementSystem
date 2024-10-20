@@ -2,11 +2,13 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Request</h2>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
+        {{ 'Maintenancec Request' }}
+    </h2>
 @endsection
 
 @section('content')
-    <div class="py-4">
+    <div class="">
         <!-- Top Section -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
 
@@ -14,8 +16,8 @@
             <div class="w-full md:w-1/2 flex items-center">
                 <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                    <input type="text" name="query" placeholder="Search..." 
-                        value="{{ $searchQuery }}" 
+                    <input type="text" name="query" placeholder="Search..."
+                        value="{{ $searchQuery }}"
                         class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </form>
             </div>
@@ -28,31 +30,31 @@
                         <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
                         <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
                         <button id="refreshButton" class="p-2 text-black flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" 
+                                <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
                         </button>
                     </form>
 
                     <!-- Download Icon -->
-                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}" 
+                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}"
                     class="p-2 text-black flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="size-7">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
+                            <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                         </svg>
                     </a>
 
                     <!-- Create Maintenance Button -->
-                    <a href="{{ route('formMaintenance') }}" 
-                    class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 
+                    <a href="{{ route('formMaintenance') }}"
+                    class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600
                             focus:outline-none flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
+                            <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                         Create Maintenance
@@ -81,9 +83,10 @@
             </div>
 
             <!-- Pagination (on the right) -->
-            <div class="ml-auto">
-                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }} <!-- Pagination Links -->
+            <div class="ml-auto pagination-container">
+                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }}
             </div>
+
         </div>
 
         <!-- Tabs Section -->
@@ -224,20 +227,18 @@
             @endforelse
         </div>
     </div>
-</div>
-
 
     <!-- Edit Approve Modal -->
-    <div id="editApproveModal" 
+    <div id="editApproveModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
-        <div id="modalContentApprove" 
+        <div id="modalContentApprove"
             class="bg-white rounded-lg w-full max-w-md md:max-w-2xl p-6 shadow-lg">
             <!-- Content will be dynamically injected here via AJAX -->
         </div>
     </div>
 
     <!-- Modal Structure for Approve -->
-    <div id="approveModal" 
+    <div id="approveModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
         <div class="bg-white rounded-lg w-full max-w-sm md:max-w-lg p-6 shadow-lg">
             <!-- Responsive Text Alignment -->
@@ -250,11 +251,11 @@
 
             <!-- Responsive Button Layout -->
             <div class="mt-4 flex flex-col md:flex-row justify-end md:space-x-2 space-y-2 md:space-y-0">
-                <button id="confirmApproveBtn" 
+                <button id="confirmApproveBtn"
                         class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                     Approve
                 </button>
-                <button id="cancelApproveBtn" 
+                <button id="cancelApproveBtn"
                         class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
                     Cancel
                 </button>
@@ -264,16 +265,16 @@
 
 
     <!-- Edit Denied Modal -->
-    <div id="editDeniedModal" 
+    <div id="editDeniedModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
-        <div id="modalContentDenied" 
+        <div id="modalContentDenied"
             class="bg-white rounded-lg w-full max-w-md md:max-w-2xl p-6 shadow-lg">
             <!-- Content will be dynamically injected here via AJAX -->
         </div>
     </div>
 
     <!-- Modal Structure for Deny -->
-    <div id="denyModal" 
+    <div id="denyModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
         <div class="bg-white rounded-lg w-full max-w-sm md:max-w-lg p-6 shadow-lg">
             <!-- Responsive Heading -->
@@ -287,17 +288,17 @@
                 <label for="reason" class="block text-sm font-medium text-gray-700 sm:text-center md:text-left">
                     Reason
                 </label>
-                <input type="text" name="reason" id="reason" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                <input type="text" name="reason" id="reason"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     required>
 
                 <!-- Responsive Button Layout -->
                 <div class="mt-4 flex flex-col md:flex-row justify-end md:space-x-2 space-y-2 md:space-y-0">
-                    <button type="submit" 
+                    <button type="submit"
                             class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                         Save
                     </button>
-                    <button type="button" id="cancelDenyBtn" 
+                    <button type="button" id="cancelDenyBtn"
                         class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
                         Cancel
                     </button>
@@ -306,6 +307,31 @@
         </div>
     </div>
 
+    <style>
+        /* Reduce the size of pagination on smaller screens */
+        @media (max-width: 640px) {
+            .pagination-container nav {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .pagination-container nav .page-item {
+                margin: 0 2px; /* Reduce spacing between items */
+            }
+
+            .pagination-container nav .page-link {
+                font-size: 0.75rem; /* Smaller text */
+                padding: 0.25rem 0.5rem; /* Smaller padding */
+                border-radius: 4px; /* Smaller corners */
+            }
+        }
+
+        /* Optional: Add hover styles */
+        .pagination-container nav .page-link:hover {
+            background-color: #e5e7eb; /* Light gray hover background */
+        }
+    </style>
 
 
     <!-- Toast Notification -->

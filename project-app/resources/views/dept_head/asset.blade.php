@@ -148,6 +148,7 @@
 
 
 <script>
+//Filter Modal Script
     document.getElementById('openFilterModalBtn').addEventListener('click', function () {
         document.getElementById('filterModal').classList.remove('hidden'); // Show the modal
     });
@@ -157,6 +158,7 @@
     });
 
 
+//Delete Modal Script
     function openDeleteModal(assetId) {
         const deleteForm = document.getElementById('deleteForm');
         deleteForm.action = `/asset/delete/${assetId}`; // Set the form action with the asset ID
@@ -173,5 +175,19 @@
         document.getElementById('deleteForm').submit(); // Submit the form
     });
 
+
+//Import Modal Script
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalId = 'importModal';
+        document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+    });
+
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
 </script>
 @endsection

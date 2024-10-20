@@ -71,7 +71,7 @@ class MaintenanceController extends Controller
         }
 
         // Order by latest created_at to show newest first
-        $query->orderBy('maintenance.requested_at', 'desc');
+        $query->orderBy('maintenance.requested_at', 'asc');
 
         // Fetch the filtered and paginated results
         $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
@@ -125,7 +125,7 @@ class MaintenanceController extends Controller
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'request')
             ->select('maintenance.*')
-            ->orderBy('maintenance.requested_at', 'desc');
+            ->orderBy('maintenance.requested_at', 'asc');
 
         if ($user->usertype === 'dept_head') {
             $deptId = $user->dept_id;
@@ -159,7 +159,7 @@ class MaintenanceController extends Controller
             ->where('maintenance.status', 'approved')
             ->where('maintenance.is_completed', 0)
             ->select('maintenance.*')
-            ->orderBy('maintenance.authorized_at', 'desc');
+            ->orderBy('maintenance.authorized_at', 'asc');
 
         // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
@@ -214,7 +214,7 @@ class MaintenanceController extends Controller
         $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->where('maintenance.status', 'denied')
             ->select('maintenance.*')
-            ->orderBy('maintenance.authorized_at', 'desc');
+            ->orderBy('maintenance.authorized_at', 'asc');
 
         // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
@@ -629,6 +629,7 @@ class MaintenanceController extends Controller
             'cost' => $request->cost,
             'is_completed' => $isCompleted, // Boolean handling
             'completion_date' => $isCompleted ? now() : null,
+            'authorized_at' => now(), // Update the authorized_at field
         ]);
 
         //trigger predictive maintenance when an approved request is set as completed (checkbox)
@@ -672,6 +673,7 @@ class MaintenanceController extends Controller
         // Update only the status
         $maintenance->update([
             'status' => $request->status,
+            'authorized_at' => now(), // Set authorized_at to the current date and time
         ]);
 
         $requestor = User::find($maintenance->requestor);
