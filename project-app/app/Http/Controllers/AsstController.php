@@ -137,48 +137,59 @@ class AsstController extends Controller
 
 
     //KANI
-public function showDeptAsset(Request $request)
-{
-    $userDept = Auth::user()->dept_id;
+    public function showDeptAsset(Request $request)
+    {
+        $userDept = Auth::user()->dept_id;
 
-    // Get search query, sort field, and direction
-    $search = $request->input('search');
-    $sortField = $request->input('sort', 'code'); // Default sort field
-    $sortDirection = $request->input('direction', 'asc'); // Default direction
+        // Get query parameters
+        $search = $request->input('search');
+        $sortField = $request->input('sort', 'code');
+        $sortDirection = $request->input('direction', 'asc');
+        $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
-    // Filter parameters
-    $status = $request->input('status');
-    $category = $request->input('category');
+        // Filter parameters
+        $status = $request->input('status');
+        $category = $request->input('category');
 
-    // Allow only these fields to be sorted
-    $validSortFields = ['code', 'name', 'category_name', 'status'];
-    if (!in_array($sortField, $validSortFields)) {
-        $sortField = 'code';
+        // Validate sorting field
+        $validSortFields = ['code', 'name', 'category_name', 'status'];
+        if (!in_array($sortField, $validSortFields)) {
+            $sortField = 'code';
+        }
+
+        // Build the query with filters
+        $assets = DB::table('asset')
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->where('asset.dept_ID', $userDept)
+            ->where('asset.isDeleted', 0)
+            ->when($search, function ($query, $search) {
+                return $query->where('asset.name', 'like', "%{$search}%");
+            })
+            ->when($status, function ($query, $status) {
+                return $query->where('asset.status', $status);
+            })
+            ->when($category, function ($query, $category) {
+                return $query->where('category.name', 'like', "%{$category}%");
+            })
+            ->select(
+                'asset.id',
+                'asset.code',
+                'asset.name',
+                'asset.status',
+                'category.name as category_name',
+                'department.name as department'
+            )
+            ->orderBy($sortField, $sortDirection)
+            ->paginate($rowsPerPage); // Apply rows per page
+
+        // Return view with assets and query parameters
+        return view('dept_head.asset', compact('assets'));
     }
 
-    // Build the query with filters
-    $assets = DB::table('asset')
-        ->join('department', 'asset.dept_ID', '=', 'department.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->where('asset.dept_ID', $userDept)
-        ->where('asset.isDeleted', 0)
-        ->when($search, function ($query, $search) {
-            return $query->where('asset.name', 'like', "%{$search}%");
-        })
-        ->when($status, function ($query, $status) {
-            return $query->where('asset.status', $status);
-        })
-        ->when($category, function ($query, $category) {
-            return $query->where('category.name', 'like', "%{$category}%");
-        })
-        ->select(
-            'asset.id',
-            'asset.code',
-            'asset.name',
-            'asset.status',
-            'category.name as category_name',
-            'department.name as department'
-        )
+
+
+
         // ->orderByRaw("
         //     CASE
         //     WHEN asset.status = 'active' THEN 0
@@ -188,14 +199,6 @@ public function showDeptAsset(Request $request)
         //     ELSE 4
         //     END
         //     ") //hello
-        ->orderBy($sortField, $sortDirection)
-        ->paginate(10);
-
-    // Return the view with assets and query parameters
-    return view('dept_head.asset', compact('assets'));
-}
-
-
 
 
     //Maintenance History of the
