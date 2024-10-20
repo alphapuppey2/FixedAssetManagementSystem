@@ -18,7 +18,18 @@ class ReportsController extends Controller
 {
     public function show()
     {
-        return view('dept_head.customReport');
+        $user = Auth::user();
+        $categoryOptions = Category::where('dept_ID', $user->dept_id)->get();
+        $manufacturerOptions = Manufacturer::where('dept_ID', $user->dept_id)->get();
+        $modelOptions = ModelAsset::where('dept_ID', $user->dept_id)->get();
+        $locationOptions = locationModel::where('dept_ID', $user->dept_id)->get();
+
+        return view('dept_head.customReport', compact(
+            'categoryOptions',
+            'manufacturerOptions',
+            'modelOptions',
+            'locationOptions'
+        ));
     }
 
     // Generate the custom report based on selected fields
@@ -31,6 +42,11 @@ class ReportsController extends Controller
         $fields = $request->input('fields', []);
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $status = $request->input('status', []);
+        $category = $request->input('category', []);
+        $manufacturer = $request->input('manufacturer', []);
+        $model = $request->input('model', []);
+        $location = $request->input('location', []);
 
         // Validate the presence of fields and dates
         if (empty($fields)) {
@@ -41,25 +57,44 @@ class ReportsController extends Controller
             return back()->with('error', 'Start date and end date are required.');
         }
 
-        // Add the necessary joins and select statements for related fields
-        $assets = DB::table('asset')
+        // Build the query
+        $query = DB::table('asset')
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->leftJoin('department', 'asset.dept_ID', '=', 'department.id')
             ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->leftJoin('model', 'asset.model_key', '=', 'model.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
-            ->where('asset.dept_ID', $userDepartmentId) // Filter by user's department
-            ->whereBetween('asset.created_at', [$startDate, $endDate])
-            ->select(
-                'asset.*',
-                'category.name as category_name',
-                'department.name as department_name',
-                'manufacturer.name as manufacturer_name',
-                'model.name as model_name',
-                'location.name as location_name'
-            )
+            ->where('asset.dept_ID', $userDepartmentId)
+            ->whereBetween('asset.created_at', [$startDate, $endDate]);
+
+        // Apply filters if provided
+        if (!empty($status)) {
+            $query->whereIn('asset.status', $status);
+        }
+        if (!empty($category)) {
+            $query->whereIn('asset.ctg_ID', $category);
+        }
+        if (!empty($manufacturer)) {
+            $query->whereIn('asset.manufacturer_key', $manufacturer);
+        }
+        if (!empty($model)) {
+            $query->whereIn('asset.model_key', $model);
+        }
+        if (!empty($location)) {
+            $query->whereIn('asset.loc_key', $location);
+        }
+
+        // Select the fields and paginate results
+        $assets = $query->select(
+            'asset.*',
+            'category.name as category_name',
+            'department.name as department_name',
+            'manufacturer.name as manufacturer_name',
+            'model.name as model_name',
+            'location.name as location_name'
+        )
             ->paginate(10)
-            ->appends($request->query()); // Preserve query parameters
+            ->appends($request->query());
 
         // Pass the data to the view
         return view('dept_head.reports.generatedReport', compact('assets', 'fields'));
@@ -71,18 +106,41 @@ class ReportsController extends Controller
         $fields = $request->query('fields', []);
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+        $status = $request->query('status', []);
+        $category = $request->query('category', []);
+        $manufacturer = $request->query('manufacturer', []);
+        $model = $request->query('model', []);
+        $location = $request->query('location', []);
         $user = Auth::user();
 
-        // Fetch the assets with the required data
-        $assets = assetModel::select($this->buildSelectFields($fields))
+        // Fetch the assets with the required data and apply filters
+        $query = assetModel::select($this->buildSelectFields($fields))
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->leftJoin('department', 'asset.dept_ID', '=', 'department.id')
             ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->leftJoin('model', 'asset.model_key', '=', 'model.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
             ->where('asset.dept_ID', $user->dept_id)
-            ->whereBetween('asset.created_at', [$startDate, $endDate])
-            ->get();
+            ->whereBetween('asset.created_at', [$startDate, $endDate]);
+
+         // Apply filters if provided
+        if (!empty($status)) {
+            $query->whereIn('asset.status', $status);
+        }
+        if (!empty($category)) {
+            $query->whereIn('asset.ctg_ID', $category);
+        }
+        if (!empty($manufacturer)) {
+            $query->whereIn('asset.manufacturer_key', $manufacturer);
+        }
+        if (!empty($model)) {
+            $query->whereIn('asset.model_key', $model);
+        }
+        if (!empty($location)) {
+            $query->whereIn('asset.loc_key', $location);
+        }
+
+        $assets = $query->get();
 
         if ($assets->isEmpty()) {
             return back()->with('error', 'No assets found within the selected date range.');
