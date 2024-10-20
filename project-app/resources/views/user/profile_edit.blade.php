@@ -3,70 +3,88 @@
 @include('components.icons')
 
 @section('content')
-<div class="max-w-xl mx-auto">
+<div class="max-w-xl mx-auto"> <!-- Added padding for small screens -->
 
     <!-- Profile Edit Form -->
-    <div class="bg-white shadow-lg rounded p-6 mb-6">
+    <div class="p-4 sm:p-6 mb-6"> <!-- Adjusted padding -->
         <form method="POST" action="{{ route('user.profile_update') }}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
 
-            <!-- Profile Photo with Camera Icon -->
+            <!-- Profile Photo with Centered Camera Icon -->
             <div class="relative flex justify-center mb-6">
                 <!-- Profile Photo -->
-                <img id="profilePhotoPreview" src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+                <img id="profilePhotoPreview"
+                    src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
+                    alt="Profile Image"
+                    class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-300 transition-all duration-300">
 
-                <!-- Camera Icon -->
-                <label for="profile_photo" class="absolute bottom-3 bg-gray-200 p-2 rounded-full cursor-pointer shadow-md transform translate-x-1/2 translate-y-1/2">
+
+                <!-- Centered Camera Icon -->
+                <label for="profile_photo"
+                       class="absolute inset-0 flex justify-center items-center cursor-pointer">
                     <input type="file" id="profile_photo" name="profile_photo" class="hidden" accept="image/*" onchange="previewImage(event)" />
-                    @yield('cameraIcon')
-                </label>
+                    <div class="bg-gray-200 mt-20 sm:mt-28 p-2 rounded-full shadow-md">
+                        @yield('cameraIcon')
+                    </div>
+
+                </label> <!-- Keeps the camera icon centered -->
             </div>
 
-            <!-- User Name -->
-            <div class="text-center mb-4 flex items-center justify-center">
-                <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }}
+            <!-- Centered User Name and Edit Icon -->
+            <div class="flex items-center justify-center space-x-2 mb-4 sm:mb-6">
+                <h2 class="text-xl sm:text-2xl font-semibold text-center">
+                    {{ auth()->user()->firstname ?? 'Guest' }}
                     {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                     {{ auth()->user()->lastname ?? '' }}
                 </h2>
-                <a href="{{ route('user.profile') }}" class="text-gray-600 hover:text-blue-500">
+                <a href="{{ route('user.profile') }}" class="text-gray-600 hover:text-blue-500 flex items-center">
                     @yield('editIcon')
                 </a>
             </div>
 
-            <!-- Location -->
+            <!-- Location Field -->
             <div class="mb-4">
-                <label for="location" class="block text-gray-700 text-sm font-medium mb-2">Location</label>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Location</label>
                 <div class="flex items-center border border-gray-300 rounded-md">
-                    <div class="bg-gray-200 p-2 rounded-l-md">
+                    <div class="bg-gray-200 p-2 sm:p-3 rounded-l-md">
                         @yield('locationIcon')
                     </div>
-                    <input type="text" id="location" name="location" class="w-full px-3 py-2 border-0 rounded-r-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value="{{ auth()->user()->address ?? '' }}">
+                    <input type="text" id="location" name="location"
+                           class="w-full px-3 py-2 border-0 rounded-r-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           value="{{ auth()->user()->address ?? '' }}">
                 </div>
             </div>
 
-            <!-- Contact -->
+            <!-- Contact Field -->
             <div class="mb-4">
-                <label for="contact" class="block text-gray-700 text-sm font-medium mb-2">Contact</label>
+                <label for="contact" class="block text-sm font-medium text-gray-700 mb-2">Contact</label>
                 <div class="flex items-center border border-gray-300 rounded-md">
-                    <div class="bg-gray-200 p-2 rounded-l-md">
+                    <div class="bg-gray-200 p-2 sm:p-3 rounded-l-md">
                         @yield('contactIcon')
                     </div>
-                    <input type="text" id="contact" name="contact" class="w-full px-3 py-2 border-0 rounded-r-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value="{{ auth()->user()->contact ?? '' }}">
+                    <input type="text" id="contact" name="contact"
+                           class="w-full px-3 py-2 border-0 rounded-r-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           value="{{ auth()->user()->contact ?? '' }}">
                 </div>
             </div>
 
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-4 mt-6">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save</button>
-                <a href="{{ route('user.profile') }}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</a>
+            <!-- Buttons Section -->
+            <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                <button type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto">
+                    Save
+                </button>
+                <a href="{{ route('user.profile') }}"
+                   class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 w-full sm:w-auto text-center">
+                    Cancel
+                </a> <!-- Added 'text-center' class for small screens -->
             </div>
         </form>
     </div>
 </div>
 
 <!-- JavaScript for Image Preview -->
-<!-- Temp -->
 <script>
     function previewImage(event) {
         const input = event.target;
@@ -82,6 +100,7 @@
             reader.readAsDataURL(file);
         }
     }
+
     document.getElementById('profile_photo').addEventListener('change', previewImage);
 </script>
 

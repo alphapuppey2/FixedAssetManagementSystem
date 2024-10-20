@@ -1,129 +1,180 @@
-<aside class="h-screen transition ease-in max-md:w-[50px] md:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
-    <button class="h-[10px] lg:hidden max-md:block">
+<aside id="sidebar" class="h-screen transition-all duration-300 ease-in-out max-md:w-[50px] md:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
+    <!-- Hamburger Button -->
+    <button id="hamburgerToggle" class="h-[30px] mb-4 max-md:block lg:hidden">
         <x-icons.hamburger />
     </button>
-    <x-nav-link :href="route('profile')">
-        <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg transition ease-in">
-            <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
+
+    <!-- Profile Section -->
+    <x-nav-link :href="route('profile')" class="mt-3 items-center justify-center">
+        <div class="profileAccount flex items-center p-2 rounded-lg transition-all">
+            <div class="imagepart overflow-hidden rounded-full w-[30px] h-[30px] md:w-[60px] md:h-[60px] border-2 border-slate-500">
                 <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
-                    class="absolute bg-white top-1/2 left-1/2 lg:w-auto lg:h-auto transform -translate-x-1/2 -translate-y-1/2 object-cover"
-                    alt="User Profile Photo">
+                    class="w-full h-full object-cover rounded-full" alt="User Profile Photo">
             </div>
-            <div class="profileUser flex flex-col ml-2 text-[12px] max-md:hidden lg:block">
-                <span class="font-normal">
-                    {{ Auth::user()->lastname.','.Auth::user()->firstname }}
-                </span>
+            <div class="profileUser flex-col ml-2 text-[12px] hidden lg:flex">
+                <span class="font-normal">{{ Auth::user()->lastname }}, {{ Auth::user()->firstname }}</span>
                 <span>
                     @switch(Auth::user()->usertype)
-                    @case('dept_head')
-                    department Head
-                    @break
-                    @case(2)
-                    admin
-                    @break
-                    @default
+                    @case('dept_head') Department Head @break
+                    @case(2) Admin @break
                     @endswitch
                 </span>
             </div>
         </div>
     </x-nav-link>
-    <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
-    <nav class="flex flex-col w-full font-semibold">
-        <ul class="sb h-[100%]">
+
+    <div class="divider w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
+
+    <!-- Navigation Menu -->
+    <nav class="w-full">
+        <ul class="flex flex-col w-full space-y-1">
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')">
-                    <x-dashIcon />
-                    <span class="ml-2 max-md:hidden lg:block">Dashboard</span>
+                <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')"
+                    class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
+                    <x-dashIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">Dashboard</span>
                 </x-nav-link>
             </li>
+
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('asset')" :active="request()->routeIs('asset') ">
-                    <x-receipticon />
-                    <span class="ml-2 max-md:hidden lg:block">Asset</span>
+                <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')"
+                    class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
+                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">Asset</span>
                 </x-nav-link>
             </li>
+
             <li class="relative">
-                <button id="maintenanceDropdown" class="flex items-center w-full text-left hover:bg-slate-400/15 p-1 rounded-md focus:outline-none">
-                    <x-wrenchicon />
-                    <span class="ml-2">Maintenance</span>
-                    <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown icon -->
+                <button id="maintenanceDropdownToggle"
+                    class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
+                    aria-expanded="false">
+                    <x-wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
+                    <i class="fas fa-chevron-down ml-auto"></i>
                 </button>
-                <!-- Dropdown Menu with left margin for indentation -->
-                <ul id="maintenanceDropdownMenu" class="hidden flex-col rounded-md mt-1 ml-4"> <!-- Added ml-4 for indentation -->
-                    <!-- Maintenance Request -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
-                        :href="route('maintenance', ['dropdown' => 'open'])"
-                        :active="request()->routeIs('maintenance') || request()->routeIs('maintenance.approved') || request()->routeIs('maintenance.denied')">
-                        <x-envelopeIcon />
-                        <span class="ml-2 sm:hidden lg:block">Request</span>
+
+                <ul id="maintenanceDropdownMenu"
+                    class="hidden flex-col mt-1 space-y-1 pl-8"> <!-- Added padding-left -->
+                    <x-nav-link :href="route('maintenance', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance')"
+                        class="flex items-center p-2 space-x-2 transition-all">
+                        <x-envelopeIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
 
-                    <!-- Maintenance Scheduling -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
-                        :href="route('maintenance_sched', ['dropdown' => 'open'])"
-                        :active="request()->routeIs('maintenance_sched') || request()->routeIs('maintenance_sched.predictive')">
-                        <x-calendarIcon />
-                        <span class="ml-2 sm:hidden lg:block">Scheduling</span>
+                    <x-nav-link :href="route('maintenance_sched', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance_sched')"
+                        class="flex items-center p-2 space-x-2 transition-all">
+                        <x-calendarIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
 
-                    <!-- Maintenance Scheduling -->
-                    <x-nav-link
-                        class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
-                        :href="route('maintenance.records', ['status' => 'completed', 'dropdown' => 'open'])"
-                        :active="request()->routeIs('maintenance.records')">
-                        <x-calendarIcon />
-                        <span class="ml-2 sm:hidden lg:block">Records</span>
+                    <x-nav-link :href="route('maintenance.records', ['status' => 'completed', 'dropdown' => 'open'])"
+                        :active="request()->routeIs('maintenance.records')"
+                        class="flex items-center p-2 space-x-2 transition-all">
+                        <x-icons.records-icon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Records</span>
                     </x-nav-link>
-
                 </ul>
             </li>
+
+            <li class="relative">
+                <button id="reportsDropdownToggle"
+                    class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
+                    aria-expanded="false">
+                    <x-chartIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">&nbsp;&nbsp;Reports</span>
+                    <i class="fas fa-chevron-down ml-auto"></i>
+                </button>
+
+                <ul id="reportsDropdownMenu"
+                    class="hidden flex-col mt-1 space-y-1 pl-8"> <!-- Added padding-left -->
+                    <x-nav-link :href="route('custom.report', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('custom.report')"
+                        class="flex items-center p-2 space-x-2 transition-all hover:bg-gray-100">
+                        <x-envelopeIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Assets</span>
+                    </x-nav-link>
+
+                    <a href="#"
+                        class="flex items-center p-2 space-x-2 transition-all hover:bg-gray-100">
+                        <x-calendarIcon class="w-6 h-6" />
+                        <span class="hidden sm:inline">Maintenance</span>
+                    </a>
+                </ul>
+            </li>
+
+
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('report')" :active="request()->routeIs('report')">
-                    <x-chartIcon></x-chartIcon>
-                    <span class="ml-2 max-md:hidden lg:block">Report</span>
+                <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')"
+                    class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
+                    <x-gearIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">Settings</span>
                 </x-nav-link>
             </li>
+
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('setting')" :active="request()->routeIs('setting')">
-                    <x-gearIcon />
-                    <span class="ml-2 max-md:hidden lg:block">Setting</span>
+                <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
+                    class="flex items-center p-2 space-x-2 sidebar-icon transition-all">
+                    <x-bellIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">Notifications</span>
                 </x-nav-link>
             </li>
-            <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('notifications.index')" :active="request()->routeIs('notifications.index')">
-                    <x-bellIcon />
-                    <span class="ml-2 max-md:hidden lg:block">Notification</span>
-                </x-nav-link>
-            </li>
+
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full transition ease-in mb-1 p-1 rounded-md"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                        <x-icons.logout-icon />
-                        <span class="ml-2 max-md:hidden lg:block">Log out</span>
+                    <button type="submit" class="flex items-center w-full p-2 hover:bg-slate-400/15 rounded-md space-x-2 transition-all">
+                        <x-icons.logout-icon class="w-8 h-8 md:w-6 md:h-6" />
+                        <span class="hidden md:inline">Log out</span>
                     </button>
                 </form>
             </li>
         </ul>
     </nav>
 </aside>
+
+
+<!-- JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const maintenanceDropdownButton = document.getElementById('maintenanceDropdown');
-        const maintenanceDropdownMenu = document.getElementById('maintenanceDropdownMenu');
+        const toggleDropdown = (toggleButton, dropdownMenu, storageKey) => {
+            const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+            toggleButton.setAttribute('aria-expanded', !isExpanded);
+            dropdownMenu.classList.toggle('hidden', isExpanded);
 
-        // Toggle dropdown menu on button click
-        maintenanceDropdownButton.addEventListener('click', function() {
-            maintenanceDropdownMenu.classList.toggle('hidden'); // Show or hide the dropdown
+            // Save the state in localStorage
+            localStorage.setItem(storageKey, !isExpanded);
+        };
+
+        const restoreDropdownState = (toggleButton, dropdownMenu, storageKey) => {
+            const savedState = localStorage.getItem(storageKey) === 'true';
+            toggleButton.setAttribute('aria-expanded', savedState);
+            dropdownMenu.classList.toggle('hidden', !savedState);
+        };
+
+        // Sidebar toggle logic
+        document.getElementById('hamburgerToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('w-[50px]');
+            document.getElementById('sidebar').classList.toggle('md:w-[205px]');
         });
 
-        // Keep the dropdown open if the URL contains 'dropdown=open'
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('dropdown') === 'open') {
-                maintenanceDropdownMenu.classList.remove('hidden'); // Keep dropdown open
-            }
-        };
+        // Maintenance dropdown logic
+        const maintenanceToggle = document.getElementById('maintenanceDropdownToggle');
+        const maintenanceMenu = document.getElementById('maintenanceDropdownMenu');
+        maintenanceToggle.addEventListener('click', () => {
+            toggleDropdown(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
+        });
+
+        // Reports dropdown logic
+        const reportsToggle = document.getElementById('reportsDropdownToggle');
+        const reportsMenu = document.getElementById('reportsDropdownMenu');
+        reportsToggle.addEventListener('click', () => {
+            toggleDropdown(reportsToggle, reportsMenu, 'reportsDropdownOpen');
+        });
+
+        // Restore the state on page load
+        restoreDropdownState(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
+        restoreDropdownState(reportsToggle, reportsMenu, 'reportsDropdownOpen');
     });
 </script>

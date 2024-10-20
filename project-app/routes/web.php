@@ -18,7 +18,7 @@ use App\Http\Controllers\PredictiveController;
 use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
-
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/delete', [NotificationController::class, 'delete'])->name('notifications.delete');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     Route::post('/notifications/delete-all', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
+
+    Route::get('/search', [SearchController::class, 'globalSearch'])->name('search.global');
 
     // Route::get('/notification', function () {
     //     return view('layouts.notification');
@@ -171,16 +173,11 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
-
     //setting page
     Route::get('/setting', [settingController::class, 'showSettings'])->name('setting');
     Route::post('/setting/{tab}', [settingController::class, 'store'])->name('setting.create');
     Route::delete('/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('setting.edit');
-
-    Route::get('/report', function () {
-        return view('dept_head.reports');
-    })->name('report');
 
     Route::get('/profile', function () {
         return view('dept_head.profile');
@@ -195,14 +192,11 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
     //Reports
-    Route::get('/report', [ReportsController::class, 'AssetReport'])->name('report');
-    Route::post('/generate-custom-report', [ReportsController::class, 'generateCustomReport'])->name('generate.custom.report');
-
+    Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
+    Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
+    Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
 
 });
-
-
-
 
 // User Routes
 Route::middleware(['workerUserType', 'auth', 'verified'])->group(function () {
