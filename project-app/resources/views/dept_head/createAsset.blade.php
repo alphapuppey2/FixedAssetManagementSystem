@@ -31,7 +31,19 @@
                         </div>
                         <div class="grpInline">
                             <div class="form-group">
-                                <x-input-label for='purchased'>Purchased Date</x-input-label>
+                                <x-input-label for='purchased'>Purchase Cost</x-input-label>
+                                <x-text-input type="date" id="purchased" name='purchased' required />
+                            </div>
+                        </div>
+                        <div class="grpInline">
+                            <div class="form-group">
+                                <x-input-label for='purchased'>Lifespan</x-input-label>
+                                <x-text-input type="date" id="purchased" name='purchased' required />
+                            </div>
+                        </div>
+                        <div class="grpInline">
+                            <div class="form-group">
+                                <x-input-label for='purchased'>Depreciation</x-input-label>
                                 <x-text-input type="date" id="purchased" name='purchased' required />
                             </div>
                         </div>
@@ -75,15 +87,15 @@
                     {{-- divider --}}
                     {{-- <div class="dvdr h-full w-[3px] bg-blue-950/10 hidden md:block"></div> --}}
                     {{-- divider --}}
-                    <div class="imgContainer w-64 h-64 flex justify-center items-center">
-                        <div class="imageField w-32 h-32 relative flex justify-center">
-                            <label class="im" for="image">
-                                <img src="{{ asset('storage/images/defaultICON.png') }}" id="imageDisplay"
-                                    class="absolute border-3 w-32 h-32 border-3 bg-white rounded-md hover:border-blue-300 hover:border-4 hover:border-blue-400S top-1/2 left-1/2 w-auto h-full transform -translate-x-1/2 -translate-y-1/2 object-cover cursor-pointer"
-                                    alt="default">
-                            </label>
-                            <x-text-input type="file" id="image" name='image' class="hidden" />
+                    <div class="imgContainer flex flex-col items-center space-y-4">
+                        <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
+                        <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
+                            <img src="{{ asset('images/no-image.png') }}" id="imagePreview" alt="Asset Image" class="w-full h-full object-cover">
                         </div>
+                        <label for="image" class="text-blue-500 cursor-pointer hover:underline">
+                            Select New Image
+                            <x-text-input type="file" id="image" name="image" class="hidden" />
+                        </label>
                     </div>
                     <div class="form-group row-start-2 images flex items-center flex-col AdditionalInfo">
                         {{-- Addtional Information / custom Fields --}}
@@ -118,11 +130,28 @@
                 </div>
         </form>
     </div>
-    @vite(['resources/js/displayImage.js'])
+    {{-- @vite(['resources/js/displayImage.js']) --}}
     <script>
         // Get today's date in YYYY-MM-DD format
+
         const today = new Date().toISOString().split('T')[0];
         // Set the value of the date input to today's date
         document.getElementById('purchased').value = today;
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+
     </script>
 @endsection
