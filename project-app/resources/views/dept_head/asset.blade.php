@@ -98,20 +98,19 @@
                         <td class="w-40">
                             <div class="grp flex gap-2 justify-center">
                                 <a href="{{ route('assetDetails', $asset->code) }}"
-                                   class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                                   class="inline-flex items-center w-8 h-8">
                                     <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                                 </a>
-                                <form action="{{ route('asset.delete', $asset->code) }}" method="post">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
-                                            onclick="return confirm('Are you sure you want to delete this asset?');">
-                                        <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                    </button>
-                                </form>
+
+                                <!-- Delete Button to Open Modal -->
+                             <button type="button"
+                                class="inline-flex items-center w-8 h-8 focus:outline-none transition-all duration-200"
+                                onclick="openDeleteModal('{{ $asset->id }}')">
+                                <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                            </button>
                             </div>
                         </td>
+
                     </tr>
                 @empty
                     <tr >
@@ -145,14 +144,34 @@
 
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable')
+@include('dept_head.modal.deleteAssetModal')
+
 
 <script>
     document.getElementById('openFilterModalBtn').addEventListener('click', function () {
-        document.getElementById('filterModal').classList.remove('hidden');
+        document.getElementById('filterModal').classList.remove('hidden'); // Show the modal
     });
 
-    document.getElementById('closeModalBtn').addEventListener('click', function () {
-        document.getElementById('filterModal').classList.add('hidden');
+    document.getElementById('closeFilterModalBtn').addEventListener('click', function () {
+        document.getElementById('filterModal').classList.add('hidden'); // Hide the modal
     });
+
+
+    function openDeleteModal(assetId) {
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = `/asset/delete/${assetId}`; // Set the form action with the asset ID
+        console.log(`Delete form action: ${deleteForm.action}`); // For debugging
+        document.getElementById('deleteModal').classList.remove('hidden'); // Show the modal
+    }
+
+
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteModal').classList.add('hidden'); // Hide the modal
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteForm').submit(); // Submit the form
+    });
+
 </script>
 @endsection
