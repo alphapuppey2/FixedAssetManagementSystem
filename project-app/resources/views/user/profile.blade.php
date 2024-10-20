@@ -32,31 +32,31 @@
             </a>
         </div>
 
-<!-- User Details -->
-<div class="p-3 sm:p-4 mb-4">
-    <!-- Adjusted padding for small screens -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6"> <!-- New grid layout -->
-        @foreach([
-            ['Location', auth()->user()->address, 'locationIcon'],
-            ['Email', auth()->user()->email, 'emailIcon'],
-            ['Contact', formatContactNumber(auth()->user()->contact), 'contactIcon'],
-            ['ID Number', auth()->user()->employee_id, 'idNumberIcon']
-        ] as [$label, $value, $icon])
+        <!-- User Details -->
+        <div class="p-3 sm:p-4 mb-4">
+            <!-- Adjusted padding for small screens -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6"> <!-- New grid layout -->
+                @foreach([
+                    ['Location', auth()->user()->address, 'locationIcon'],
+                    ['Email', auth()->user()->email, 'emailIcon'],
+                    ['Contact', formatContactNumber(auth()->user()->contact), 'contactIcon'],
+                    ['ID Number', auth()->user()->employee_id, 'idNumberIcon']
+                ] as [$label, $value, $icon])
 
-        <!-- Card Item -->
-        <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg shadow-sm">
-            <div class="flex-shrink-0"> <!-- Icon container -->
-                @yield($icon)
-            </div>
-            <div>
-                <h3 class="text-base sm:text-lg font-semibold text-gray-700">{{ $label }}</h3>
-                <!-- Adjusted text size for smaller screens -->
-                <p class="text-sm sm:text-base text-gray-600">{{ $value ?? 'N/A' }}</p>
+                <!-- Card Item -->
+                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="flex-shrink-0"> <!-- Icon container -->
+                        @yield($icon)
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-700">{{ $label }}</h3>
+                        <!-- Adjusted text size for smaller screens -->
+                        <p class="text-sm sm:text-base text-gray-600">{{ $value ?? 'N/A' }}</p>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
-        @endforeach
-    </div>
-</div>
 
 
         <!-- Change Password Button -->
