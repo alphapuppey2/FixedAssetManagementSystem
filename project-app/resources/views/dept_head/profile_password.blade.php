@@ -1,10 +1,15 @@
 <!-- resources/views/dept_head/profile_password.blade.php -->
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="pb-3 mr-3 font-semibold text-2xl text-black-800 leading-tight border-b-2 border-gray-200">
-            <a href="{{ route('profile') }}" class="text-black-800  hover:text-blue-700">Profile</a> &nbsp;&nbsp; > &nbsp;&nbsp;Change Password
-        </h2>
-    </x-slot>
+
+@include('components.icons')
+@extends('layouts.app')
+
+@section('header')
+<h2 class="font-medium text-lg sm:text-xl text-gray-800 leading-tight text-center sm:text-left">
+    {{ "Profile Change Password" }}
+</h2>
+@endsection
+
+@section('content')
 
     <div class="max-w-xl mx-auto py-12">
         <form method="POST" action="{{ route('profile.change_password') }}">
@@ -45,4 +50,5 @@
             </div>
         </form>
     </div>
-</x-app-layout>
+
+@endsection
