@@ -16,41 +16,6 @@ use Illuminate\Support\Facades\Response;
 
 class ReportsController extends Controller
 {
-    /**
-     * Display the asset report with pagination, filtering, and search.
-     */
-    public function assetReport(Request $request)
-    {
-        $user = Auth::user();
-        $query = assetModel::query();
-
-        // Filter by department if the user is a department head
-        if ($user && $user->usertype === 'dept_head') {
-            $query->where('dept_ID', $user->dept_id);
-        }
-
-        // Apply search query if provided
-        if ($request->filled('query')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->query('query') . '%')
-                    ->orWhere('code', 'like', '%' . $request->query('query') . '%');
-            });
-        }
-
-        // Paginate the results
-        $assets = $query->with(['category', 'manufacturer', 'model', 'location'])
-            ->paginate($request->input('rows_per_page', 10));
-
-        // Load related data for filters
-        $categories = Category::all(['id', 'name']);
-        $manufacturers = Manufacturer::all(['id', 'name']);
-        $models = ModelAsset::all(['id', 'name']);
-        $locations = locationModel::all(['id', 'name']);
-
-        // Pass the data to the view
-        return view('dept_head.reports', compact('assets', 'categories', 'manufacturers', 'models', 'locations'));
-    }
-
     public function show()
     {
         return view('dept_head.customReport');
@@ -97,7 +62,7 @@ class ReportsController extends Controller
             ->appends($request->query()); // Preserve query parameters
 
         // Pass the data to the view
-        return view('dept_head.generatedReport', compact('assets', 'fields'));
+        return view('dept_head.reports.generatedReport', compact('assets', 'fields'));
     }
 
     public function downloadReport(Request $request)
@@ -139,7 +104,7 @@ class ReportsController extends Controller
                     : public_path('images/defaultQR.png');
             }
 
-            $pdf = Pdf::loadView('dept_head.generatedReportPDF', compact('assets', 'fields'))
+            $pdf = Pdf::loadView('dept_head.reports.generatedReportPDF', compact('assets', 'fields'))
                 ->setPaper('a2', 'landscape');
             return $pdf->download('report.pdf');
         }
@@ -225,50 +190,3 @@ class ReportsController extends Controller
         return Response::stream($callback, 200, $headers);
     }
 }
-
-/**
- * Generate a custom report based on selected fields and date range.
- */
-    // public function generateCustomReport(Request $request)
-    // {
-    //     $fields = $request->input('fields', []);
-    //     $startDate = $request->input('startDate');
-    //     $endDate = $request->input('endDate');
-    //     $dateRange = $request->input('dateRange'); // Handle date range input
-
-    //     if (empty($fields)) {
-    //         return response()->json(['status' => 'error', 'message' => 'Please select at least one field.'], 400);
-    //     }
-
-    //     // Handle dynamic date ranges
-    //     if ($dateRange === 'weekly') {
-    //         $startDate = now()->startOfWeek()->format('Y-m-d');
-    //         $endDate = now()->endOfWeek()->format('Y-m-d');
-    //     } elseif ($dateRange === 'monthly') {
-    //         $startDate = now()->startOfMonth()->format('Y-m-d');
-    //         $endDate = now()->endOfMonth()->format('Y-m-d');
-    //     } elseif ($dateRange === 'yearly') {
-    //         $startDate = now()->startOfYear()->format('Y-m-d');
-    //         $endDate = now()->endOfYear()->format('Y-m-d');
-    //     }
-
-    //     try {
-    //         $query = DB::table('assets')->select($fields);
-
-    //         // Apply date filter if both dates are provided
-    //         if ($startDate && $endDate) {
-    //             $query->whereBetween('purchase_date', [$startDate, $endDate]);
-    //         }
-
-    //         $data = $query->get();
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'message' => 'Report generated successfully.',
-    //             'data' => $data
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         Log::error('Report Generation Error:', ['error' => $e->getMessage()]);
-    //         return response()->json(['status' => 'error', 'message' => 'Failed to generate report.'], 500);
-    //     }
-    // }
