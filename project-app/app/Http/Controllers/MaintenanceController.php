@@ -35,10 +35,10 @@ class MaintenanceController extends Controller
         $sortField = $request->input('sort', 'requested_at'); // Default sort field
         $sortDirection = $request->input('direction', 'asc'); // Default sort direction
 
-        // Valid sort fields without 'description'
-        $validSortFields = ['id', 'requested_at', 'authorized_at', 'type', 'asset_code'];
+        // List of valid sort fields
+        $validSortFields = ['id', 'requested_at', 'authorized_at', 'type', 'asset_code', 'category_name'];
 
-        // Ensure the sort field is valid, otherwise default to 'requested_at'
+        // Ensure the sort field is valid
         if (!in_array($sortField, $validSortFields)) {
             $sortField = 'requested_at';
         }
@@ -51,7 +51,7 @@ class MaintenanceController extends Controller
             ->select(
                 'maintenance.*',
                 DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
-                'category.name AS category_name',
+                DB::raw("IFNULL(category.name, 'No Category') AS category_name"), // Handle null categories
                 'location.name AS location_name',
                 'asset.code AS asset_code'
             );
@@ -73,7 +73,7 @@ class MaintenanceController extends Controller
         }
 
         // Apply search filter
-        if (!empty($searchQuery)) {
+        if ($searchQuery) {
             $query->where(function ($q) use ($searchQuery) {
                 $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
                     ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
@@ -90,8 +90,14 @@ class MaintenanceController extends Controller
             });
         }
 
-        // Apply sorting and pagination
-        $query->orderBy($sortField, $sortDirection);
+        // Apply sorting logic
+        if ($sortField === 'category_name') {
+            $query->orderBy(DB::raw('LOWER(category.name)'), $sortDirection); // Case-insensitive sorting for category
+        } else {
+            $query->orderBy($sortField, $sortDirection); // Regular sorting
+        }
+
+        // Fetch the filtered and paginated results
         $requests = $query->paginate($perPage)->withQueryString(); // Maintain query parameters
 
         // Prepare data for the view
@@ -113,7 +119,6 @@ class MaintenanceController extends Controller
             return view('user.requestList', $viewData);
         }
     }
-
 
 
     // Search functionality
