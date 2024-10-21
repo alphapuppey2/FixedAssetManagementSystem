@@ -11,46 +11,63 @@
 
 
 @section('header')
-<h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Generate Custom Asset Report</h2>
+{{-- <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Generate Custom Asset Report</h2> --}}
+<h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight text-center md:text-left"> <!-- Responsive update -->
+    Generate Custom Asset Report
+</h2>
 @endsection
 
 @section('content')
-<div class="container mx-auto px-8 py-10">
-    <div class="bg-white p-10 rounded-lg shadow-md">
+{{-- <div class="container mx-auto px-8 py-10">
+    <div class="bg-white p-10 rounded-lg shadow-md"> --}}
+<div class="container mx-auto px-4 md:px-8 py-6 md:py-10"> <!-- Responsive update -->
+    <div class="bg-white p-6 md:p-10 rounded-lg shadow-md"> <!-- Responsive update -->
 
-        <div class="flex justify-between items-center border-b pb-4 mb-6">
-            <h3 class="text-2xl font-semibold">Customize Your Report</h3>
+        {{-- <div class="flex justify-between items-center border-b pb-4 mb-6">
+            <h3 class="text-2xl font-semibold">Customize Your Report</h3> --}}
+            <div class="flex flex-col md:flex-row justify-between items-center md:items-center border-b pb-4 mb-6"> <!-- Responsive update -->
+                <h3 class="text-xl md:text-2xl font-semibold mb-4 md:mb-0"> <!-- Responsive update -->
+                    Customize Your Report
+                </h3>
             <button type="button" onclick="submitForm()"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded">
+                {{-- class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded"> --}}
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-5 py-2 rounded"> <!-- Responsive update -->
                 Generate Report
             </button>
         </div>
 
-        <form id="customReportForm" action="{{ route('custom.report.generate') }}" method="GET" class="space-y-8">
+        <form id="customReportForm" action="{{ route('custom.report.generate') }}" method="GET" class="space-y-6 md:space-y-8">
             <!-- Date Range -->
-            <div class="grid grid-cols-2 gap-8">
+            {{-- <div class="grid grid-cols-2 gap-8"> --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 <div>
                     <label for="start_date" class="block text-sm font-medium mb-2">Start Date:</label>
                     <input type="date" id="start_date" name="start_date" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        {{-- class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" /> --}}
+                        class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                     <label for="end_date" class="block text-sm font-medium mb-2">End Date:</label>
                     <input type="date" id="end_date" name="end_date" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        {{-- class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" /> --}}
+                        class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-8">
+            {{-- <div class="grid grid-cols-2 gap-8"> --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                 <!-- Checkbox Fields Section -->
                 <div>
-                    <h4 class="text-xl font-semibold mb-4">Select Fields to Include:</h4>
+                    {{-- <h4 class="text-xl font-semibold mb-4">Select Fields to Include:</h4> --}}
+                    <h4 class="text-lg md:text-xl font-semibold mb-4">Select Fields to Include:</h4>
                     <label class="flex items-center space-x-3 mb-4">
                         <input type="checkbox" id="selectAll" checked
-                            class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            {{-- class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> --}}
+                            class="w-4 md:w-5 h-4 md:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> <!-- Responsive update -->
                         <span class="text-sm font-medium">Select All</span>
                     </label>
-                    <div class="grid grid-cols-1 gap-6">
+                    {{-- <div class="grid grid-cols-1 gap-6"> --}}
+                    <div class="grid grid-cols-1 gap-3 md:gap-6">
                         @foreach([
                         'id' => 'ID',
                         'name' => 'Name',
@@ -76,7 +93,8 @@
                         ] as $field => $label)
                         <label class="flex items-center space-x-3">
                             <input type="checkbox" name="fields[]" value="{{ $field }}" checked
-                                class="field-checkbox w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                {{-- class="field-checkbox w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> --}}
+                                class="field-checkbox w-4 md:w-5 h-4 md:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> <!-- Responsive update -->
                             <span class="text-sm font-medium">{{ $label }}</span>
                         </label>
                         @endforeach
@@ -84,8 +102,10 @@
                 </div>
 
                 <!-- Filters Section -->
-                <div class="border rounded-lg p-6 bg-gray-50">
-                    <h4 class="text-xl font-semibold mb-4">Apply Filters</h4>
+                {{-- <div class="border rounded-lg p-6 bg-gray-50"> --}}
+                <div class="border rounded-lg p-4 md:p-6 bg-gray-50"> <!-- Responsive update -->
+                    {{-- <h4 class="text-xl font-semibold mb-4">Apply Filters</h4> --}}
+                    <h4 class="text-lg md:text-xl font-semibold mb-4">Apply Filters</h4>
 
                     <div class="space-y-4">
                         <!-- Status Filter -->

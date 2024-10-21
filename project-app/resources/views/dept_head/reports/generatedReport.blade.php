@@ -2,19 +2,31 @@
 @extends('layouts.app')
 
 @section('header')
-<h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Custom Asset Report</h2>
+{{-- <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Custom Asset Report</h2> --}}
+<h2 class="my-3 font-semibold text-xl md:text-2xl text-black-800 leading-tight text-center md:text-left"> <!-- Responsive update -->
+    Custom Asset Report
+</h2>
 @endsection
 
 @section('content')
-<div class="min-h-screen bg-gray-50">
-    <div class="max-w-full h-full p-6 bg-white shadow-lg rounded-lg">
+{{-- <div class="min-h-screen bg-gray-50"> --}}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-between">
+    {{-- <div class="max-w-full h-full p-6 bg-white shadow-lg rounded-lg"> --}}
+    <div class="flex-grow overflow-y-auto p-4 md:p-6 bg-white shadow-lg rounded-lg">
+    {{-- <div class="w-full max-w-screen-lg mx-auto h-full p-4 md:p-6 bg-white shadow-lg rounded-lg"> <!-- Responsive update --> --}}
 
         <!-- Header Section -->
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-semibold">Report Results</h3>
-            <div class="flex space-x-4">
+        {{-- <div class="flex justify-between items-center mb-6"> --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6"> <!-- Responsive update -->
+            {{-- <h3 class="text-2xl font-semibold">Report Results</h3> --}}
+            <h3 class="text-lg md:text-2xl font-semibold mb-2 md:mb-0"> <!-- Responsive update -->
+                Report Results
+            </h3>
+            {{-- <div class="flex space-x-4"> --}}
+            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4"> <!-- Responsive update -->
                 <a href="{{ route('custom.report') }}"
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-md shadow">
+                    {{-- class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-md shadow"> --}}
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow text-center"> <!-- Responsive update -->
                     Back to Report Generator
                 </a>
 
@@ -42,11 +54,14 @@
 
         <!-- Table Wrapper with Horizontal Scroll -->
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[800px] table-auto border-collapse bg-white border border-gray-300">
-                <thead class="bg-blue-500 text-white uppercase text-sm">
+            {{-- <table class="w-full min-w-[800px] table-auto border-collapse bg-white border border-gray-300"> --}}
+            <table class="w-full min-w-[600px] md:min-w-[800px] table-auto border-collapse bg-white border border-gray-300"> <!-- Responsive update -->
+                {{-- <thead class="bg-blue-500 text-white uppercase text-sm"> --}}
+                <thead class="bg-blue-500 text-white uppercase text-xs md:text-sm"> <!-- Responsive update -->
                     <tr>
                         @foreach ($fields as $field)
-                        <th class="px-8 py-4 min-w-[150px] text-left border-b border-gray-300">
+                        {{-- <th class="px-8 py-4 min-w-[150px] text-left border-b border-gray-300"> --}}
+                        <th class="px-4 md:px-8 py-2 md:py-4 text-left border-b border-gray-300 min-w-[100px] md:min-w-[150px]"> <!-- Responsive update -->
                             @switch($field)
                             @case('asst_img')
                             Asset Image
@@ -80,15 +95,18 @@
                     @forelse ($assets as $asset)
                     <tr class="hover:bg-gray-100">
                         @foreach ($fields as $field)
-                        <td class="px-8 py-4 min-w-[150px] border-b border-gray-300">
+                        {{-- <td class="px-8 py-4 min-w-[150px] border-b border-gray-300"> --}}
+                        <td class="px-4 md:px-8 py-2 md:py-4 border-b border-gray-300 min-w-[100px] md:min-w-[150px]"> <!-- Responsive update -->
                             @switch($field)
                             @case('asst_img')
                             <img src="{{ $asset->asst_img ? asset('storage/' . $asset->asst_img) : asset('images/no-image.png') }}"
-                                alt="Asset Image" class="w-20 h-20 object-cover rounded">
+                                {{-- alt="Asset Image" class="w-20 h-20 object-cover rounded"> --}}
+                                alt="Asset Image" class="w-16 h-16 md:w-20 md:h-20 object-cover rounded"> <!-- Responsive update -->
                             @break
                             @case('qr_img')
                             <img src="{{ $asset->qr_img ? asset('storage/' . $asset->qr_img) : asset('images/defaultQR.png') }}"
-                                alt="QR Code" class="w-20 h-20 object-cover rounded">
+                                {{-- alt="QR Code" class="w-20 h-20 object-cover rounded"> --}}
+                                alt="QR Code" class="w-16 h-16 md:w-20 md:h-20 object-cover rounded"> <!-- Responsive update -->
                             @break
                             @case('ctg_ID')
                             {{ $asset->category_name ?? 'N/A' }}
@@ -126,9 +144,17 @@
         </div>
 
         <!-- Pagination Links -->
-        <div class="mt-6 flex justify-end">
+        {{-- <div class="mt-6 flex justify-end"> --}}
+        {{-- <div class="mt-6 flex justify-center md:justify-end"> --}}
+        {{-- <div class="flex justify-center md:justify-end flex-wrap">
             {{ $assets->links('vendor.pagination.tailwind') }}
-        </div>
+        </div> --}}
+
+        {{-- <div class="mt-4 flex justify-center md:justify-end flex-wrap space-x-1"> <!-- Compact pagination -->
+            {{ $assets->links() }}
+        </div> --}}
+
+        <div id="pagination-container" class="mt-4 flex justify-center md:justify-end flex-wrap space-x-1"></div>
     </div>
 </div>
 
@@ -146,5 +172,21 @@
             menu.classList.add('hidden');
         }
     });
+
+
+        // Render pagination based on screen size
+        function renderPagination() {
+        const paginationContainer = document.getElementById('pagination-container');
+        const isSmallScreen = window.innerWidth < 768;
+
+        paginationContainer.innerHTML = isSmallScreen
+            ? `{!! $assets->links() !!}`
+            : `{!! $assets->links('vendor.pagination.tailwind') !!}`;
+    }
+
+    // Initial render and resize listener
+    window.addEventListener('load', renderPagination);
+    window.addEventListener('resize', renderPagination);
+
 </script>
 @endsection
