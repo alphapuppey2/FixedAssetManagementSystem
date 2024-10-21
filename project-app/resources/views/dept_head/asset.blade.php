@@ -83,8 +83,9 @@
 </div>
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
-    <div class="tableContainer overflow-auto rounded-md h-full w-full">
-        <table class="w-full border-gray-300">
+    {{-- <div class="tableContainer overflow-auto rounded-md h-full w-full"> --}}
+    <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
+        <table class="w-full  border-gray-300">
             <thead class="p-5 bg-gray-100 border-b">
                 <tr>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
