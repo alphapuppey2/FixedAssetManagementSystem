@@ -64,6 +64,7 @@
                 </select>
             </div>
 
+
             <div class="info flex items-center p-4 bg-white">
                 <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Location:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->location }}</div>
@@ -89,6 +90,26 @@
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <div class="info flex items-center p-4 bg-white">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Depreciation:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->depreciation }}</div>
+                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->depreciation }}" />
+            </div>
+
+            <div class="info flex items-center p-4 bg-white">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase Cost:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->purchase_cost }}</div>
+                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->purchase_cost }}" />
+            </div>
+            <div class="info flex items-center p-4 bg-white">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase date:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->purchase_date }}</div>
+                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->purchase_date }}" />
             </div>
 
             <div class="info flex items-center p-4 bg-white">

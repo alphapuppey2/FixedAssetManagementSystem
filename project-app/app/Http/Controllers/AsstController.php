@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use App\Http\Controllers\SystemNotification;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AsstController extends Controller
@@ -277,11 +277,11 @@ public function showDeptAsset(Request $request)
             'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
             'assetname' => 'required',
             'category' => 'required',
-            'purchasedDate' => 'required|date',
-            'lifespan' => 'required|date',
-            'salvageValue' => 'required|date',
-            'lifespan' => 'required|date',
-            'depreciation' => 'required|date',
+            'purchasedDate' => 'required|date|before_or_equal:today',
+            'pCost' => 'required|numeric|min:0',
+            'lifespan' => 'required|integer|min:0',
+            'salvageValue' => 'required|numeric|min:0|lt:pCost',
+            'depreciation' => 'required|numeric|min:0',
             'loc' => 'required',
             'mod' => 'required',
             'mcft' => 'required',
@@ -331,6 +331,11 @@ public function showDeptAsset(Request $request)
             'asst_img' => $pathFile,
             'name' => $request->assetname,
             'code' => $code,
+            'purchase_cost' => $request->pCost,
+            'purchase_date' => $request->purchasedDate,
+            'depreciation' => $request->depreciation,
+            'usage_lifespan' => $request->lifespan,
+            'salvage_value' => $request->salvageValue,
             'ctg_ID' => $request->category,
             'custom_fields' => $customFields,
             'dept_ID' => $userDept,
@@ -353,10 +358,10 @@ public function showDeptAsset(Request $request)
         ];
 
         // Send the notification to all admins
-        $admins = \App\Models\User::where('usertype', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
-        }
+        $admins = User::where('usertype', 'admin')->get();
+        // foreach ($admins as $admin) {
+        //     $admin->notify(new SystemNotification($notificationData));
+        // }
 
         return redirect()->to('/asset')->with('success', 'New Asset Created');
     }
@@ -727,6 +732,11 @@ public function showDeptAsset(Request $request)
                 'asset.asst_img',
                 'asset.name',
                 'asset.code',
+                'asset.depreciation',
+                'asset.purchase_cost',
+                'asset.purchase_date',
+                'asset.usage_lifespan',
+                'asset.salvage_value',
                 'asset.status',
                 'asset.last_used_by',
                 'asset.custom_fields',
@@ -803,6 +813,7 @@ public function showDeptAsset(Request $request)
 
 
                 // dd($usageLogsAsset);
+                dd($retrieveData);
             // dd($allUserInDept);
 
         // Determine the view based on user type

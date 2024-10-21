@@ -130,15 +130,21 @@
                                         </td>
                                         <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="type-text ">{{ $dataItem->type }}</span>
-                                            <input type="text" class="type-input" style="display: none"
-                                                value="{{ $dataItem->type }}">
+                                            <select name="type" class="type-input" style="display: none">
+                                                <option value="number">Number</option>
+                                                <option value="text">Text</option>
+                                                <option value="date">Date</option>
+                                            </select>
+                                            {{-- <input type="text" class="type-input" style="display: none"
+                                                value="{{ $dataItem->type }}"> --}}
                                         </td>
                                         <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
+
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray    -500 uppercase tracking-wider">
                                             <a class="btn btn-outline-primary edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="btn btn-outline-success save-btn" data-row-id="{{ $key }}"

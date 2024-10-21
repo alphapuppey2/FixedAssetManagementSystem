@@ -75,15 +75,20 @@
                 <div class="mb-3">
                     <label for="decr" class="block font-medium">Description</label>
                     <input type="text" id="decr" name="description"
-                           class="w-full border border-gray-300 rounded-md p-2"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            placeholder="Description" required />
                 </div>
             @else
                 <div class="mb-3">
                     <label for="type" class="block font-medium">Type</label>
-                    <input type="text" id="type" name="type"
+                    <select name="type" class="type-input w-full">
+                        <option value="number">Number</option>
+                        <option value="text">Text</option>
+                        <option value="date">Date</option>
+                    </select>
+                    {{-- <input type="text" id="type" name="type"
                            class="w-full border border-gray-300 rounded-md p-2"
-                           placeholder="Type" required />
+                           placeholder="Type" required /> --}}
                 </div>
                 <div class="mb-3">
                     <label for="helptxt" class="block font-medium">Helper Text</label>
