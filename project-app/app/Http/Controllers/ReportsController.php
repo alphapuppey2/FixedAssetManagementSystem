@@ -30,7 +30,7 @@ class ReportsController extends Controller
         $modelOptions = ModelAsset::where('dept_ID', $user->dept_id)->get();
         $locationOptions = locationModel::where('dept_ID', $user->dept_id)->get();
 
-        return view('dept_head.assetCustomReport', compact(
+        return view('dept_head.assetReport', compact(
             'categoryOptions',
             'manufacturerOptions',
             'modelOptions',
@@ -168,7 +168,7 @@ class ReportsController extends Controller
                     : public_path('images/defaultQR.png');
             }
 
-            $pdf = Pdf::loadView('dept_head.reports.generatedAssetReportPDF', compact('assets', 'fields'))
+            $pdf = Pdf::loadView('dept_head.pdf.assetReportPDF', compact('assets', 'fields'))
                 ->setPaper('a2', 'landscape');
             return $pdf->download('asset_report.pdf');
         }
@@ -313,7 +313,7 @@ class ReportsController extends Controller
             ->where('dept_ID', $deptId)
             ->pluck('name', 'id');
 
-        return view('dept_head.maintenanceCustomReport', compact(
+        return view('dept_head.maintenanceReport', compact(
             'authorizedByOptions',
             'requestorOptions',
             'assetOptions'
@@ -516,7 +516,7 @@ class ReportsController extends Controller
         // Handle PDF Download
         if ($type === 'pdf') {
             Log::info('Generating PDF for maintenance report');
-            $pdf = Pdf::loadView('dept_head.reports.generatedMaintenanceReportPDF', compact('records', 'fields'))
+            $pdf = Pdf::loadView('dept_head.pdf.maintenanceReportPDF', compact('records', 'fields'))
                 ->setPaper('a2', 'landscape');
             return $pdf->download('maintenance_report.pdf');
         }

@@ -4,7 +4,7 @@
 @section('header')
 {{-- <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Custom Asset Report</h2> --}}
 <h2 class="my-3 font-semibold text-xl md:text-2xl text-black-800 leading-tight text-center md:text-left"> <!-- Responsive update -->
-    Custom Asset Report
+    Asset Report
 </h2>
 @endsection
 
@@ -20,20 +20,20 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6"> <!-- Responsive update -->
             {{-- <h3 class="text-2xl font-semibold">Report Results</h3> --}}
             <h3 class="text-lg md:text-2xl font-semibold mb-2 md:mb-0"> <!-- Responsive update -->
-                Report Results
+                Asset Report Results
             </h3>
             {{-- <div class="flex space-x-4"> --}}
             <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4"> <!-- Responsive update -->
                 <a href="{{ route('asset.report') }}"
                     {{-- class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-md shadow"> --}}
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow text-center"> <!-- Responsive update -->
+                    class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"> <!-- Responsive update -->
                     Back to Report Generator
                 </a>
 
                 <!-- Download Button with Dropdown -->
                 <div class="relative">
                     <button onclick="toggleDropdown()"
-                        class="bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2 rounded-md shadow">
+                    class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
                         Download
                     </button>
 

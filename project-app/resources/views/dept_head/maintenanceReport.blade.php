@@ -1,4 +1,4 @@
-<!-- resources/views/dept_head/maintenanceCustomReport.blade.php -->
+<!-- resources/views/dept_head/maintenanceReport.blade.php -->
 @extends('layouts.app')
 
 <!-- Select2 CSS -->
@@ -12,7 +12,7 @@
 
 @section('header')
 <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight text-center md:text-left">
-    Generate Custom Maintenance Report
+    Generate Maintenance Report
 </h2>
 @endsection
 
