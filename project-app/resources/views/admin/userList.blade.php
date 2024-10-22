@@ -11,7 +11,6 @@
 @endsection
 
 @section('content')
-
 <div>
     <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
         <!-- Search Input and Button -->

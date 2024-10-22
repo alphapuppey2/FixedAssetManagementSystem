@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\SystemNotification;
+use App\Models\ActivityLog;
 
 class UserSideController extends Controller
 {
@@ -80,7 +81,6 @@ class UserSideController extends Controller
         ]);
     }
 
-
     public function createRequest(Request $request)
     {
         // Validate the input from the form
@@ -91,7 +91,7 @@ class UserSideController extends Controller
         ]);
 
         // Create a new maintenance request with 'pending' status
-        Maintenance::create([
+        $maintenance = Maintenance::create([
             'description' => $request->input('issue_description'), // Issue description
             'status' => 'request', // Set status to 'pending'
             'asset_key' => $request->input('asset_id'), // Asset reference
@@ -102,9 +102,19 @@ class UserSideController extends Controller
         $asset = assetModel::find($request->input('asset_id'));
         $user = Auth::user();
 
+        // Log the activity
+        ActivityLog::create([
+            'activity' => 'Create Maintenance Request',
+            'description' => "User {$user->firstname} {$user->lastname} created a maintenance request for asset '{$asset->name}' (Code: {$asset->code}).",
+            'userType' => $user->usertype, // Role of the user creating the request
+            'user_id' => $user->id, // Logged-in user ID
+            'asset_id' => $asset->id, // ID of the asset
+            'request_id' => $maintenance->id, // ID of the created maintenance request
+        ]);
+
         $deptHead = User::where('usertype', 'dept_head')
-                        ->where('dept_id', $user->dept_id)
-                        ->first();
+            ->where('dept_id', $user->dept_id)
+            ->first();
 
         if ($deptHead) {
             $notificationData = [
@@ -151,6 +161,15 @@ class UserSideController extends Controller
         // Update the status to 'cancelled'
         $request->status = 'cancelled';
         $request->save();
+
+        ActivityLog::create([
+            'activity' => 'Cancel Request',
+            'description' => "User {$user->firstname} {$user->lastname} canceled the maintenance request (ID: {$request->id}) for asset ID: {$request->asset_key}.",
+            'userType' => $user->usertype, // Correct field name
+            'user_id' => $user->id,
+            'asset_id' => $request->asset_key,
+            'request_id' => $request->id,
+        ]);
 
         // Redirect back to the request list page or another relevant page with a success message
         return redirect()->route('requests.list')->with('status', 'Request canceled successfully.');
@@ -256,7 +275,4 @@ class UserSideController extends Controller
         // Pass the asset data, custom fields, reason, and request status to the view
         return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
-
-
-
 }

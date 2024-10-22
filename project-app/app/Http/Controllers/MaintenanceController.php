@@ -19,9 +19,7 @@ use App\Models\Notification;
 use App\Notifications\SystemNotification;
 use Illuminate\Notifications\Notification as NotificationFacade; // Alias the facade
 use App\Models\User;
-
-
-
+use App\Models\ActivityLog;
 
 class MaintenanceController extends Controller
 {
@@ -259,7 +257,6 @@ class MaintenanceController extends Controller
         return redirect()->route('user.home');
     }
 
-
     // Approve a maintenance request
     public function approve($id)
     {
@@ -314,6 +311,16 @@ class MaintenanceController extends Controller
             Log::error('Requestor not found.');
         }
 
+        // Log the approval activity
+        ActivityLog::create([
+            'activity' => 'Approve Maintenance Request',
+            'description' => "Department Head {$user->firstname} {$user->lastname} approved the maintenance request (ID: {$maintenance->id}) for asset '{$asset->name}' (Code: {$asset->code}).",
+            'userType' => $user->usertype, // 'dept_head'
+            'user_id' => $user->id,
+            'asset_id' => $asset->id,
+            'request_id' => $maintenance->id,
+        ]);
+
         return redirect()->route('maintenance')->with('status', 'Request approved successfully.');
     }
 
@@ -363,6 +370,16 @@ class MaintenanceController extends Controller
         } else {
             Log::error('Requestor not found.');
         }
+
+        // Log the denial activity
+        ActivityLog::create([
+            'activity' => 'Deny Maintenance Request',
+            'description' => "Department Head {$user->firstname} {$user->lastname} denied the maintenance request (ID: {$maintenance->id}) for asset '{$asset->name}' (Code: {$asset->code}). Reason: {$maintenance->reason}.",
+            'userType' => $user->usertype, // 'dept_head'
+            'user_id' => $user->id,
+            'asset_id' => $asset->id,
+            'request_id' => $maintenance->id,
+        ]);
 
         return redirect()->route('maintenance')->with('status', 'Request denied.');
     }
@@ -517,36 +534,47 @@ class MaintenanceController extends Controller
         ]);
 
         // Determine the frequency in days
-        $frequencyDays = 0;
-        switch ($validatedData['frequency']) {
-            case 'every_day':
-                $frequencyDays = 1;
-                break;
-            case 'every_week':
-                $frequencyDays = 7;
-                break;
-            case 'every_month':
-                $frequencyDays = 30;
-                break;
-            case 'every_year':
-                $frequencyDays = 365;
-                break;
-            case 'custom':
-                if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
-                    $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
-                } else {
-                    $frequencyDays = 1; // Set a default value if repeat or interval is null
-                }
-                break;
-        }
+        // $frequencyDays = 0;
+        // switch ($validatedData['frequency']) {
+        //     case 'every_day':
+        //         $frequencyDays = 1;
+        //         break;
+        //     case 'every_week':
+        //         $frequencyDays = 7;
+        //         break;
+        //     case 'every_month':
+        //         $frequencyDays = 30;
+        //         break;
+        //     case 'every_year':
+        //         $frequencyDays = 365;
+        //         break;
+        //     case 'custom':
+        //         if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
+        //             $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
+        //         } else {
+        //             $frequencyDays = 1; // Set a default value if repeat or interval is null
+        //         }
+        //         break;
+        // }
 
-        // Handle 'ends' logic correctly
-        if ($validatedData['ends'] === 'never') {
-            $ends = 0; // Never ends
-        } else {
-            $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
-        }
+        // // Handle 'ends' logic correctly
+        // if ($validatedData['ends'] === 'never') {
+        //     $ends = 0; // Never ends
+        // } else {
+        //     $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
+        // }
 
+        // Determine the frequency in days
+        $frequencyDays = match ($validatedData['frequency']) {
+            'every_day' => 1,
+            'every_week' => 7,
+            'every_month' => 30,
+            'every_year' => 365,
+            'custom' => ($validatedData['repeat'] ?? 1) * ($validatedData['interval'] ?? 1),
+            default => 1,
+        };
+
+        $ends = $validatedData['ends'] === 'never' ? 0 : (int)$validatedData['ends'];
 
         // Insert the data into the preventive table
         Preventive::create([
@@ -586,6 +614,15 @@ class MaintenanceController extends Controller
         } else {
             \Log::warning('No admin found to notify for the new preventive maintenance.');
         }
+
+        // Log the activity
+        ActivityLog::create([
+            'activity' => 'Create Maintenance Schedule',
+            'description' => "Department Head {$deptHead->firstname} {$deptHead->lastname} created a preventive maintenance schedule for asset '{$asset->name}' (Code: {$asset->code}).",
+            'userType' => $deptHead->usertype, // 'dept_head'
+            'user_id' => $deptHead->id,
+            'asset_id' => $asset->id,
+        ]);
 
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
