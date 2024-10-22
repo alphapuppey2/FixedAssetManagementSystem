@@ -13,7 +13,7 @@
 <div class="min-h-screen bg-gray-50 flex flex-col justify-between">
     {{-- <div class="max-w-full h-full p-6 bg-white shadow-lg rounded-lg"> --}}
     <div class="flex-grow overflow-y-auto p-4 md:p-6 bg-white shadow-lg rounded-lg">
-    {{-- <div class="w-full max-w-screen-lg mx-auto h-full p-4 md:p-6 bg-white shadow-lg rounded-lg"> <!-- Responsive update --> --}}
+        {{-- <div class="w-full max-w-screen-lg mx-auto h-full p-4 md:p-6 bg-white shadow-lg rounded-lg"> <!-- Responsive update --> --}}
 
         <!-- Header Section -->
         {{-- <div class="flex justify-between items-center mb-6"> --}}
@@ -143,17 +143,6 @@
             </table>
         </div>
 
-        <!-- Pagination Links -->
-        {{-- <div class="mt-6 flex justify-end"> --}}
-        {{-- <div class="mt-6 flex justify-center md:justify-end"> --}}
-        {{-- <div class="flex justify-center md:justify-end flex-wrap">
-            {{ $assets->links('vendor.pagination.tailwind') }}
-        </div> --}}
-
-        {{-- <div class="mt-4 flex justify-center md:justify-end flex-wrap space-x-1"> <!-- Compact pagination -->
-            {{ $assets->links() }}
-        </div> --}}
-
         <div id="pagination-container" class="mt-4 flex justify-center md:justify-end flex-wrap space-x-1"></div>
     </div>
 </div>
@@ -174,19 +163,18 @@
     });
 
 
-        // Render pagination based on screen size
-        function renderPagination() {
+    // Render pagination based on screen size
+    function renderPagination() {
         const paginationContainer = document.getElementById('pagination-container');
         const isSmallScreen = window.innerWidth < 768;
 
-        paginationContainer.innerHTML = isSmallScreen
-            ? `{!! $assets->links() !!}`
-            : `{!! $assets->links('vendor.pagination.tailwind') !!}`;
+        paginationContainer.innerHTML = isSmallScreen ?
+            `{!! $assets->links() !!}` :
+            `{!! $assets->links('vendor.pagination.tailwind') !!}`;
     }
 
     // Initial render and resize listener
     window.addEventListener('load', renderPagination);
     window.addEventListener('resize', renderPagination);
-
 </script>
 @endsection

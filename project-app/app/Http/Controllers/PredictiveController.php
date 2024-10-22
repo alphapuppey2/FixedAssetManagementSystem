@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Models\ActivityLog;
 
 class PredictiveController extends Controller
 {
@@ -88,10 +89,17 @@ class PredictiveController extends Controller
                             \Log::warning('No department head found to notify.');
                         }
 
-                        } else {
-                            \Log::error('Flask API error: ' . $response->body());
+                        // Step 7: Log the predictive maintenance generation
+                        ActivityLog::create([
+                            'activity' => 'Predictive Maintenance Generated',
+                            'description' => "Predictive maintenance generated for asset '{$data->asset_name}' (Code: {$data->asset_code}). Recommendation: {$prediction}.",
+                            'userType' => 'system', // System-generated action
+                            'user_id' => null, // No specific user responsible
+                            'asset_id' => $data->asset_key,
+                        ]);
+                    } else {
+                        \Log::error('Flask API error: ' . $response->body());
                     }
-
                 }
             }
         }
@@ -104,7 +112,6 @@ class PredictiveController extends Controller
         // Dispatch the job to run the analysis for the first time
         // RunPredictiveAnalysis::dispatch()->delay(now()->addDay()); //for actual, daily analysis
         RunPredictiveAnalysis::dispatch();
-
     }
     // deep logic for predictive, incase
     // public function analyze()

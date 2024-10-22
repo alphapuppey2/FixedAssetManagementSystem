@@ -17,7 +17,7 @@
             $cardColor = 'bg-gray-300';
             $textColor = 'text-gray-950';
             break;
-        case 'deploy':
+        case 'deployed':
             $cardColor = 'bg-blue-300';
             $textColor = 'text-blue-950';
             break;
