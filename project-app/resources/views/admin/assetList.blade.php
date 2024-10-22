@@ -46,11 +46,6 @@
         <div class="flex items-center">
         <!-- Rows Per Page Dropdown Form -->
         <form method="GET" action="{{ route('assetList') }}" class="flex items-center space-x-2 mt-4">
-            <!-- Hidden fields to retain search and sorting parameters -->
-            <input type="hidden" name="query" value="{{ request('query') }}">
-            <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
-            <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
-            <input type="hidden" name="dept" value="{{ request('dept') }}">
 
             <!-- Rows Per Page Dropdown -->
             <label for="perPage">Rows per page:</label>
@@ -70,56 +65,59 @@
                 Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
             </span>
             <div>
-                {{ $assets->links('vendor.pagination.tailwind') }}
+                {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
             </div>
         </div>
         @endif
 
     </div>
 
-
-
     <div>
         <table class="table table-hover">
             <thead class="p-5 bg-gray-100 border-b">
+                @php
+                    $queryParams = request()->query(); // Capture all query parameters
+                @endphp
+
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'asset.code', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.code', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Code
                         <x-icons.sort-icon :direction="$sortBy === 'asset.code' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'asset.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Name
                         <x-icons.sort-icon :direction="$sortBy === 'asset.name' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'category.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'category.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Category
                         <x-icons.sort-icon :direction="$sortBy === 'category.name' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'department.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'department.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Department
                         <x-icons.sort-icon :direction="$sortBy === 'department.name' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'asset.depreciation', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.depreciation', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Depreciation
                         <x-icons.sort-icon :direction="$sortBy === 'asset.depreciation' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <a href="{{ route('assetList', ['sort_by' => 'asset.status', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.status', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
                         Status
                         <x-icons.sort-icon :direction="$sortBy === 'asset.status' ? $sortOrder : null" />
                     </a>
                 </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </thead>
+
 
             <tbody id="table-body">
                 @if (!$assets->isEmpty())

@@ -30,144 +30,164 @@ class AsstController extends Controller
 {
     public function showAllAssets(Request $request)
     {
-        // Get sorting parameters from the request (default to 'asset.name' and 'asc')
-        $sortBy = $request->input('sort_by', 'asset.name');
-        $sortOrder = strtolower($request->input('sort_order', 'asc')); // Ensure lowercase
+        // Get department ID from request (null if not provided)
+        $deptId = $request->input('dept', null);
 
-        // List of valid sort fields to avoid SQL injection
+        // Get sorting parameters (default to 'asset.name' and 'asc')
+        $sortBy = $request->input('sort_by', 'asset.name');
+        $sortOrder = strtolower($request->input('sort_order', 'asc'));
+
+        // List of valid sort fields to prevent SQL injection
         $validSortFields = [
             'asset.name', 'asset.code', 'category.name',
             'department.name', 'asset.depreciation', 'asset.status'
         ];
 
-        // Validate sort field, if invalid default to 'asset.name'
+        // Validate sort field and order
         if (!in_array($sortBy, $validSortFields)) {
             $sortBy = 'asset.name';
         }
-
-        // Validate sort order, if invalid default to 'asc'
         if (!in_array($sortOrder, ['asc', 'desc'])) {
             $sortOrder = 'asc';
         }
 
-        // Get rows per page from request (default to 10)
-        $perPage = $request->input('perPage', 10);
+        // Get rows per page (default to 10)
+        $perPage = max((int) $request->input('perPage', 10), 10);
 
-        // Get search query and department filter
+        // Get search query from request
         $query = $request->input('query', '');
-        $deptId = $request->input('dept');
 
-        // Build the query with search and sorting
-        $assets = DB::table('asset')
+        // Build the query with optional department filtering and search
+        $assetsQuery = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
             ->when($deptId, function ($q) use ($deptId) {
                 return $q->where('asset.dept_ID', $deptId);
             })
-            ->where(function ($subquery) use ($query) {
-                $subquery->where('asset.name', 'like', '%' . $query . '%')
-                         ->orWhere('asset.code', 'like', '%' . $query . '%');
-            })
-            // ->orderByRaw("
-            //     CASE
-            //         WHEN asset.status = 'active' THEN 0
-            //         WHEN asset.status = 'under_maintenance' THEN 1
-            //         WHEN asset.status = 'deployed' THEN 2
-            //         WHEN asset.status = 'disposed' THEN 3
-            //         ELSE 4
-            //     END
-            // ")
-            ->orderBy($sortBy, $sortOrder) // Apply sorting
+            ->when($query !== '', function ($q) use ($query) {
+                $q->where(function ($subquery) use ($query) {
+                    $subquery->where('asset.name', 'like', '%' . $query . '%')
+                             ->orWhere('asset.code', 'like', '%' . $query . '%')
+                             ->orWhere('category.name', 'like', '%' . $query . '%')
+                             ->orWhere('department.name', 'like', '%' . $query . '%');
+                });
+            });
+
+        // Apply sorting and paginate results
+        $assets = $assetsQuery
+            ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage)
-            ->appends(['query' => $query, 'sort_by' => $sortBy, 'sort_order' => $sortOrder, 'perPage' => $perPage]);
+            ->appends($request->all()); // Preserve query parameters
 
-        // Return the view with assets data
-        return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage'));
+        // Return the view with the asset list and parameters
+        return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage', 'deptId'));
     }
 
 
+    // public function showAssetsByDept(Request $request, $dept = null)
+    // {
+    //     // Get sorting parameters from the request (default to 'asset.name' and 'asc')
+    //     $sortBy = $request->input('sort_by', 'asset.name');
+    //     $sortOrder = strtolower($request->input('sort_order', 'asc')); // Ensure lowercase
 
-    public function showAssetsByDept($dept = null)
-    {
-        $query = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderBy('asset.code', 'asc');
+    //     // Validate the sorting fields to prevent SQL injection
+    //     $validSortFields = [
+    //         'asset.name', 'asset.code', 'category.name',
+    //         'department.name', 'asset.depreciation', 'asset.status'
+    //     ];
 
-        // If department is selected, filter by department ID
-        if ($dept) {
-            $query->where('asset.dept_ID', $dept);
-        }
+    //     // If the provided sort field is invalid, default to 'asset.name'
+    //     if (!in_array($sortBy, $validSortFields)) {
+    //         $sortBy = 'asset.name';
+    //     }
 
-        $query
-        ->orderBy('asset.name', 'asc')
-        ->orderByRaw("
-            CASE
-                WHEN asset.status = 'active' THEN 0
-                WHEN asset.status = 'under_maintenance' THEN 1
-                WHEN asset.status = 'deployed' THEN 2
-                WHEN asset.status = 'disposed' THEN 3
-                ELSE 4
-            END
-        ")->orderBy(DB::raw("
-        IF(asset.name REGEXP '[0-9]+$',
-            CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-            asset.id
-        )
-    "), 'asc')
-            ;
+    //     // If the provided sort order is invalid, default to 'asc'
+    //     if (!in_array($sortOrder, ['asc', 'desc'])) {
+    //         $sortOrder = 'asc';
+    //     }
+
+    //     // Get rows per page (default to 10)
+    //     $perPage = $request->input('perPage', 10);
+
+    //     // Get search query from request
+    //     $query = $request->input('query', '');
+
+    //     // Build the query with optional department filtering
+    //     $assets = DB::table('asset')
+    //         ->join('department', 'asset.dept_ID', '=', 'department.id')
+    //         ->join('category', 'asset.ctg_ID', '=', 'category.id')
+    //         ->select(
+    //             'asset.*',
+    //             'department.name as department',
+    //             'category.name as category'
+    //         )
+    //         // Apply department filtering if provided
+    //         ->when($dept, function ($q) use ($dept) {
+    //             return $q->where('asset.dept_ID', $dept);
+    //         })
+    //         // Apply search filtering
+    //         ->where(function ($subquery) use ($query) {
+    //             $subquery->where('asset.name', 'like', '%' . $query . '%')
+    //                      ->orWhere('asset.code', 'like', '%' . $query . '%');
+    //         })
+    //         // Apply sorting
+    //         ->orderBy($sortBy, $sortOrder)
+    //         ->paginate($perPage)
+    //         ->appends([
+    //             'query' => $query,
+    //             'sort_by' => $sortBy,
+    //             'sort_order' => $sortOrder,
+    //             'perPage' => $perPage
+    //         ]);
+
+    //     // Return the view with the asset list and parameters
+    //     return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage'));
+    // }
 
 
-        $assets = $query->paginate(10);
+    // public function searchAssets(Request $request)
+    // {
+    //     // Get search query and rows per page
+    //     $query = $request->input('query');
+    //     $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+    //     $deptId = $request->input('dept'); // Get the department ID from the request, if present
 
+    //     // Build the query to search assets by name or code
+    //     $assets = DB::table('asset')
+    //         ->when($deptId, function ($query, $deptId) {
+    //             // Apply department filter if deptId is provided
+    //             return $query->where('asset.dept_ID', '=', $deptId);
+    //         })
+    //         ->where(function ($subquery) use ($query) {
+    //             // Search by asset name or code
+    //             $subquery->where('asset.name', 'like', '%' . $query . '%')
+    //                 ->orWhere('asset.code', 'like', '%' . $query . '%');
+    //         })
+    //         ->join('department', 'asset.dept_ID', '=', 'department.id')
+    //         ->join('category', 'asset.ctg_ID', '=', 'category.id')
+    //         ->select('asset.*', 'department.name as department', 'category.name as category')
+    //         ->orderByRaw("
+    //         CASE
+    //         WHEN asset.status = 'active' THEN 0
+    //         WHEN asset.status = 'under_maintenance' THEN 1
+    //         WHEN asset.status = 'deployed' THEN 2
+    //         WHEN asset.status = 'disposed' THEN 3
+    //         ELSE 4
+    //         END
+    //         ")
+    //         ->orderBy('department', 'asc')
+    //         ->orderBy(DB::raw("
+    //         IF(asset.name REGEXP '[0-9]+$',
+    //             CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+    //             asset.id
+    //         )
+    //     "), 'asc')// Order by name or another column if needed
+    //         ->paginate($perPage);
 
-        return view("admin.assetList", compact('assets'));
-    }
-
-    public function searchAssets(Request $request)
-    {
-        // Get search query and rows per page
-        $query = $request->input('query');
-        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
-        $deptId = $request->input('dept'); // Get the department ID from the request, if present
-
-        // Build the query to search assets by name or code
-        $assets = DB::table('asset')
-            ->when($deptId, function ($query, $deptId) {
-                // Apply department filter if deptId is provided
-                return $query->where('asset.dept_ID', '=', $deptId);
-            })
-            ->where(function ($subquery) use ($query) {
-                // Search by asset name or code
-                $subquery->where('asset.name', 'like', '%' . $query . '%')
-                    ->orWhere('asset.code', 'like', '%' . $query . '%');
-            })
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ")
-            ->orderBy('department', 'asc')
-            ->orderBy(DB::raw("
-            IF(asset.name REGEXP '[0-9]+$',
-                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-                asset.id
-            )
-        "), 'asc')// Order by name or another column if needed
-            ->paginate($perPage);
-
-        // Return the view with the filtered assets
-        return view('admin.assetList', compact('assets'));
-    }
+    //     // Return the view with the filtered assets
+    //     return view('admin.assetList', compact('assets'));
+    // }
 
 
     //KANI
