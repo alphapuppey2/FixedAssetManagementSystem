@@ -127,12 +127,12 @@
                                                 class="desc-input"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td>
-                                            <a class="btn btn-outline-primary edit-btn"
+                                        <td class="py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <a class="bg-blue-950 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
-                                            <a class="btn btn-outline-success save-btn" data-row-id="{{ $dataItem->id }}"
+                                            <a class="bg-blue-950 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $dataItem->id }}"
                                                 style="display: none;">Save</a>
-                                            <a class="btn btn-outline-secondary cancel-btn"
+                                            <a class="bg-red-400 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn"
                                                 data-row-id="{{ $dataItem->id }}" style="display: none;">Cancel</a>
 
                                             <form
@@ -140,7 +140,7 @@
                                                 method="post" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-outline-danger delete-btn">Delete</button>
+                                                <button class="bg-red-400 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn">Delete</button>
                                             </form>
                                         </td>
                                     @else
@@ -167,11 +167,11 @@
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
                                         <td class=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
+                                            <a class="bg-blue-950 cursor-pointer text-medium h-full text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
-                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
+                                            <a class="bg-blue-950 cursor-pointer text-medium text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
                                                 style="display: none;">Save</a>
-                                            <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
+                                            <a class="bg-red-400 cursor-pointer text-medium text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
                                                 data-row-id="{{ $key }}" style="display: none;">Cancel</a>
 
                                             <form
@@ -179,7 +179,7 @@
                                                 method="post" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn">Delete</button>
+                                                <button class="bg-red-400 text-medium cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn">Delete</button>
                                             </form>
                                         </td>
                                     @endif
