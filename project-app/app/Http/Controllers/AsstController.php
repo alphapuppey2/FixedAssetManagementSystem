@@ -28,31 +28,65 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AsstController extends Controller
 {
-    public function showAllAssets()
+    public function showAllAssets(Request $request)
     {
+        // Get sorting parameters from the request (default to 'asset.name' and 'asc')
+        $sortBy = $request->input('sort_by', 'asset.name');
+        $sortOrder = strtolower($request->input('sort_order', 'asc')); // Ensure lowercase
+
+        // List of valid sort fields to avoid SQL injection
+        $validSortFields = [
+            'asset.name', 'asset.code', 'category.name',
+            'department.name', 'asset.depreciation', 'asset.status'
+        ];
+
+        // Validate sort field, if invalid default to 'asset.name'
+        if (!in_array($sortBy, $validSortFields)) {
+            $sortBy = 'asset.name';
+        }
+
+        // Validate sort order, if invalid default to 'asc'
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'asc';
+        }
+
+        // Get rows per page from request (default to 10)
+        $perPage = $request->input('perPage', 10);
+
+        // Get search query and department filter
+        $query = $request->input('query', '');
+        $deptId = $request->input('dept');
+
+        // Build the query with search and sorting
         $assets = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ")
-            ->orderBy(DB::raw("
-            IF(asset.name REGEXP '[0-9]+$',
-                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-                asset.id
-            )
-        "), 'asc')
-            ->paginate(10);
+            ->select('asset.*', 'department.name as department', 'category.name as category')
+            ->when($deptId, function ($q) use ($deptId) {
+                return $q->where('asset.dept_ID', $deptId);
+            })
+            ->where(function ($subquery) use ($query) {
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                         ->orWhere('asset.code', 'like', '%' . $query . '%');
+            })
+            // ->orderByRaw("
+            //     CASE
+            //         WHEN asset.status = 'active' THEN 0
+            //         WHEN asset.status = 'under_maintenance' THEN 1
+            //         WHEN asset.status = 'deployed' THEN 2
+            //         WHEN asset.status = 'disposed' THEN 3
+            //         ELSE 4
+            //     END
+            // ")
+            ->orderBy($sortBy, $sortOrder) // Apply sorting
+            ->paginate($perPage)
+            ->appends(['query' => $query, 'sort_by' => $sortBy, 'sort_order' => $sortOrder, 'perPage' => $perPage]);
 
-        return view("admin.assetList", compact('assets'));
+        // Return the view with assets data
+        return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage'));
     }
+
+
 
     public function showAssetsByDept($dept = null)
     {

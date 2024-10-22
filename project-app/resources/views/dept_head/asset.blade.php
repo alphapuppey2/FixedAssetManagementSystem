@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-<div class="flex justify-between items-center mb-4">
+<div class="flex justify-between items-center mb-2">
     <div class="relative searchBox w-full max-w-md ml-2">
         <form action="{{ route('assets.search') }}" method="GET" id="searchForm" class="relative flex items-center">
             <!-- Filter Button Inside Search Input -->
@@ -21,7 +21,7 @@
             </button>
 
             <!-- Search Input Field -->
-            <x-text-input
+            <x-search-input
                 name="search"
                 id="searchFilt"
                 placeholder="Search by Code, Name, Category, etc..."
@@ -48,11 +48,10 @@
             <x-icons.exportIcon />
         </button>
 
-        <!-- Search Form -->
     </div>
 </div>
 
-<div class="flex justify-between items-center mb-4">
+<div class="flex justify-between items-center mb-2">
     <!-- Rows per page dropdown -->
     <div class="flex items-center">
         <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
@@ -78,7 +77,12 @@
 
     <!-- Pagination -->
     <div class="ml-auto pagination-container">
+        <div class="flex items-center space-x-4 mt-4">
+        <span class="text-gray-600">
+            Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
+        </span>
         {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+        </div>
     </div>
 </div>
 
