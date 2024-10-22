@@ -53,7 +53,6 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
     </div>
 
     <!-- Navigation Section -->
-    {{-- <nav class="flex items-center space-x-4 relative"> --}}
     <nav class="flex items-center space-x-2 md:space-x-4">
         <!-- Notification Icon -->
         <div
@@ -95,7 +94,6 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 class="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden z-50">
 
                 <!-- Header -->
-                {{-- <div class="border-b border-gray-200 flex justify-between items-center px-3 py-2 bg-gray-50"> --}}
                 <div class="border-b px-3 py-2 bg-gray-50 flex justify-between items-center">
                     <a href="{{ route('notifications.index') }}" class="text-blue-500 hover:underline text-sm">
                         View All
@@ -143,6 +141,9 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                     <li>
                         <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
                             {{ __('Users') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('adminFormMaintenance')">
+                            {{ __('Maintenance') }}
                         </x-dropdown-link>
                     </li>
                     @endif
