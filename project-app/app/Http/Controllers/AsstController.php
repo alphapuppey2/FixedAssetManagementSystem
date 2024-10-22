@@ -190,7 +190,7 @@ class AsstController extends Controller
     // }
 
 
-    //KANI
+    //DEPTHEAD
     public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;

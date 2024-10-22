@@ -63,9 +63,6 @@
             </div>
         </div>
 
-
-
-
         <div class="flex justify-between items-center mb-4">
             <!-- Rows per page dropdown (on the left) -->
             <div class="flex items-center">
@@ -84,7 +81,7 @@
 
             <!-- Pagination (on the right) -->
             <div class="ml-auto pagination-container">
-                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }}
+                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links('vendor.pagination.tailwind') }}
             </div>
 
         </div>
@@ -93,13 +90,22 @@
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
                 <li class="mr-4">
-                    <a href="{{ route('maintenance') }}" class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Requests</a>
+                    <a href="{{ route('maintenance', ['tab' => 'requests']) }}"
+                       class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                        Requests
+                    </a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.approved') }}" class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Approved</a>
+                    <a href="{{ route('maintenance', ['tab' => 'approved']) }}"
+                       class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                        Approved
+                    </a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.denied') }}" class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Denied</a>
+                    <a href="{{ route('maintenance', ['tab' => 'denied']) }}"
+                       class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                        Denied
+                    </a>
                 </li>
             </ul>
         </div>
@@ -181,27 +187,38 @@
                 <tbody id="tableBody" class="divide-y divide-gray-200">
                     @forelse($requests as $maintenance)
                         <tr>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->requestor ? $maintenance->requestor_name : 'System-generated' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_code ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A'}}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category_name ?? 'N/A'}}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->id ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $maintenance->requestor ? $maintenance->requestor_name : 'System-generated' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->asset_code ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->category_name ?? 'N/A' }}</td>
+
                             @if($tab === 'approved')
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ ucfirst($maintenance->type ?? 'N/A') }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->authorized_by ? $maintenance->authorized_by_name : 'System-generated' }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ $maintenance->authorized_by ? $maintenance->authorized_by_name : 'System-generated' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}
+                                </td>
                             @elseif($tab === 'denied')
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by_name ?? 'N/A'}}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->reason ?? 'N/A'}}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->denied_by_name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->reason ?? 'N/A' }}</td>
                             @else
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->location_name ?? 'N/A'}}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900">{{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->location_name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}
+                                </td>
                             @endif
-                            <!-- Action column for each tab -->
+
+                            <!-- Action Column -->
                             <td class="px-6 py-4 text-sm text-gray-900">
                                 @if($tab === 'requests')
-                                    <!-- Approve and Deny buttons for Requests tab -->
                                     <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
@@ -219,11 +236,12 @@
                             </td>
                         </tr>
                     @empty
-                    <tr>
-                        <td colspan="10" class="px-6 py-4 text-sm text-gray-500 text-center">No maintenance requests found.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="10" class="px-6 py-4 text-sm text-gray-500 text-center">No maintenance requests found.</td>
+                        </tr>
                     @endforelse
                 </tbody>
+
             </table>
         </div>
 

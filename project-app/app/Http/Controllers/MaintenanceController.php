@@ -29,43 +29,55 @@ class MaintenanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
+        $tab = $request->query('tab', 'requests'); // Default to 'requests'
         $searchQuery = $request->input('query', '');
-        $perPage = $request->input('rows_per_page', 10); // Default rows per page
-        $sortField = $request->input('sort', 'requested_at'); // Default sort field
-        $sortDirection = $request->input('direction', 'asc'); // Default sort direction
+        $perPage = $request->input('rows_per_page', 10);
+
+        // Determine default sort field and direction based on the selected tab
+        $defaultSortField = $tab === 'requests' ? 'requested_at' : 'updated_at';
+        $defaultSortDirection = ($tab === 'requests') ? 'asc' : 'desc'; // Requests in ascending, others in descending
+        $sortField = $request->input('sort', $defaultSortField);
+        $sortDirection = $request->input('direction', $defaultSortDirection);
 
         // List of valid sort fields
-        $validSortFields = ['id', 'requested_at', 'authorized_at', 'type', 'asset_code', 'category_name'];
-
-        // Ensure the sort field is valid
+        $validSortFields = ['id', 'requested_at', 'authorized_at', 'updated_at', 'type', 'asset_code', 'category_name'];
         if (!in_array($sortField, $validSortFields)) {
-            $sortField = 'requested_at';
+            $sortField = $defaultSortField;
         }
 
-        // Query the maintenance requests with appropriate joins
+        // Status mapping for the tabs
+        $statusMap = [
+            'requests' => 'request',
+            'approved' => 'approved',
+            'denied' => 'denied',
+        ];
+        $status = $statusMap[$tab] ?? 'request';
+
+        // Build the query
         $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
-            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->leftJoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
+            ->leftJoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
             ->select(
                 'maintenance.*',
-                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
-                DB::raw("IFNULL(category.name, 'No Category') AS category_name"), // Handle null categories
+                DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
+                DB::raw("
+                    CASE
+                        WHEN maintenance.status = 'denied' THEN
+                            CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname)
+                        ELSE
+                            'System-generated'
+                    END AS denied_by_name
+                "),
+                DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
+                'category.name AS category_name',
                 'location.name AS location_name',
                 'asset.code AS asset_code'
-            );
+            )
+            ->where('maintenance.status', $status);
 
-        // Apply status filter based on the selected tab
-        if ($tab === 'requests') {
-            $query->where('maintenance.status', 'request');
-        } elseif ($tab === 'approved') {
-            $query->where('maintenance.status', 'approved');
-        } elseif ($tab === 'denied') {
-            $query->where('maintenance.status', 'denied');
-        }
-
-        // Apply department filter for department heads
+        // Apply department filter for dept heads
         if ($user->usertype === 'dept_head') {
             $query->where('asset.dept_ID', $user->dept_id);
         } elseif ($user->usertype === 'user') {
@@ -73,12 +85,12 @@ class MaintenanceController extends Controller
         }
 
         // Apply search filter
-        if ($searchQuery) {
+        if (!empty($searchQuery)) {
             $query->where(function ($q) use ($searchQuery) {
                 $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('requestor_user.firstname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('requestor_user.middlename', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('requestor_user.lastname', 'LIKE', "%{$searchQuery}%")
                     ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
                     ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
                     ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
@@ -92,13 +104,13 @@ class MaintenanceController extends Controller
 
         // Apply sorting logic
         if ($sortField === 'category_name') {
-            $query->orderBy(DB::raw('LOWER(category.name)'), $sortDirection); // Case-insensitive sorting for category
+            $query->orderBy(DB::raw('LOWER(category.name)'), $sortDirection);
         } else {
-            $query->orderBy($sortField, $sortDirection); // Regular sorting
+            $query->orderBy($sortField, $sortDirection);
         }
 
-        // Fetch the filtered and paginated results
-        $requests = $query->paginate($perPage)->withQueryString(); // Maintain query parameters
+        // Fetch paginated results
+        $requests = $query->paginate($perPage)->withQueryString();
 
         // Prepare data for the view
         $viewData = [
@@ -110,7 +122,7 @@ class MaintenanceController extends Controller
             'sortDirection' => $sortDirection,
         ];
 
-        // Return the appropriate view based on user type
+        // Determine the appropriate view
         if ($user->usertype === 'dept_head') {
             return view('dept_head.maintenance', $viewData);
         } elseif ($user->usertype === 'admin') {
@@ -121,13 +133,15 @@ class MaintenanceController extends Controller
     }
 
 
+
+
     // Search functionality
     public function search(Request $request)
     {
         return $this->index($request);
     }
 
-    // Show the list of maintenance requests for the department head
+    //Show the list of maintenance requests for the department head
     public function requests(Request $request)
     {
         $user = Auth::user();
@@ -159,7 +173,7 @@ class MaintenanceController extends Controller
         ]);
     }
 
-    // Show the list of approved maintenance requests
+    //Show the list of approved maintenance requests
     public function approvedList(Request $request)
     {
         $user = Auth::user();

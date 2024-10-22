@@ -65,7 +65,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
-    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
+    // Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
 
     // USER UPDATES
     Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
@@ -137,9 +137,12 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
+    // MAINTENANCE
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('maintenance.approved');
     Route::get('/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('maintenance.denied');
+
+    //KANI ABOVE
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
 
