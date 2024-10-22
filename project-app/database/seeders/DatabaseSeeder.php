@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
-            // deptSeeder::class,
+            deptSeeder::class,
             ManufacturerSeeder::class,
             ModelSeeder::class,
             location::class,
