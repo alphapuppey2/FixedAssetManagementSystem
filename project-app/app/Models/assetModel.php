@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;;
 
 class assetModel extends Model
 {
@@ -46,26 +46,32 @@ class assetModel extends Model
         $this->save();
     }
 
-    // Create a restore method to un-delete the record
+    /**
+     * Restore a soft-deleted record.
+     */
     public function restore()
     {
         $this->isDeleted = 0;
         $this->save();
     }
 
-    // Scope to exclude soft-deleted records by default
+    /**
+     * Scope to exclude soft-deleted records.
+     */
     public function scopeNotDeleted($query)
     {
         return $query->where('isDeleted', 0);
     }
 
-    // Optional: Scope to include only soft-deleted records
+    /**
+     * Scope to include only soft-deleted records.
+     */
     public function scopeOnlyDeleted($query)
     {
         return $query->where('isDeleted', 1);
     }
 
-    // Relationship to the Category model
+    // Relationships with other models
 
     public function category()
     {
@@ -92,8 +98,11 @@ class assetModel extends Model
         return $this->hasMany(Preventive::class, 'asset_key');
     }
 
+    /**
+     * Get the asset image URL.
+     */
     public function getImageUrlAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : asset('images/no-image.png');
+        return $this->asst_img ? asset('storage/' . $this->asst_img) : asset('images/no-image.png');
     }
 }

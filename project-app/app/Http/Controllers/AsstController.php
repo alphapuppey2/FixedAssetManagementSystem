@@ -135,39 +135,68 @@ class AsstController extends Controller
         return view('admin.assetList', compact('assets'));
     }
 
-    public function showDeptAsset()
-    {
-        $userDept = Auth::user()->dept_id;
 
-        $assets = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('asset.dept_ID', $userDept)
-            ->where('asset.isDeleted', 0)
-            ->select(
-                'asset.id',
-                'asset.code',
-                'asset.name',
-                'asset.asst_img',
-                'asset.status',
-                'category.name as category_name',
-                'department.name as department'
-            )
-            ->orderByRaw("
-            CASE
-                WHEN asset.status = 'active' THEN 0
-                WHEN asset.status = 'under_maintenance' THEN 1
-                WHEN asset.status = 'deployed' THEN 2
-                WHEN asset.status = 'disposed' THEN 3
-                ELSE 4
-            END
-        ")
-            ->orderBy('code', 'asc')
-            ->orderBy('asset.created_at', 'desc') // Then sort by created_at
-            ->paginate(10);
+    //KANI
+public function showDeptAsset(Request $request)
+{
+    $userDept = Auth::user()->dept_id;
 
-        return view("dept_head.asset", compact('assets'));
+    // Get search query, sort field, and direction
+    $search = $request->input('search');
+    $sortField = $request->input('sort', 'code'); // Default sort field
+    $sortDirection = $request->input('direction', 'asc'); // Default direction
+
+    // Filter parameters
+    $status = $request->input('status');
+    $category = $request->input('category');
+
+    // Allow only these fields to be sorted
+    $validSortFields = ['code', 'name', 'category_name', 'status'];
+    if (!in_array($sortField, $validSortFields)) {
+        $sortField = 'code';
     }
+
+    // Build the query with filters
+    $assets = DB::table('asset')
+        ->join('department', 'asset.dept_ID', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', $userDept)
+        ->where('asset.isDeleted', 0)
+        ->when($search, function ($query, $search) {
+            return $query->where('asset.name', 'like', "%{$search}%");
+        })
+        ->when($status, function ($query, $status) {
+            return $query->where('asset.status', $status);
+        })
+        ->when($category, function ($query, $category) {
+            return $query->where('category.name', 'like', "%{$category}%");
+        })
+        ->select(
+            'asset.id',
+            'asset.code',
+            'asset.name',
+            'asset.status',
+            'category.name as category_name',
+            'department.name as department'
+        )
+        // ->orderByRaw("
+        //     CASE
+        //     WHEN asset.status = 'active' THEN 0
+        //     WHEN asset.status = 'under_maintenance' THEN 1
+        //     WHEN asset.status = 'deployed' THEN 2
+        //     WHEN asset.status = 'disposed' THEN 3
+        //     ELSE 4
+        //     END
+        //     ") //hello
+        ->orderBy($sortField, $sortDirection)
+        ->paginate(10);
+
+    // Return the view with assets and query parameters
+    return view('dept_head.asset', compact('assets'));
+}
+
+
+
 
     //Maintenance History of the
     public function showHistory($id)
@@ -621,35 +650,17 @@ class AsstController extends Controller
 
 
 
-    public function delete($code)
+    public function delete($id)
     {
-        $assetDel = assetModel::where('asset.code', $code)->firstOrFail();
+        $assetDel = assetModel::findOrFail($id); // Find asset by ID
 
-        // $assetDel = $assetDel[0];
-        // // dd($assetDel[0]->image);
-        // // Get the path of the image from the database
-        // $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
+        $assetDel->updated_at = now(); // Optionally update the timestamp
 
-        // // Delete the image file from the server
-        // if ($imagePath && Storage::exists('public/' . $imagePath)) {
-        //     Storage::delete('public/' . $imagePath);
-        // }
-
-        // // Get the path of the QR code from the database
-        // $qrCodePath = $assetDel->qr_img; // assuming 'qr' is the column name for the QR code path
-
-        // // Delete the QR code file from the server
-        // if ($qrCodePath && Storage::exists('public/' . $qrCodePath)) {
-        //     Storage::delete('public/' . $qrCodePath);
-        // }
-
-        $assetDel->updated_at = now();
-
-        // Delete the asset record from the database
-        $assetDel->delete();
+        $assetDel->delete(); // Delete the asset
 
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
+
     public function UsageHistory($id){
         return AssignedToUser::with(['assetUserBy','assignedBy'])
                                 ->where('asset_id',$id)->get();

@@ -3,20 +3,27 @@
 @include('components.icons')
 
 @section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center sm:text-left">
         {{ "Profile" }}
-    </h2>
+    </h2> <!-- Made header centered on small screens -->
 @endsection
+
 @section('content')
-    <div class="max-w-xl mx-auto">
+    <div class="max-w-xl mx-auto sm:px-0"> <!-- Added padding for small screens -->
+
         <!-- Profile Photo -->
         <div class="flex justify-center mb-6">
-            <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+            <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
+                 alt="Profile Image"
+                 class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-300">
+                 <!-- Adjusted size for small screens -->
         </div>
 
         <!-- User Name -->
-        <div class="text-center mb-4 flex items-center justify-center">
-            <h2 class="text-3xl font-semibold mr-2">{{ auth()->user()->firstname ?? 'Guest' }}
+        <div class="text-center mb-4 flex flex-col sm:flex-row items-center justify-center">
+            <!-- Changed to column on small screens -->
+            <h2 class="text-2xl sm:text-3xl font-semibold mb-2 sm:mb-0 sm:mr-2">
+                {{ auth()->user()->firstname ?? 'Guest' }}
                 {{ auth()->user()->middlename ? auth()->user()->middlename . ' ' : '' }}
                 {{ auth()->user()->lastname ?? '' }}
             </h2>
@@ -26,57 +33,44 @@
         </div>
 
         <!-- User Details -->
-        <div class="bg-white shadow-lg rounded p-6 mb-6">
-            <div class="mb-4 flex items-center">
-                <div class ="mr-3">
-                    @yield('locationIcon')
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700">Location</h3>
-                    <p class="text-gray-600">{{ auth()->user()->address ?? 'N/A' }}</p>
-                </div>
-            </div>
-            <div class="mb-4 flex items-center">
-                <div class ="mr-3">
-                    @yield('emailIcon')
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700">Email</h3>
-                <p class="text-gray-600">{{ auth()->user()->email ?? 'N/A' }}</p>
-                </div>
-            </div>
-            <div class="mb-4 flex items-center">
-                <div class ="mr-3">
-                    @yield('contactIcon')
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700">Contact</h3>
-                    <p class="text-gray-600">{{ formatContactNumber(auth()->user()->contact) ?? 'N/A' }}</p>
-                </div>
+        <div class="p-3 sm:p-4 mb-4">
+            <!-- Adjusted padding for small screens -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6"> <!-- New grid layout -->
+                @foreach([
+                    ['Location', auth()->user()->address, 'locationIcon'],
+                    ['Email', auth()->user()->email, 'emailIcon'],
+                    ['Contact', formatContactNumber(auth()->user()->contact), 'contactIcon'],
+                    ['ID Number', auth()->user()->employee_id, 'idNumberIcon']
+                ] as [$label, $value, $icon])
 
-            </div>
-            <div class="mb-4 flex items-center">
-                <div class ="mr-3">
-                    @yield('idNumberIcon')
+                <!-- Card Item -->
+                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="flex-shrink-0"> <!-- Icon container -->
+                        @yield($icon)
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-700">{{ $label }}</h3>
+                        <!-- Adjusted text size for smaller screens -->
+                        <p class="text-sm sm:text-base text-gray-600">{{ $value ?? 'N/A' }}</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-700">ID Number</h3>
-                    <p class="text-gray-600">{{ auth()->user()->id ?? 'N/A' }}</p>
-                </div>
-
+                @endforeach
             </div>
         </div>
 
+
         <!-- Change Password Button -->
         <div class="flex justify-center">
-            <a href="{{ route('user.profile_password') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Change Password</a>
+            <a href="{{ route('user.profile_password') }}"
+               class="bg-blue-500 text-white text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2 rounded hover:bg-blue-600">
+                Change Password
+            </a> <!-- Adjusted button size for small screens -->
         </div>
     </div>
 @endsection
 
 @php
 function formatContactNumber($number) {
-
     $cleaned = preg_replace('/\D/', '', $number);
 
     if (substr($cleaned, 0, 1) === '0') {

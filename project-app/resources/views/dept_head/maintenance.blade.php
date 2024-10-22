@@ -2,46 +2,69 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Request</h2>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
+        {{ 'Maintenance Request' }}
+    </h2>
 @endsection
 
 @section('content')
-    <div class="px-6 py-4">
+    <div class="">
         <!-- Top Section -->
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
 
             <!-- Search Bar -->
-            <div class="flex items-center w-1/2">
+            <div class="w-full md:w-1/2 flex items-center">
                 <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                    <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="text" name="query" placeholder="Search..."
+                        value="{{ $searchQuery }}"
+                        class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </form>
             </div>
 
-            <!-- Right Section: Download Icon and Create Button -->
-            <div class="flex items-center space-x-4">
-                <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                    <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
-                    <button id="refreshButton" class="p-2 text-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            <!-- Right Section: Icons and Button -->
+            <div class="w-full md:w-auto">
+                <div class="flex items-center space-x-1 md:space-x-4">
+                    <!-- Refresh Icon -->
+                    <form action="{{ route(Route::currentRouteName()) }}" method="GET">
+                        <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
+                        <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                        <button id="refreshButton" class="p-2 text-black flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <!-- Download Icon -->
+                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}"
+                    class="p-2 text-black flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="size-7">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                         </svg>
-                    </button>
-                </form>
-                <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}" class="p-2 text-black">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                    </svg>
-                </a>
-                <a href="{{ route('formMaintenance') }}" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    Create Maintenance
-                </a>
+                    </a>
+
+                    <!-- Create Maintenance Button -->
+                    <a href="{{ route('formMaintenance') }}"
+                    class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600
+                            focus:outline-none flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        Create Maintenance
+                    </a>
+                </div>
             </div>
         </div>
+
+
+
 
         <div class="flex justify-between items-center mb-4">
             <!-- Rows per page dropdown (on the left) -->
@@ -60,9 +83,10 @@
             </div>
 
             <!-- Pagination (on the right) -->
-            <div class="ml-auto">
-                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }} <!-- Pagination Links -->
+            <div class="ml-auto pagination-container">
+                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }}
             </div>
+
         </div>
 
         <!-- Tabs Section -->
@@ -81,7 +105,7 @@
         </div>
 
         <!-- Table Section -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
             <table class="min-w-full bg-white border rounded-md">
                 <thead class="bg-gray-100 border-b">
                     <tr>
@@ -153,47 +177,161 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div id="editApproveModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div id="modalContentApprove" class="bg-white rounded-lg w-1/2 p-6 shadow-lg">
-            <!-- Content will be dynamically injected here via AJAX -->
+        <!-- Card View for Small Screens -->
+        <!-- Added a card layout for small screens (hidden on large screens) -->
+        <div class="block md:hidden space-y-4">
+            @forelse($requests as $maintenance)
+            <div class="bg-white shadow-md rounded-md p-4">
+                <h3 class="font-bold text-lg mb-2">Request ID: {{ $maintenance->id ?? 'N/A'}}</h3>
+                <p><strong>Requestor:</strong> {{ $maintenance->requestor ? $maintenance->requestor_name : 'System-generated' }}</p>
+                <p><strong>Asset Code:</strong> {{ $maintenance->asset_code ?? 'N/A'}}</p>
+                <p><strong>Description:</strong> {{ $maintenance->description ?? 'N/A'}}</p>
+                <p><strong>Category:</strong> {{ $maintenance->category_name ?? 'N/A'}}</p>
+
+                <!-- Conditional fields based on tab -->
+                @if($tab === 'approved')
+                    <p><strong>Type:</strong> {{ ucfirst($maintenance->type ?? 'N/A') }}</p>
+                    <p><strong>Approved By:</strong> {{ $maintenance->authorized_by ? $maintenance->authorized_by_name : 'System-generated' }}</p>
+                    <p><strong>Approved At:</strong> {{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</p>
+                @elseif($tab === 'denied')
+                    <p><strong>Denied By:</strong> {{ $maintenance->denied_by_name ?? 'N/A'}}</p>
+                    <p><strong>Denied At:</strong> {{ \Carbon\Carbon::parse($maintenance->authorized_at)->format('Y-m-d h:i A') ?? 'N/A' }}</p>
+                    <p><strong>Reason:</strong> {{ $maintenance->reason ?? 'N/A'}}</p>
+                @else
+                    <p><strong>Location:</strong> {{ $maintenance->location_name ?? 'N/A'}}</p>
+                    <p><strong>Requested At:</strong> {{ \Carbon\Carbon::parse($maintenance->requested_at)->format('Y-m-d h:i A') ?? 'N/A' }}</p>
+                @endif
+
+                <!-- Actions -->
+                <div class="mt-4">
+                    @if($tab === 'requests')
+                        <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
+                        </form>
+                        <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="reason" value="N/A">
+                            <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('maintenance.deny', $maintenance->id) }}">Deny</button>
+                        </form>
+                    @elseif($tab === 'approved')
+                        <a href="javascript:void(0)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 block w-full text-center" onclick="openEditModal({{ $maintenance->id }})">Edit (Approved)</a>
+                    @elseif($tab === 'denied')
+                        <a href="javascript:void(0)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 block w-full text-center" onclick="openEditDeniedModal({{ $maintenance->id }})">Edit (Denied)</a>
+                    @endif
+                </div>
+            </div>
+            @empty
+            <div class="text-center text-gray-500">No maintenance requests found.</div>
+            @endforelse
         </div>
     </div>
 
-    <div id="editDeniedModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div id="modalContentDenied" class="bg-white rounded-lg w-1/2 p-6 shadow-lg">
+    <!-- Edit Approve Modal -->
+    <div id="editApproveModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
+        <div id="modalContentApprove"
+            class="bg-white rounded-lg w-full max-w-md md:max-w-2xl p-6 shadow-lg">
             <!-- Content will be dynamically injected here via AJAX -->
         </div>
     </div>
 
     <!-- Modal Structure for Approve -->
-    <div id="approveModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg w-1/3 p-6 shadow-lg">
-            <h2 class="text-lg font-semibold mb-4">Approve Maintenance Request</h2>
-            <p>Are you sure you want to approve this request?</p>
-            <div class="mt-4 flex justify-end">
-                <button id="cancelApproveBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mr-2">Cancel</button>
-                <button id="confirmApproveBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Approve</button>
+    <div id="approveModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
+        <div class="bg-white rounded-lg w-full max-w-sm md:max-w-lg p-6 shadow-lg">
+            <!-- Responsive Text Alignment -->
+            <h2 class="text-lg font-semibold mb-4 sm:text-center md:text-left">
+                Approve Maintenance Request
+            </h2>
+            <p class="sm:text-center md:text-left">
+                Are you sure you want to approve this request?
+            </p>
+
+            <!-- Responsive Button Layout -->
+            <div class="mt-4 flex flex-col md:flex-row justify-end md:space-x-2 space-y-2 md:space-y-0">
+                <button id="confirmApproveBtn"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Approve
+                </button>
+                <button id="cancelApproveBtn"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
 
+
+    <!-- Edit Denied Modal -->
+    <div id="editDeniedModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
+        <div id="modalContentDenied"
+            class="bg-white rounded-lg w-full max-w-md md:max-w-2xl p-6 shadow-lg">
+            <!-- Content will be dynamically injected here via AJAX -->
+        </div>
+    </div>
+
     <!-- Modal Structure for Deny -->
-    <div id="denyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg w-1/3 p-6">
-            <h2 class="text-lg font-semibold mb-4">Deny Maintenance Request</h2>
+    <div id="denyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 md:p-0 hidden">
+        <div class="bg-white rounded-lg w-full max-w-sm md:max-w-lg p-6 shadow-lg">
+            <!-- Responsive Heading -->
+            <h2 class="text-lg font-semibold mb-4 sm:text-center md:text-left">
+                Deny Maintenance Request
+            </h2>
+
             <form id="denyForm" action="" method="POST">
                 @csrf
-                <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
-                <input type="text" name="reason" id="reason" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                <div class="mt-4 flex justify-end">
-                    <button type="button" id="cancelDenyBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mr-2">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
+                <!-- Responsive Label and Input -->
+                <label for="reason" class="block text-sm font-medium text-gray-700 sm:text-center md:text-left">
+                    Reason
+                </label>
+                <input type="text" name="reason" id="reason"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    required>
+
+                <!-- Responsive Button Layout -->
+                <div class="mt-4 flex flex-col md:flex-row justify-end md:space-x-2 space-y-2 md:space-y-0">
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                        Save
+                    </button>
+                    <button type="button" id="cancelDenyBtn"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                        Cancel
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <style>
+        /* Reduce the size of pagination on smaller screens */
+        @media (max-width: 640px) {
+            .pagination-container nav {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .pagination-container nav .page-item {
+                margin: 0 2px; /* Reduce spacing between items */
+            }
+
+            .pagination-container nav .page-link {
+                font-size: 0.75rem; /* Smaller text */
+                padding: 0.25rem 0.5rem; /* Smaller padding */
+                border-radius: 4px; /* Smaller corners */
+            }
+        }
+
+        /* Optional: Add hover styles */
+        .pagination-container nav .page-link:hover {
+            background-color: #e5e7eb; /* Light gray hover background */
+        }
+    </style>
 
 
     <!-- Toast Notification -->
