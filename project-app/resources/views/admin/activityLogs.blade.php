@@ -22,14 +22,13 @@
 
 @section('content')
 <div class="w-full px-8 mt-4">
-    <div class="flex justify-between mb-4">
-        <input 
-            type="text" 
-            id="search" 
-            placeholder="Search logs..." 
-            class="border border-gray-300 rounded-lg px-4 py-2 w-1/3"
-        />
-    </div>
+    <form action="">
+        <div class="mb-4 search-container">
+            <x-search-input 
+                placeholder="Search by activity or description"
+                class="w-72" />
+        </div>
+    </form>
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg shadow-md">
@@ -76,7 +75,7 @@
     </div>
 
     <div class="mt-4">
-        {{ $logs->links('pagination::tailwind') }}
+        {{ $logs->links('vendor.pagination.tailwind') }}
     </div>
 </div>
 @endsection
