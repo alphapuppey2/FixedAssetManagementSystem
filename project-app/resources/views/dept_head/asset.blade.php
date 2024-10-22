@@ -21,7 +21,7 @@
             </button>
 
             <!-- Search Input Field -->
-            <x-search-input
+            <x-text-input
                 name="search"
                 id="searchFilt"
                 placeholder="Search by Code, Name, Category, etc..."
