@@ -284,7 +284,7 @@ public function showDeptAsset(Request $request)
             'depreciation' => 'required|numeric|min:0.01',
             'loc' => 'required|exists:location,id',
             'mod' => 'required|exists:model,id',
-            'mcft' => 'requiredexists:manufacturer,id',
+            'mcft' => 'required|exists:manufacturer,id',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
         ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost",
