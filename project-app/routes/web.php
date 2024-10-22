@@ -109,6 +109,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
     Route::get('/admin/activity-logs/search', [ActivityLogController::class, 'search'])->name('searchActivity');
     Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
+    Route::post('/admin/activity-logs/settings', [ActivityLogController::class, 'updateSettings'])->name('activityLogs.updateSettings');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
@@ -199,7 +200,6 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
     Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
     Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
-
 });
 
 // User Routes

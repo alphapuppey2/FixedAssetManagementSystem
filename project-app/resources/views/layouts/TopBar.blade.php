@@ -140,7 +140,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                     @if (Auth::user()->usertype === 'admin')
                     <li>
                         <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
-                            {{ __('Users') }}
+                            {{ __('User') }}
                         </x-dropdown-link>
                         <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('adminFormMaintenance')">
                             {{ __('Maintenance') }}
