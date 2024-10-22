@@ -368,152 +368,95 @@ public function showDeptAsset(Request $request)
     }
 
     public static function assetCount()
-{
-    // Dashboard
-    $userDept = Auth::user()->dept_id;
-    $usertype = Auth::user()->usertype;
+    {
+        // Dashboard
+        $userDept = Auth::user()->dept_id;
+        $usertype = Auth::user()->usertype;
 
-    // Initialize the months array for the last 4 months (including the current month)
-    $months = [];
-    for ($i = 3; $i >= 0; $i--) {
-        $date = Carbon::now()->subMonths($i); // Get the date for each month
-        $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
-        $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
-    }
-
-    if($usertype !== 'admin'){
-        $asset['active'] = DB::table('asset')
-        ->where('status', '=', 'active')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
-
-    $asset['deploy'] = DB::table('asset')
-        ->where('status', '=', 'deployed')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
-
-    $asset['under_maintenance'] = DB::table('asset')
-        ->where('status', '=', 'under_maintenance')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
-
-    $asset['dispose'] = DB::table('asset')
-        ->where('status', '=', 'dispose')
-        ->where('dept_ID', '=', $userDept)
-        ->count();
-
-     // Query to fetch and group active assets by month
-     $dataActive = assetModel::where('status', 'active')
-     ->where('dept_ID', Auth::user()->dept_id)
-     ->select(
-         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-         DB::raw('COUNT(*) as count')
-     )
-     ->groupBy('monthYear')
-     ->get();
-
- // Query to fetch and group under maintenance assets by month
- $dataUnderMaintenance = assetModel::where('status', 'under_maintenance')
- ->where('dept_ID', Auth::user()->dept_id)
- ->select(
-         DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-         DB::raw('COUNT(*) as count')
-     )
-     ->groupBy('monthYear')
-     ->get();
-     $newAssetCreated = assetModel::where('dept_ID', $userDept)
-         ->whereMonth('created_at', Carbon::now()->month)
-         ->orderBy('created_at', 'desc')
-         ->take(5)
-         ->get();
-
-    }
-    else{
-
-        //admin Dashboard
-        $asset['active'] = DB::table('asset')
-        ->where('status', '=', 'active')
-        ->count();
-
-    $asset['deploy'] = DB::table('asset')
-        ->where('status', '=', 'deployed')
-        ->count();
-
-    $asset['under_maintenance'] = DB::table('asset')
-        ->where('status', '=', 'under_maintenance')
-        ->count();
-
-    $asset['dispose'] = DB::table('asset')
-        ->where('status', '=', 'dispose')
-        ->count();
-
-        $newAssetCreated = assetModel::whereMonth('created_at', Carbon::now()->month)
-        ->orderBy('created_at', 'desc')
-        ->take(5)
-        ->get();
-    }
-
-
-
-
-    // Query to fetch and group active assets by month
-    $dataActive = assetModel::where('status', 'active')
-        ->where('dept_ID', Auth::user()->dept_id)
-        ->select(
-            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-            DB::raw('COUNT(*) as count')
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Query to fetch and group under maintenance assets by month
-    $dataUnderMaintenance = assetModel::where('status', 'under_maintenance')
-    ->where('dept_ID', Auth::user()->dept_id)
-        ->select(
-            DB::raw('DATE_FORMAT(IFNULL(updated_at, created_at), "%b %Y") as monthYear'),
-            DB::raw('COUNT(*) as count')
-        )
-        ->groupBy('monthYear')
-        ->get();
-
-    // Map the data into the months array (only for the last 4 months)
-    foreach ($dataActive as $record) {
-        if (isset($months[$record->monthYear])) {
-            $months[$record->monthYear]['active'] = $record->count;
+        // Initialize the months array for the last 4 months (including the current month)
+        $months = [];
+        for ($i = 3; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i); // Get the date for each month
+            $monthYear = $date->format('M Y'); // e.g., 'Jul 2024'
+            $months[$monthYear] = ['active' => 0, 'under_maintenance' => 0]; // Initialize counts
         }
-    }
 
-    foreach ($dataUnderMaintenance as $record) {
-        if (isset($months[$record->monthYear])) {
-            $months[$record->monthYear]['under_maintenance'] = $record->count;
+        // Query for counts by status (filtered by department if not admin)
+        $statuses = ['active', 'deployed', 'under_maintenance', 'dispose'];
+        foreach ($statuses as $status) {
+            $query = DB::table('asset')->where('status', '=', $status);
+            if ($usertype !== 'admin') {
+                $query->where('dept_ID', '=', $userDept);
+            }
+            $asset[$status] = $query->count();
         }
+
+        // Query for recently created assets (last 5) - filtered by department if not admin
+        $newAssetCreatedQuery = assetModel::whereMonth('created_at', Carbon::now()->month)
+            ->orderBy('created_at', 'desc')
+            ->take(5);
+        if ($usertype !== 'admin') {
+            $newAssetCreatedQuery->where('dept_ID', $userDept);
+        }
+        $newAssetCreated = $newAssetCreatedQuery->get();
+
+        // Query to fetch and group active assets by month (filtered by dept_ID if not admin)
+        $dataActiveQuery = assetModel::where('status', 'active')
+            ->select(
+                DB::raw('DATE_FORMAT(created_at, "%b %Y") as monthYear'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('monthYear');
+        if ($usertype !== 'admin') {
+            $dataActiveQuery->where('dept_ID', $userDept);
+        }
+        $dataActive = $dataActiveQuery->get();
+
+        // Query to fetch and group maintenance records by month for under maintenance assets
+        $dataUnderMaintenanceQuery = Maintenance::join('asset', 'asset.id', '=', 'maintenance.asset_key')
+            ->where('asset.status', 'under_maintenance')
+            ->select(
+                DB::raw('DATE_FORMAT(maintenance.created_at, "%b %Y") as monthYear'),
+                DB::raw('COUNT(DISTINCT maintenance.id) as count') // Ensure distinct maintenance records are counted
+            )
+            ->groupBy('monthYear');
+        if ($usertype !== 'admin') {
+            $dataUnderMaintenanceQuery->where('asset.dept_ID', $userDept);
+        }
+        $dataUnderMaintenance = $dataUnderMaintenanceQuery->get();
+
+        // Map the data into the months array (only for the last 4 months)
+        foreach ($dataActive as $record) {
+            if (isset($months[$record->monthYear])) {
+                $months[$record->monthYear]['active'] = $record->count;
+            }
+        }
+
+        foreach ($dataUnderMaintenance as $record) {
+            if (isset($months[$record->monthYear])) {
+                $months[$record->monthYear]['under_maintenance'] = $record->count;
+            }
+        }
+
+        // Prepare data for the view
+        $labels = array_keys($months); // Month labels (e.g., 'Jul 2024')
+        $activeCounts = array_column($months, 'active'); // Active asset counts
+        $maintenanceCounts = array_column($months, 'under_maintenance'); // Under maintenance counts
+
+        // Return the view with the data
+        $view = ($usertype === 'admin') ? 'admin.home' : 'dept_head.home';
+        return view($view, [
+            'asset' => $asset,
+            'newAssetCreated' => $newAssetCreated,
+            'labels' => $labels,
+            'activeCounts' => $activeCounts,
+            'maintenanceCounts' => $maintenanceCounts,
+        ]);
     }
 
-    // Prepare data for the view
-    $labels = array_keys($months); // Month labels (e.g., 'Jul 2024')
-    $activeCounts = array_column($months, 'active'); // Active asset counts
-    $maintenanceCounts = array_column($months, 'under_maintenance'); // Under maintenance counts
 
-    // Return the view with the data
-   if($usertype === 'admin'){
-    return view('admin.home', [
-        'asset' => $asset,
-        'newAssetCreated' => $newAssetCreated,
-        'labels' => $labels,
-        'activeCounts' => $activeCounts,
-        'maintenanceCounts' => $maintenanceCounts,
-    ]);
-   }else{
-    return view('dept_head.home', [
-        'asset' => $asset,
-        'newAssetCreated' => $newAssetCreated,
-        'labels' => $labels,
-        'activeCounts' => $activeCounts,
-        'maintenanceCounts' => $maintenanceCounts,
-    ]);
 
-   }
-}
+
 
 
     public function update(Request $request, $id)
