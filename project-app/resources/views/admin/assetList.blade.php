@@ -5,19 +5,6 @@
     <div class="title">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
     </div>
-    <div class="header-R relative mr-2 flex items-center">
-        <button>
-            <span>
-                <x-icons.importIcon />
-            </span>
-        </button>
-        <button>
-            <span>
-                <x-icons.exportIcon />
-            </span>
-        </button>
-
-    </div>
 </div>
 @endsection
 

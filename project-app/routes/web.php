@@ -107,6 +107,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // ACTIVITY LOGS
     Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
+    Route::get('/admin/activity-logs/search', [ActivityLogController::class, 'search'])->name('searchActivity');
+    Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
