@@ -527,7 +527,7 @@ public function showDeptAsset(Request $request)
         ]);
         // dd($request);
 
-
+        // dd($validatedData);
         // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
         $departmentCode = $department->name;
@@ -553,7 +553,6 @@ public function showDeptAsset(Request $request)
 
         // Update asset data in the database
         $updatedRow = assetModel::findOrFail($id);
-
         $oldLastUser = $updatedRow->last_used_by;
         $updatedRow->update([
             'asst_img' => $pathFile,
@@ -571,13 +570,11 @@ public function showDeptAsset(Request $request)
         $settingUsageLogs = new AsstController();
         $assetKey = assetModel::findOrFail($id);
         if(isset($validatedData['usrAct'])){
-
             $settingUsageLogs->assetAcquiredBy($validatedData["usrAct"],$assetKey->id );
         }
         if($oldLastUser !== $validatedData["usrAct"]){
             $settingUsageLogs->assetReturnedBy($validatedData["usrAct"],$assetKey->id);
         }
-
 
         // Retrieve the updated asset to get the code
         $asset = DB::table('asset')->where('id', $id)->first();
@@ -780,7 +777,7 @@ public function showDeptAsset(Request $request)
                 $usageLogsAsset = $this->UsageHistory($retrieveData->id);
 
 
-                // dd($usageLogsAsset);
+                // dd($retrieveData);
             // dd($allUserInDept);
 
         // Determine the view based on user type
