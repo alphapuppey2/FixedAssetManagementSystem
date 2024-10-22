@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
-use App\Notifications\TimerWarningNotification;
-use Illuminate\Support\Facades\Notification;
-
 
 class ActivityLogController extends Controller
 {
@@ -36,6 +33,9 @@ class ActivityLogController extends Controller
         $query = $request->input('query');
         $perPage = $request->input('perPage', 10);
 
+        // Get the current interval from cache (default to 'never' if not set)
+        $interval = Cache::get('activity_log_deletion_interval', 'never');
+
         // Perform search and paginate results
         $logs = ActivityLog::where('activity', 'like', "%{$query}%")
             ->orWhere('description', 'like', "%{$query}%")
@@ -43,7 +43,10 @@ class ActivityLogController extends Controller
             ->paginate($perPage)
             ->appends(['query' => $query, 'perPage' => $perPage]);
 
-        return view('admin.activityLogs', ['logs' => $logs]);
+        return view('admin.activityLogs', [
+            'logs' => $logs,
+            'interval' => $interval, // Pass interval to the view
+        ]);
     }
 
     public function export(Request $request)

@@ -63,7 +63,7 @@
 
         <!-- Pagination (on the right) -->
         <div class="ml-auto">
-            {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query'])->links() }}
+            {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query'])->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 
