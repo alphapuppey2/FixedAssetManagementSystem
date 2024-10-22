@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use App\Http\Controllers\SystemNotification;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AsstController extends Controller
@@ -277,13 +277,18 @@ public function showDeptAsset(Request $request)
             'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
             'assetname' => 'required',
             'category' => 'required',
-            'purchased' => 'required|date',
-            'loc' => 'required',
-            'mod' => 'required',
-            'mcft' => 'required',
+            'purchasedDate' => 'nullable|date|before_or_equal:today',
+            'pCost' => 'required|numeric|min:0.01',
+            'lifespan' => 'required|integer|min:0',
+            'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
+            'depreciation' => 'required|numeric|min:0.01',
+            'loc' => 'required|exists:location,id',
+            'mod' => 'required|exists:model,id',
+            'mcft' => 'requiredexists:manufacturer,id',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
-        ]);
+        ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost",
+            'purchaseDate.before_or_equal' => "The Purchase date must not have future Dates"]);
 
         // Additional Fields
         $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
@@ -297,8 +302,8 @@ public function showDeptAsset(Request $request)
 
         // Handle image upload
         $pathFile = NULL;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
+        if ($request->hasFile('asst_img')) {
+            $image = $request->file('asst_img');
             $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('asset_images', $filename, 'public');
             $pathFile = $path;
@@ -327,6 +332,11 @@ public function showDeptAsset(Request $request)
             'asst_img' => $pathFile,
             'name' => $request->assetname,
             'code' => $code,
+            'purchase_cost' => $request->pCost,
+            'purchase_date' => $request->purchasedDate,
+            'depreciation' => $request->depreciation,
+            'usage_lifespan' => $request->lifespan,
+            'salvage_value' => $request->salvageValue,
             'ctg_ID' => $request->category,
             'custom_fields' => $customFields,
             'dept_ID' => $userDept,
@@ -349,10 +359,10 @@ public function showDeptAsset(Request $request)
         ];
 
         // Send the notification to all admins
-        $admins = \App\Models\User::where('usertype', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
-        }
+        $admins = User::where('usertype', 'admin')->get();
+        // foreach ($admins as $admin) {
+        //     $admin->notify(new SystemNotification($notificationData));
+        // }
 
         return redirect()->to('/asset')->with('success', 'New Asset Created');
     }
@@ -514,17 +524,22 @@ public function showDeptAsset(Request $request)
 
         $validatedData = $request->validate([
             'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'name' => 'required|string',
-            'category' => 'required|exists:category,id',
+            'name' => 'sometimes|string',
+            'category' => 'sometimes|exists:category,id',
             'usrAct' => 'nullable|exists:users,id',
-            'mod' => 'required|string',
-            'mcft' => 'required|exists:manufacturer,id',
-            'loc' => 'required|exists:location,id',
-            'status' => 'nullable|string|max:511',
+            'mod' => 'sometimes|string',
+            'mcft' => 'sometimes|exists:manufacturer,id',
+            'loc' => 'sometimes|exists:location,id',
+            'purchasedDate' => 'required|date|before_or_equal:today',
+            'purchaseCost' => 'required|numeric|min:0.01',
+            'lifespan' => 'required|integer|min:0',
+            'salvageValue' => 'required|numeric|min:0|lt:purchaseCost',
+            'depreciation' => 'required|numeric|min:0.01',
+            'status' => 'sometimes|string|max:511',
             'field.key.*' => 'nullable|string|max:255',
             'field.value.*' => 'nullable|string|max:255',
             'current_image' => 'nullable|string', // Retain current image if not updated
-        ]);
+        ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost"]);
         // dd($request);
 
 
@@ -562,6 +577,11 @@ public function showDeptAsset(Request $request)
             'manufacturer_key' => $validatedData['mcft'],
             'model_key' => $validatedData["mod"],
             'loc_key' => $validatedData["loc"],
+            'purchase_cost' => $validatedData["purchaseCost"],
+            'purchase_date' => $validatedData["purchasedDate"],
+            'depreciation' => $validatedData["depreciation"],
+            'usage_lifespan' => $validatedData["lifespan"],
+            'salvage_value' => $validatedData["salvageValue"],
             'last_used_by' => $validatedData["usrAct"],
             'status' => $validatedData["status"],
             'custom_fields' => $fieldUpdate,
@@ -705,6 +725,11 @@ public function showDeptAsset(Request $request)
                 'asset.asst_img',
                 'asset.name',
                 'asset.code',
+                'asset.depreciation',
+                'asset.purchase_cost',
+                'asset.purchase_date',
+                'asset.usage_lifespan',
+                'asset.salvage_value',
                 'asset.status',
                 'asset.last_used_by',
                 'asset.custom_fields',
@@ -739,15 +764,19 @@ public function showDeptAsset(Request $request)
             $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
             $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
 
+
+
             // Create an empty array to hold the updated custom fields
             $updatedCustomFields = [];
+            // dd($departmentCustomFields ,$assetCustomFields);
             // dd($departmentCustomFields);
-        // Loop through the department custom fields and map the values from the asset custom fields
-        foreach ($departmentCustomFields as $deptField) {
-            $fieldName = $deptField['name']; // For example: "RAM"
+            // Loop through the department custom fields and map the values from the asset custom fields
+            foreach ($departmentCustomFields as $deptField) {
+                $fieldName = $deptField['name']; // For example: "RAM"
 
             // Check if the asset has a value for this field
             $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
+
 
             // Add the field to the updated custom fields array
             $updatedCustomFields[] = [
@@ -757,6 +786,9 @@ public function showDeptAsset(Request $request)
                 'helper' => $deptField['helptext'] // Keep helper from department
             ];
         }
+
+
+
         // Retrieve related maintenance data for the asset
         $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
             ->where('is_completed', 1)
@@ -781,6 +813,7 @@ public function showDeptAsset(Request $request)
 
 
                 // dd($usageLogsAsset);
+                // dd($retrieveData);
             // dd($allUserInDept);
 
         // Determine the view based on user type
