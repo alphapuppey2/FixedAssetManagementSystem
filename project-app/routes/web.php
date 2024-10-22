@@ -196,9 +196,9 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
     //Reports
-    Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
-    Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
-    Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
+    Route::get('/custom-report', [ReportsController::class, 'showAssetFilter'])->name('custom.report');
+    Route::get('/generate-custom-report', [ReportsController::class, 'generateAssetRerport'])->name('custom.report.generate');
+    Route::get('/report/download', [ReportsController::class, 'downloadAssetReport'])->name('report.download');
 });
 
 // User Routes

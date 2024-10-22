@@ -1,4 +1,4 @@
-<!-- resources/views/dept_head/generatedReport.blade.php -->
+<!-- resources/views/dept_head/generatedAssetReport.blade.php -->
 @extends('layouts.app')
 
 @section('header')

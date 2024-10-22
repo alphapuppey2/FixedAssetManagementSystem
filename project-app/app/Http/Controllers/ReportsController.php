@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Response;
 
 class ReportsController extends Controller
 {
-    public function show()
+    public function showAssetFilter()
     {
         $user = Auth::user();
         $categoryOptions = Category::where('dept_ID', $user->dept_id)->get();
@@ -24,7 +24,7 @@ class ReportsController extends Controller
         $modelOptions = ModelAsset::where('dept_ID', $user->dept_id)->get();
         $locationOptions = locationModel::where('dept_ID', $user->dept_id)->get();
 
-        return view('dept_head.customReport', compact(
+        return view('dept_head.assetCustomReport', compact(
             'categoryOptions',
             'manufacturerOptions',
             'modelOptions',
@@ -33,7 +33,7 @@ class ReportsController extends Controller
     }
 
     // Generate the custom report based on selected fields
-    public function generate(Request $request)
+    public function generateAssetRerport(Request $request)
     {
         // Get the authenticated user's department ID
         $user = Auth::user();
@@ -97,10 +97,10 @@ class ReportsController extends Controller
             ->appends($request->query());
 
         // Pass the data to the view
-        return view('dept_head.reports.generatedReport', compact('assets', 'fields'));
+        return view('dept_head.reports.generatedAssetReport', compact('assets', 'fields'));
     }
 
-    public function downloadReport(Request $request)
+    public function downloadAssetReport(Request $request)
     {
         $type = $request->query('type');
         $fields = $request->query('fields', []);
@@ -114,7 +114,7 @@ class ReportsController extends Controller
         $user = Auth::user();
 
         // Fetch the assets with the required data and apply filters
-        $query = assetModel::select($this->buildSelectFields($fields))
+        $query = assetModel::select($this->buildSelectFieldsForAssets($fields))
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->leftJoin('department', 'asset.dept_ID', '=', 'department.id')
             ->leftJoin('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
@@ -148,7 +148,7 @@ class ReportsController extends Controller
 
         if ($type === 'csv') {
             $csvFields = array_diff($fields, ['asst_img', 'qr_img']);  // Exclude images for CSV only
-            return $this->generateCSV($assets, $csvFields);
+            return $this->generateAssetCSV($assets, $csvFields);
         }
 
         if ($type === 'pdf') {
@@ -162,15 +162,15 @@ class ReportsController extends Controller
                     : public_path('images/defaultQR.png');
             }
 
-            $pdf = Pdf::loadView('dept_head.reports.generatedReportPDF', compact('assets', 'fields'))
+            $pdf = Pdf::loadView('dept_head.reports.generatedAssetReportPDF', compact('assets', 'fields'))
                 ->setPaper('a2', 'landscape');
-            return $pdf->download('report.pdf');
+            return $pdf->download('asset_report.pdf');
         }
 
         return back()->with('error', 'Invalid download type.');
     }
 
-    private function buildSelectFields($fields)
+    private function buildSelectFieldsForAssets($fields)
     {
         $selectFields = [];
         foreach ($fields as $field) {
@@ -198,9 +198,9 @@ class ReportsController extends Controller
         return $selectFields;
     }
 
-    private function generateCSV($assets, $fields)
+    private function generateAssetCSV($assets, $fields)
     {
-        $filename = 'report.csv';
+        $filename = 'asset_report.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
