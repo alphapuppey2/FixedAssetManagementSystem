@@ -95,6 +95,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
     Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+    Route::get('/admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
 
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
@@ -158,7 +159,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::put('/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('maintenance.updateDenied');
     Route::put('/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('maintenance.updateApproved');
 
-    Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
+    // Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
+    Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
 
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
