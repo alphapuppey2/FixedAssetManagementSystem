@@ -131,7 +131,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
         <nav>
             <x-dropdown2>
                 <x-slot name="trigger">
-                    <div class="div">Create New</div>
+                    <div class="div text-blue-950">Create New</div>
                 </x-slot>
 
                 <x-slot name="content">
@@ -144,7 +144,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                     @endif
                     @if(Auth::user()->usertype === 'dept_head')
                     <li>
-                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                        <x-dropdown-link class="w-full pl-3 block text-blue-950 hover:bg-blue-100" :href="route('newasset')">
                             {{ __('Asset') }}
                         </x-dropdown-link>
                     </li>

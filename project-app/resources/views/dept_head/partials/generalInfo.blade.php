@@ -1,3 +1,12 @@
+<style>
+    .info:nth-child(even){
+        background-color:rgb(243, 242, 242);
+    }
+    .info:nth-child(odd){
+        background-color:rgb(255, 255, 255);
+    }
+</style>
+
 <form id="formEdit" action="{{ route('assetDetails.edit', $data->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
@@ -21,16 +30,20 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
         {{-- Asset Details Section --}}
         <div class="col-span-2 space-y-6">
-            <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Name:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->name }}</div>
+            <div class="info flex items-center p-4">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Name:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->name }}
+                </div>
                 <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->name }}" />
             </div>
 
-            <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Category:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->category }}</div>
+            <div class="info flex items-center p-4">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Category:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->category }}
+                </div>
                 <select name="category" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($categories['ctglist'] as $category)
                         <option value="{{ $category->id }}" @selected($data->category == $category->name)>
@@ -40,9 +53,11 @@
                 </select>
             </div>
 
-            <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Model:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->model }}</div>
+            <div class="info flex items-center p-4 ">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Model:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->model }}
+                </div>
                 <select name="mod" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($model['mod'] as $model)
                         <option value="{{ $model->id }}" @selected($data->model == $model->name)>
@@ -52,9 +67,11 @@
                 </select>
             </div>
 
-            <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Manufacturer:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->manufacturer }}</div>
+            <div class="info flex items-center p-4 ">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Manufacturer:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->manufacturer }}</div>
                 <select name="mcft" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($manufacturer['mcft'] as $manufacturer)
                         <option value="{{ $manufacturer->id }}" @selected($data->manufacturer == $manufacturer->name)>
@@ -65,9 +82,11 @@
             </div>
 
 
-            <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Location:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->location }}</div>
+            <div class="info flex items-center p-4 ">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Location:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->location }}
+                </div>
                 <select name="loc" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base">
                     @foreach ($location['locs'] as $location)
                         <option value="{{ $location->id }}" @selected($data->location == $location->name)>
@@ -77,8 +96,9 @@
                 </select>
             </div>
 
-            <div class="info flex items-center p-4 bg-gray-100">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Status:</label>
+            <div class="info flex items-center p-4 ">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Status:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
                     @include('components.asset-status', ['status' => $data->status])
                 </div>
@@ -93,26 +113,55 @@
             </div>
 
             <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Depreciation:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->depreciation }}</div>
-                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
-                    value="{{ $data->depreciation }}" />
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Depreciation:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->depreciation }}</div>
+                <x-text-input name="depreciation" id="depreciation" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
+                    class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->depreciation }}" readonly />
             </div>
 
-            <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase Cost:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->purchase_cost }}</div>
-                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+            <div class="info flex items-center p-4 ">
+                <label for="purchaseCost"
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase
+                    Cost:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->purchase_cost }}</div>
+                <x-text-input name="purchaseCost" id="pCost" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
+                    class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base cursor-disabled"
                     value="{{ $data->purchase_cost }}" />
             </div>
-            <div class="info flex items-center p-4 bg-white">
-                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase date:</label>
-                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">{{ $data->purchase_date }}</div>
-                <x-text-input name="name" class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+            <div class="info flex items-center p-4">
+                <label
+                    class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase
+                    date:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->purchase_date }}</div>
+                <x-text-input name="purchasedDate" id="purchase_date"
+                    class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->purchase_date }}" />
             </div>
+            <div class="info flex items-center p-4 " id="salvageGroup">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Salvage
+                    Value:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->salvage_value }}</div>
+                <x-text-input name="salvageValue" id="salvageValue" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
+                    class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->salvage_value }}" />
+            </div>
+            <div class="info flex items-center p-4">
+                <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Usage
+                    Lifespan:</label>
+                <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    {{ $data->usage_lifespan }} years</div>
+                <x-text-input name="lifespan" id="lifespan"
+                    class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
+                    value="{{ $data->usage_lifespan }}" />
+            </div>
 
-            <div class="info flex items-center p-4 bg-white">
+            <div class="info flex items-center p-4 ">
                 <label class="field-label mr-4 w-32 text-gray-600 font-semibold text-base">Assigned to:</label>
                 <div class="field-Info font-semibold view-only text-base">
                     {{ isset($data->lastname) ? $data->lastname . ', ' . $data->firstname : 'N/A' }}</div>
@@ -126,6 +175,28 @@
 
                 </select>
             </div>
+            <div class="info flex flex-col p-4 addInfoContainer">
+                <span class="field-label mr-4 full text-gray-600 font-semibold text-base">Additional Information</span>
+
+
+                @if (!empty($updatedCustomFields))
+                <div class="addInfoBox grid gap-2">
+                    @foreach ($updatedCustomFields as $item)
+                        <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_auto] gap-2">
+                            <div class="field-Key customField capitalize text-slate-400 flex items-center h-full">{{ ucfirst($item['name']) }}
+                            </div>
+
+                            <div class="field-Info edit view-only">{{  empty($item['value']) ? 'N/a' : $item['value'] }}</div>
+                            <x-text-input class="edit hidden" name="field[value][]" aria-placeholder="Value"
+                                value="{{  empty($item['value']) ? '': $item['value'] }} " />
+                            <x-text-input class="hidden" name="field[key][]" value="{{$item['name']}}" />
+                        </div>
+                    @endforeach
+                </div>
+                @else
+                    <div class="noneField">No Additional Information</div>
+                @endif
+            </div>
         </div>
 
         {{-- Image Section --}}
@@ -133,7 +204,8 @@
             <div class="imgContainer flex flex-col items-center space-y-4">
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
                 <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
-                    <img src="{{ asset($imagePath) }}" id="imagePreview" alt="Asset Image" class="w-full h-full object-cover">
+                    <img src="{{ asset($data->asst_img) }}" id="imagePreview" alt="Asset Image"
+                        class="w-full h-full object-cover">
                 </div>
                 <label for="image" class="text-blue-500 cursor-pointer hover:underline edit hidden">
                     Select New Image
@@ -143,10 +215,12 @@
 
             <div class="qrContainer flex flex-col items-center space-y-4">
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">QR Code</label>
-                @if($data->qr_img)
-                <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}" class="block w-40 h-40">
-                    <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code" class="w-full h-full object-contain">
-                </a>
+                @if ($data->qr_img)
+                    <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}"
+                        class="block w-40 h-40">
+                        <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code"
+                            class="w-full h-full object-contain">
+                    </a>
                 @else
                     <div class="QRBOX w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md">
                         <img src="{{ asset($qrCodePath) }}" alt="QR Code" class="w-full h-full object-contain">
@@ -174,7 +248,7 @@
         } else {
             selectUsersInput.removeAttribute('required');
             selectUsersInput.value = '';
-             // Remove required
+            // Remove required
         }
     }
 
@@ -197,8 +271,7 @@
             if (initialUsrActValue === '' && selectUsers.value !== '') {
                 // Change the status to 'deployed' if usrAct changes from empty to non-empty
                 statusAssetInput.value = 'deployed';
-            }
-            else{
+            } else {
                 statusAssetInput.value = initialStatusValue;
             }
         });
@@ -235,4 +308,52 @@
             }
         });
     });
+    // Depreciation Calculation
+            const depreciationInput = document.getElementById('depreciation');
+            const purchaseCostInput = document.getElementById('pCost');
+            const salvageValueInput = document.getElementById('salvageValue');
+            const lifespanInput = document.getElementById('lifespan');
+
+            // Error message element
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('text-red-500');
+            errorMessage.style.display = 'none'; // Initially hidden
+            errorMessage.innerHTML = "Salvage value cannot exceed the purchase cost.";
+            salvageValueInput.parentNode.appendChild(errorMessage); // Append the error message after the salvage value field
+
+            function calculateDepreciation() {
+                const cost = parseFloat(purchaseCostInput.value) || 0;
+                const salvageValue = parseFloat(salvageValueInput.value) || 0;
+                const lifespan = parseInt(lifespanInput.value) || 1;
+
+                // Check if Salvage Value is greater than Purchase Cost
+                if (salvageValue > cost) {
+                    salvageValueInput.classList.add('border-red-500');
+                    errorMessage.style.display = 'block'; // Show error message
+                    depreciationInput.value = "0.00"; // Prevent calculation
+                    return; // Stop further execution if invalid
+                } else {
+                    salvageValueInput.classList.remove('border-red-500');
+                    errorMessage.style.display = 'none'; // Hide error message
+                }
+
+                // Calculate depreciation if the lifespan is greater than 0
+                if (lifespan > 0) {
+                    const depreciation = (cost - salvageValue) / lifespan;
+                    depreciationInput.value = depreciation.toFixed(2);
+                } else {
+                    depreciationInput.value = "0.00";
+                }
+            }
+
+            // Add input event listeners to trigger depreciation calculation
+            purchaseCostInput.addEventListener('input', calculateDepreciation);
+            salvageValueInput.addEventListener('input', calculateDepreciation);
+            lifespanInput.addEventListener('input', calculateDepreciation);
+
+            // Initialize fields with default values
+            // purchaseCostInput.value = "";
+            // salvageValueInput.value = "";
+            // lifespanInput.value = "";
+            // depreciationInput.value = "";
 </script>

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('salvage_value')->nullable();
             $table->integer('purchase_cost')->nullable();
             $table->integer('depreciation')->nullable();
-            $table->integer('bookValue')->default(0.0);
             $table->enum('status', ['active', 'deployed', 'under_maintenance', 'disposed'])->default('active');
 
             $table->binary('custom_fields')->nullable();
