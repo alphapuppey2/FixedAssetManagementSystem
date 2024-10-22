@@ -22,13 +22,18 @@
     <div class="bg-white p-10 rounded-lg shadow-md"> --}}
 <div class="container mx-auto px-4 md:px-8 py-6 md:py-10"> <!-- Responsive update -->
     <div class="bg-white p-6 md:p-10 rounded-lg shadow-md"> <!-- Responsive update -->
+        <!-- Toast Notification -->
+        <div id="toast"
+            class="hidden fixed bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded-md shadow-md transition-opacity duration-300 z-50">
+            <span id="toast-message"></span>
+        </div>
 
         {{-- <div class="flex justify-between items-center border-b pb-4 mb-6">
             <h3 class="text-2xl font-semibold">Customize Your Report</h3> --}}
-            <div class="flex flex-col md:flex-row justify-between items-center md:items-center border-b pb-4 mb-6"> <!-- Responsive update -->
-                <h3 class="text-xl md:text-2xl font-semibold mb-4 md:mb-0"> <!-- Responsive update -->
-                    Customize Your Report
-                </h3>
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-center border-b pb-4 mb-6"> <!-- Responsive update -->
+            <h3 class="text-xl md:text-2xl font-semibold mb-4 md:mb-0"> <!-- Responsive update -->
+                Customize Your Report
+            </h3>
             <button type="button" onclick="submitForm()"
                 {{-- class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded"> --}}
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-5 py-2 rounded"> <!-- Responsive update -->
@@ -36,7 +41,7 @@
             </button>
         </div>
 
-        <form id="customReportForm" action="{{ route('custom.report.generate') }}" method="GET" class="space-y-6 md:space-y-8">
+        <form id="customReportForm" action="{{ route('asset.report.generate') }}" method="GET" class="space-y-6 md:space-y-8">
             <!-- Date Range -->
             {{-- <div class="grid grid-cols-2 gap-8"> --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
@@ -161,28 +166,38 @@
             placeholder: "Select an option",
             allowClear: true
         });
-    });
 
-    // JavaScript for Select All functionality
-    const selectAll = document.getElementById('selectAll');
-    const fieldCheckboxes = document.querySelectorAll('.field-checkbox');
+        const selectAll = document.getElementById('selectAll');
+        const fieldCheckboxes = document.querySelectorAll('.field-checkbox');
 
-    selectAll.addEventListener('change', (e) => {
+        selectAll.addEventListener('change', (e) => {
+            fieldCheckboxes.forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+
         fieldCheckboxes.forEach(checkbox => {
-            checkbox.checked = e.target.checked;
+            checkbox.addEventListener('change', () => {
+                selectAll.checked = Array.from(fieldCheckboxes).every(cb => cb.checked);
+            });
         });
+
+        @if(session('error'))
+        showToast("{{ session('error') }}");
+        @endif
     });
 
-    fieldCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            // If all checkboxes are checked, check "Select All" checkbox
-            if (Array.from(fieldCheckboxes).every(cb => cb.checked)) {
-                selectAll.checked = true;
-            } else {
-                selectAll.checked = false;
-            }
-        });
-    });
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        toastMessage.textContent = message;
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
 
     function generateReport() {
         const selectedFields = Array.from(document.querySelectorAll('input[name="fields[]"]:checked'))
@@ -193,7 +208,7 @@
             return;
         }
 
-        fetch('{{ route('custom.report.generate') }}', {
+        fetch('{{ route('asset.report.generate') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -223,7 +238,7 @@
         const endDate = document.getElementById('end_date').value;
 
         if (!startDate || !endDate) {
-            alert('Please select both start and end dates.');
+            showToast('Please select both start and end dates.');
             return;
         }
 

@@ -24,7 +24,7 @@
             </h3>
             {{-- <div class="flex space-x-4"> --}}
             <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4"> <!-- Responsive update -->
-                <a href="{{ route('custom.report') }}"
+                <a href="{{ route('asset.report') }}"
                     {{-- class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-md shadow"> --}}
                     class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow text-center"> <!-- Responsive update -->
                     Back to Report Generator
@@ -39,11 +39,11 @@
 
                     <div id="dropdownMenu"
                         class="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg hidden">
-                        <a href="{{ route('report.download', array_merge(request()->query(), ['type' => 'csv'])) }}"
+                        <a href="{{ route('asset.report.download', array_merge(request()->query(), ['type' => 'csv'])) }}"
                             class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                             Download CSV
                         </a>
-                        <a href="{{ route('report.download', array_merge(request()->query(), ['type' => 'pdf'])) }}"
+                        <a href="{{ route('asset.report.download', array_merge(request()->query(), ['type' => 'pdf'])) }}"
                             class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                             Download PDF
                         </a>
