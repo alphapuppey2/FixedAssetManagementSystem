@@ -21,37 +21,39 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
     }
 </style>
 
-<div class="flex bg-white items-center shadow-md justify-between p-4 fixed h-[60px] md:left-[205px] z-10 md:w-[calc(100%_-_205px)] max-md:left-[50px] max-md:w-[calc(100%_-_50px)]">
+<div class="flex bg-white items-center shadow-md justify-between p-2 fixed h-[60px]
+    z-10 md:left-[205px] md:w-[calc(100%_-_205px)]
+    max-md:left-[50px] max-md:w-[calc(100%_-_50px)] w-full">
 
-    <!-- Logo Section -->
-    <div class="flex items-center space-x-6">
-        <span>
+    <!-- Left Section: Logo and Search Bar -->
+    <div class="flex items-center w-full space-x-2">
+        <!-- Logo Section: Hidden on small screens -->
+        <div class="hidden md:flex items-center space-x-2">
             <a href="{{ $homeRoute }}" class="flex items-center space-x-2">
-                <img src="{{ asset('images/system_logo.png') }}" alt="FAMAS Logo" class="h-10 w-10">
-                <span class="text-xl font-bold text-gray-800">FAMS</span> <!-- Optional text next to the logo -->
+                <img src="{{ asset('images/system_logo.png') }}" alt="FAMAS Logo"
+                     class="h-8 w-8 md:h-10 md:w-10">
+                <span class="text-lg md:text-xl font-bold text-gray-800">FAMS</span>
             </a>
-        </span>
-
-        <!-- Toast Notification -->
-        <div id="toast" class="fixed bottom-5 right-5 bg-red-500 text-white py-2 px-4 rounded shadow opacity-100 transition-opacity duration-300 hidden">
-            Please enter a search term.
         </div>
 
-        <!-- Global Search Input -->
-        <div class="search-container">
-            <form action="{{ route('search.global') }}" method="GET" onsubmit="return validateSearchInput();">
+        <!-- Search Bar: Larger on big screens -->
+        <div class="w-full md:max-w-3xl lg:max-w-4xl mx-2">
+            <form action="{{ route('search.global') }}" method="GET"
+                  onsubmit="return validateSearchInput();"
+                  class="flex items-center space-x-2">
                 <x-search-input
                     placeholder="{{ Auth::user()->usertype == 'admin'
-                                ? 'Search for users, assets, or maintenance...'
-                                : 'Search for assets or maintenance in your department...'
-                                }}"
-                    class="w-96" />
+                        ? 'Search for users, assets, or maintenance...'
+                        : 'Search for assets or maintenance...' }}"
+                    class="w-full px-3 py-2 text-sm border rounded-md shadow-sm
+                        focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </form>
         </div>
     </div>
 
     <!-- Navigation Section -->
-    <nav class="flex items-center space-x-4 relative">
+    {{-- <nav class="flex items-center space-x-4 relative"> --}}
+    <nav class="flex items-center space-x-2 md:space-x-4">
         <!-- Notification Icon -->
         <div
             x-data="{ open: false }"
@@ -92,7 +94,8 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 class="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden z-50">
 
                 <!-- Header -->
-                <div class="border-b border-gray-200 flex justify-between items-center px-3 py-2 bg-gray-50">
+                {{-- <div class="border-b border-gray-200 flex justify-between items-center px-3 py-2 bg-gray-50"> --}}
+                <div class="border-b px-3 py-2 bg-gray-50 flex justify-between items-center">
                     <a href="{{ route('notifications.index') }}" class="text-blue-500 hover:underline text-sm">
                         View All
                     </a>

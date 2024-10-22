@@ -19,7 +19,7 @@
             </div>
 
             <div class="flex justify-end gap-2">
-                <button type="button" id="closeModalBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+                <button type="button" id="closeFilterModalBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Apply</button>
             </div>
         </form>

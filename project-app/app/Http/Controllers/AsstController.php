@@ -179,15 +179,15 @@ public function showDeptAsset(Request $request)
             'category.name as category_name',
             'department.name as department'
         )
-        ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ") //hello
+        // ->orderByRaw("
+        //     CASE
+        //     WHEN asset.status = 'active' THEN 0
+        //     WHEN asset.status = 'under_maintenance' THEN 1
+        //     WHEN asset.status = 'deployed' THEN 2
+        //     WHEN asset.status = 'disposed' THEN 3
+        //     ELSE 4
+        //     END
+        //     ") //hello
         ->orderBy($sortField, $sortDirection)
         ->paginate(10);
 
@@ -670,35 +670,17 @@ public function showDeptAsset(Request $request)
 
 
 
-    public function delete($code)
+    public function delete($id)
     {
-        $assetDel = assetModel::where('asset.code', $code)->firstOrFail();
+        $assetDel = assetModel::findOrFail($id); // Find asset by ID
 
-        // $assetDel = $assetDel[0];
-        // // dd($assetDel[0]->image);
-        // // Get the path of the image from the database
-        // $imagePath = $assetDel->image; // assuming 'image' is the column name for the image path
+        $assetDel->updated_at = now(); // Optionally update the timestamp
 
-        // // Delete the image file from the server
-        // if ($imagePath && Storage::exists('public/' . $imagePath)) {
-        //     Storage::delete('public/' . $imagePath);
-        // }
-
-        // // Get the path of the QR code from the database
-        // $qrCodePath = $assetDel->qr_img; // assuming 'qr' is the column name for the QR code path
-
-        // // Delete the QR code file from the server
-        // if ($qrCodePath && Storage::exists('public/' . $qrCodePath)) {
-        //     Storage::delete('public/' . $qrCodePath);
-        // }
-
-        $assetDel->updated_at = now();
-
-        // Delete the asset record from the database
-        $assetDel->delete();
+        $assetDel->delete(); // Delete the asset
 
         return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
     }
+
     public function UsageHistory($id){
         return AssignedToUser::with(['assetUserBy','assignedBy'])
                                 ->where('asset_id',$id)->get();
