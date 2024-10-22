@@ -573,7 +573,8 @@ public function showDeptAsset(Request $request)
             $settingUsageLogs->assetAcquiredBy($validatedData["usrAct"],$assetKey->id );
         }
         if($oldLastUser !== $validatedData["usrAct"]){
-            $settingUsageLogs->assetReturnedBy($validatedData["usrAct"],$assetKey->id);
+            // dd("you are returning");
+            $settingUsageLogs->assetReturnedBy($oldLastUser,$assetKey->id);
         }
 
         // Retrieve the updated asset to get the code
