@@ -63,9 +63,6 @@
             </div>
         </div>
 
-
-
-
         <div class="flex justify-between items-center mb-4">
             <!-- Rows per page dropdown (on the left) -->
             <div class="flex items-center">
