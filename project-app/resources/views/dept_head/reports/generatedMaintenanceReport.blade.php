@@ -51,7 +51,13 @@
                     <tr>
                         @foreach ($fields as $field)
                         <th class="px-4 md:px-8 py-2 md:py-4 text-left border-b border-gray-300">
+                            @switch($field)
+                            @case('asset_key')
+                            Asset Name
+                            @break
+                            @default
                             {{ ucfirst(str_replace('_', ' ', $field)) }}
+                            @endswitch
                         </th>
                         @endforeach
                     </tr>

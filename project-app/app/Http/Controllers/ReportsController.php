@@ -217,7 +217,38 @@ class ReportsController extends Controller
 
             // Write header row
             fputcsv($file, array_map(function ($field) {
-                return ucfirst(str_replace('_', ' ', $field));
+                switch ($field) {
+                    case 'purchase_date':
+                        return 'Purchase Date';
+                    case 'usage_lifespan':
+                        return 'Usage Lifespan';
+                    case 'salvage_value':
+                        return 'Salvage Value';
+                    case 'purchase_cost':
+                        return 'Purchase Cost';
+                    case 'custom_fields':
+                        return 'Custom Fields';
+                    case 'ctg_ID':
+                        return 'Category';
+                    case 'dept_ID':
+                        return 'Department';
+                    case 'manufacturer_key':
+                        return 'Manufacturer';
+                    case 'model_key':
+                        return 'Model';
+                    case 'loc_key':
+                        return 'Location';
+                    case 'last_used_by':
+                        return 'Last Used By';
+                    case 'created_at':
+                        return 'Created At';
+                    case 'updated_at':
+                        return 'Updated At';
+                    case 'isDeleted':
+                        return 'Deleted';
+                    default:
+                        return ucfirst(str_replace('_', ' ', $field));
+                }
             }, $fields));
 
             // Write data rows
@@ -239,6 +270,9 @@ class ReportsController extends Controller
                             break;
                         case 'loc_key':
                             $row[] = $asset->location_name ?? 'N/A';
+                            break;
+                        case 'isDeleted':
+                            $row[] = $asset->isDeleted ? 'Yes' : 'No';
                             break;
                         default:
                             $row[] = $asset->$field ?? 'N/A';

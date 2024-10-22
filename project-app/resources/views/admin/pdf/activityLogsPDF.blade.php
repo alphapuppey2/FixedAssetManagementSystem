@@ -23,7 +23,12 @@
 
         h2 {
             margin: 0;
+            font-size: 22px;
             color: #333;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .generated-date {
