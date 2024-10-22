@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Logs</title>
+    <title>Maintenance Report</title>
     <style>
         /* Global Styles */
         body {
@@ -73,7 +73,7 @@
 
 <body>
     <div class="header">
-        <h2>Activity Logs</h2>
+        <h2>Maintenance Report</h2>
         <div class="generated-date">
             Generated on {{ now()->format('Y-m-d H:i:s') }}
         </div>
@@ -82,26 +82,46 @@
     <table>
         <thead>
             <tr>
-                <th>Activity</th>
-                <th>Description</th>
-                <th>User Role</th>
-                <th>User ID</th>
-                <th>Asset ID</th>
-                <th>Request ID</th>
-                <th>Date & Time</th>
+                @foreach ($fields as $field)
+                <th>
+                    @switch($field)
+                    @case('asset_key')
+                    Asset Name
+                    @break
+                    @case('is_completed')
+                    Completed
+                    @break
+                    @default
+                    {{ ucfirst(str_replace('_', ' ', $field)) }}
+                    @endswitch
+                </th>
+                @endforeach
             </tr>
         </thead>
         <tbody>
-            @foreach ($logs as $log)
-                <tr>
-                    <td>{{ $log->activity }}</td>
-                    <td>{{ $log->description }}</td>
-                    <td>{{ ucfirst($log->userType) }}</td>
-                    <td>{{ $log->user_id ?? 'System' }}</td>
-                    <td>{{ $log->asset_id ?? 'N/A' }}</td>
-                    <td>{{ $log->request_id ?? 'N/A' }}</td>
-                    <td>{{ \Carbon\Carbon::parse($log->created_at)->format('Y-m-d H:i:s') }}</td>
-                </tr>
+            @foreach ($records as $record)
+            <tr>
+                @foreach ($fields as $field)
+                <td>
+                    @switch($field)
+                    @case('authorized_by')
+                    {{ $record->authorized_by_name ?? 'N/A' }}
+                    @break
+                    @case('requestor')
+                    {{ $record->requestor_name ?? 'N/A' }}
+                    @break
+                    @case('asset_key')
+                    {{ $record->asset_name ?? 'N/A' }}
+                    @break
+                    @case('is_completed')
+                    {{ $record->is_completed ? 'Yes' : 'No' }}
+                    @break
+                    @default
+                    {{ $record->$field ?? 'N/A' }}
+                    @endswitch
+                </td>
+                @endforeach
+            </tr>
             @endforeach
         </tbody>
     </table>

@@ -195,10 +195,15 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
-    //Reports
-    Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
-    Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
-    Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
+    // Asset Reports
+    Route::get('/asset-report', [ReportsController::class, 'showAssetFilter'])->name('asset.report');
+    Route::get('/generate-asset-report', [ReportsController::class, 'generateAssetReport'])->name('asset.report.generate');
+    Route::get('/asset-report/download', [ReportsController::class, 'downloadAssetReport'])->name('asset.report.download');
+
+    // Maintenance Reports
+    Route::get('/maintenance-report', [ReportsController::class, 'showMaintenanceFilter'])->name('maintenance.report');
+    Route::get('/generate-maintenance-report', [ReportsController::class, 'generateMaintenanceReport'])->name('maintenance.report.generate');
+    Route::get('/maintenance-report/download', [ReportsController::class, 'downloadMaintenanceReport'])->name('maintenance.report.download');
 });
 
 // User Routes

@@ -99,18 +99,19 @@
                 </button>
 
                 <ul id="reportsDropdownMenu"> <!-- Added padding-left -->
-                    <x-nav-link :href="route('custom.report', ['dropdown' => 'open'])"
-                        :active="request()->routeIs('custom.report')"
+                    <x-nav-link :href="route('asset.report', ['dropdown' => 'open'])"
+                        :active="request()->routeIs('asset.report')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
                         <x-envelopeIcon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Assets</span>
                     </x-nav-link>
 
-                    <a href="#"
+                    <x-nav-link :href="route('maintenance.report')"
+                        :active="request()->routeIs('maintenance.report')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
                         <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Maintenance</span>
-                    </a>
+                    </x-nav-link>
                 </ul>
             </li>
 
