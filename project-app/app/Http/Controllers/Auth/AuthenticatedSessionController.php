@@ -35,8 +35,10 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Proceed with authentication if the user is not deactivated
-        $request->authenticate();
-        $request->session()->regenerate();
+            $request->authenticate();
+            $request->session()->regenerate();
+            $request->session()->regenerateToken();
+
 
         return redirect()->intended($this->redirectByUserType());
     }
