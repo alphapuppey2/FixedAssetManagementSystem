@@ -90,15 +90,26 @@ class UserSideController extends Controller
             'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration', // Validate the request type
         ]);
 
-        // Create a new maintenance request with 'pending' status
+        // Check if there is an existing active or pending request for the asset
+        $existingRequest = Maintenance::where('asset_key', $request->input('asset_id'))
+            ->whereIn('status', ['request', 'in_progress']) // Adjust status as needed
+            ->first();
+
+        if ($existingRequest) {
+            // If a request already exists, redirect with an error message
+            return redirect()->back()->withErrors('A request for this asset is already in progress or pending.');
+        }
+
+        // Create a new maintenance request with 'request' status
         $maintenance = Maintenance::create([
-            'description' => $request->input('issue_description'), // Issue description
-            'status' => 'request', // Set status to 'pending'
-            'asset_key' => $request->input('asset_id'), // Asset reference
-            'requestor' => Auth::id(), // Logged-in user as requestor
-            'type' => $request->input('type'), // Request type
+            'description' => $request->input('issue_description'),
+            'status' => 'request',
+            'asset_key' => $request->input('asset_id'),
+            'requestor' => Auth::id(),
+            'type' => $request->input('type'),
         ]);
 
+        // Retrieve the asset and the current user
         $asset = assetModel::find($request->input('asset_id'));
         $user = Auth::user();
 
@@ -106,20 +117,21 @@ class UserSideController extends Controller
         ActivityLog::create([
             'activity' => 'Create Maintenance Request',
             'description' => "User {$user->firstname} {$user->lastname} created a maintenance request for asset '{$asset->name}' (Code: {$asset->code}).",
-            'userType' => $user->usertype, // Role of the user creating the request
-            'user_id' => $user->id, // Logged-in user ID
-            'asset_id' => $asset->id, // ID of the asset
-            'request_id' => $maintenance->id, // ID of the created maintenance request
+            'userType' => $user->usertype,
+            'user_id' => $user->id,
+            'asset_id' => $asset->id,
+            'request_id' => $maintenance->id,
         ]);
 
+        // Notify the relevant department head based on the asset's department
         $deptHead = User::where('usertype', 'dept_head')
-            ->where('dept_id', $user->dept_id)
+            ->where('dept_id', $asset->dept_ID)
             ->first();
 
         if ($deptHead) {
             $notificationData = [
                 'title' => 'New Maintenance Request',
-                'message' => "Maintenance request for asset '{$asset->name}' (Code: {$asset->code})",
+                'message' => "A new maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been created.",
                 'asset_name' => $asset->name,
                 'asset_code' => $asset->code,
                 'authorized_by' => $user->id,
@@ -130,10 +142,10 @@ class UserSideController extends Controller
             $deptHead->notify(new SystemNotification($notificationData));
         }
 
-
         // Redirect back with a success message
         return redirect()->back()->with('status', 'Maintenance request submitted successfully.');
     }
+
 
     public function cancelRequest($id)
     {
@@ -211,68 +223,43 @@ class UserSideController extends Controller
     //  ASSET DETAILS
     public function showDetails($code)
     {
-        $userDept = Auth::user()->dept_id;
+        // Get the user details
         $userType = Auth::user()->usertype;
 
-        // Query the asset based on the scanned code and user's department
-        $retrieveDataQuery = assetModel::where('asset.code', $code)
+        // Query the asset based on the scanned code, including relevant joins
+        $retrieveData = assetModel::where('asset.code', $code)
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->join('model', 'asset.model_key', '=', 'model.id')
             ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->join('location', 'asset.loc_key', '=', 'location.id')
-            ->leftJoin('maintenance', 'maintenance.asset_key', '=', 'asset.id') // Join with the maintenance table
-            ->leftJoin('users', 'maintenance.authorized_by', '=', 'users.id') // Join with the users table to get approver details
+            ->leftJoin('maintenance', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users', 'maintenance.authorized_by', '=', 'users.id')
             ->select(
-                'asset.id',
-                'asset.code',
-                'asset.name',
-                'asset.asst_img as image', // Use the correct column and alias it as 'image'
-                'asset.purchase_cost as cost', // Use the correct column and alias it as 'cost'
-                'asset.depreciation',
-                'asset.salvage_value as salvageVal', // Adjusted to match the new column name
-                'asset.usage_lifespan as usage_Lifespan', // Adjusted casing to match
-                'asset.status',
-                'asset.ctg_ID',
-                'asset.dept_ID',
-                'asset.manufacturer_key',
-                'asset.model_key',
-                'asset.loc_key',
-                'asset.custom_fields',
-                'asset.qr_img as qr', // Adjusted to use the correct QR image column
-                'asset.created_at',
-                'asset.updated_at',
-                'category.name as category',
-                'model.name as model',
-                'location.name as location',
-                'manufacturer.name as manufacturer',
-                'department.name as department',
-                'maintenance.reason', // Add the reason field
-                'maintenance.status as request_status', // Add the status of the request
-                'maintenance.authorized_at', // Add the authorized_at field
-                'users.firstname as authorized_firstname',
-                'users.middlename as authorized_middlename',
-                'users.lastname as authorized_lastname',
-                'department.name as authorized_department'
-            );
+                'asset.id', 'asset.code', 'asset.name',
+                'asset.asst_img as image', 'asset.purchase_cost as cost',
+                'asset.depreciation', 'asset.salvage_value as salvageVal',
+                'asset.usage_lifespan as usage_Lifespan', 'asset.status',
+                'asset.custom_fields', 'asset.qr_img as qr', 'asset.created_at',
+                'asset.updated_at', 'category.name as category', 'model.name as model',
+                'location.name as location', 'manufacturer.name as manufacturer',
+                'department.name as department', 'maintenance.reason',
+                'maintenance.status as request_status', 'maintenance.authorized_at',
+                'users.firstname as authorized_firstname', 'users.middlename as authorized_middlename',
+                'users.lastname as authorized_lastname', 'department.name as authorized_department'
+            )
+            ->first();
 
-        // If the user is not an admin, restrict by department
-        if ($userType != 'admin') {
-            $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
-        }
-
-        // Retrieve asset data
-        $retrieveData = $retrieveDataQuery->first();
-
-        // If asset not found, redirect back with error message
+        // If asset not found, return with an error
         if (!$retrieveData) {
             return redirect()->back()->with('status', 'No asset found with the scanned QR code.');
         }
 
-        // Decode custom fields
+        // Decode the custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
-        // Pass the asset data, custom fields, reason, and request status to the view
+        // Pass asset data to the view
         return view('user.assetDetail', compact('retrieveData', 'fields'));
     }
+
 }
