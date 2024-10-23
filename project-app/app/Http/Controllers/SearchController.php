@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+
+use App\Http\Controllers\MaintenanceSchedController;
+
+use App\Models\Predictive;
+use App\Models\Preventive;
 use App\Models\User;
 use App\Models\assetModel;
 use App\Models\Maintenance;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use App\Models\ActivityLog;
 
 class SearchController extends Controller
@@ -207,6 +212,53 @@ class SearchController extends Controller
         return view('admin.activityLogs', [
             'logs' => $logs,
             'interval' => $interval, // Pass interval to the view
+        ]);
+    }
+
+    public function searchPreventive(Request $request, MaintenanceSchedController $maintenanceController)
+    {
+        // Determine user role and department ID
+        $userRole = Auth::user()->usertype;
+        $userDeptId = Auth::user()->dept_id;
+
+        // Fetch input values
+        $searchQuery = $request->input('query', '');
+        $perPage = $request->input('rows_per_page', 10);
+        $sortBy = $request->input('sort_by', 'preventive.created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        // Build the query
+        $preventives = Preventive::whereHas('asset', function ($query) use ($userRole, $userDeptId, $searchQuery) {
+            if ($userRole === 'dept_head') {
+                $query->where('dept_ID', $userDeptId);
+            }
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('code', 'like', "%{$searchQuery}%")
+                    ->orWhere('name', 'like', "%{$searchQuery}%");
+            });
+        })
+            ->join('asset', 'preventive.asset_key', '=', 'asset.id')
+            ->orderBy($sortBy, $sortOrder)
+            ->select('preventive.*')
+            ->paginate($perPage);
+
+        // Apply department filter if the user is a department head
+        if ($userRole === 'dept_head') {
+            $preventives->where('asset.dept_ID', $userDeptId);
+        }
+
+        // Calculate next maintenance
+        $maintenanceController->calculateNextMaintenance($preventives);
+
+        $view = $userRole === 'admin' ? 'admin.maintenanceSched' : 'dept_head.maintenance_sched';
+
+        return view($view, [
+            'records' => $preventives,
+            'tab' => 'preventive',
+            'perPage' => $perPage,
+            'query' => $searchQuery,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
         ]);
     }
 }

@@ -113,6 +113,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     route::get('/admin/assets/search', [SearchController::class, 'searchAssets'])->name('searchAssets');
     Route::get('/admin/activity-logs/search', [SearchController::class, 'searchActivityLogs'])->name('searchActivity');
 
+    Route::get('/admin/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('adminMaintenanceSchedSearch');
+
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
         return view('admin.profile');
@@ -167,6 +169,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
     Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
+
+    Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
 
     Route::get('/create-maintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/create-maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
