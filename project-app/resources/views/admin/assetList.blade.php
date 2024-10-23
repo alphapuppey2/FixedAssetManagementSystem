@@ -10,58 +10,118 @@
 
 @section('content')
 <div class="cont">
-    <div>
-        <form method="GET" action="{{ route('searchAssets') }}" class="flex flex-col space-y-4">
-            <div class="relative search-container">
-                <!-- Add hidden field for department ID -->
-                <input type="hidden" name="dept" value="{{ request()->dept }}">
+    <div class="flex justify-between items-center">
+        <div class="relative searchBox w-full max-w-md ml-2">
+            <form method="GET" action="{{ route('assetList') }}" class="flex flex-col space-y-4">
+                <!-- Add hidden fields to retain sorting and pagination parameters -->
+                <input type="hidden" name="perPage" value="{{ request('perPage') }}">
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
+                <input type="hidden" name="dept" value="{{ request('dept') }}">
 
-                <!-- Search Input and Button -->
-                <x-search-input 
-                    placeholder="Search by name or code"
-                    class="w-80" />
-            </div>
+                <!-- Search Input -->
+                <x-search-input placeholder="Search by name or code" />
+            </form>
+        </div>
 
-            <!-- Rows Per Page Dropdown and Pagination Controls -->
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-2">
-                    <label for="perPage">Rows per page: </label>
-                    <select name="perPage" id="perPage" class="border border-gray-300 rounded px-2 py-1 w-16" onchange="this.form.submit()">
-                        <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
-                        <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
-                        <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
-                    </select>
-                </div>
-                @if($assets->hasPages())
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets</span>
-                    <div>
-                        {{ $assets->links('vendor.pagination.tailwind') }}
-                    </div>
-                </div>
-                @endif
-            </div>
-        </form>
+        <div class="header-R flex items-center space-x-0.5">
+            <form action="{{ route('assetList') }}" method="GET" class="flex">
+                <button type="submit" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+                    <x-icons.refresh-icon class="w-5 h-5 text-gray-600" />
+                </button>
+            </form>
+            <button>
+                <span>
+                    <x-icons.importIcon />
+                </span>
+            </button>
+            <button>
+                <span>
+                    <x-icons.exportIcon />
+                </span>
+            </button>
+        </div>
     </div>
+    <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center">
+        <!-- Rows Per Page Dropdown Form -->
+        <form method="GET" action="{{ route('assetList') }}" class="flex items-center space-x-2 mt-4">
+            <input type="hidden" name="dept" value="{{ request('dept') }}"> <!-- Include department ID -->
+            <input type="hidden" name="query" value="{{ request('query') }}">
+            <label for="perPage">Rows per page:</label>
+            <select name="perPage" id="perPage" class="border border-gray-300 rounded px-2 py-1 w-16" onchange="this.form.submit()">
+                <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+            </select>
+        </form>
+
+     </div>
+
+        <!-- Pagination Links and Showing Results -->
+
+        <div class="flex items-center space-x-4 mt-4">
+            <span class="text-gray-600">
+                Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
+            </span>
+            @if($assets->hasPages())
+            <div>
+                {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
+            </div>
+            @endif
+        </div>
+
+
+    </div>
+
     <div>
         <table class="table table-hover">
             <thead class="p-5 bg-gray-100 border-b">
+                @php
+                    $queryParams = request()->query(); // Capture all query parameters
+                @endphp
+
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Code</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.code', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Code
+                        <x-icons.sort-icon :direction="$sortBy === 'asset.code' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Name
+                        <x-icons.sort-icon :direction="$sortBy === 'asset.name' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'category.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Category
+                        <x-icons.sort-icon :direction="$sortBy === 'category.name' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Department</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'department.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Department
+                        <x-icons.sort-icon :direction="$sortBy === 'department.name' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Depreciation</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.depreciation', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Depreciation
+                        <x-icons.sort-icon :direction="$sortBy === 'asset.depreciation' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status</th>
-                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action</th>
+                    <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.status', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                        Status
+                        <x-icons.sort-icon :direction="$sortBy === 'asset.status' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th class="py-3 text-center text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </thead>
+
+
             <tbody id="table-body">
                 @if (!$assets->isEmpty())
                 @foreach ($assets as $asset)
