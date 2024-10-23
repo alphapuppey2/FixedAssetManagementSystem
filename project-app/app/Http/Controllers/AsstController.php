@@ -192,9 +192,7 @@ class AsstController extends Controller
 
 
     //KANI
-    public function showDeptAsset(Request $request)
-    {
-        $userDept = Auth::user()->dept_id;
+
     public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;

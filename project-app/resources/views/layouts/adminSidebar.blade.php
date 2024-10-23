@@ -60,7 +60,7 @@
                 </button>
 
                 <!-- Dropdown Menu with left margin for indentation -->
-                <ul id="dropdownMenu" class="hidden flex-col rounded-md mt-1 ml-4">
+                <ul id="adminAssetDropdownMenu" class="hidden flex-col rounded-md mt-1 ml-4">
                     <!-- All Assets -->
                     <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
                         :href="route('assetList', ['dept' => null, 'asstDropdown' => 'open'])"
