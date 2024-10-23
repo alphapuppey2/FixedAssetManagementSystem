@@ -303,7 +303,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     */
 
     // DETAILS
-    Route::get('/profile', function () {return view('dept_head.profile');})->name('profile');
+    Route::get('/dept_head/profile', function () {return view('dept_head.profile');})->name('profile');
 
     // UPDATE
     Route::patch('/dept_head/profile_update', [ProfileController::class, 'update'])->name('dept_head.profile_update');

@@ -31,32 +31,41 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // dd($request->all());
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'firstname'=> ['required', 'string', 'max:255'],
+            'lastname'=> ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'department' => ['required', 'string', 'lowercase'],
+            'dept_id' => ['required', 'exists:department,id'],
             'usertype' => ['required', 'string', 'in:admin,dept_head,user'], // Validate user type
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'contact' => ['required', 'string', 'max:15'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'birthdate' => ['required', 'date'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'firstname'=> $request->firstname,
+            'lastname'=> $request->lastname,
             'email' => $request->email,
-            'dept_id' => $request->department,
-            'usertype' => $request->usertype, // Save the usertype
+            'dept_id' => $request->dept_id,
+            'usertype' => $request->usertype,
+            'contact' => $request->contact,
+            'birthdate' => $request->birthdate,
+            'address' => $request->address,
             'password' => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        Auth::login($user); // Make sure this is here
 
-        // Redirect based on user type
+        // Redirect logic based on user type
         $redirectRoute = match ($user->usertype) {
             'admin' => route('admin.home'),
             'dept_head' => route('dept_head.home'),
             'user' => route('user.scanQR'),
-            default => route('login'), // Fallback in case of an unexpected usertype
+            default => route('login'),
         };
 
         return redirect($redirectRoute);
