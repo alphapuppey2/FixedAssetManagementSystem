@@ -13,10 +13,12 @@
                 @if ($usageLogsAsset && count($usageLogsAsset) > 0)
                 @foreach ($usageLogsAsset as $item)
                 <tr class="hover:bg-gray-50">
-                    <td class="border border-gray-300 px-4 py-2">{{ optional($item->assetUserBy)->lastname ?? 'N/A'}}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ optional($item->assetUserBy)->lastname && optional($item->assetUserBy)->firstname ? $item->assetUserBy->firstname.' '.$item->assetUserBy->lastname : 'N/a'}}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ $item->date_acquired }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ $item->date_returned ?? "N/A"  }}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">{{optional($item->assignedBy)->lastname ?? 'N/A' }}</td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">{{optional($item->assignedBy)->firstname && optional($item->assignedBy)->lastname
+                        ? $item->assignedBy->firstname . ' ' . $item->assignedBy->lastname
+                        : 'N/A'}}</td>
                 </tr>
                 @endforeach
                 @else

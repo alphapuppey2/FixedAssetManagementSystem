@@ -20,6 +20,7 @@ use App\Notifications\SystemNotification;
 use Illuminate\Notifications\Notification as NotificationFacade; // Alias the facade
 use App\Models\User;
 use App\Models\ActivityLog;
+use Carbon\Carbon;
 
 class MaintenanceController extends Controller
 {
@@ -407,7 +408,10 @@ class MaintenanceController extends Controller
         $userType = $user->usertype;
         // dd($userType);
         // Only retrieve assets that belong to the same department as the user
-        $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        // $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        $assets = assetModel::where('dept_ID', $user->dept_id)
+                    ->where('isDeleted', 0) // Exclude deleted assets
+                    ->get(['id', 'code', 'name']);
 
         // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
         $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
@@ -465,6 +469,20 @@ class MaintenanceController extends Controller
             'occurrence' => 'nullable|integer', // For custom occurrences
         ]);
 
+
+        // Check if active preventive maintenance already exists for the asset
+        $existingMaintenance = Preventive::where('asset_key', $validatedData['asset_code'])
+                                        ->where('status', 'active')
+                                        ->first();
+
+        if ($existingMaintenance) {
+            // Set session value for the error notification
+            session()->flash('status', 'An active preventive maintenance already exists for this asset.');
+            session()->flash('status_type', 'error'); // Set the status type for error
+
+            return redirect()->back(); // Redirect back to the form
+        }
+
         // Determine the frequency in days
         $frequencyDays = match ($validatedData['frequency']) {
             'every_day' => 1,
@@ -483,6 +501,9 @@ class MaintenanceController extends Controller
             'cost' => $validatedData['cost'],
             'frequency' => $frequencyDays,  // Frequency stored in days
             'ends' => $ends,  // 0 for "never", a number for occurrences
+            'occurrences' => 0,  // Initialize with 0 occurrences
+            'status' => 'active',  // Set initial status to active
+            'next_maintenance_timestamp' => now()->addDays($frequencyDays)->timestamp,  // Store as Unix timestamp
         ]);
 
         // Retrieve asset and admin user for notification
@@ -527,11 +548,19 @@ class MaintenanceController extends Controller
 
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
+        // session()->flash('status_type', 'success'); // Set the status type for success
 
-        $route = $userType === 'admin'
-            ? 'adminMaintenance_sched'
-            : 'maintenance_sched';
-        return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+        // $route = $userType === 'admin'
+        //     ? 'adminMaintenance_sched'
+        //     : 'maintenance_sched';
+        // return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+
+            // Set session value for success notification
+        return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
+        ->with([
+            'status' => 'Maintenance schedule created successfully!',
+            'status_type' => 'success'
+        ]);
     }
 
     // MaintenanceController.php
@@ -559,6 +588,15 @@ class MaintenanceController extends Controller
 
         // Determine if the request is marked as completed
         $isCompleted = $request->has('set_as_completed');
+        $isCancelled = $request->has('set_as_cancelled');
+
+        // Prevent both completed and cancelled from being set at the same time
+        if ($isCompleted && $isCancelled) {
+            return redirect()->back()->withErrors(['error' => 'Maintenance cannot be both completed and cancelled.']);
+        }
+
+        // Set status to 'cancelled' only if cancelled is checked
+        $status = $isCancelled ? 'cancelled' : $maintenance->status;
 
         // Update the maintenance details
         $maintenance->update([
@@ -566,6 +604,7 @@ class MaintenanceController extends Controller
             'start_date' => $request->start_date,
             'cost' => $request->cost,
             'is_completed' => $isCompleted, // Boolean handling
+            'status' => $status, // Only change status to 'cancelled' if applicable
             'completion_date' => $isCompleted ? now() : null,
             'authorized_at' => now(), // Update the authorized_at field
         ]);
@@ -578,9 +617,13 @@ class MaintenanceController extends Controller
             \Log::info('Predictive analysis triggered directly after completion.');
         }
 
+        $statusMessage = $isCancelled
+        ? 'Maintenance request cancelled successfully.'
+        : 'Maintenance request updated successfully.';
+
         // Redirect back with success message
         return redirect()->route('maintenance.approved')
-            ->with('status', 'Maintenance request updated successfully.');
+            ->with('status', $statusMessage);
     }
 
 
