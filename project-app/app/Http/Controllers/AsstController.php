@@ -724,8 +724,6 @@ class AsstController extends Controller
             ];
         }
 
-
-
         // Retrieve related maintenance data for the asset
         $assetRet = Maintenance::where('asset_key', $retrieveData->id) // Use asset ID to match
             ->where('is_completed', 1)

@@ -62,7 +62,19 @@ Route::middleware('auth')->group(function () {
 // Admin Routes
 Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
+    /*
+    -------------------
+            HOME
+    -------------------
+    */
+
     Route::get('/admin/home', [AsstController::class, 'assetCount'])->name('admin.home');
+
+    /*
+    -------------------
+            USER
+    -------------------
+    */
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
@@ -78,6 +90,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
         return view('admin.createUser');
     })->name('users.create');
 
+    /*
+    -------------------
+        ASSETS
+    -------------------
+    */
+
     // ASSET LIST
     Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
     Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
@@ -88,6 +106,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
+
+    /*
+    -------------------
+        MAINTENANCE
+    -------------------
+    */
 
     // MAINTENANCE REQUEST-APPROVE-DENY
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
@@ -102,113 +126,184 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
     Route::post('/admin/create-maintenance', [MaintenanceController::class, 'store'])->name('adminMaintenance.store');
 
+    /*
+    -------------------
+        ACTIVITY LOGS
+    -------------------
+    */
+
     // ACTIVITY LOGS
     Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
     Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
     Route::post('/admin/activity-logs/settings', [ActivityLogController::class, 'updateSettings'])->name('activityLogs.updateSettings');
+
+    /*
+    -------------------
+        SEARCH
+    -------------------
+    */
 
     // SEARCH
     Route::get('/admin/user-list/search', [SearchController::class, 'searchUser'])->name('searchUsers');
     Route::get('/admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
     route::get('/admin/assets/search', [SearchController::class, 'searchAssets'])->name('searchAssets');
     Route::get('/admin/activity-logs/search', [SearchController::class, 'searchActivityLogs'])->name('searchActivity');
-
     Route::get('/admin/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('adminMaintenanceSchedSearch');
 
-    // ADMIN PROFILE
-    Route::get('/admin/profile', function () {
-        return view('admin.profile');
-    })->name('admin.profile');
-    Route::get('/admin/profile', [ProfileController::class, 'adminView'])->name('admin.profile');
-    Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
-    Route::get('/admin/profile_password', function () {
-        return view('admin.profilePassword');
-    })->name('admin.profile_password');
+    /*
+    -------------------
+        PROFILE
+    -------------------
+    */
 
+    // DETAILS
+    Route::get('/admin/profile', function () {return view('admin.profile');})->name('admin.profile');
+    Route::get('/admin/profile', [ProfileController::class, 'adminView'])->name('admin.profile');
+    // UPDATE
+    Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
+    // CHANGE PASSWORD
+    Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
 });
 
 // DeptHead Routes
 Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
-    Route::get('/dept_head/home', [AsstController::class, 'assetCount'])->name('dept_head.home');
+    /*
+    -------------------
+            HOME
+    -------------------
+    */
 
+    Route::get('/dept_head/home', [AsstController::class, 'assetCount'])->name('dept_head.home');
+    Route::get('/asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
+
+    /*
+    -------------------
+            ASSET
+    -------------------
+    */
+
+    // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
+
+    // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
-    route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
-    Route::get('asset/{id}', [AsstController::class, 'showDetails'])->name('assetDetails');
-    Route::put('asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
-    Route::delete('asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
     Route::get('/newasset', [AsstController::class, 'showForm'])->name('newasset');
-    route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
-    route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+
+    // DETAILS
+    Route::get('/asset/{id}', [AsstController::class, 'showDetails'])->name('assetDetails');
+    // MAINTENANCE HISTORY
+    Route::get('asset/{id}/history', [AsstController::class, 'showHistory'])->name('asset.history');
+    // ASSIGNED TO
     Route::get('/asset/user/autocomplete', [UserController::class, 'autocomplete'])->name('autocomplete');
+
+    // UPDATE
+    Route::put('/asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
+    Route::delete('/asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
 
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
 
+    /*
+    -------------------
+        MAINTENANCE
+    -------------------
+    */
+
+    // LIST REQUEST-APPROVED-DENIED
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::get('/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('maintenance.approved');
     Route::get('/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('maintenance.denied');
+
+    // APPROVE-DENY
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
 
-    // SHOWS COMPLETED AND CANCELLED MAINTENANCE
+    // COMPLETED-CANCELLED
     Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');
-    Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
 
+    // EDIT APPROVED-DENIED
     Route::get('/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('maintenance.editApproved');
     Route::get('/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('maintenance.editDenied');
+
+    // UPDATE APPROVED-DENIED
     Route::put('/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('maintenance.updateDenied');
     Route::put('/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('maintenance.updateApproved');
 
-    // Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
-    Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
 
+    // PREVENTIVE-PREDICTIVE
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
     Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
 
-    Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
-
+    // CREATE
     Route::get('/create-maintenance', [MaintenanceController::class, 'create'])->name('formMaintenance');
     Route::post('/create-maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
     Route::get('/assets/details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('assets.details');
 
-    Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
-    Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
-
-    Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
-    Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
+    // UPDATE
     Route::post('/update-maintenance-status', [MaintenanceController::class, 'updateStatus']);
 
+    // PREVENTIVE
+    Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
+    Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
+    Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
+    Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
     Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
 
-    //setting page
+    /*
+    -------------------
+        SEARCH
+    -------------------
+    */
+
+    Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
+    Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
+
+    Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
+    route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+
+    /*
+    -------------------
+        SETTINGS
+    -------------------
+    */
+
     Route::get('/setting', [settingController::class, 'showSettings'])->name('setting');
     Route::post('/setting/{tab}', [settingController::class, 'store'])->name('setting.create');
     Route::delete('/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('setting.delete');
     Route::put('/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('setting.edit');
 
-    Route::get('/profile', function () {
-        return view('dept_head.profile');
-    })->name('profile');
+    /*
+    -------------------
+        PROFILE
+    -------------------
+    */
 
+    // DETAILS
+    Route::get('/profile', function () {return view('dept_head.profile');})->name('profile');
+
+    // UPDATE
     Route::patch('/dept_head/profile_update', [ProfileController::class, 'update'])->name('dept_head.profile_update');
 
-    Route::get('/profile/change_password', function () {
-        return view('dept_head.profile_password');
-    })->name('dept_head.profile_password');
-
+    // CHANGE PASSWORD
+    Route::get('/profile/change_password', function () {return view('dept_head.profile_password');})->name('dept_head.profile_password');
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
-    // Asset Reports
+    /*
+    -------------------
+        REPORTS
+    -------------------
+    */
+
+    // ASSET REPORTS
     Route::get('/asset-report', [ReportsController::class, 'showAssetFilter'])->name('asset.report');
     Route::get('/generate-asset-report', [ReportsController::class, 'generateAssetReport'])->name('asset.report.generate');
     Route::get('/asset-report/download', [ReportsController::class, 'downloadAssetReport'])->name('asset.report.download');
 
-    // Maintenance Reports
+    // MAINTENANCE REPORTS
     Route::get('/maintenance-report', [ReportsController::class, 'showMaintenanceFilter'])->name('maintenance.report');
     Route::get('/generate-maintenance-report', [ReportsController::class, 'generateMaintenanceReport'])->name('maintenance.report.generate');
     Route::get('/maintenance-report/download', [ReportsController::class, 'downloadMaintenanceReport'])->name('maintenance.report.download');

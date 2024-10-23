@@ -16,6 +16,9 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /*
+        ASSIGNED TO
+    */
     public function autocomplete(Request $request)
     {
         try {
