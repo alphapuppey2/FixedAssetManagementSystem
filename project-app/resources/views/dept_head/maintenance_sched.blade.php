@@ -3,7 +3,7 @@
 
 @section('header')
     <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
-        {{ 'Maintenance Scheduling' }}
+        {{ 'Maintenance Request' }}
     </h2>
 @endsection
 

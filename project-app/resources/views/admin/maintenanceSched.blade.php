@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('header')
-<h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Scheduling</h2>
+<h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance</h2>
 @endsection
 
 @section('content')
