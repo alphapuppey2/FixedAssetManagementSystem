@@ -58,6 +58,19 @@ jobs:
         working-directory: project-app
         run: php artisan migrate:fresh --seed --force
 
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # or the version you are using
+
+      - name: Install Vite dependencies
+        working-directory: project-app
+        run: npm install
+
+      - name: Build Vite assets
+        working-directory: project-app
+        run: npm run build # Ensure this is the correct command for your build
+
       - name: Run Laravel tests
         working-directory: project-app
         run: php artisan test
