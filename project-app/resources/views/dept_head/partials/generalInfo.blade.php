@@ -205,7 +205,7 @@
             <div class="imgContainer flex flex-col items-center space-y-4">
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
                 <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
-                    <img src="{{ asset($data->asst_img) }}" id="imagePreview" alt="Asset Image"
+                    <img src="{{ asset($imagePath) }}" id="imagePreview" alt="Asset Image"
                         class="w-full h-full object-cover">
                 </div>
                 <label for="image" class="text-blue-500 cursor-pointer hover:underline edit hidden">

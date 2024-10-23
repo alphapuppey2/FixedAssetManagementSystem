@@ -33,6 +33,7 @@ class assetModel extends Model
         'depreciation',
         'salvage_value',
         'usage_lifespan',
+        'last_used_by',
         'status',
         'isDeleted',
         'created_at',
