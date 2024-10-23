@@ -8,6 +8,7 @@ use App\Models\Preventive;
 use App\Models\Maintenance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SystemNotification;
 use App\Models\assetModel;
@@ -71,7 +72,7 @@ class PreventiveMaintenanceController extends Controller
                     'dept_head_id' => $deptHead->id,
                     'notification_data' => $notificationData
                 ]);
-        
+
                 // Send the notification
                 $deptHead->notify(new SystemNotification($notificationData));
             } else {
@@ -138,6 +139,7 @@ class PreventiveMaintenanceController extends Controller
 
     public function update(Request $request, $id)
     {
+        $userRole = Auth::user()->usertype;
         $preventive = Preventive::findOrFail($id);
 
         // Update basic fields
@@ -157,7 +159,8 @@ class PreventiveMaintenanceController extends Controller
 
         $preventive->save();
 
-        return redirect()->route('maintenance_sched')->with('status', 'Preventive maintenance updated successfully.');
+        $routeTo = ($userRole === 'admin') ? "adminMaintenance_sched":"maintenance_sched";
+        return redirect()->route($routeTo)->with('status', 'Preventive maintenance updated successfully.');
     }
 
     public function edit($id)
