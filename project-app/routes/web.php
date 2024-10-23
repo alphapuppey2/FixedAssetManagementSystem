@@ -66,7 +66,6 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // USER LIST
     Route::get('/admin/user-list', [UserController::class, 'getUserList'])->name('userList');
-    Route::get('/admin/user-list/search', [UserController::class, 'search'])->name('searchUsers');
 
     // USER UPDATES
     Route::put('/admin/user-update', [UserController::class, 'update'])->name('user.update');
@@ -74,7 +73,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::post('/user/{id}/reactivate', [UserController::class, 'reactivate'])->name('user.reactivate');
 
     // CREATE USER
-    Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
+    Route::post('/admin/users', [UserController::class, 'createUser'])->name('users.store');
     Route::get('/admin/user-create', function () {
         return view('admin.createUser');
     })->name('users.create');
@@ -82,7 +81,6 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET LIST
     Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
     Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
-    route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
@@ -95,7 +93,6 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
     Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
-    Route::get('/admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
 
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
@@ -107,9 +104,14 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // ACTIVITY LOGS
     Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
-    Route::get('/admin/activity-logs/search', [ActivityLogController::class, 'search'])->name('searchActivity');
     Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
     Route::post('/admin/activity-logs/settings', [ActivityLogController::class, 'updateSettings'])->name('activityLogs.updateSettings');
+
+    // SEARCH
+    Route::get('/admin/user-list/search', [SearchController::class, 'searchUser'])->name('searchUsers');
+    Route::get('/admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
+    route::get('/admin/assets/search', [SearchController::class, 'searchAssets'])->name('searchAssets');
+    Route::get('/admin/activity-logs/search', [SearchController::class, 'searchActivityLogs'])->name('searchActivity');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {

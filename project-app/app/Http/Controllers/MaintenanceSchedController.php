@@ -72,7 +72,7 @@ class MaintenanceSchedController extends Controller
     public function showPreventive(Request $request)
     {
         // Determine the user's role and department ID
-        $userRole = Auth::user()->role;
+        $userRole = Auth::user()->usertype;
         $userDeptId = Auth::user()->dept_id;
 
         // Rows per page
@@ -105,7 +105,7 @@ class MaintenanceSchedController extends Controller
 
         $this->calculateNextMaintenance($preventives);
 
-        $view = $userRole === 'admin' ? 'admin.maintenance_sched' : 'dept_head.maintenance_sched';
+        $view = $userRole === 'admin' ? 'admin.maintenanceSched' : 'dept_head.maintenance_sched';
         return view($view, [
             'tab' => 'preventive',
             'records' => $preventives,
@@ -135,7 +135,6 @@ class MaintenanceSchedController extends Controller
             ]);
         }
     }
-
 
     public function showPredictive(Request $request)
     {

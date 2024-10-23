@@ -154,24 +154,7 @@ class UserController extends Controller
         return redirect()->route('userList')->with('success', 'User deactivated successfully.');
     }
 
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $perPage = $request->input('perPage', 10); // Get rows per page from the request
-
-        // Perform search query and paginate the results
-        $userList = DB::table('users')
-            ->where('firstname', 'like', "%{$query}%")
-            ->orWhere('lastname', 'like', "%{$query}%")
-            ->orWhere('email', 'like', "%{$query}%")
-            ->paginate($perPage) // Use the dynamic per page value
-            ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
-
-        return view('admin.userList', ['userList' => $userList]);
-    }
-
-    public function store(Request $request)
+    public function createUser(Request $request)
     {
         // Validate the incoming request data
         $validated = $request->validate([

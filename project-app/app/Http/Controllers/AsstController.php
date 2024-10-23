@@ -93,51 +93,49 @@ class AsstController extends Controller
         return view("admin.assetList", compact('assets'));
     }
 
-    public function searchAssets(Request $request)
-    {
-        // Get search query and rows per page
-        $query = $request->input('query');
-        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
-        $deptId = $request->input('dept'); // Get the department ID from the request, if present
+    // public function searchAssets(Request $request)
+    // {
+    //     // Get search query and rows per page
+    //     $query = $request->input('query');
+    //     $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+    //     $deptId = $request->input('dept'); // Get the department ID from the request, if present
 
-        // Build the query to search assets by name or code
-        $assets = DB::table('asset')
-            ->when($deptId, function ($query, $deptId) {
-                // Apply department filter if deptId is provided
-                return $query->where('asset.dept_ID', '=', $deptId);
-            })
-            ->where(function ($subquery) use ($query) {
-                // Search by asset name or code
-                $subquery->where('asset.name', 'like', '%' . $query . '%')
-                    ->orWhere('asset.code', 'like', '%' . $query . '%');
-            })
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ")
-            ->orderBy('department', 'asc')
-            ->orderBy(DB::raw("
-            IF(asset.name REGEXP '[0-9]+$',
-                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-                asset.id
-            )
-        "), 'asc') // Order by name or another column if needed
-            ->paginate($perPage);
+    //     // Build the query to search assets by name or code
+    //     $assets = DB::table('asset')
+    //         ->when($deptId, function ($query, $deptId) {
+    //             // Apply department filter if deptId is provided
+    //             return $query->where('asset.dept_ID', '=', $deptId);
+    //         })
+    //         ->where(function ($subquery) use ($query) {
+    //             // Search by asset name or code
+    //             $subquery->where('asset.name', 'like', '%' . $query . '%')
+    //                 ->orWhere('asset.code', 'like', '%' . $query . '%');
+    //         })
+    //         ->join('department', 'asset.dept_ID', '=', 'department.id')
+    //         ->join('category', 'asset.ctg_ID', '=', 'category.id')
+    //         ->select('asset.*', 'department.name as department', 'category.name as category')
+    //         ->orderByRaw("
+    //         CASE
+    //         WHEN asset.status = 'active' THEN 0
+    //         WHEN asset.status = 'under_maintenance' THEN 1
+    //         WHEN asset.status = 'deployed' THEN 2
+    //         WHEN asset.status = 'disposed' THEN 3
+    //         ELSE 4
+    //         END
+    //         ")
+    //         ->orderBy('department', 'asc')
+    //         ->orderBy(DB::raw("
+    //         IF(asset.name REGEXP '[0-9]+$',
+    //             CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+    //             asset.id
+    //         )
+    //     "), 'asc') // Order by name or another column if needed
+    //         ->paginate($perPage);
 
-        // Return the view with the filtered assets
-        return view('admin.assetList', compact('assets'));
-    }
+    //     // Return the view with the filtered assets
+    //     return view('admin.assetList', compact('assets'));
+    // }
 
-
-    //KANI
     public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;

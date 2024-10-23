@@ -28,26 +28,26 @@ class ActivityLogController extends Controller
         return view('admin.activityLogs', compact('logs', 'interval'));
     }
 
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $perPage = $request->input('perPage', 10);
+    // public function search(Request $request)
+    // {
+    //     $query = $request->input('query');
+    //     $perPage = $request->input('perPage', 10);
 
-        // Get the current interval from cache (default to 'never' if not set)
-        $interval = Cache::get('activity_log_deletion_interval', 'never');
+    //     // Get the current interval from cache (default to 'never' if not set)
+    //     $interval = Cache::get('activity_log_deletion_interval', 'never');
 
-        // Perform search and paginate results
-        $logs = ActivityLog::where('activity', 'like', "%{$query}%")
-            ->orWhere('description', 'like', "%{$query}%")
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->appends(['query' => $query, 'perPage' => $perPage]);
+    //     // Perform search and paginate results
+    //     $logs = ActivityLog::where('activity', 'like', "%{$query}%")
+    //         ->orWhere('description', 'like', "%{$query}%")
+    //         ->orderBy('created_at', 'desc')
+    //         ->paginate($perPage)
+    //         ->appends(['query' => $query, 'perPage' => $perPage]);
 
-        return view('admin.activityLogs', [
-            'logs' => $logs,
-            'interval' => $interval, // Pass interval to the view
-        ]);
-    }
+    //     return view('admin.activityLogs', [
+    //         'logs' => $logs,
+    //         'interval' => $interval, // Pass interval to the view
+    //     ]);
+    // }
 
     public function export(Request $request)
     {

@@ -466,37 +466,6 @@ class MaintenanceController extends Controller
         ]);
 
         // Determine the frequency in days
-        // $frequencyDays = 0;
-        // switch ($validatedData['frequency']) {
-        //     case 'every_day':
-        //         $frequencyDays = 1;
-        //         break;
-        //     case 'every_week':
-        //         $frequencyDays = 7;
-        //         break;
-        //     case 'every_month':
-        //         $frequencyDays = 30;
-        //         break;
-        //     case 'every_year':
-        //         $frequencyDays = 365;
-        //         break;
-        //     case 'custom':
-        //         if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
-        //             $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
-        //         } else {
-        //             $frequencyDays = 1; // Set a default value if repeat or interval is null
-        //         }
-        //         break;
-        // }
-
-        // // Handle 'ends' logic correctly
-        // if ($validatedData['ends'] === 'never') {
-        //     $ends = 0; // Never ends
-        // } else {
-        //     $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
-        // }
-
-        // Determine the frequency in days
         $frequencyDays = match ($validatedData['frequency']) {
             'every_day' => 1,
             'every_week' => 7,

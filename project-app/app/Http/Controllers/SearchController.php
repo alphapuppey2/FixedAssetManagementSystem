@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\assetModel;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use App\Models\ActivityLog;
 
 class SearchController extends Controller
 {
@@ -124,6 +126,87 @@ class SearchController extends Controller
             'query' => $query,
             'tab' => $tab,
             'perPage' => $perPage
+        ]);
+    }
+
+    public function searchUser(Request $request)
+    {
+        $query = $request->input('query');
+        $perPage = $request->input('perPage', 10); // Get rows per page from the request
+
+        // Perform search query and paginate the results
+        $userList = DB::table('users')
+            ->where('firstname', 'like', "%{$query}%")
+            ->orWhere('lastname', 'like', "%{$query}%")
+            ->orWhere('email', 'like', "%{$query}%")
+            ->orWhere('employee_id', 'like', "%{$query}%")
+            ->paginate($perPage) // Use the dynamic per page value
+            ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
+
+        return view('admin.userList', ['userList' => $userList]);
+    }
+
+    public function searchAssets(Request $request)
+    {
+        // Get search query and rows per page
+        $query = $request->input('query');
+        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
+        $deptId = $request->input('dept'); // Get the department ID from the request, if present
+
+        // Build the query to search assets by name or code
+        $assets = DB::table('asset')
+            ->when($deptId, function ($query, $deptId) {
+                // Apply department filter if deptId is provided
+                return $query->where('asset.dept_ID', '=', $deptId);
+            })
+            ->where(function ($subquery) use ($query) {
+                // Search by asset name or code
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                    ->orWhere('asset.code', 'like', '%' . $query . '%');
+            })
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->select('asset.*', 'department.name as department', 'category.name as category')
+            ->orderByRaw("
+            CASE
+            WHEN asset.status = 'active' THEN 0
+            WHEN asset.status = 'under_maintenance' THEN 1
+            WHEN asset.status = 'deployed' THEN 2
+            WHEN asset.status = 'disposed' THEN 3
+            ELSE 4
+            END
+            ")
+            ->orderBy('department', 'asc')
+            ->orderBy(DB::raw("
+            IF(asset.name REGEXP '[0-9]+$',
+                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
+                asset.id
+            )
+        "), 'asc') // Order by name or another column if needed
+            ->paginate($perPage);
+
+        // Return the view with the filtered assets
+        return view('admin.assetList', compact('assets'));
+    }
+
+    public function searchActivityLogs(Request $request)
+    {
+        $query = $request->input('query');
+        $perPage = $request->input('perPage', 10);
+
+        // Get the current interval from cache (default to 'never' if not set)
+        $interval = Cache::get('activity_log_deletion_interval', 'never');
+
+        // Perform search and paginate results
+        $logs = ActivityLog::where('activity', 'like', "%{$query}%")
+            ->orWhere('description', 'like', "%{$query}%")
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->appends(['query' => $query, 'perPage' => $perPage]);
+
+        return view('admin.activityLogs', [
+            'logs' => $logs,
+            'interval' => $interval, // Pass interval to the view
         ]);
     }
 }
