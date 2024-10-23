@@ -20,6 +20,8 @@ class ProfileTest extends TestCase
 
         $response->assertOk();
 
+        $response->assertViewIs('admin.profile');
+
         // Test for Department Head User
         // $deptHeadUser = User::factory()->create(['usertype' => 'dept_head']);
         // $response = $this
