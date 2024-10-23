@@ -131,9 +131,8 @@ class PreventiveMaintenanceController extends Controller
         $preventive = Preventive::where('asset_key', $assetKey)->first();
 
         if ($preventive) {
-            // $nextMaintenanceDate = $lastMaintenance->addSeconds(10);  // testing
-            $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
 
+            $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
             $preventive->save();
 

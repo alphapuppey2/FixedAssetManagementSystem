@@ -119,14 +119,29 @@ class MaintenanceSchedController extends Controller
     public function calculateNextMaintenance($preventives)
     {
         foreach ($preventives as $preventive) {
+            //do not delete or remove this
+            // Use the saved timestamp if it exists and is valid
+            // if ($preventive->next_maintenance_timestamp && $preventive->next_maintenance_timestamp > now()->timestamp) {
+            //     // Skip updating if timestamp is still valid to avoid unnecessary reset
+            //     Log::info('Using existing Next Maintenance Timestamp:', [
+            //         'timestamp' => $preventive->next_maintenance_timestamp,
+            //         'asset_key' => $preventive->asset_key
+            //     ]);
+            //     continue;
+            // }
+
+            // Otherwise, calculate the next maintenance date based on the frequency
             // Use updated_at or the last maintenance date
             $lastMaintenance = Carbon::parse($preventive->updated_at);
 
-            // $nextMaintenanceDate = $lastMaintenance->addSeconds(15); // , mu reset ang time (countdown) if kani
+             // Scale 1 day as 10 seconds for testing
+            // $nextMaintenanceDate = $lastMaintenance->addSeconds($preventive->frequency * 10); //test
+
             $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //actual
 
             // Pass the next maintenance date as a timestamp for frontend countdown
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp ?? null;
+            $preventive->save(); // Save the updated preventive
 
             // Log the next maintenance timestamp for debugging
             Log::info('Next Maintenance Timestamp:', [
