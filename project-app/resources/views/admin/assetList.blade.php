@@ -19,7 +19,7 @@
                 <!-- Search Input and Button -->
                 <x-search-input 
                     placeholder="Search by name or code"
-                    class="w-72" />
+                    class="w-80" />
             </div>
 
             <!-- Rows Per Page Dropdown and Pagination Controls -->

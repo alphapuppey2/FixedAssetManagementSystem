@@ -1,4 +1,4 @@
-<!-- resources/views/dept_head/maintenance.blade.php -->
+<!-- resources/views/admin/maintenance.blade.php -->
 @extends('layouts.app')
 
 @section('header')
@@ -13,25 +13,25 @@
     <div class="flex justify-between items-center mb-4">
 
         <!-- Search Bar -->
-        <div class="flex items-center w-1/2">
-            <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
-                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="search-container flex items-center w-1/2">
+            <form action="{{ route('adminMaintenanceSearch') }}" method="GET" class="w-full">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <x-search-input class="w-80" placeholder="Search Maintenance..." />
             </form>
         </div>
 
         <!-- Right Section: Download Icon and Create Button -->
         <div class="flex items-center space-x-4">
             <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="query">
                 <button id="refreshButton" class="p-2 text-black">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                     </svg>
                 </button>
             </form>
-            <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}" class="p-2 text-black">
+            <a href="{{ route('maintenance.download', ['tab' => $tab, 'query']) }}" class="p-2 text-black">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                 </svg>
@@ -50,8 +50,8 @@
         <div class="flex items-center">
             <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
             <form action="{{ route(Route::currentRouteName()) }}" method="GET" id="rowsPerPageForm">
-                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="query">
                 <select name="rows_per_page" id="rows_per_page" class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="document.getElementById('rowsPerPageForm').submit()">
                     <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
                     <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -63,7 +63,7 @@
 
         <!-- Pagination (on the right) -->
         <div class="ml-auto">
-            {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }} <!-- Pagination Links -->
+            {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query'])->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 
@@ -173,7 +173,7 @@
 <div id="approveModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-white rounded-lg w-1/3 p-6 shadow-lg">
         <h2 class="text-lg font-semibold mb-4">Approve Maintenance Request</h2>
-        <p>Are you sure you want to approve this request?</p>
+        <p>Are you sure you want to approve this requests?</p>
         <div class="mt-4 flex justify-end">
             <button id="cancelApproveBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 mr-2">Cancel</button>
             <button id="confirmApproveBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Approve</button>
