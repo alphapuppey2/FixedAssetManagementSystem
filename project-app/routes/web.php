@@ -97,8 +97,10 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     */
 
     // ASSET LIST
-    Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
-    Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
+    Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
+    // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');

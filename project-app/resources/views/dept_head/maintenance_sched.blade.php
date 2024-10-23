@@ -106,29 +106,33 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'asset.code', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Asset Code
+                                <x-icons.sort-icon :direction="$sortBy === 'asset.code' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'asset.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Asset Name
+                                <x-icons.sort-icon :direction="$sortBy === 'asset.name' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'cost', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Cost
+                                <x-icons.sort-icon :direction="$sortBy === 'cost' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'frequency', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Frequency
+                                <x-icons.sort-icon :direction="$sortBy === 'frequency' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched', ['sort_by' => 'ends', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Ends
+                                <x-icons.sort-icon :direction="$sortBy === 'ends' ? $sortOrder : null" />
                             </a>
                         </th>
-                        <!-- New Columns -->
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Occurrences
                         </th>
@@ -147,35 +151,43 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'asset.code', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Asset Code
+                                <x-icons.sort-icon :direction="$sortBy === 'asset.code' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'asset.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Asset Name
+                                <x-icons.sort-icon :direction="$sortBy === 'asset.name' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'category.name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Category
+                                <x-icons.sort-icon :direction="$sortBy === 'category.name' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'average_cost', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Average Cost
+                                <x-icons.sort-icon :direction="$sortBy === 'average_cost' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'repair_count', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Repair Count
+                                <x-icons.sort-icon :direction="$sortBy === 'repair_count' ? $sortOrder : null" />
                             </a>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <a href="{{ route('maintenance_sched.predictive', ['sort_by' => 'recommendation', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc']) }}">
                                 Recommendation
+                                <x-icons.sort-icon :direction="$sortBy === 'recommendation' ? $sortOrder : null" />
                             </a>
                         </th>
                     </tr>
                     @endif
+                </thead>
+
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @if ($records->isEmpty())

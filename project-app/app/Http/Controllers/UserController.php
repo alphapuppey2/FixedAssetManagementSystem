@@ -66,15 +66,55 @@ class UserController extends Controller
     // SHOWS USER LIST
     public function getUserList(Request $request)
     {
-        // Get the number of rows to display per page (default is 10)
+        // Get the search query and pagination settings from the request
+        $query = $request->input('query', '');
         $perPage = $request->input('perPage', 10);
 
-        // Use paginate directly on the query, before transforming the data
-        $userList = DB::table('users')
-            ->paginate($perPage);
+        // Get sorting parameters from the request (default to 'id' and 'asc')
+        $sortBy = $request->input('sort_by', 'id');
+        $sortOrder = $request->input('sort_order', 'asc');
 
-        return view('admin.userList', ['userList' => $userList]);
+        // List of valid columns to sort by
+        $validSortFields = [
+            'id', 'employee_id', 'firstname', 'middlename', 'lastname',
+            'email', 'usertype', 'is_deleted', 'department_name',
+            'created_at', 'updated_at'
+        ];
+
+        // Validate the sort field
+        if (!in_array($sortBy, $validSortFields)) {
+            $sortBy = 'id';
+        }
+
+        // Build the query with search, sorting, and pagination
+        $userList = DB::table('users')
+            ->leftJoin('department', 'users.dept_id', '=', 'department.id')
+            ->select('users.*', 'department.name as department_name')
+            ->when($query, function ($q) use ($query) {
+                // Apply search filter
+                $q->where('users.firstname', 'like', "%{$query}%")
+                  ->orWhere('users.lastname', 'like', "%{$query}%")
+                  ->orWhere('users.email', 'like', "%{$query}%");
+            })
+            ->orderBy($sortBy, $sortOrder) // Apply sorting
+            ->paginate($perPage) // Apply pagination
+            ->appends([
+                'query' => $query,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
+                'perPage' => $perPage,
+            ]);
+
+        // Pass the necessary data to the view
+        return view('admin.userList', [
+            'userList' => $userList,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+            'perPage' => $perPage,
+            'query' => $query,
+        ]);
     }
+
 
     // EDIT/UPDATE USER DETAILS
     public function update(Request $request)
