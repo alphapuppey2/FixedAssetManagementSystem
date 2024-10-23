@@ -87,6 +87,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('admin/newasset', [AsstController::class, 'showForm'])->name('admin.newasset');
     Route::post('admin/asset/create', [AsstController::class, 'create'])->name('adminasset.create');
+    Route::delete('admin/asset/delete/{id}', [AsstController::class, 'delete'])->name('adminasset.delete');
 
     Route::get('/fetch-department-data/{deptId}', [AsstController::class, 'fetchDepartmentData'])->name('fetch.department.data');
 

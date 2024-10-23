@@ -285,7 +285,7 @@ public function fetchDepartmentData($id)
     $isAdmin = $deptHead->usertype === 'admin'; // Check if the user is admin
 
     // Validate the request
-    $valid = $request->validate([
+    $request->validate([
         'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
         'assetname' => 'required',
         'category' => 'required',
@@ -390,7 +390,7 @@ public function fetchDepartmentData($id)
     }
 
     // Redirect based on user type
-    $routePath = $isAdmin ? '/admin/asset-list' : '/asset';
+    $routePath = $isAdmin ? '/admin/assets' : '/asset';
     return redirect()->to($routePath)->with('success', 'New Asset Created');
 }
 
@@ -643,11 +643,42 @@ public function fetchDepartmentData($id)
     {
         $assetDel = assetModel::findOrFail($id); // Find asset by ID
 
+        $userLogged = Auth::user();
+
         $assetDel->updated_at = now(); // Optionally update the timestamp
 
-        $assetDel->delete(); // Delete the asset
+        $assetDel->delete();
 
-        return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
+        // Delete the asset
+
+        // Log the activity
+        ActivityLog::create([
+            'activity' => 'Asset is Deleted via System',
+            'description' => "User {$userLogged->firstname} {$userLogged->lastname} Delete a asset '{$userLogged->assetname}' (Code: {$assetDel->code}).",
+            'userType' => $userLogged->usertype,
+            'user_id' => $userLogged->id,
+            'asset_id' => $assetDel->id, // Get the last inserted asset ID
+        ]);
+
+        // Notify the admin about the new asset creation
+        $notificationData = [
+            'title' => 'New Asset Created',
+            'message' => "A new asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been added.",
+            'asset_name' => $assetDel->name,
+            'asset_code' => $assetDel->code,
+            'authorized_by' => $userLogged->id,
+            'authorized_user_name' => "{$userLogged->firstname} {$userLogged->lastname}",
+        ];
+
+        // Send the notification to all admins
+        $admins = User::where('usertype', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
+        }
+
+        $routPath = Auth::user()->usertype === 'admin' ? 'assetList' : 'asset';
+
+        return redirect()->route($routPath)->with('success', 'Asset Deleted Successfully');
     }
 
     public function UsageHistory($id)
@@ -673,13 +704,6 @@ public function fetchDepartmentData($id)
         $model = ['mod' => DB::table('model')->get()];
         $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
         $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
-        $allUserInDept = User::where('dept_id', $userDept)
-            ->select(
-                'Users.id',
-                'Users.firstname',
-                'Users.lastname',
-            )
-            ->get();
 
         // Build the query to retrieve the asset data based on the asset code
         $retrieveDataQuery = assetModel::where('code', $code)
@@ -703,6 +727,7 @@ public function fetchDepartmentData($id)
                 'asset.last_used_by',
                 'asset.custom_fields',
                 'asset.qr_img',
+                'asset.dept_ID',
                 'asset.created_at',
                 'asset.updated_at',
                 'users.firstname',
@@ -717,13 +742,28 @@ public function fetchDepartmentData($id)
         if ($userType != 'admin') {
             $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
         }
+
         // Retrieve the asset data
         $retrieveData = $retrieveDataQuery->first();
+
+
+
 
         // If no asset is found, redirect with an error message
         if (!$retrieveData) {
             return redirect()->route('asset')->with('error', 'Asset not found.');
         }
+
+        $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
+
+        // dd($userType,$retrieveData->dept_ID ,$retrieveData);
+        $allUserInDept = User::where('dept_id', $usersDeptId)
+            ->select(
+                'Users.id',
+                'Users.firstname',
+                'Users.lastname',
+            )
+            ->get();
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
         $department = Department::find($asset->dept_ID);
