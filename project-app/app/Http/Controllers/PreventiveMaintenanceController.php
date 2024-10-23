@@ -18,10 +18,11 @@ class PreventiveMaintenanceController extends Controller
     public function checkAndGenerate(Request $request)
     {
         $assetKey = $request->input('asset_key');
-        $occurrences = $request->input('occurrences');
+        $newOccurrences = $request->input('occurrences');
 
-        // Retrieve the preventive maintenance record for the asset
-        $preventive = Preventive::where('asset_key', $assetKey)->first();
+        $preventive = Preventive::where('asset_key', $assetKey)
+        ->where('status', 'active')
+        ->first();
 
         if (!$preventive) {
             return response()->json(['error' => 'Preventive record not found'], 404);
@@ -39,10 +40,17 @@ class PreventiveMaintenanceController extends Controller
         // Enable query logging
         \DB::enableQueryLog();
 
-        if ($preventive->occurrences < $preventive->ends) {
-            // Increment occurrences by 1
-            $preventive->occurrences += 1;
+        if ($preventive->ends === 0 || $preventive->occurrences < $preventive->ends) {
+            $preventive->occurrences = $newOccurrences;
+            // $preventive->next_maintenance_timestamp = now()->addSeconds(15)->timestamp; //test
+            $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
             $preventive->save();
+
+            // Log the query for debugging
+            \Log::info('Updated Preventive Occurrences:', [
+                'asset_key' => $preventive->asset_key,
+                'occurrences' => $preventive->occurrences
+            ]);
 
             // Log the executed query
             \Log::info('Query log: ' . json_encode(\DB::getQueryLog()));
@@ -71,7 +79,7 @@ class PreventiveMaintenanceController extends Controller
                     'dept_head_id' => $deptHead->id,
                     'notification_data' => $notificationData
                 ]);
-        
+
                 // Send the notification
                 $deptHead->notify(new SystemNotification($notificationData));
             } else {
@@ -123,13 +131,15 @@ class PreventiveMaintenanceController extends Controller
         $preventive = Preventive::where('asset_key', $assetKey)->first();
 
         if ($preventive) {
-            // Dynamically calculate the next maintenance date based on the last maintenance (updated_at) and frequency
-            $lastMaintenance = Carbon::parse($preventive->updated_at);
-            $nextMaintenanceDate = $lastMaintenance->addSeconds(10);  // For testing, use seconds instead of days
+            // $nextMaintenanceDate = $lastMaintenance->addSeconds(10);  // testing
+            $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
+
+            $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
+            $preventive->save();
 
             return response()->json([
                 'success' => true,
-                'nextMaintenanceTimestamp' => $nextMaintenanceDate->timestamp  // Pass the next due timestamp to the frontend
+                'nextMaintenanceTimestamp' => $nextMaintenanceDate->format('Y-m-d H:i:s'),  // Pass the next due timestamp to the frontend
             ]);
         }
 

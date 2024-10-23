@@ -7,6 +7,14 @@
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-full">
 
+    @if(session('status'))
+        <div id="toast" class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg
+                    {{ session('status_type') === 'error' ? 'bg-red-500' : 'bg-green-500' }}
+                    text-white">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <!-- Instructions Section -->
     <div class="mb-6 p-6 bg-blue-100 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Instructions</h3>
@@ -206,6 +214,21 @@
         /* Center the text vertically */
     }
 </style>
+
+
+<script>
+    // Toast Notification fade-out
+    setTimeout(function() {
+        var toast = document.getElementById('toast');
+        if (toast) {
+            toast.style.transition = 'opacity 1s ease';
+            toast.style.opacity = '0';
+            setTimeout(function() {
+                toast.remove();
+            }, 1000); // Remove it after fading out
+        }
+    }, 3000); // 3 seconds delay
+</script>
 
 <script>
     $(document).ready(function() {

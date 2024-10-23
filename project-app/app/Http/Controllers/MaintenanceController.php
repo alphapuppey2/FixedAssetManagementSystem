@@ -20,6 +20,7 @@ use App\Notifications\SystemNotification;
 use Illuminate\Notifications\Notification as NotificationFacade; // Alias the facade
 use App\Models\User;
 use App\Models\ActivityLog;
+use Carbon\Carbon;
 
 class MaintenanceController extends Controller
 {
@@ -496,6 +497,20 @@ class MaintenanceController extends Controller
         //     $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
         // }
 
+
+        // Check if active preventive maintenance already exists for the asset
+        $existingMaintenance = Preventive::where('asset_key', $validatedData['asset_code'])
+                                        ->where('status', 'active')
+                                        ->first();
+
+        if ($existingMaintenance) {
+            // Set session value for the error notification
+            session()->flash('status', 'An active preventive maintenance already exists for this asset.');
+            session()->flash('status_type', 'error'); // Set the status type for error
+
+            return redirect()->back(); // Redirect back to the form
+        }
+
         // Determine the frequency in days
         $frequencyDays = match ($validatedData['frequency']) {
             'every_day' => 1,
@@ -514,6 +529,9 @@ class MaintenanceController extends Controller
             'cost' => $validatedData['cost'],
             'frequency' => $frequencyDays,  // Frequency stored in days
             'ends' => $ends,  // 0 for "never", a number for occurrences
+            'occurrences' => 0,  // Initialize with 0 occurrences
+            'status' => 'active',  // Set initial status to active
+            'next_maintenance_timestamp' => now()->addDays($frequencyDays)->timestamp,  // Store as Unix timestamp
         ]);
 
         // Retrieve asset and admin user for notification
@@ -558,11 +576,19 @@ class MaintenanceController extends Controller
 
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
+        // session()->flash('status_type', 'success'); // Set the status type for success
 
-        $route = $userType === 'admin'
-            ? 'adminMaintenance_sched'
-            : 'maintenance_sched';
-        return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+        // $route = $userType === 'admin'
+        //     ? 'adminMaintenance_sched'
+        //     : 'maintenance_sched';
+        // return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+
+            // Set session value for success notification
+        return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
+        ->with([
+            'status' => 'Maintenance schedule created successfully!',
+            'status_type' => 'success'
+        ]);
     }
 
     // MaintenanceController.php

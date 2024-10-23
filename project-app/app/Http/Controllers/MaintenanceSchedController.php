@@ -122,8 +122,8 @@ class MaintenanceSchedController extends Controller
             // Use updated_at or the last maintenance date
             $lastMaintenance = Carbon::parse($preventive->updated_at);
 
-            // Calculate the next maintenance date (using seconds for testing)
-            $nextMaintenanceDate = $lastMaintenance->addSeconds(15); // Change to `addDays()` for actual logic
+            // $nextMaintenanceDate = $lastMaintenance->addSeconds(15); // , mu reset ang time (countdown) if kani
+            $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //actual
 
             // Pass the next maintenance date as a timestamp for frontend countdown
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp ?? null;
