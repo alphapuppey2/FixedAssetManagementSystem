@@ -414,6 +414,7 @@ class AsstController extends Controller
         // Query to fetch and group maintenance records by month for under maintenance assets
         $dataUnderMaintenanceQuery = Maintenance::join('asset', 'asset.id', '=', 'maintenance.asset_key')
             ->where('asset.status', 'under_maintenance')
+            ->where('maintenance.status', 'approved')
             ->select(
                 DB::raw('DATE_FORMAT(maintenance.created_at, "%b %Y") as monthYear'),
                 DB::raw('COUNT(DISTINCT maintenance.id) as count') // Ensure distinct maintenance records are counted

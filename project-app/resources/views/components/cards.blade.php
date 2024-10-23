@@ -21,9 +21,6 @@
             $cardColor = 'bg-blue-300';
             $textColor = 'text-blue-950';
             break;
-        default:
-            $cardColor = 'bg-red-300'; // Set a default color if no match is found
-            break;
     }
 @endphp
 

@@ -80,7 +80,7 @@
             <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto mt-2"> <!-- Added margin -->
 
                 <table class="w-full gap-2">
-                    <thead class="bg-gray-100">
+                    <thead class="bg-gray-100 ">
                         <tr>
                             @if ($activeTab !== 'customFields')
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
@@ -113,26 +113,26 @@
                             @foreach ($data as $key => $dataItem)
                                 <tr class="" id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
-                                        <td class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="w-64 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="desc-text ">{{ $dataItem->description }}</span>
                                             <input type="text"
                                                 class="desc-input"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td class="py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <a class="bg-blue-950 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
+                                        <td>
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
-                                            <a class="bg-blue-950 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $dataItem->id }}"
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $dataItem->id }}"
                                                 style="display: none;">Save</a>
-                                            <a class="bg-red-400 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn"
+                                            <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
                                                 data-row-id="{{ $dataItem->id }}" style="display: none;">Cancel</a>
 
                                             <form
@@ -140,17 +140,17 @@
                                                 method="post" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="bg-red-400 cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn">Delete</button>
+                                                <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
                                             </form>
                                         </td>
                                     @else
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="type-text ">{{ $dataItem->type }}</span>
                                             <select name="type" class="type-input" style="display: none">
                                                 <option value="number">Number</option>
@@ -160,26 +160,26 @@
                                             {{-- <input type="text" class="type-input" style="display: none"
                                                 value="{{ $dataItem->type }}"> --}}
                                         </td>
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
 
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td class=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <a class="bg-blue-950 cursor-pointer text-medium h-full text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
+                                        <td class="py-2 text-left text-xs font-medium text-gray-500 tracking-wider">
+                                            <a class="bg-blue-950 h-full text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
-                                            <a class="bg-blue-950 cursor-pointer text-medium text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
                                                 style="display: none;">Save</a>
-                                            <a class="bg-red-400 cursor-pointer text-medium text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
+                                            <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
                                                 data-row-id="{{ $key }}" style="display: none;">Cancel</a>
 
                                             <form
                                                 action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $key]) }}"
-                                                method="post" class="inline-block">
+                                                method="post" >
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="bg-red-400 text-medium cursor-pointer text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500  delete-btn">Delete</button>
+                                                <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
                                             </form>
                                         </td>
                                     @endif
@@ -187,7 +187,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}">NO DATA FOUND</td>
+                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}" class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">NO DATA FOUND</td>
                             </tr>
                         @endif
                     </tbody>
