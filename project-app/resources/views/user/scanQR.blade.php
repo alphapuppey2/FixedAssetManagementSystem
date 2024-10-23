@@ -1,6 +1,5 @@
 @extends('user.home')
 
-
 @section('header')
     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         {{ "Scan QR" }}
@@ -17,37 +16,37 @@
 
     <!-- QR Scanner Container -->
     <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
-        <div id="qr-scanner-container" class="hidden relative w-full max-w-md aspect-square bg-black">
-            <video id="video" style="width: 100%; height: 100%; border: 1px solid black; object-fit: cover; background-color: #000;"></video>
-            <!-- QR box -->
-            <div id="qr-bar" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border: 2px solid rgb(236, 220, 220);"></div>
+        <div id="qr-scanner-container" class="hidden relative w-full max-w-md max-h-screen aspect-square bg-black">
+            <video id="video" class="w-full h-full border border-black object-cover bg-black"></video>
+            <div id="qr-bar"
+                 class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/3 h-1/3 border-2 border-gray-300"></div>
         </div>
     </div>
 
     <!-- Success Notification -->
-    <div id="scan-success" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-md shadow-md">
-
+    <div id="scan-success" aria-live="polite" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-md shadow-md">
         Scan Successful: <span id="qr-result"></span>
     </div>
 
     <!-- Error Notification -->
-    <div id="scan-error" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #b61f14; color: white; padding: 15px; border-radius: 5px;">
+    <div id="scan-error" class="hidden fixed bottom-20 right-20 bg-red-600 text-white px-4 py-2 rounded-md">
         No QR code found in the image.
     </div>
 
-
     <!-- Buttons for Scanning or Uploading -->
     <div class="flex justify-center mt-10 space-x-4">
-        {{-- <button onclick="startScanning()" class="bg-blue-900  text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button> --}}
-        <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">Scan QR Code</button> <!-- Changed this to a dynamic button -->
-        <button onclick="document.getElementById('uploadInput').click()" class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">Upload Image</button>
+        <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Scan QR Code
+        </button>
+        <button onclick="document.getElementById('uploadInput').click()" class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">
+            Upload Image
+        </button>
     </div>
 
     <!-- Hidden File Input for Image Upload -->
     <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
 
-
-    <!-- ZXing Library for QR Code Scanning -->
+    <!-- ZXing Library -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 
     <script>
@@ -56,56 +55,55 @@
 
         function toggleScan() {
             if (isScanning) {
-                stopScanning();  // If scanning, stop it
+                stopScanning();
             } else {
-                startScanning();  // If not scanning, start it
+                startScanning();
             }
         }
 
         function startScanning() {
-            // Ensure only one scanning process is active
             if (isScanning) return;
-            isScanning = true;
 
+            isScanning = true;
             document.getElementById('scanButton').textContent = 'Cancel Scan';
             document.getElementById('placeholderImage').style.display = 'none';
             document.getElementById('qr-scanner-container').style.display = 'block';
 
-            // Start scanning from the video stream
             codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
                 if (result) {
                     showSuccessNotification(result.text);
-                    stopScanning();  // Stop scanning on success
+                    stopScanning();
                 } else if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error(err);
+                    console.error("Scanning Error:", err);
                 }
             });
         }
 
         function stopScanning() {
-            // Reset and stop the camera
             codeReader.reset();
             isScanning = false;
 
-            // Hide the video scanner and show placeholder
             document.getElementById('scanButton').textContent = 'Scan QR Code';
             document.getElementById('qr-scanner-container').style.display = 'none';
             document.getElementById('placeholderImage').style.display = 'block';
         }
 
         function handleImageChange(event) {
-            stopScanning();  // Stop video scanning if already active
+            stopScanning();
 
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function() {
+                reader.onload = function () {
+                    showLoading();
                     const img = new Image();
                     img.src = reader.result;
-                    img.onload = function() {
+                    img.onload = function () {
                         codeReader.decodeFromImage(img).then(result => {
+                            hideLoading();
                             showSuccessNotification(result.text);
                         }).catch(err => {
+                            hideLoading();
                             console.error(err);
                             showErrorNotification("No QR code found in the image.");
                         });
@@ -135,15 +133,27 @@
 
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 3000); // Set the timeout to 5 seconds for the error message to disappear
+            }, 3000);
         }
 
-        // Function to make the session error disappear after 5 seconds
-        setTimeout(function() {
+        function showLoading() {
+            const loader = document.createElement('div');
+            loader.id = 'loading';
+            loader.textContent = 'Processing...';
+            loader.className = 'fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-700 text-white';
+            document.body.appendChild(loader);
+        }
+
+        function hideLoading() {
+            const loader = document.getElementById('loading');
+            if (loader) loader.remove();
+        }
+
+        setTimeout(() => {
             const sessionError = document.getElementById('session-error');
             if (sessionError) {
                 sessionError.style.display = 'none';
             }
-        }, 3000); // 5000 milliseconds = 5 seconds
+        }, 3000);
     </script>
 @endsection

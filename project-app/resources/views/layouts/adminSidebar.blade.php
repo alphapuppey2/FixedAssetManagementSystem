@@ -1,8 +1,9 @@
-<aside class="h-screen transition ease-in md:w-[50px] lg:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
+<aside id="adminSidebar" class="h-screen transition ease-in md:w-[50px] lg:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
     <!-- Sidebar content -->
-    <button class="h-[10px] lg:hidden sm:block">
+    <button id="hamburgerToggleAdmin" class="h-[10px] lg:hidden sm:block">
         <x-icons.hamburger />
     </button>
+
     <a href="{{ route('admin.profile') }}">
         <div class="profileAccount w-auto flex mt-3 items-center p-2 rounded-lg hover:bg-gray-300/15 transition ease-in">
             <div class="imagepart overflow-hidden rounded-full lg:w-auto lg:h-auto transform relative p-4 border-3 border-slate-500">
@@ -29,24 +30,30 @@
             </div>
         </div>
     </a>
+
     <div class="divder w-[80%] h-[1px] bg-white mt-2 mb-2"></div>
+
     <nav class="flex flex-col w-full font-semibold">
         <ul class="sb h-[100%]">
-            <li class="">
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('admin.home')" :active="request()->routeIs('admin.home')">
+            <li>
+                <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
+                    :href="route('admin.home')" :active="request()->routeIs('admin.home')">
                     <x-dashIcon />
                     <span class="ml-2 sm:hidden lg:block">Dashboard</span>
                 </x-nav-link>
             </li>
+
             <li>
-                <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md" :href="route('userList')" :active="request()->routeIs('userList')">
+                <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
+                    :href="route('userList')" :active="request()->routeIs('userList')">
                     <x-userListIcon />
                     <span class="ml-2 sm:hidden lg:block">User List</span>
                 </x-nav-link>
             </li>
+
             <!-- Assets Dropdown -->
             <li class="relative">
-                <button id="assetDropdown" class="flex items-center w-full text-left hover:bg-slate-400/15 p-1 rounded-md focus:outline-none">
+                <button id="adminAssetDropdownToggle" class="flex items-center w-full text-left hover:bg-slate-400/15 p-1 rounded-md focus:outline-none">
                     <x-receipticon />
                     <span class="ml-2">Assets</span>
                     <i class="fas fa-chevron-down ml-auto"></i>
@@ -106,43 +113,51 @@
                 </ul>
 
             </li>
+
             <li class="relative">
-                <button id="maintenanceDropdown" class="flex items-center w-full text-left hover:bg-slate-400/15 p-1 rounded-md focus:outline-none">
+                <button id="adminMaintenanceDropdownToggle" class="flex items-center w-full text-left hover:bg-slate-400/15 p-1 rounded-md focus:outline-none">
                     <x-wrenchicon />
                     <span class="ml-2">Maintenance</span>
-                    <i class="fas fa-chevron-down ml-auto"></i> <!-- Dropdown icon -->
+                    <i class="fas fa-chevron-down ml-auto"></i>
                 </button>
-                <!-- Dropdown Menu with left margin for indentation -->
-                <ul id="maintenanceDropdownMenu" class="hidden flex-col rounded-md mt-1 ml-4"> <!-- Added ml-4 for indentation -->
-                    <!-- Maintenance Request -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+
+                <ul id="adminMaintenanceDropdownMenu" class="hidden flex-col mt-1 ml-4">
+                    <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
                         :href="route('adminMaintenance', ['mntncDropdown' => 'open'])"
                         :active="request()->routeIs('adminMaintenance')">
                         <x-envelopeicon />
                         <span class="ml-2 sm:hidden lg:block">Request</span>
                     </x-nav-link>
 
-                    <!-- Maintenance Scheduling -->
-                    <x-nav-link class="flex hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                    <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
                         :href="route('adminMaintenance_sched', ['mntncDropdown' => 'open'])"
-                        :active="request()->routeIs('adminMaintenance_sched') || request()->routeIs('adminMaintenance_sched.predictive')">
+                        :active="request()->routeIs('adminMaintenance_sched')">
                         <x-calendarIcon />
                         <span class="ml-2 sm:hidden lg:block">Scheduling</span>
                     </x-nav-link>
                 </ul>
             </li>
+
             <li>
-                <x-nav-link class="flex transition ease-in mb-1 p-1 rounded-md" :href="route('notifications.index')" :active="request()->routeIs('notifications.index')">
+                <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
+                    :href="route('notifications.index')" :active="request()->routeIs('notifications.index')">
                     <x-bellIcon />
-                    <span class="ml-2 max-md:hidden lg:block">Notification</span>
+                    <span class="ml-2 sm:hidden lg:block">Notification</span>
                 </x-nav-link>
             </li>
 
-            <!-- Log out button moves down dynamically -->
+            <li>
+                <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
+                    :href="route('admin.activity-logs')" :active="request()->routeIs('admin.activity-logs')">
+                    <x-receipticon />
+                    <span class="ml-2 sm:hidden lg:block">Activity Logs</span>
+                </x-nav-link>
+            </li>
+
             <li class="mt-auto">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full hover:bg-slate-400/15 transition ease-in mb-1 p-1 rounded-md"
+                    <button type="submit" class="flex w-full hover:bg-slate-400/15 mb-1 p-1 rounded-md"
                         onclick="event.preventDefault(); this.closest('form').submit();">
                         <x-icons.logout-icon />
                         <span class="ml-2 sm:hidden lg:block">Log out</span>
@@ -154,39 +169,51 @@
 </aside>
 
 <script>
-    // Function to toggle the asset dropdown
-    function toggleAssetDropdown() {
-        var dropdownMenu = document.getElementById('dropdownMenu');
-        dropdownMenu.classList.toggle('hidden'); // Toggle the hidden class to show/hide the dropdown
-    }
-
-    // Function to keep the asset dropdown open if the URL contains 'dropdown=open'
-    function checkAssetDropdownState() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('asstDropdown') === 'open') {
-            document.getElementById('dropdownMenu').classList.remove('hidden'); // Keep dropdown open
-        }
-    }
-
-    // Function to toggle the maintenance dropdown
-    function toggleMaintenanceDropdown() {
-        const maintenanceDropdownMenu = document.getElementById('maintenanceDropdownMenu');
-        maintenanceDropdownMenu.classList.toggle('hidden'); // Show or hide the dropdown
-    }
-
-    // Function to keep the maintenance dropdown open if the URL contains 'dropdown=open'
-    function checkMaintenanceDropdownState() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mntncDropdown') === 'open') {
-            document.getElementById('maintenanceDropdownMenu').classList.remove('hidden'); // Keep dropdown open
-        }
-    }
-
-    // Event listeners for asset and maintenance dropdowns
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('assetDropdown').addEventListener('click', toggleAssetDropdown);
-        document.getElementById('maintenanceDropdown').addEventListener('click', toggleMaintenanceDropdown);
-        checkAssetDropdownState();
-        checkMaintenanceDropdownState();
+        const toggleDropdown = (toggleButton, dropdownMenu, storageKey) => {
+            const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+            toggleButton.setAttribute('aria-expanded', !isExpanded);
+            dropdownMenu.classList.toggle('hidden', isExpanded);
+            localStorage.setItem(storageKey, !isExpanded);
+        };
+
+        const restoreDropdownState = (toggleButton, dropdownMenu, storageKey) => {
+            const savedState = localStorage.getItem(storageKey) === 'true';
+            toggleButton.setAttribute('aria-expanded', savedState);
+            dropdownMenu.classList.toggle('hidden', !savedState);
+        };
+
+        const sidebar = document.getElementById('adminSidebar');
+        const hamburgerToggle = document.getElementById('hamburgerToggleAdmin');
+
+        // Restore sidebar state
+        if (localStorage.getItem('adminSidebarExpanded') === 'true') {
+            sidebar.classList.add('lg:w-[205px]');
+        } else {
+            sidebar.classList.add('md:w-[50px]');
+        }
+
+        hamburgerToggle.addEventListener('click', () => {
+            const isExpanded = sidebar.classList.contains('lg:w-[205px]');
+            sidebar.classList.toggle('md:w-[50px]', isExpanded);
+            sidebar.classList.toggle('lg:w-[205px]', !isExpanded);
+            localStorage.setItem('adminSidebarExpanded', !isExpanded);
+        });
+
+        // Asset dropdown
+        const assetToggle = document.getElementById('adminAssetDropdownToggle');
+        const assetMenu = document.getElementById('adminAssetDropdownMenu');
+        assetToggle.addEventListener('click', () => {
+            toggleDropdown(assetToggle, assetMenu, 'adminAssetDropdownOpen');
+        });
+        restoreDropdownState(assetToggle, assetMenu, 'adminAssetDropdownOpen');
+
+        // Maintenance dropdown
+        const maintenanceToggle = document.getElementById('adminMaintenanceDropdownToggle');
+        const maintenanceMenu = document.getElementById('adminMaintenanceDropdownMenu');
+        maintenanceToggle.addEventListener('click', () => {
+            toggleDropdown(maintenanceToggle, maintenanceMenu, 'adminMaintenanceDropdownOpen');
+        });
+        restoreDropdownState(maintenanceToggle, maintenanceMenu, 'adminMaintenanceDropdownOpen');
     });
 </script>

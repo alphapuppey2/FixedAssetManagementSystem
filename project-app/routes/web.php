@@ -19,6 +19,7 @@ use App\Http\Controllers\UserSideController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ActivityLogController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -95,6 +96,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
     Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+    Route::get('/admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
 
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
@@ -103,6 +105,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // CREATE MAINTENANCE
     Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
     Route::post('/admin/create-maintenance', [MaintenanceController::class, 'store'])->name('adminMaintenance.store');
+
+    // ACTIVITY LOGS
+    Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
+    Route::get('/admin/activity-logs/search', [ActivityLogController::class, 'search'])->name('searchActivity');
+    Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
+    Route::post('/admin/activity-logs/settings', [ActivityLogController::class, 'updateSettings'])->name('activityLogs.updateSettings');
 
     // ADMIN PROFILE
     Route::get('/admin/profile', function () {
@@ -151,9 +159,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::put('/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('maintenance.updateDenied');
     Route::put('/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('maintenance.updateApproved');
 
-    // Route::get('/maintenance/refreshTable', [MaintenanceController::class, 'refreshTable'])->name('maintenance.refreshTable');
-
-    Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
+    // Route::get('/maintenance/search', [MaintenanceController::class, 'search'])->name('maintenance.search');
+    Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance/download', [MaintenanceController::class, 'download'])->name('maintenance.download');
 
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
@@ -190,11 +197,15 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::patch('/profile/change_password', [ProfileController::class, 'changePassword'])->name('profile.change_password');
 
-    //Reports
-    Route::get('/custom-report', [ReportsController::class, 'show'])->name('custom.report');
-    Route::get('/generate-custom-report', [ReportsController::class, 'generate'])->name('custom.report.generate');
-    Route::get('/report/download', [ReportsController::class, 'downloadReport'])->name('report.download');
+    // Asset Reports
+    Route::get('/asset-report', [ReportsController::class, 'showAssetFilter'])->name('asset.report');
+    Route::get('/generate-asset-report', [ReportsController::class, 'generateAssetReport'])->name('asset.report.generate');
+    Route::get('/asset-report/download', [ReportsController::class, 'downloadAssetReport'])->name('asset.report.download');
 
+    // Maintenance Reports
+    Route::get('/maintenance-report', [ReportsController::class, 'showMaintenanceFilter'])->name('maintenance.report');
+    Route::get('/generate-maintenance-report', [ReportsController::class, 'generateMaintenanceReport'])->name('maintenance.report.generate');
+    Route::get('/maintenance-report/download', [ReportsController::class, 'downloadMaintenanceReport'])->name('maintenance.report.download');
 });
 
 // User Routes

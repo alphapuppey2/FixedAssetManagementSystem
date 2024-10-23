@@ -20,7 +20,7 @@ class SystemNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database']; // or ['mail', 'database'] if sending email and database notifications
+        return ['mail', 'database'];
     }
 
     public function toDatabase($notifiable)
