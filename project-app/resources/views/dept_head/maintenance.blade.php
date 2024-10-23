@@ -3,7 +3,7 @@
 
 @section('header')
     <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
-        {{ 'Maintenancec Request' }}
+        {{ 'Maintenance Request' }}
     </h2>
 @endsection
 
@@ -13,12 +13,10 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
 
             <!-- Search Bar -->
-            <div class="w-full md:w-1/2 flex items-center">
+            <div class="search-container w-full md:w-1/2 flex items-center">
                 <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
-                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                    <input type="text" name="query" placeholder="Search..."
-                        value="{{ $searchQuery }}"
-                        class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="hidden" name="tab" value="{{ $tab }}">
+                    <x-search-input class="w-80" placeholder="Search Maintenance..." />
                 </form>
             </div>
 
@@ -28,7 +26,7 @@
                     <!-- Refresh Icon -->
                     <form action="{{ route(Route::currentRouteName()) }}" method="GET">
                         <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                        <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                        <input type="hidden" name="query"> <!-- Preserve the current search query -->
                         <button id="refreshButton" class="p-2 text-black flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -39,7 +37,7 @@
                     </form>
 
                     <!-- Download Icon -->
-                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}"
+                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query']) }}"
                     class="p-2 text-black flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="size-7">
@@ -63,16 +61,13 @@
             </div>
         </div>
 
-
-
-
         <div class="flex justify-between items-center mb-4">
             <!-- Rows per page dropdown (on the left) -->
             <div class="flex items-center">
                 <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
                 <form action="{{ route(Route::currentRouteName()) }}" method="GET" id="rowsPerPageForm">
                     <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                    <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                    <input type="hidden" name="query"> <!-- Preserve the current search query -->
                     <select name="rows_per_page" id="rows_per_page" class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="document.getElementById('rowsPerPageForm').submit()">
                         <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -84,7 +79,7 @@
 
             <!-- Pagination (on the right) -->
             <div class="ml-auto pagination-container">
-                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }}
+                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query'])->links('vendor.pagination.tailwind') }}
             </div>
 
         </div>

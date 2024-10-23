@@ -11,14 +11,13 @@
 @endsection
 
 @section('content')
-
 <div>
     <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
         <!-- Search Input and Button -->
         <div class="relative search-container">
             <x-search-input
                 placeholder="Search by name or email"
-                class="w-72" />
+                class="w-80" />
         </div>
         <!-- Rows per page dropdown -->
         <div class="flex justify-between items-center mb-4">

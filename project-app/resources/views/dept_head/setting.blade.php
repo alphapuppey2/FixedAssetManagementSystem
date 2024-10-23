@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('header')
-    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
+    {{-- <div class="header flex w-full justify-between pr-3 pl-3 items-center"> --}}
+    <div class="header flex flex-wrap w-full justify-between pr-3 pl-3 items-center">
         <div class="title">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{-- <h2 class="font-semibold text-xl text-gray-800 leading-tight"> --}}
+            <h2 class="font-semibold text-lg md:text-xl text-gray-800 leading-tight">
                 Settings
             </h2>
         </div>
@@ -10,7 +12,8 @@
 @endsection
 @section('content')
 
-    <div class="cont relative p-1 h-full">
+    {{-- <div class="cont relative p-1 h-full"> --}}
+    <div class="cont relative p-2 md:p-1 h-full">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -21,67 +24,86 @@
             </div>
         @endif
         <div class="container relative h-full p-2 flex flex-col gap-2">
-            <div class="flex justify-between">
-                <ul class="flex border-b max-w-max border-gray-300 inline-block">
+            {{-- <div class="flex justify-between"> --}}
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center"> <!-- Added flex-wrap -->
+                {{-- <ul class="flex border-b max-w-max border-gray-300 inline-block"> --}}
+                <ul class="flex flex-wrap border-b max-w-full md:max-w-max border-gray-300"> <!-- Adjusted for small screens -->
                     <li class="mr-1">
-                        <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
+                        <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
                             href="{{ url('/setting?tab=model') }}">
                             Model
                         </a>
                     </li>
                     <li class="mr-1">
-                        <a class="inline-block py-2 px-4 {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
+                        <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'manufacturer' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
                             href="{{ url('/setting?tab=manufacturer') }}">
                             Manufacturer
                         </a>
                     </li>
                     <li class="mr-1">
-                        <a class="inline-block py-2 px-4 {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
+                        <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'location' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
                             href="{{ url('/setting?tab=location') }}">
                             Location
                         </a>
                     </li>
                     <li class="mr-1">
-                        <a class="inline-block py-2 px-4 {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
+                        <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'category' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
                             href="{{ url('/setting?tab=category') }}">
                             Category
                         </a>
                     </li>
                     <li class="mr-1">
-                        <a class="inline-block py-2 px-4 {{ $activeTab === 'customFields' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
+                        {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'customFields' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
+                        <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'customFields' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
                             href="{{ url('/setting?tab=customFields') }}">
                             Custom Field
                         </a>
                     </li>
                 </ul>
                 <!-- Button to Open the Modal -->
-                <button onclick="openModal()" class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">New Setting</button>
+                <button onclick="openModal()"
+                {{-- class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center"> --}}
+                class="px-2 md:px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center mt-2 md:mt-0">
+                New Setting</button>
+
 
                 <!-- Include the Modal -->
                 @include('dept_head.modal.newSettingModal')
             </div>
 
 
-            <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto">
+            {{-- <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto"> --}}
+            <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto mt-2"> <!-- Added margin -->
 
                 <table class="w-full gap-2">
                     <thead class="bg-gray-100">
                         <tr>
                             @if ($activeTab !== 'customFields')
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Description</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Actions</td>
                             @else
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Type</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Helper Text</td>
-                                <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                                     Action</td>
                             @endif
                         </tr>
@@ -130,15 +152,21 @@
                                         </td>
                                         <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="type-text ">{{ $dataItem->type }}</span>
-                                            <input type="text" class="type-input" style="display: none"
-                                                value="{{ $dataItem->type }}">
+                                            <select name="type" class="type-input" style="display: none">
+                                                <option value="number">Number</option>
+                                                <option value="text">Text</option>
+                                                <option value="date">Date</option>
+                                            </select>
+                                            {{-- <input type="text" class="type-input" style="display: none"
+                                                value="{{ $dataItem->type }}"> --}}
                                         </td>
                                         <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
+
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-6 py-3 text-left text-xs font-medium text-gray    -500 uppercase tracking-wider">
                                             <a class="btn btn-outline-primary edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="btn btn-outline-success save-btn" data-row-id="{{ $key }}"

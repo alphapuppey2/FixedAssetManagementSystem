@@ -41,18 +41,18 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
             <form action="{{ route('search.global') }}" method="GET"
                   onsubmit="return validateSearchInput();"
                   class="flex items-center space-x-2">
-                <x-search-input
-                    placeholder="{{ Auth::user()->usertype == 'admin'
-                        ? 'Search for users, assets, or maintenance...'
-                        : 'Search for assets or maintenance...' }}"
-                    class="w-full px-3 py-2 text-sm border rounded-md shadow-sm
-                        focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div class="relative search-container">
+                    <x-search-input
+                        placeholder="{{ Auth::user()->usertype == 'admin'
+                            ? 'Search for users, assets, or maintenance...'
+                            : 'Search for assets or maintenance...' }}"
+                        class="w-96" />
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Navigation Section -->
-    {{-- <nav class="flex items-center space-x-4 relative"> --}}
     <nav class="flex items-center space-x-2 md:space-x-4">
         <!-- Notification Icon -->
         <div
@@ -94,7 +94,6 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 class="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden z-50">
 
                 <!-- Header -->
-                {{-- <div class="border-b border-gray-200 flex justify-between items-center px-3 py-2 bg-gray-50"> --}}
                 <div class="border-b px-3 py-2 bg-gray-50 flex justify-between items-center">
                     <a href="{{ route('notifications.index') }}" class="text-blue-500 hover:underline text-sm">
                         View All
@@ -134,20 +133,23 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
         <nav>
             <x-dropdown2>
                 <x-slot name="trigger">
-                    <div class="div">Create New</div>
+                    <div class="div text-blue-950">Create New</div>
                 </x-slot>
 
                 <x-slot name="content">
                     @if (Auth::user()->usertype === 'admin')
                     <li>
                         <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('users.create')">
-                            {{ __('Users') }}
+                            {{ __('User') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('adminFormMaintenance')">
+                            {{ __('Maintenance') }}
                         </x-dropdown-link>
                     </li>
                     @endif
                     @if(Auth::user()->usertype === 'dept_head')
                     <li>
-                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                        <x-dropdown-link class="w-full pl-3 block text-blue-950 hover:bg-blue-100" :href="route('newasset')">
                             {{ __('Asset') }}
                         </x-dropdown-link>
                     </li>

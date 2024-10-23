@@ -2,11 +2,13 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight">Maintenance Scheduling</h2>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center md:text-left">
+        {{ 'Maintenance Scheduling' }}
+    </h2>
 @endsection
 
 @section('content')
-    <div class="px-6 py-4">
+    <div class="">
 
         <!-- Toast Notification -->
         @if(session('status'))
@@ -16,37 +18,46 @@
         @endif
 
         <!-- Top Section -->
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
             <!-- Search Bar -->
-            <div class="flex items-center w-1/2">
+            <div class="w-full md:w-1/2 flex items-center">
                 <form action="" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                    <input type="text" name="query" placeholder="Search..." value="{{ request('query') }}" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </form>
+                    <input type="text" name="query" placeholder="Search..." value="{{ request('query') }}" class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
 
             <!-- Right Section: Download Icon and Create Button -->
-            <div class="flex items-center space-x-4">
-                <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                    <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
-                    <button id="refreshButton" class="p-2 text-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                    </button>
-                </form>
-                <a href="" class="p-2 text-black">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                    </svg>
-                </a>
-                <a href="{{ route('formMaintenance') }}" class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    Create Maintenance
-                </a>
+            <div class="w-full md:w-auto">
+                <div class="flex items-center space-x-1 md:space-x-4">
+                    <form action="{{ route(Route::currentRouteName()) }}" method="GET">
+                        <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
+                        <input type="hidden" name="query" value="{{ $searchQuery }}"> <!-- Preserve the current search query -->
+                        <button id="refreshButton" class="p-2 text-black">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </button>
+                    </form>
+                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query' => $searchQuery]) }}"
+                        class="p-2 text-black flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-7">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                            </svg>
+                    </a>
+                    <!-- Create Maintenance Button -->
+                    <a href="{{ route('formMaintenance') }}"
+                        class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600
+                                focus:outline-none flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-7 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        Create Maintenance
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -65,9 +76,11 @@
             </div>
 
             <!-- Pagination (on the right) -->
-            <div class="ml-auto">
+            {{-- <div class="ml-auto"> --}}
+            <div class="ml-auto pagination-container">
                 {{ $records->appends(['rows_per_page' => $perPage])->links() }} <!-- Pagination Links -->
             </div>
+
         </div>
 
         <!-- Tabs Section -->
@@ -84,6 +97,7 @@
 
         <!-- Table Section -->
         <div class="overflow-x-auto">
+            <div class="hidden md:block">
             <table class="min-w-full bg-white border rounded-md">
                 <thead class="bg-gray-100 border-b">
                     @if ($tab === 'preventive')
@@ -200,12 +214,50 @@
                     @endif
                 </tbody>
             </table>
+            </div>
+
+                        <!-- Card layout for small screens -->
+                        <div class="block md:hidden space-y-4"> <!-- Card layout for small screens -->
+                            @foreach ($records as $record)
+                                <div class="bg-white p-4 rounded-md shadow-md border" data-asset-key="{{ $record->asset_key }}">
+                                    <p><strong>Asset Code:</strong> {{ $record->asset->code }}</p>
+                                    <p><strong>Asset Name:</strong> {{ $record->asset->name }}</p>
+                                    @if ($tab === 'preventive')
+                                        <p><strong>Cost:</strong> ₱ {{ $record->cost }}</p>
+                                        <p><strong>Frequency:</strong> Every {{ $record->frequency }} days</p>
+                                        <p><strong>Ends:</strong> After {{ $record->ends }} occurrence(s)</p>
+                                        <p class="occurrences"><strong>Occurrences:</strong> {{ $record->occurrences }}</p>
+                                        <p class="status"><strong>Status:</strong> {{ ucfirst($record->status) }}</p>
+                                        <p class="next-maintenance" id="next-maintenance-{{ $loop->index }}"
+                                            data-next-maintenance="{{ $record->next_maintenance_timestamp ?? 0 }}">
+                                            Loading...
+                                        </p>
+                                        <!-- Action Buttons -->
+                                        <div class="flex justify-between mt-2">
+                                            <button
+                                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                                onclick="openEditModal({{ $record->id }})">
+                                                Edit
+                                            </button>
+                                        </div>
+                                    @elseif ($tab === 'predictive')
+                                        <p><strong>Category:</strong> {{ $record->asset->category->name }}</p>
+                                        <p><strong>Average Cost:</strong> ₱ {{ $record->average_cost }}</p>
+                                        <p><strong>Repair Count:</strong> {{ $record->repair_count }}</p>
+                                        <p><strong>Recommendation:</strong> {{ $record->recommendation }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+
         </div>
     </div>
 
     <div id="editModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-lg w-1/2 p-6 shadow-lg">
-            <h2 class="text-lg font-semibold mb-4">Edit Preventive Maintenance</h2>
+        {{-- <div class="bg-white rounded-lg w-1/2 p-6 shadow-lg"> --}}
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 p-6 sm:p-8 lg:max-w-xl">
+            {{-- <h2 class="text-lg font-semibold mb-4">Edit Preventive Maintenance</h2> --}}
+            <h2 class="text-lg font-semibold mb-4 text-center">Edit Preventive Maintenance</h2>
 
             <!-- Form to update preventive maintenance -->
             <form id="editForm" action="" method="POST">
@@ -215,25 +267,25 @@
                 <!-- Cost Field -->
                 <div class="mb-4">
                     <label for="cost" class="block text-sm font-medium text-gray-700">Cost</label>
-                    <input type="number" step="0.01" name="cost" id="edit_cost" class="w-full border rounded-md" required>
+                    <input type="number" step="0.01" name="cost" id="edit_cost" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
 
                 <!-- Frequency Field -->
                 <div class="mb-4">
                     <label for="frequency" class="block text-sm font-medium text-gray-700">Frequency (in days)</label>
-                    <input type="number" name="frequency" id="edit_frequency" class="w-full border rounded-md" required>
+                    <input type="number" name="frequency" id="edit_frequency" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
 
                 <!-- Ends Field -->
                 <div class="mb-4">
                     <label for="ends" class="block text-sm font-medium text-gray-700">Ends After (Occurrences)</label>
-                    <input type="number" name="ends" id="edit_ends" class="w-full border rounded-md" required>
+                    <input type="number" name="ends" id="edit_ends" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
 
                 <!-- Status Field (Dropdown) -->
                 <div class="mb-4">
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" id="edit_status" class="w-full border rounded-md" required onchange="toggleFieldsBasedOnStatus()">
+                    <select name="status" id="edit_status" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required onchange="toggleFieldsBasedOnStatus()">
                         <option value="active">Active</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
@@ -243,24 +295,51 @@
                 <!-- Cancellation Reason (Read-only or editable based on status) -->
                 <div class="mb-4" id="cancellation_reason_div">
                     <label for="cancel_reason" class="block text-sm font-medium text-gray-700">Cancellation Reason</label>
-                    <textarea name="cancel_reason" id="cancel_reason" class="w-full border rounded-md"></textarea>
+                    <textarea name="cancel_reason" id="cancel_reason" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
 
                 <!-- Buttons -->
                 <div class="flex justify-end space-x-4">
                     <!-- Cancel Button -->
-                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none">
                         Cancel
                     </button>
 
                     <!-- Save Changes Button -->
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                        Save Changes
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none">
+                        Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+<!-- Styles for Pagination -->
+<style>
+    /* Reduce the size of pagination on smaller screens */
+    @media (max-width: 640px) {
+        .pagination-container nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination-container nav .page-item {
+            margin: 0 2px; /* Reduce spacing between items */
+        }
+
+        .pagination-container nav .page-link {
+            font-size: 0.75rem; /* Smaller text */
+            padding: 0.25rem 0.5rem; /* Smaller padding */
+            border-radius: 4px; /* Smaller corners */
+        }
+    }
+
+    /* Optional: Add hover styles */
+    .pagination-container nav .page-link:hover {
+        background-color: #e5e7eb; /* Light gray hover background */
+    }
+</style>
 
     <script>
 function toggleFieldsBasedOnStatus() {
@@ -364,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
     countdownElems.forEach(countdownElem => {
         let nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance')) * 1000;
         countdownElem.isRequestPending = false;  // Initialize isRequestPending for each countdown element
-        const row = countdownElem.closest('tr');
+        const row = countdownElem.closest('tr') || countdownElem.closest('p');
         const statusElem = row.querySelector('.status');  // Get the status element
 
         // If status is 'Cancelled', stop the countdown and show 'Maintenance Cancelled'
