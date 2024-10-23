@@ -626,9 +626,10 @@ class MaintenanceController extends Controller
 
     public function updateDenied(Request $request, $id)
     {
-        // Validate that the status is 'approved' or 'denied' (as per your dropdown in editDenied.blade.php)
+        // Validate that the status and reason are provided
         $request->validate([
             'status' => 'required|string|in:approved,denied',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         // Find the maintenance request by ID
@@ -639,10 +640,11 @@ class MaintenanceController extends Controller
         // Get the department head (logged-in user)
         $deptHead = Auth::user();
 
-        // Update only the status
+        // Update the status, authorized_at, and reason
         $maintenance->update([
             'status' => $request->status,
-            'authorized_at' => now(), // Set authorized_at to the current date and time
+            'authorized_at' => now(),
+            'reason' => $request->reason, // Update the reason field
         ]);
 
         $requestor = User::find($maintenance->requestor);
@@ -651,7 +653,7 @@ class MaintenanceController extends Controller
             // Prepare notification data
             $notificationData = [
                 'title' => 'Maintenance Request Status Updated',
-                'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been changed from denied to approved.",
+                'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been updated to '{$request->status}'.",
                 'authorized_by' => $deptHead->id,
                 'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
                 'asset_name' => $asset->name,
