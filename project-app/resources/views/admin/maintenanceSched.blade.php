@@ -84,10 +84,10 @@
     <div class="mb-4 flex justify-end">
         <ul class="flex border-b">
             <li class="mr-4">
-                <a href="{{ route('maintenance_sched') }}" class="inline-block px-4 py-2 {{ $tab === 'preventive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Preventive Maintenance</a>
+                <a href="{{ route('adminMaintenance_sched') }}" class="inline-block px-4 py-2 {{ $tab === 'preventive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Preventive Maintenance</a>
             </li>
             <li class="mr-4">
-                <a href="{{ route('maintenance_sched.predictive') }}" class="inline-block px-4 py-2 {{ $tab === 'predictive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Predictive Maintenance</a>
+                <a href="{{ route('adminMaintenance_sched.predictive') }}" class="inline-block px-4 py-2 {{ $tab === 'predictive' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">Predictive Maintenance</a>
             </li>
         </ul>
     </div>
@@ -287,7 +287,7 @@
                 field.readOnly = true;
                 field.classList.add('bg-gray-200'); // Gray out fields
             });
-            statusField.disabled = true; // Also disable the status dropdown
+            statusField.disabled = false; // Also disable the status dropdown
         } else {
             // If the status is now set to cancelled, allow the cancellation reason to be edited
             if (statusField.value === 'cancelled') {
@@ -318,31 +318,43 @@
     });
 
     function openEditModal(id) {
-        console.log('Edit button clicked for ID:', id);
+    console.log('Edit button clicked for ID:', id);
+    // Construct the URL
 
-        // Fetch data for the selected preventive maintenance
-        fetch(`/preventive/${id}/edit`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('edit_cost').value = data.cost;
-                document.getElementById('edit_frequency').value = data.frequency;
-                document.getElementById('edit_ends').value = data.ends;
-                document.getElementById('edit_status').value = data.status;
-                document.getElementById('cancel_reason').value = data.cancel_reason;
+    console.log('Fetching data from URL:', url); // Log the URL to the console
 
-                // Set the original status from the backend
-                document.getElementById('edit_status').setAttribute('data-original-status', data.status);
+    // Use fetch to load the data for the selected preventive maintenance
+    fetch(`/admin/preventive/${id}/edit`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch preventive maintenance data');
+            }
+            console.log("logs");
+            return response.json();
+        })
+        .then(data => {
+            // Populate the modal fields with the fetched data
+            document.getElementById('edit_cost').value = data.cost;
+            document.getElementById('edit_frequency').value = data.frequency;
+            document.getElementById('edit_ends').value = data.ends;
+            document.getElementById('edit_status').value = data.status;
+            document.getElementById('cancel_reason').value = data.cancel_reason || ''; // Handle null reason
 
-                document.getElementById('editForm').action = `/preventive/${id}`; // Set dynamically
+            // Set the original status from the backend for status change logic
+            document.getElementById('edit_status').setAttribute('data-original-status', data.status);
 
-                toggleFieldsBasedOnStatus(); // Call toggleFieldsBasedOnStatus based on the status value
+            // Set the form action dynamically
+            document.getElementById('editForm').action = `/admin/preventive/${id}`;
 
-                document.getElementById('editModal').classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error('Error fetching preventive maintenance data:', error);
-            });
-    }
+            // Display the modal
+            document.getElementById('editModal').classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error fetching preventive maintenance data:', error);
+            alert('Failed to load data. Please try again.');
+        });
+}
+
 
 
 
@@ -470,7 +482,7 @@
         }
 
         // Send the request to the backend to increment occurrences and generate the maintenance request
-        fetch('{{ route("run-maintenance-check") }}', {
+        fetch('{{ route("admin.run-maintenance-check") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
