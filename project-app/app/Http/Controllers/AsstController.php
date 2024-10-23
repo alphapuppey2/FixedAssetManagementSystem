@@ -225,23 +225,79 @@ class AsstController extends Controller
     }
 
     public function showForm()
-    {
-        $usrDPT = Auth::user()->dept_id;
-        $department = department::find($usrDPT);
+{
+    $userRole = Auth::user()->usertype;
+    $departments = department::all(); // Get all departments for admin dropdown
+    $defaultDeptId = $departments->first()->id ?? null; // Set the first department as the default
+    $usrDPT = $userRole === 'admin' ? $defaultDeptId : Auth::user()->dept_id;
 
-        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
-        $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
-        $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
-        $manufacturer = array('mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get());
-        $addInfos = json_decode($department->custom_fields);
-
-
-        if ($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()) {
-            return redirect()->back()->with('noSettings', 'Your setting is null. Please set up your settings.');
-        }
-
-        return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
+    // Retrieve department details
+    $department = department::find($usrDPT);
+    if (!$department) {
+        return redirect()->back()->with('noSettings', 'Department not found.');
     }
+
+    // Fetch related data based on department
+    $categories = ['ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get()];
+    $location = ['locs' => DB::table('location')->where('dept_ID', $usrDPT)->get()];
+    $model = ['mod' => DB::table('model')->where('dept_ID', $usrDPT)->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get()];
+    $addInfos = json_decode($department->custom_fields);
+
+    // Check if any of the settings are empty
+    if (
+        $categories['ctglist']->isEmpty() ||
+        $location['locs']->isEmpty() ||
+        $model['mod']->isEmpty() ||
+        $manufacturer['mcft']->isEmpty()
+    ) {
+        return redirect()->back()->with('noSettings', 'Some settings are missing. Please set up your settings.');
+    }
+
+    if($userRole === 'admin'){
+        $view = 'admin.createAsset';
+        $compactContent = compact(
+            'addInfos',
+            'categories',
+            'location',
+            'model',
+            'manufacturer',
+            'departments', // Pass all departments for the dropdown
+            'usrDPT',
+        );
+    }
+    else{
+        $view = 'dept_head.createAsset';
+        $compactContent = compact(
+            'addInfos',
+            'categories',
+            'location',
+            'model',
+            'manufacturer',
+            'usrDPT',
+        );
+    }
+
+    return view($view, $compactContent);
+}
+
+public function fetchDepartmentData($id)
+{
+    $categories = Category::where('dept_ID', $id)->get();
+    $locations = locationModel::where('dept_ID', $id)->get();
+    $models = ModelAsset::where('dept_ID', $id)->get();
+    $manufacturers = Manufacturer::where('dept_ID', $id)->get();
+    $department =  department::findOrFail($id);
+    $addInfos = json_decode($department->custom_fields);
+    return response()->json([
+        'categories' => $categories,
+        'locations' => $locations,
+        'models' => $models,
+        'manufacturers' => $manufacturers,
+        'addInfos' => $addInfos
+    ]);
+}
+
 
     public  function convertJSON($key, $value)
     {
@@ -258,113 +314,121 @@ class AsstController extends Controller
     }
 
     public function create(Request $request)
-    {
-        $userDept = Auth::user()->dept_id;
-        $deptHead = Auth::user();
+{
+    $userDept = Auth::user()->dept_id;
+    $deptHead = Auth::user();
+    $isAdmin = $deptHead->usertype === 'admin'; // Check if the user is admin
 
-        // Validate the request
-        $request->validate([
-            'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
-            'assetname' => 'required',
-            'category' => 'required',
-            'purchasedDate' => 'nullable|date|before_or_equal:today',
-            'pCost' => 'required|numeric|min:0.01',
-            'lifespan' => 'required|integer|min:0',
-            'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
-            'depreciation' => 'required|numeric|min:0.01',
-            'loc' => 'required|exists:location,id',
-            'mod' => 'required|exists:model,id',
-            'mcft' => 'required|exists:manufacturer,id',
-            'field.key.*' => 'nullable|string|max:255',
-            'field.value.*' => 'nullable|string|max:255',
-        ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost",
-            'purchaseDate.before_or_equal' => "The Purchase date must not have future Dates"]);
+    // Validate the request
+    $valid = $request->validate([
+        'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
+        'assetname' => 'required',
+        'category' => 'required',
+        'department' => $isAdmin ? 'required|exists:department,id' : 'nullable',
+        'purchasedDate' => 'nullable|date|before_or_equal:today',
+        'pCost' => 'required|numeric|min:0.01',
+        'lifespan' => 'required|integer|min:0',
+        'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
+        'depreciation' => 'required|numeric|min:0.01',
+        'loc' => 'required|exists:location,id',
+        'mod' => 'required|exists:model,id',
+        'mcft' => 'required|exists:manufacturer,id',
+        'field.key.*' => 'nullable|string|max:255',
+        'field.value.*' => 'nullable|string|max:255',
+    ], [
+        'salvageValue.lt' => "Salvage value must be less than the Purchase cost",
+        'purchaseDate.before_or_equal' => "The Purchase date must not have future dates",
+    ]);
 
-        // Additional Fields
-        $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+    // Determine the department ID
+    $departmentId = $isAdmin ? $request->department : $userDept;
 
-        // Generate Asset Code
-        $department = DB::table('department')->where('id', $userDept)->first();
-        $departmentCode = $department->name;
-        $lastID = department::where('name', $departmentCode)->max('assetSequence');
-        $seq = $lastID ? $lastID + 1 : 1;
-        $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+    // Additional Fields
+    $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
 
-        // Handle image upload
-        $pathFile = NULL;
-        if ($request->hasFile('asst_img')) {
-            $image = $request->file('asst_img');
-            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('asset_images', $filename, 'public');
-            $pathFile = $path;
-        }
+    // Generate Asset Code
+    $department = DB::table('department')->where('id', $departmentId)->first();
+    $departmentCode = $department->name;
+    $lastID = department::where('name', $departmentCode)->max('assetSequence');
+    $seq = $lastID ? $lastID + 1 : 1;
+    $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        // Increment asset sequence in department
-        department::where('id', $userDept)->increment('assetSequence', 1);
-
-        // Calculate depreciation (Straight Line method)
-
-        // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
-        $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
-        $qrStoragePath = storage_path('app/public/' . $qrCodePath);
-
-        // Ensure the directory exists
-        if (!file_exists(storage_path('app/public/qrcodes'))) {
-            mkdir(storage_path('app/public/qrcodes'), 0777, true);
-        }
-
-        \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-            ->size(250)
-            ->generate($code, $qrStoragePath);
-
-        // Save asset details to the database
-        DB::table('asset')->insert([
-            'asst_img' => $pathFile,
-            'name' => $request->assetname,
-            'code' => $code,
-            'purchase_cost' => $request->pCost,
-            'purchase_date' => $request->purchasedDate,
-            'depreciation' => $request->depreciation,
-            'usage_lifespan' => $request->lifespan,
-            'salvage_value' => $request->salvageValue,
-            'ctg_ID' => $request->category,
-            'custom_fields' => $customFields,
-            'dept_ID' => $userDept,
-            'loc_key' => $request->loc,
-            'model_key' => $request->mod,
-            'manufacturer_key' => $request->mcft,
-            'qr_img' => $qrCodePath,  // Store the path to the QR code image file
-            'created_at' => now(),
-        ]);
-
-        // Log the activity
-        ActivityLog::create([
-            'activity' => 'Create New Asset via System',
-            'description' => "Department Head {$deptHead->firstname} {$deptHead->lastname} created a new asset '{$request->assetname}' (Code: {$code}).",
-            'userType' => $deptHead->usertype, // 'dept_head'
-            'user_id' => $deptHead->id,
-            'asset_id' => DB::getPdo()->lastInsertId(), // Get the last inserted asset ID
-        ]);
-
-        // Notify the admin about the new asset creation
-        $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added via system input.",
-            'asset_name' => $request->assetname,
-            'asset_code' => $code,
-            'action_url' => route('asset'), // Adjust the route as needed
-            'authorized_by' => $deptHead->id,
-            'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
-        ];
-
-        // Send the notification to all admins
-        $admins = User::where('usertype', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
-        }
-
-        return redirect()->to('/asset')->with('success', 'New Asset Created');
+    // Handle image upload
+    $pathFile = null;
+    if ($request->hasFile('asst_img')) {
+        $image = $request->file('asst_img');
+        $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
+        $path = $image->storeAs('asset_images', $filename, 'public');
+        $pathFile = $path;
     }
+
+    // Increment asset sequence in department
+    department::where('id', $departmentId)->increment('assetSequence', 1);
+
+    // Generate QR Code
+    $qrCodePath = 'qrcodes/' . $code . '.png'; // Path to store the QR code
+    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+    // Ensure the directory exists
+    if (!file_exists(storage_path('app/public/qrcodes'))) {
+        mkdir(storage_path('app/public/qrcodes'), 0777, true);
+    }
+
+    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+        ->size(250)
+        ->generate($code, $qrStoragePath);
+
+    // Save asset details to the database
+    DB::table('asset')->insert([
+        'asst_img' => $pathFile,
+        'name' => $request->assetname,
+        'code' => $code,
+        'purchase_cost' => $request->pCost,
+        'purchase_date' => $request->purchasedDate,
+        'depreciation' => $request->depreciation,
+        'usage_lifespan' => $request->lifespan,
+        'salvage_value' => $request->salvageValue,
+        'ctg_ID' => $request->category,
+        'custom_fields' => $customFields,
+        'dept_ID' => $departmentId,
+        'loc_key' => $request->loc,
+        'model_key' => $request->mod,
+        'manufacturer_key' => $request->mcft,
+        'qr_img' => $qrCodePath, // Store the path to the QR code image file
+        'created_at' => now(),
+    ]);
+
+    // Log the activity
+    ActivityLog::create([
+        'activity' => 'Create New Asset via System',
+        'description' => "User {$deptHead->firstname} {$deptHead->lastname} created a new asset '{$request->assetname}' (Code: {$code}).",
+        'userType' => $deptHead->usertype,
+        'user_id' => $deptHead->id,
+        'asset_id' => DB::getPdo()->lastInsertId(), // Get the last inserted asset ID
+    ]);
+
+    // Notify the admin about the new asset creation
+    $notificationData = [
+        'title' => 'New Asset Created',
+        'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added.",
+        'asset_name' => $request->assetname,
+        'asset_code' => $code,
+        'action_url' => route('asset'), // Adjust the route as needed
+        'authorized_by' => $deptHead->id,
+        'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+    ];
+
+    // Send the notification to all admins
+    $admins = User::where('usertype', 'admin')->get();
+    foreach ($admins as $admin) {
+        $admin->notify(new \App\Notifications\SystemNotification($notificationData));
+    }
+
+    // Redirect based on user type
+    $routePath = $isAdmin ? '/admin/asset-list' : '/asset';
+    return redirect()->to($routePath)->with('success', 'New Asset Created');
+}
+
 
     public static function assetCount()
     {

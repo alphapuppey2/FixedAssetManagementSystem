@@ -2,7 +2,7 @@
 
 @php
 $data = $retrieveData ?? null;
-$imagePath = $data->asst_img ? 'storage/' . $data->asst_img : 'images/no-image.png';
+$imagePath = $data->asst_img ? 'storage/'. $data->asst_img : 'images/no-image.png';
 $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png';
 @endphp
 
@@ -53,6 +53,8 @@ $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png
     {{-- Tab Content --}}
     <div id="generalInfo" class="tab-content">
         @include('dept_head.partials.generalInfo', [
+        'imagePath' => $imagePath,
+        'qrCodePath' => $qrCodePath,
         'data' => $data,
         'categories' => $categories,
         'model' => $model,

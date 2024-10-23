@@ -84,6 +84,11 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
+    Route::get('admin/newasset', [AsstController::class, 'showForm'])->name('admin.newasset');
+    Route::post('admin/asset/create', [AsstController::class, 'create'])->name('adminasset.create');
+
+    Route::get('/fetch-department-data/{deptId}', [AsstController::class, 'fetchDepartmentData'])->name('fetch.department.data');
+
     // ASSET DETAIL
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
     Route::get('/admin/mntc-asset-details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('adminAssetsDetails.mntc');
@@ -103,14 +108,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
     // INITIAL
     // -----------
+    Route::put('/admin/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('adminpreventive.update');
+    Route::get('/admin/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('adminpreventive.edit');
 
-    // Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
-    // Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
-
-    // Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
-    // Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
-
-    // Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
+    Route::post('admin/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('admin.run-maintenance-check');
+    Route::post('admin/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('admin.reset-countdown');
+    Route::get('admin/predictive/analyze', [PredictiveController::class, 'analyze']);
 
     // CREATE MAINTENANCE
     Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
@@ -142,7 +145,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
-    route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
+    // route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
     Route::get('asset/{id}', [AsstController::class, 'showDetails'])->name('assetDetails');
     Route::put('asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
     Route::delete('asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
