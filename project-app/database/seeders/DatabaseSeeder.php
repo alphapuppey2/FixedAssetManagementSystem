@@ -22,12 +22,12 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             deptSeeder::class,
-            // ManufacturerSeeder::class,
-            // ModelSeeder::class,
-            // location::class,
-            // category::class,
-            // assetSeeder::class,
-            // MaintenanceSeeder::class,
+            ManufacturerSeeder::class,
+            ModelSeeder::class,
+            location::class,
+            category::class,
+            assetSeeder::class,
+            MaintenanceSeeder::class,
         ]);
 
         // For specific records, you can use:
