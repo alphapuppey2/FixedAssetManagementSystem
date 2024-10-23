@@ -21,11 +21,13 @@ class RegistrationTest extends TestCase
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'department' => '1', // Example department ID, adjust according to your database
+            'usertype' => 'user', // Specify the user type
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('user.scanQR', absolute: false)); // Adjust this based on the usertype
     }
 }

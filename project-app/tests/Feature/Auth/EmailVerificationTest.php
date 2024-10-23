@@ -24,7 +24,7 @@ class EmailVerificationTest extends TestCase
 
     public function test_email_can_be_verified(): void
     {
-        $user = User::factory()->unverified()->create();
+        $user = User::factory()->unverified()->create(['usertype' => 'admin']);
 
         Event::fake();
 
@@ -38,21 +38,34 @@ class EmailVerificationTest extends TestCase
 
         Event::assertDispatched(Verified::class);
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+
+        // Conditional logic to determine the expected route based on the usertype
+        $expectedRoute = match ($user->usertype) {
+            'admin' => route('admin.home'),
+            'dept_head' => route('dept_head.home'),
+            'user' => route('user.scanQR'),
+            default => route('login'), // Fallback in case of an unexpected usertype
+        };
+
+        $response->assertRedirect($expectedRoute . '?verified=1');
     }
 
     public function test_email_is_not_verified_with_invalid_hash(): void
     {
+        // Create an unverified user
         $user = User::factory()->unverified()->create();
 
+        // Generate an invalid verification URL
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1('wrong-email')]
+            ['id' => $user->id, 'hash' => sha1('wrong-email')] // Invalid hash
         );
 
+        // Act as the user and hit the verification URL
         $this->actingAs($user)->get($verificationUrl);
 
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        // Assert that the user has not verified their email
+        $this->assertFalse($user->fresh()->hasVerifiedEmail(), 'The user should not be marked as verified with an invalid hash.');
     }
 }

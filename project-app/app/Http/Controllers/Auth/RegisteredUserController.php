@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -20,8 +20,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $departmentIDs = array('depID' =>DB::table('department')->get());
-        return view('auth.register',$departmentIDs);
+        $departmentIDs = ['depID' => DB::table('department')->get()];
+        return view('auth.register', $departmentIDs);
     }
 
     /**
@@ -33,15 +33,17 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'department' => ['required', 'string','lowercase'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'department' => ['required', 'string', 'lowercase'],
+            'usertype' => ['required', 'string', 'in:admin,dept_head,user'], // Validate user type
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'dept_id' =>$request->department,
+            'dept_id' => $request->department,
+            'usertype' => $request->usertype, // Save the usertype
             'password' => Hash::make($request->password),
         ]);
 
@@ -49,6 +51,14 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect based on user type
+        $redirectRoute = match ($user->usertype) {
+            'admin' => route('admin.home'),
+            'dept_head' => route('dept_head.home'),
+            'user' => route('user.scanQR'),
+            default => route('login'), // Fallback in case of an unexpected usertype
+        };
+
+        return redirect($redirectRoute);
     }
 }
