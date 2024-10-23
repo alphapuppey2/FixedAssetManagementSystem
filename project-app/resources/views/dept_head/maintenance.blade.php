@@ -109,75 +109,26 @@
             <table class="min-w-full bg-white border rounded-md">
                 <thead class="bg-gray-100 border-b">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'id', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                Request ID
-                                <x-icons.sort-icon :direction="request('sort') === 'id' ? request('direction') : null" />
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'requestor_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                Requestor
-                                <x-icons.sort-icon :direction="request('sort') === 'requestor_name' ? request('direction') : null" />
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'asset_code', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                Asset Code
-                                <x-icons.sort-icon :direction="request('sort') === 'asset_code' ? request('direction') : null" />
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'description', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                Description
-                                <x-icons.sort-icon :direction="request('sort') === 'description' ? request('direction') : null" />
-                            </a>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'category_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                Category
-                                <x-icons.sort-icon :direction="request('sort') === 'category_name' ? request('direction') : null" />
-                            </a>
-                        </th>
-
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requestor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                         @if($tab === 'approved')
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'authorized_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Approved At
-                                    <x-icons.sort-icon :direction="request('sort') === 'authorized_at' ? request('direction') : null" />
-                                </a>
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved At</th>
                         @elseif($tab === 'denied')
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied By</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'authorized_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Denied At
-                                    <x-icons.sort-icon :direction="request('sort') === 'authorized_at' ? request('direction') : null" />
-                                </a>
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied At</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                         @else
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'location_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Location
-                                    <x-icons.sort-icon :direction="request('sort') === 'location_name' ? request('direction') : null" />
-                                </a>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('maintenance', array_merge(request()->except('sort', 'direction'), ['tab' => $tab, 'sort' => 'requested_at', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
-                                    Requested At
-                                    <x-icons.sort-icon :direction="request('sort') === 'requested_at' ? request('direction') : null" />
-                                </a>
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested At</th>
                         @endif
-
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
-
-
                 <tbody id="tableBody" class="divide-y divide-gray-200">
                     @forelse($requests as $maintenance)
                         <tr>

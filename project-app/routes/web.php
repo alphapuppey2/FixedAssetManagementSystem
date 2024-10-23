@@ -142,7 +142,6 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::get('/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('maintenance.denied');
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
-
     // SHOWS COMPLETED AND CANCELLED MAINTENANCE
     Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');

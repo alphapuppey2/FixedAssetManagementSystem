@@ -31,30 +31,9 @@ class MaintenanceController extends Controller
         $user = Auth::user();
         $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
         $searchQuery = $request->input('query', '');
-        $perPage = $request->input('rows_per_page', 10); // Default rows per page
-        $sortField = $request->input('sort', 'requested_at'); // Default sort field
-        $sortDirection = $request->input('direction', 'asc'); // Default sort direction
+        $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
 
-        // List of valid sort fields
-        $validSortFields = ['id', 'requested_at', 'authorized_at', 'type', 'asset_code', 'category_name'];
-
-        // Ensure the sort field is valid
-        if (!in_array($sortField, $validSortFields)) {
-            $sortField = 'requested_at';
-        }
-
-        // Query the maintenance requests with appropriate joins
-        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
-            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
-            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
-            ->select(
-                'maintenance.*',
-                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
-                DB::raw("IFNULL(category.name, 'No Category') AS category_name"), // Handle null categories
-                'location.name AS location_name',
-                'asset.code AS asset_code'
-            );
+        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
 
         // Apply status filter based on the selected tab
         if ($tab === 'requests') {
@@ -67,7 +46,8 @@ class MaintenanceController extends Controller
 
         // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
-            $query->where('asset.dept_ID', $user->dept_id);
+            $deptId = $user->dept_id;
+            $query->where('asset.dept_ID', $deptId);
         } elseif ($user->usertype === 'user') {
             $query->where('maintenance.requestor', $user->id);
         }
@@ -90,36 +70,45 @@ class MaintenanceController extends Controller
             });
         }
 
-        // Apply sorting logic
-        if ($sortField === 'category_name') {
-            $query->orderBy(DB::raw('LOWER(category.name)'), $sortDirection); // Case-insensitive sorting for category
-        } else {
-            $query->orderBy($sortField, $sortDirection); // Regular sorting
-        }
+        // Order by latest created_at to show newest first
+        $query->orderBy('maintenance.requested_at', 'asc');
 
         // Fetch the filtered and paginated results
-        $requests = $query->paginate($perPage)->withQueryString(); // Maintain query parameters
+        $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
+            ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
+            ->select(
+                'maintenance.*',
+                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
+                'category.name AS category_name',
+                'location.name AS location_name',
+                'asset.code as asset_code'
+            )
+            ->paginate($perPage);
 
-        // Prepare data for the view
-        $viewData = [
-            'requests' => $requests,
-            'tab' => $tab,
-            'searchQuery' => $searchQuery,
-            'perPage' => $perPage,
-            'sortField' => $sortField,
-            'sortDirection' => $sortDirection,
-        ];
-
-        // Return the appropriate view based on user type
+        // Return the view with the filtered requests and selected tab
         if ($user->usertype === 'dept_head') {
-            return view('dept_head.maintenance', $viewData);
+            return view('dept_head.maintenance', [
+                'requests' => $requests,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
         } elseif ($user->usertype === 'admin') {
-            return view('admin.maintenance', $viewData);
+            return view('admin.maintenance', [
+                'requests' => $requests,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
         } else {
-            return view('user.requestList', $viewData);
+            return view('user.requestList', [
+                'requests' => $requests,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
         }
     }
-
 
     // Search functionality
     public function search(Request $request)
