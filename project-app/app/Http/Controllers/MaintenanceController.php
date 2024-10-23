@@ -408,7 +408,10 @@ class MaintenanceController extends Controller
         $userType = $user->usertype;
         // dd($userType);
         // Only retrieve assets that belong to the same department as the user
-        $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        // $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        $assets = assetModel::where('dept_ID', $user->dept_id)
+                    ->where('isDeleted', 0) // Exclude deleted assets
+                    ->get(['id', 'code', 'name']);
 
         // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
         $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
