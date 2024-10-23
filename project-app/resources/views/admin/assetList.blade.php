@@ -46,8 +46,8 @@
         <div class="flex items-center">
         <!-- Rows Per Page Dropdown Form -->
         <form method="GET" action="{{ route('assetList') }}" class="flex items-center space-x-2 mt-4">
-
-            <!-- Rows Per Page Dropdown -->
+            <input type="hidden" name="dept" value="{{ request('dept') }}"> <!-- Include department ID -->
+            <input type="hidden" name="query" value="{{ request('query') }}">
             <label for="perPage">Rows per page:</label>
             <select name="perPage" id="perPage" class="border border-gray-300 rounded px-2 py-1 w-16" onchange="this.form.submit()">
                 <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
@@ -56,19 +56,22 @@
                 <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
             </select>
         </form>
+
      </div>
 
         <!-- Pagination Links and Showing Results -->
-        @if($assets->hasPages())
+
         <div class="flex items-center space-x-4 mt-4">
             <span class="text-gray-600">
                 Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
             </span>
+            @if($assets->hasPages())
             <div>
                 {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
             </div>
+            @endif
         </div>
-        @endif
+
 
     </div>
 
