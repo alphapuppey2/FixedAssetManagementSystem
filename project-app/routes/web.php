@@ -80,9 +80,10 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     })->name('users.create');
 
     // ASSET LIST
-    Route::get('/admin/asset-list', [AsstController::class, 'showAllAssets'])->name('assetList');
-    Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
-    route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
+    Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
+    // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
 
     Route::get('admin/newasset', [AsstController::class, 'showForm'])->name('admin.newasset');
     Route::post('admin/asset/create', [AsstController::class, 'create'])->name('adminasset.create');
@@ -163,7 +164,6 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     Route::get('/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('maintenance.denied');
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
-
     // SHOWS COMPLETED AND CANCELLED MAINTENANCE
     Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');

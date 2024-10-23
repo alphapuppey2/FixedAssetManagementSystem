@@ -12,7 +12,7 @@
 
 @section('content')
 <div>
-    <form method="GET" action="{{ route('searchUsers') }}" class="flex flex-col space-y-4">
+    <form method="GET" action="{{ route('userList') }}" class="flex flex-col space-y-4">
         <!-- Search Input and Button -->
         <div class="relative search-container">
             <x-search-input
@@ -48,17 +48,108 @@
     <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row ">
         <x-table class="table table-striped">
             <x-slot name='header'>
-                <th>ID</th>
-                <th>Employee ID</th>
-                <th>First Name</th>
-                <th>Middle Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Department</th>
-                <th>User Type</th>
-                <th>Status</th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'id',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        ID <x-icons.sort-icon :direction="$sortBy === 'id' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'employee_id',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Employee ID <x-icons.sort-icon :direction="$sortBy === 'employee_id' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'firstname',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        First Name <x-icons.sort-icon :direction="$sortBy === 'firstname' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'middlename',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Middle Name <x-icons.sort-icon :direction="$sortBy === 'middlename' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'lastname',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Last Name <x-icons.sort-icon :direction="$sortBy === 'lastname' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'email',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Email <x-icons.sort-icon :direction="$sortBy === 'email' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'department_name',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Department <x-icons.sort-icon :direction="$sortBy === 'department_name' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'usertype',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        User Type <x-icons.sort-icon :direction="$sortBy === 'usertype' ? $sortOrder : null" />
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('userList', [
+                        'sort_by' => 'is_deleted',
+                        'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc',
+                        'perPage' => $perPage,
+                        'page' => $userList->currentPage(),
+                        'query' => $query
+                    ]) }}">
+                        Status <x-icons.sort-icon :direction="$sortBy === 'is_deleted' ? $sortOrder : null" />
+                    </a>
+                </th>
                 <th>Action</th>
             </x-slot>
+
             <x-slot name='slot'>
                 @forelse($userList as $item)
                 <tr>
