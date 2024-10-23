@@ -87,8 +87,18 @@ class UserSideController extends Controller
         $request->validate([
             'asset_id' => 'required|exists:asset,id', // Ensure the asset exists
             'issue_description' => 'required|string|max:1000',
-            'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration', // Validate request type
+            'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration', // Validate the request type
         ]);
+
+        // Check if there is an existing active or pending request for the asset
+        $existingRequest = Maintenance::where('asset_key', $request->input('asset_id'))
+            ->whereIn('status', ['request', 'in_progress']) // Adjust status as needed
+            ->first();
+
+        if ($existingRequest) {
+            // If a request already exists, redirect with an error message
+            return redirect()->back()->withErrors('A request for this asset is already in progress or pending.');
+        }
 
         // Create a new maintenance request with 'request' status
         $maintenance = Maintenance::create([
@@ -113,13 +123,12 @@ class UserSideController extends Controller
             'request_id' => $maintenance->id,
         ]);
 
-        // Notify the head of the relevant department based on the asset's department
+        // Notify the relevant department head based on the asset's department
         $deptHead = User::where('usertype', 'dept_head')
-            ->where('dept_id', $asset->dept_ID) // Match the asset's department ID
+            ->where('dept_id', $asset->dept_ID)
             ->first();
 
         if ($deptHead) {
-            // Prepare notification data
             $notificationData = [
                 'title' => 'New Maintenance Request',
                 'message' => "A new maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been created.",
@@ -127,16 +136,16 @@ class UserSideController extends Controller
                 'asset_code' => $asset->code,
                 'authorized_by' => $user->id,
                 'authorized_user_name' => "{$user->firstname} {$user->lastname}",
-                'action_url' => route('maintenance'), // Route to the maintenance page
+                'action_url' => route('maintenance'),
             ];
 
-            // Send notification to the department head
             $deptHead->notify(new SystemNotification($notificationData));
         }
 
         // Redirect back with a success message
         return redirect()->back()->with('status', 'Maintenance request submitted successfully.');
     }
+
 
     public function cancelRequest($id)
     {
