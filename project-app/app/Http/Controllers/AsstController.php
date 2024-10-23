@@ -29,129 +29,80 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AsstController extends Controller
 {
-    public function showAllAssets()
+    public function showAllAssets(Request $request)
     {
-        $assets = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ")
-            ->orderBy(DB::raw("
-            IF(asset.name REGEXP '[0-9]+$',
-                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-                asset.id
-            )
-        "), 'asc')
-            ->paginate(10);
+        // Get department ID from the request (null if not provided)
+        $deptId = $request->input('dept', null);
 
-        return view("admin.assetList", compact('assets'));
-    }
+        // Get sorting parameters (default to 'asset.name' and 'asc')
+        $sortBy = $request->input('sort_by', 'asset.name');
+        $sortOrder = strtolower($request->input('sort_order', 'asc'));
 
-    public function showAssetsByDept($dept = null)
-    {
-        $query = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select('asset.id', 'asset.code', 'asset.name', 'asset.asst_img', 'asset.purchase_cost', 'asset.salvage_value', 'asset.depreciation', 'asset.usage_lifespan', 'asset.status', 'category.name as category', 'department.name as department')
-            ->orderBy('asset.code', 'asc');
+        // Validate sort field and order
+        $validSortFields = [
+            'asset.name', 'asset.code', 'category.name',
+            'department.name', 'asset.depreciation', 'asset.status'
+        ];
 
-        // If department is selected, filter by department ID
-        if ($dept) {
-            $query->where('asset.dept_ID', $dept);
+        if (!in_array($sortBy, $validSortFields)) {
+            $sortBy = 'asset.name';
+        }
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'asc';
         }
 
-        $query
-            ->orderBy('asset.name', 'asc')
-            ->orderByRaw("
-            CASE
-                WHEN asset.status = 'active' THEN 0
-                WHEN asset.status = 'under_maintenance' THEN 1
-                WHEN asset.status = 'deployed' THEN 2
-                WHEN asset.status = 'disposed' THEN 3
-                ELSE 4
-            END
-        ")->orderBy(DB::raw("
-        IF(asset.name REGEXP '[0-9]+$',
-            CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-            asset.id
-        )
-    "), 'asc')
-        ;
+        // Get rows per page (default to 10)
+        $perPage = max((int) $request->input('perPage', 10), 10);
 
+        // Get search query from request
+        $query = $request->input('query', '');
 
-        $assets = $query->paginate(10);
-
-
-        return view("admin.assetList", compact('assets'));
-    }
-
-    public function searchAssets(Request $request)
-    {
-        // Get search query and rows per page
-        $query = $request->input('query');
-        $perPage = $request->input('perPage', 10); // Default to 10 rows per page
-        $deptId = $request->input('dept'); // Get the department ID from the request, if present
-
-        // Build the query to search assets by name or code
-        $assets = DB::table('asset')
-            ->when($deptId, function ($query, $deptId) {
-                // Apply department filter if deptId is provided
-                return $query->where('asset.dept_ID', '=', $deptId);
-            })
-            ->where(function ($subquery) use ($query) {
-                // Search by asset name or code
-                $subquery->where('asset.name', 'like', '%' . $query . '%')
-                    ->orWhere('asset.code', 'like', '%' . $query . '%');
-            })
+        // Build the query with department filtering and search
+        $assetsQuery = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->orderByRaw("
-            CASE
-            WHEN asset.status = 'active' THEN 0
-            WHEN asset.status = 'under_maintenance' THEN 1
-            WHEN asset.status = 'deployed' THEN 2
-            WHEN asset.status = 'disposed' THEN 3
-            ELSE 4
-            END
-            ")
-            ->orderBy('department', 'asc')
-            ->orderBy(DB::raw("
-            IF(asset.name REGEXP '[0-9]+$',
-                CAST(REGEXP_SUBSTR(asset.name, '[0-9]+$') AS UNSIGNED),
-                asset.id
-            )
-        "), 'asc') // Order by name or another column if needed
-            ->paginate($perPage);
+            ->when($deptId, function ($q) use ($deptId) {
+                return $q->where('asset.dept_ID', $deptId);
+            })
+            ->when($query !== '', function ($q) use ($query) {
+                $q->where(function ($subquery) use ($query) {
+                    $subquery->where('asset.name', 'like', '%' . $query . '%')
+                        ->orWhere('asset.code', 'like', '%' . $query . '%')
+                        ->orWhere('category.name', 'like', '%' . $query . '%')
+                        ->orWhere('department.name', 'like', '%' . $query . '%');
+                });
+            });
 
-        // Return the view with the filtered assets
-        return view('admin.assetList', compact('assets'));
+        // Apply sorting and paginate results
+        $assets = $assetsQuery
+            ->orderBy($sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->all()); // Preserve query parameters
+
+        // Return the view with the asset list and parameters
+        return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage', 'deptId'));
     }
 
 
-    //KANI
     public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;
 
-        // Get search query, sort field, and direction
+        // Get query parameters
         $search = $request->input('search');
-        $sortField = $request->input('sort', 'code'); // Default sort field
-        $sortDirection = $request->input('direction', 'asc'); // Default direction
+        $sortField = $request->input('sort', 'code');
+        $sortDirection = $request->input('direction', 'asc');
+        $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
         // Filter parameters
         $status = $request->input('status');
         $category = $request->input('category');
+        // Filter parameters
+        $status = $request->input('status');
+        $category = $request->input('category');
 
-        // Allow only these fields to be sorted
+        // Validate sorting field
         $validSortFields = ['code', 'name', 'category_name', 'status'];
         if (!in_array($sortField, $validSortFields)) {
             $sortField = 'code';
@@ -181,11 +132,25 @@ class AsstController extends Controller
                 'department.name as department'
             )
             ->orderBy($sortField, $sortDirection)
-            ->paginate(10);
+            ->paginate($rowsPerPage); // Apply rows per page
 
-        // Return the view with assets and query parameters
+        // Return view with assets and query parameters
         return view('dept_head.asset', compact('assets'));
     }
+
+
+
+
+        // ->orderByRaw("
+        //     CASE
+        //     WHEN asset.status = 'active' THEN 0
+        //     WHEN asset.status = 'under_maintenance' THEN 1
+        //     WHEN asset.status = 'deployed' THEN 2
+        //     WHEN asset.status = 'disposed' THEN 3
+        //     ELSE 4
+        //     END
+        //     ") //hello
+
 
     //Maintenance History of the
     public function showHistory($id)
@@ -225,23 +190,79 @@ class AsstController extends Controller
     }
 
     public function showForm()
-    {
-        $usrDPT = Auth::user()->dept_id;
-        $department = department::find($usrDPT);
+{
+    $userRole = Auth::user()->usertype;
+    $departments = department::all(); // Get all departments for admin dropdown
+    $defaultDeptId = $departments->first()->id ?? null; // Set the first department as the default
+    $usrDPT = $userRole === 'admin' ? $defaultDeptId : Auth::user()->dept_id;
 
-        $categories = array('ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get());
-        $location = array('locs' => DB::table('location')->where('dept_ID', $usrDPT)->get());
-        $model = array('mod' => DB::table('model')->where('dept_ID', $usrDPT)->get());
-        $manufacturer = array('mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get());
-        $addInfos = json_decode($department->custom_fields);
-
-
-        if ($categories['ctglist']->isEmpty() || $location['locs']->isEmpty() || $model['mod']->isEmpty() || $manufacturer['mcft']->isEmpty()) {
-            return redirect()->back()->with('noSettings', 'Your setting is null. Please set up your settings.');
-        }
-
-        return view('dept_head.createAsset', compact('addInfos', 'categories', 'location', 'model', 'manufacturer'));
+    // Retrieve department details
+    $department = department::find($usrDPT);
+    if (!$department) {
+        return redirect()->back()->with('noSettings', 'Department not found.');
     }
+
+    // Fetch related data based on department
+    $categories = ['ctglist' => DB::table('category')->where('dept_ID', $usrDPT)->get()];
+    $location = ['locs' => DB::table('location')->where('dept_ID', $usrDPT)->get()];
+    $model = ['mod' => DB::table('model')->where('dept_ID', $usrDPT)->get()];
+    $manufacturer = ['mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get()];
+    $addInfos = json_decode($department->custom_fields);
+
+    // Check if any of the settings are empty
+    if (
+        $categories['ctglist']->isEmpty() ||
+        $location['locs']->isEmpty() ||
+        $model['mod']->isEmpty() ||
+        $manufacturer['mcft']->isEmpty()
+    ) {
+        return redirect()->back()->with('noSettings', 'Some settings are missing. Please set up your settings.');
+    }
+
+    if($userRole === 'admin'){
+        $view = 'admin.createAsset';
+        $compactContent = compact(
+            'addInfos',
+            'categories',
+            'location',
+            'model',
+            'manufacturer',
+            'departments', // Pass all departments for the dropdown
+            'usrDPT',
+        );
+    }
+    else{
+        $view = 'dept_head.createAsset';
+        $compactContent = compact(
+            'addInfos',
+            'categories',
+            'location',
+            'model',
+            'manufacturer',
+            'usrDPT',
+        );
+    }
+
+    return view($view, $compactContent);
+}
+
+public function fetchDepartmentData($id)
+{
+    $categories = Category::where('dept_ID', $id)->get();
+    $locations = locationModel::where('dept_ID', $id)->get();
+    $models = ModelAsset::where('dept_ID', $id)->get();
+    $manufacturers = Manufacturer::where('dept_ID', $id)->get();
+    $department =  department::findOrFail($id);
+    $addInfos = json_decode($department->custom_fields);
+    return response()->json([
+        'categories' => $categories,
+        'locations' => $locations,
+        'models' => $models,
+        'manufacturers' => $manufacturers,
+        'addInfos' => $addInfos
+    ]);
+}
+
 
     public  function convertJSON($key, $value)
     {
@@ -258,113 +279,121 @@ class AsstController extends Controller
     }
 
     public function create(Request $request)
-    {
-        $userDept = Auth::user()->dept_id;
-        $deptHead = Auth::user();
+{
+    $userDept = Auth::user()->dept_id;
+    $deptHead = Auth::user();
+    $isAdmin = $deptHead->usertype === 'admin'; // Check if the user is admin
 
-        // Validate the request
-        $request->validate([
-            'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
-            'assetname' => 'required',
-            'category' => 'required',
-            'purchasedDate' => 'nullable|date|before_or_equal:today',
-            'pCost' => 'required|numeric|min:0.01',
-            'lifespan' => 'required|integer|min:0',
-            'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
-            'depreciation' => 'required|numeric|min:0.01',
-            'loc' => 'required|exists:location,id',
-            'mod' => 'required|exists:model,id',
-            'mcft' => 'required|exists:manufacturer,id',
-            'field.key.*' => 'nullable|string|max:255',
-            'field.value.*' => 'nullable|string|max:255',
-        ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost",
-            'purchaseDate.before_or_equal' => "The Purchase date must not have future Dates"]);
+    // Validate the request
+    $request->validate([
+        'asst_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif',
+        'assetname' => 'required',
+        'category' => 'required',
+        'department' => $isAdmin ? 'required|exists:department,id' : 'nullable',
+        'purchasedDate' => 'nullable|date|before_or_equal:today',
+        'pCost' => 'required|numeric|min:0.01',
+        'lifespan' => 'required|integer|min:0',
+        'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
+        'depreciation' => 'required|numeric|min:0.01',
+        'loc' => 'required|exists:location,id',
+        'mod' => 'required|exists:model,id',
+        'mcft' => 'required|exists:manufacturer,id',
+        'field.key.*' => 'nullable|string|max:255',
+        'field.value.*' => 'nullable|string|max:255',
+    ], [
+        'salvageValue.lt' => "Salvage value must be less than the Purchase cost",
+        'purchaseDate.before_or_equal' => "The Purchase date must not have future dates",
+    ]);
 
-        // Additional Fields
-        $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
+    // Determine the department ID
+    $departmentId = $isAdmin ? $request->department : $userDept;
 
-        // Generate Asset Code
-        $department = DB::table('department')->where('id', $userDept)->first();
-        $departmentCode = $department->name;
-        $lastID = department::where('name', $departmentCode)->max('assetSequence');
-        $seq = $lastID ? $lastID + 1 : 1;
-        $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+    // Additional Fields
+    $customFields = $this->convertJSON($request->input('field.key'), $request->input('field.value'));
 
-        // Handle image upload
-        $pathFile = NULL;
-        if ($request->hasFile('asst_img')) {
-            $image = $request->file('asst_img');
-            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('asset_images', $filename, 'public');
-            $pathFile = $path;
-        }
+    // Generate Asset Code
+    $department = DB::table('department')->where('id', $departmentId)->first();
+    $departmentCode = $department->name;
+    $lastID = department::where('name', $departmentCode)->max('assetSequence');
+    $seq = $lastID ? $lastID + 1 : 1;
+    $code = $departmentCode . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        // Increment asset sequence in department
-        department::where('id', $userDept)->increment('assetSequence', 1);
-
-        // Calculate depreciation (Straight Line method)
-
-        // ** Generate QR Code based on Asset Code using Simple QR and Imagick **
-        $qrCodePath = 'qrcodes/' . $code . '.png';  // Path to store the QR code
-        $qrStoragePath = storage_path('app/public/' . $qrCodePath);
-
-        // Ensure the directory exists
-        if (!file_exists(storage_path('app/public/qrcodes'))) {
-            mkdir(storage_path('app/public/qrcodes'), 0777, true);
-        }
-
-        \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-            ->size(250)
-            ->generate($code, $qrStoragePath);
-
-        // Save asset details to the database
-        DB::table('asset')->insert([
-            'asst_img' => $pathFile,
-            'name' => $request->assetname,
-            'code' => $code,
-            'purchase_cost' => $request->pCost,
-            'purchase_date' => $request->purchasedDate,
-            'depreciation' => $request->depreciation,
-            'usage_lifespan' => $request->lifespan,
-            'salvage_value' => $request->salvageValue,
-            'ctg_ID' => $request->category,
-            'custom_fields' => $customFields,
-            'dept_ID' => $userDept,
-            'loc_key' => $request->loc,
-            'model_key' => $request->mod,
-            'manufacturer_key' => $request->mcft,
-            'qr_img' => $qrCodePath,  // Store the path to the QR code image file
-            'created_at' => now(),
-        ]);
-
-        // Log the activity
-        ActivityLog::create([
-            'activity' => 'Create New Asset via System',
-            'description' => "Department Head {$deptHead->firstname} {$deptHead->lastname} created a new asset '{$request->assetname}' (Code: {$code}).",
-            'userType' => $deptHead->usertype, // 'dept_head'
-            'user_id' => $deptHead->id,
-            'asset_id' => DB::getPdo()->lastInsertId(), // Get the last inserted asset ID
-        ]);
-
-        // Notify the admin about the new asset creation
-        $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added via system input.",
-            'asset_name' => $request->assetname,
-            'asset_code' => $code,
-            'action_url' => route('asset'), // Adjust the route as needed
-            'authorized_by' => $deptHead->id,
-            'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
-        ];
-
-        // Send the notification to all admins
-        $admins = User::where('usertype', 'admin')->get();
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
-        }
-
-        return redirect()->to('/asset')->with('success', 'New Asset Created');
+    // Handle image upload
+    $pathFile = null;
+    if ($request->hasFile('asst_img')) {
+        $image = $request->file('asst_img');
+        $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
+        $path = $image->storeAs('asset_images', $filename, 'public');
+        $pathFile = $path;
     }
+
+    // Increment asset sequence in department
+    department::where('id', $departmentId)->increment('assetSequence', 1);
+
+    // Generate QR Code
+    $qrCodePath = 'qrcodes/' . $code . '.png'; // Path to store the QR code
+    $qrStoragePath = storage_path('app/public/' . $qrCodePath);
+
+    // Ensure the directory exists
+    if (!file_exists(storage_path('app/public/qrcodes'))) {
+        mkdir(storage_path('app/public/qrcodes'), 0777, true);
+    }
+
+    \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+        ->size(250)
+        ->generate($code, $qrStoragePath);
+
+    // Save asset details to the database
+    DB::table('asset')->insert([
+        'asst_img' => $pathFile,
+        'name' => $request->assetname,
+        'code' => $code,
+        'purchase_cost' => $request->pCost,
+        'purchase_date' => $request->purchasedDate,
+        'depreciation' => $request->depreciation,
+        'usage_lifespan' => $request->lifespan,
+        'salvage_value' => $request->salvageValue,
+        'ctg_ID' => $request->category,
+        'custom_fields' => $customFields,
+        'dept_ID' => $departmentId,
+        'loc_key' => $request->loc,
+        'model_key' => $request->mod,
+        'manufacturer_key' => $request->mcft,
+        'qr_img' => $qrCodePath, // Store the path to the QR code image file
+        'created_at' => now(),
+    ]);
+
+    // Log the activity
+    ActivityLog::create([
+        'activity' => 'Create New Asset via System',
+        'description' => "User {$deptHead->firstname} {$deptHead->lastname} created a new asset '{$request->assetname}' (Code: {$code}).",
+        'userType' => $deptHead->usertype,
+        'user_id' => $deptHead->id,
+        'asset_id' => DB::getPdo()->lastInsertId(), // Get the last inserted asset ID
+    ]);
+
+    // Notify the admin about the new asset creation
+    $notificationData = [
+        'title' => 'New Asset Created',
+        'message' => "A new asset '{$request->assetname}' (Code: {$code}) has been added.",
+        'asset_name' => $request->assetname,
+        'asset_code' => $code,
+        'action_url' => route('asset'), // Adjust the route as needed
+        'authorized_by' => $deptHead->id,
+        'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
+    ];
+
+    // Send the notification to all admins
+    $admins = User::where('usertype', 'admin')->get();
+    foreach ($admins as $admin) {
+        $admin->notify(new \App\Notifications\SystemNotification($notificationData));
+    }
+
+    // Redirect based on user type
+    $routePath = $isAdmin ? '/admin/assets' : '/asset';
+    return redirect()->to($routePath)->with('success', 'New Asset Created');
+}
+
 
     public static function assetCount()
     {
@@ -414,6 +443,7 @@ class AsstController extends Controller
         // Query to fetch and group maintenance records by month for under maintenance assets
         $dataUnderMaintenanceQuery = Maintenance::join('asset', 'asset.id', '=', 'maintenance.asset_key')
             ->where('asset.status', 'under_maintenance')
+            ->where('maintenance.status', 'approved')
             ->select(
                 DB::raw('DATE_FORMAT(maintenance.created_at, "%b %Y") as monthYear'),
                 DB::raw('COUNT(DISTINCT maintenance.id) as count') // Ensure distinct maintenance records are counted
@@ -480,7 +510,7 @@ class AsstController extends Controller
         ],['salvageValue.lt' => "Salvage value must be less than the Purchased cost"]);
         // dd($request);
 
-
+        // dd($validatedData);
         // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
         $departmentCode = $department->name;
@@ -506,7 +536,6 @@ class AsstController extends Controller
 
         // Update asset data in the database
         $updatedRow = assetModel::findOrFail($id);
-
         $oldLastUser = $updatedRow->last_used_by;
         $updatedRow->update([
             'asst_img' => $pathFile,
@@ -537,12 +566,12 @@ class AsstController extends Controller
 
         $settingUsageLogs = new AsstController();
         $assetKey = assetModel::findOrFail($id);
-        if (isset($validatedData['usrAct'])) {
-
-            $settingUsageLogs->assetAcquiredBy($validatedData["usrAct"], $assetKey->id);
+        if(isset($validatedData['usrAct'])){
+            $settingUsageLogs->assetAcquiredBy($validatedData["usrAct"],$assetKey->id );
         }
-        if ($oldLastUser !== $validatedData["usrAct"]) {
-            $settingUsageLogs->assetReturnedBy($validatedData["usrAct"], $assetKey->id);
+        if($oldLastUser !== $validatedData["usrAct"]){
+            // dd("you are returning");
+            $settingUsageLogs->assetReturnedBy($oldLastUser,$assetKey->id);
         }
 
         // Retrieve the updated asset to get the code
@@ -614,11 +643,42 @@ class AsstController extends Controller
     {
         $assetDel = assetModel::findOrFail($id); // Find asset by ID
 
+        $userLogged = Auth::user();
+
         $assetDel->updated_at = now(); // Optionally update the timestamp
 
-        $assetDel->delete(); // Delete the asset
+        $assetDel->delete();
 
-        return redirect()->route('asset')->with('success', 'Asset Deleted Successfully');
+        // Delete the asset
+
+        // Log the activity
+        ActivityLog::create([
+            'activity' => 'Asset is Deleted via System',
+            'description' => "User {$userLogged->firstname} {$userLogged->lastname} Delete a asset '{$userLogged->assetname}' (Code: {$assetDel->code}).",
+            'userType' => $userLogged->usertype,
+            'user_id' => $userLogged->id,
+            'asset_id' => $assetDel->id, // Get the last inserted asset ID
+        ]);
+
+        // Notify the admin about the new asset creation
+        $notificationData = [
+            'title' => 'New Asset Created',
+            'message' => "A new asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been added.",
+            'asset_name' => $assetDel->name,
+            'asset_code' => $assetDel->code,
+            'authorized_by' => $userLogged->id,
+            'authorized_user_name' => "{$userLogged->firstname} {$userLogged->lastname}",
+        ];
+
+        // Send the notification to all admins
+        $admins = User::where('usertype', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification($notificationData));
+        }
+
+        $routPath = Auth::user()->usertype === 'admin' ? 'assetList' : 'asset';
+
+        return redirect()->route($routPath)->with('success', 'Asset Deleted Successfully');
     }
 
     public function UsageHistory($id)
@@ -644,13 +704,6 @@ class AsstController extends Controller
         $model = ['mod' => DB::table('model')->get()];
         $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
         $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
-        $allUserInDept = User::where('dept_id', $userDept)
-            ->select(
-                'Users.id',
-                'Users.firstname',
-                'Users.lastname',
-            )
-            ->get();
 
         // Build the query to retrieve the asset data based on the asset code
         $retrieveDataQuery = assetModel::where('code', $code)
@@ -674,6 +727,7 @@ class AsstController extends Controller
                 'asset.last_used_by',
                 'asset.custom_fields',
                 'asset.qr_img',
+                'asset.dept_ID',
                 'asset.created_at',
                 'asset.updated_at',
                 'users.firstname',
@@ -688,13 +742,28 @@ class AsstController extends Controller
         if ($userType != 'admin') {
             $retrieveDataQuery->where('asset.dept_ID', '=', $userDept);
         }
+
         // Retrieve the asset data
         $retrieveData = $retrieveDataQuery->first();
+
+
+
 
         // If no asset is found, redirect with an error message
         if (!$retrieveData) {
             return redirect()->route('asset')->with('error', 'Asset not found.');
         }
+
+        $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
+
+        // dd($userType,$retrieveData->dept_ID ,$retrieveData);
+        $allUserInDept = User::where('dept_id', $usersDeptId)
+            ->select(
+                'Users.id',
+                'Users.firstname',
+                'Users.lastname',
+            )
+            ->get();
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
         $department = Department::find($asset->dept_ID);
