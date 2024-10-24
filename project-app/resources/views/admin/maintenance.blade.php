@@ -16,6 +16,7 @@
             <div class="search-container w-full md:w-1/2 flex items-center">
                 <form action="{{ route('adminMaintenanceSearch') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}">
+                    <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
                     <x-search-input class="w-80" placeholder="Search Maintenance..." />
                 </form>
             </div>

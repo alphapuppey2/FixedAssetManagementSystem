@@ -140,7 +140,13 @@ class SearchController extends Controller
         $maintenanceQuery->orderBy($sortBy, $sortOrder);
 
         // Paginate the results
-        $requests = $maintenanceQuery->paginate($perPage);
+        $requests = $maintenanceQuery->paginate($perPage)->appends([
+            'query' => $query,
+            'tab' => $tab,
+            'rows_per_page' => $perPage,
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
+        ]);
         // Determine which view to return based on user type
         $view = $userType === 'admin' ? 'admin.maintenance' : 'dept_head.maintenance';
 
