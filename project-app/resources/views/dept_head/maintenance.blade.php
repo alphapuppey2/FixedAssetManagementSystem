@@ -431,7 +431,7 @@
 
         function openEditModal(maintenanceId) {
             $.ajax({
-                url: `/maintenance/${maintenanceId}/editApproved`,
+                url: `{{ url('maintenance') }}/${maintenanceId}/editApproved`,
                 type: 'GET',
                 success: function(data) {
                     // Inject the modal content into the correct modal container

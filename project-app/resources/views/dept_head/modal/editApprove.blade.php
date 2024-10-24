@@ -109,12 +109,12 @@
 
 <script>
     $(document).ready(function () {
-        var assetId = "{{ $maintenance->asset->id }}";
+        var assetId = "{{ $maintenance->asset->code }}";
         fetchAssetDetails(assetId);
-
+        console.log(`asset url::  {{ url('asset') }}/assetId`);
         function fetchAssetDetails(assetId) {
             $.ajax({
-                url: '/assets/details/' + assetId,
+                url: `{{ url('asset') }}/assetId`,
                 method: 'GET',
                 success: function (response) {
                     var assetImage = response.image_url ? response.image_url : '/images/no-image.png';

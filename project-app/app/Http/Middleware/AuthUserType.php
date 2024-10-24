@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthUserType
 {
@@ -24,6 +26,7 @@ class AuthUserType
         }
 
 
-        return redirect('/login')->with('error', 'Unauthorized access.');;
+
+         throw new NotFoundHttpException('View not found');
     }
 }
