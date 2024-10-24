@@ -62,7 +62,7 @@
 
             <!-- Pagination Links and Showing Results -->
 
-            <div class="flex items-center space-x-4 mt-4">
+            {{-- <div class="flex items-center space-x-4 mt-4">
                 <span class="text-gray-600">
                     Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
                 </span>
@@ -71,12 +71,30 @@
                         {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
                     </div>
                 @endif
+            </div> --}}
+
+            <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
+                <span class="text-gray-600 hidden md:block">
+                    Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
+                </span>
+                <div class="text-sm md:text-base">
+                    @if ($assets->hasPages())
+                        <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2" >
+                            {{ $assets->appends(request()->query())->links() }}
+                        </div>
+                        <div class="hidden md:block">
+                            {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
+                        </div>
+                    @endif
+                </div>
             </div>
+
 
 
         </div>
 
-        <div>
+        {{-- <div> --}}
+        <div class="hidden md:block">
             <table class="table table-hover">
                 <thead class="p-5 bg-gray-100 border-b">
                     @php
@@ -165,6 +183,30 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Card Layout for Small Screens -->
+        <div class="block md:hidden">
+            {{-- Changed: Added 'block md:hidden' to show cards only on small screens --}}
+            @foreach ($assets as $asset)
+                <div class="bg-white shadow-md rounded-lg p-4 mb-2">
+                    <p><strong>Code:</strong> {{ $asset->code ?? 'NONE' }}</p>
+                    <p><strong>Name:</strong> {{ $asset->name }}</p>
+                    <p><strong>Category:</strong> {{ $asset->category }}</p>
+                    <p><strong>Department:</strong> {{ $asset->department }}</p>
+                    <p><strong>Depreciation:</strong> {{ $asset->depreciation }}</p>
+                    <p><strong>Status:</strong> @include('components.asset-status', ['status' => $asset->status])</p>
+                    <div class="flex justify-end space-x-2">
+                        <a href="{{ route('adminAssetDetails', $asset->code) }}" class="text-blue-900 hover:text-blue-700">
+                            <x-icons.view-icon class="w-6 h-6" />
+                        </a>
+                        <button type="button" onclick="openDeleteModal('{{ $asset->id }}')">
+                            <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                        </button>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
         @include('admin.modal.deleteAssetModal')
         <!-- Flash notification -->
         @if (session('success'))
