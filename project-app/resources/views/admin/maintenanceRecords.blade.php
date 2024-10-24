@@ -12,26 +12,29 @@
     <!-- Top Section -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-2 md:space-y-0">
         <!-- Search Bar -->
-        <div class="w-full md:w-1/2 flex items-center">
-            <form action="{{ route('adminMaintenance.records.search') }}" method="GET" class="w-full">
-                <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}"
-                    class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="search-container w-full md:w-1/2 flex items-center">
+            <form action="{{ route('adminMaintenanceRecords.search') }}" method="GET" class="w-full">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
+                <x-search-input class="w-80" placeholder="Search Maintenance..." />
             </form>
         </div>
 
         <!-- Refresh Button -->
-        <div class="w-full md:w-auto md:ml-auto flex justify-end md:justify-start">
-            <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                <input type="hidden" name="tab" value="{{ $tab }}">
-                <input type="hidden" name="query" value="{{ $searchQuery }}">
-                <button id="refreshButton" class="p-2 text-black">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                </button>
-            </form>
+        <div class="w-full md:w-auto">
+            <div class="flex items-center space-x-4">
+                <form action="{{ route(Route::currentRouteName()) }}" method="GET">
+                    <input type="hidden" name="tab" value="{{ $tab }}">
+                    <input type="hidden" name="query" value="{{ $searchQuery }}">
+                    <button id="refreshButton" class="p-2 text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -50,9 +53,28 @@
             </form>
         </div>
 
-        <div class="ml-auto pagination-container">
-            {{ $records->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links('vendor.pagination.tailwind') }} <!-- Pagination Links -->
+        {{-- <div class="ml-auto pagination-container">
+            {{ $records->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+        </div> --}}
+
+        <div class="flex items-center justify-between mb-4 mt-4 flex-col md:flex-row space-x-4 md:space-y-0 pagination-container">
+            <!-- Pagination Info - Only show on medium screens and above -->
+            <span class="text-gray-600 hidden md:block">
+                Showing {{ $records->firstItem() }} to {{ $records->lastItem() }} of {{ $records->total() }} results
+            </span>
+
+            <!-- Pagination Links -->
+            <div class="w-full md:w-auto">
+                <!-- Use different pagination links based on screen size -->
+                <div class="hidden md:block">
+                    {{ $records->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+                </div>
+                <div class="block md:hidden text-sm">
+                    {{ $records->appends(request()->except('page'))->links() }}
+                </div>
+            </div>
         </div>
+
     </div>
 
     <!-- Tabs Section -->
@@ -133,19 +155,24 @@
         }
 
         .pagination-container nav .page-item {
-            margin: 0 2px; /* Reduce spacing between items */
+            margin: 0 2px;
+            /* Reduce spacing between items */
         }
 
         .pagination-container nav .page-link {
-            font-size: 0.75rem; /* Smaller text */
-            padding: 0.25rem 0.5rem; /* Smaller padding */
-            border-radius: 4px; /* Smaller corners */
+            font-size: 0.75rem;
+            /* Smaller text */
+            padding: 0.25rem 0.5rem;
+            /* Smaller padding */
+            border-radius: 4px;
+            /* Smaller corners */
         }
     }
 
     /* Optional: Add hover styles */
     .pagination-container nav .page-link:hover {
-        background-color: #e5e7eb; /* Light gray hover background */
+        background-color: #e5e7eb;
+        /* Light gray hover background */
     }
 </style>
 

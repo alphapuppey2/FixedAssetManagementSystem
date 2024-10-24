@@ -62,8 +62,7 @@ class MaintenanceController extends Controller
         )->paginate($perPage);
 
         // Determine the appropriate view based on the user type
-        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' :
-                ($user->usertype === 'admin' ? 'admin.maintenance' : 'user.requestList');
+        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' : ($user->usertype === 'admin' ? 'admin.maintenance' : 'user.requestList');
 
         // Return the view with the necessary data
         return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder'));
@@ -356,12 +355,28 @@ class MaintenanceController extends Controller
         // dd($userType);
         // Only retrieve assets that belong to the same department as the user
         // $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
-        $assets = assetModel::where('dept_ID', $user->dept_id)
-                    ->where('isDeleted', 0) // Exclude deleted assets
-                    ->get(['id', 'code', 'name']);
+        // $assets = assetModel::where('dept_ID', $user->dept_id)
+        //     ->where('isDeleted', 0) // Exclude deleted assets
+        //     ->get(['id', 'code', 'name']);
 
         // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
-        $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
+        // $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
+
+        // Retrieve assets based on user type
+        $assets = assetModel::where('isDeleted', 0) // Exclude deleted assets for all users
+        ->when($userType !== 'admin', function ($query) use ($user) {
+            // If the user is not an admin, filter by their department
+            $query->where('dept_ID', $user->dept_id);
+        })
+        ->get(['id', 'code', 'name']);
+
+        // Retrieve categories, locations, models, and manufacturers
+        $categories = category::where(function ($query) use ($userType, $user) {
+            if ($userType !== 'admin') {
+                $query->where('dept_ID', $user->dept_id);
+            }
+        })->get(['id', 'name']);
+
         $locations = locationModel::all(['id', 'name']); // No department link, fetching all
         $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
         $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
@@ -416,10 +431,11 @@ class MaintenanceController extends Controller
             'occurrence' => 'nullable|integer', // For custom occurrences
         ]);
 
+
         // Check if active preventive maintenance already exists for the asset
         $existingMaintenance = Preventive::where('asset_key', $validatedData['asset_code'])
-                                        ->where('status', 'active')
-                                        ->first();
+            ->where('status', 'active')
+            ->first();
 
         if ($existingMaintenance) {
             // Set session value for the error notification
@@ -498,10 +514,10 @@ class MaintenanceController extends Controller
 
         // Set session value for success notification
         return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
-        ->with([
-            'status' => 'Maintenance schedule created successfully!',
-            'status_type' => 'success'
-        ]);
+            ->with([
+                'status' => 'Maintenance schedule created successfully!',
+                'status_type' => 'success'
+            ]);
     }
 
     // MaintenanceController.php
@@ -512,7 +528,7 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
             ->findOrFail($id);
 
-        $view = Auth::user()->usertype === 'admin' ? 'admin.modal.editApprove' : 'dept_head.modal.editApprove' ;
+        $view = Auth::user()->usertype === 'admin' ? 'admin.modal.editApprove' : 'dept_head.modal.editApprove';
         return view($view, compact('maintenance'));
     }
 
@@ -561,11 +577,11 @@ class MaintenanceController extends Controller
         }
 
         $statusMessage = $isCancelled
-        ? 'Maintenance request cancelled successfully.'
-        : 'Maintenance request updated successfully.';
+            ? 'Maintenance request cancelled successfully.'
+            : 'Maintenance request updated successfully.';
 
         // Redirect back with success message
-        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved':'maintenance.approved';
+        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved' : 'maintenance.approved';
         return redirect()->route($routePath)
             ->with('status', $statusMessage);
     }
@@ -576,7 +592,7 @@ class MaintenanceController extends Controller
         // Load related asset, category, location, model, and manufacturer data
         $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
             ->findOrFail($id);
-            $routePath = Auth::user()->usertype === 'admin' ? 'admin.modal.editDenied':'dept_head.modal.editDenied';
+        $routePath = Auth::user()->usertype === 'admin' ? 'admin.modal.editDenied' : 'dept_head.modal.editDenied';
         return view($routePath, compact('maintenance'));
     }
 
@@ -625,7 +641,7 @@ class MaintenanceController extends Controller
         }
 
         // Redirect back with success message
-        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceDenied':'maintenance.denied';
+        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceDenied' : 'maintenance.denied';
         return redirect()->route($routePath)
             ->with('status', 'Maintenance request status updated successfully.');
     }
@@ -643,65 +659,14 @@ class MaintenanceController extends Controller
 
     public function showRecords(Request $request)
     {
-        $user = Auth::user();
-        $tab = $request->query('tab', 'completed'); // Default tab is 'completed'
+        $searchController = app(SearchController::class);
+        $records = $searchController->searchMaintenanceRecords($request);
+
+        $tab = $request->query('tab', 'completed');
         $searchQuery = $request->input('query', '');
-        $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
+        $perPage = $request->input('rows_per_page', 10);
 
-        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
-            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
-            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
-            ->select(
-                'maintenance.*',
-                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
-                'category.name AS category_name',
-                'location.name AS location_name',
-                'asset.code as asset_code'
-            );
-
-        // Apply filters based on the selected tab
-        if ($tab === 'completed') {
-            $query->where('maintenance.status', 'approved')
-                ->where('maintenance.is_completed', 1)
-                ->orderBy('maintenance.updated_at', 'desc');
-        } elseif ($tab === 'cancelled') {
-            $query->where('maintenance.status', 'cancelled')
-                ->orderBy('maintenance.updated_at', 'desc');
-        }
-
-        // Apply department filter if the user is a department head
-        if ($user->usertype === 'dept_head') {
-            $query->where('asset.dept_ID', $user->dept_id);
-        } elseif ($user->usertype === 'user') {
-            $query->where('maintenance.requestor', $user->id);
-        }
-
-        // Apply search filter if a query is provided
-        if ($searchQuery) {
-            $query->where(function ($q) use ($searchQuery) {
-                $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('maintenance.type', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere('maintenance.reason', 'LIKE', "%{$searchQuery}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%");
-            });
-        }
-
-        // Fetch the filtered and paginated results
-        $records = $query->paginate($perPage);
-
-        // Return the appropriate view based on the user type
-        $view = $user->usertype === 'admin' ? 'admin.maintenanceRecords' : 'dept_head.maintenance_records';
-
-        return view($view, [
+        return view('admin.maintenanceRecords', [
             'records' => $records,
             'tab' => $tab,
             'searchQuery' => $searchQuery,

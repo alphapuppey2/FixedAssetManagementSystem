@@ -34,7 +34,8 @@
 @endsection
 
 @section('content')
-<div class="w-full px-8 mt-4">
+{{-- <div class="w-full px-8 mt-4"> --}}
+<div class="w-full mt-4">
     <div>
         <form method="GET" action="{{ route('searchActivity') }}" class="flex flex-col space-y-4">
             <!-- Search Input and Button -->
@@ -58,9 +59,12 @@
                 <!-- Pagination Links and Showing Results (Right) -->
                 @if($logs->hasPages())
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Showing {{ $logs->firstItem() }} to {{ $logs->lastItem() }} of {{ $logs->total() }} items</span>
-                    <div>
+                    <span class="text-gray-600 hidden md:block">Showing {{ $logs->firstItem() }} to {{ $logs->lastItem() }} of {{ $logs->total() }} items</span>
+                    <div class="hidden md:block">
                         {{ $logs->links('vendor.pagination.tailwind') }}
+                    </div>
+                    <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2" >
+                        {{ $logs->links() }}
                     </div>
                 </div>
                 @endif
@@ -74,53 +78,85 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg shadow-md">
-            <thead class="bg-blue-500 text-white">
-                <tr>
-                    <th class="p-2 border">Activity</th>
-                    <th class="p-2 border">Description</th>
-                    <th class="p-2 border">User Role</th>
-                    <th class="p-2 border">User ID</th>
-                    <th class="p-2 border">Asset ID</th>
-                    <th class="p-2 border">Request ID</th>
-                    <th class="p-2 border">Date & Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($logs as $log)
-                <tr class="hover:bg-gray-100 transition">
-                    <td class="p-2 border">{{ $log->activity }}</td>
-                    <td class="p-2 border">{{ $log->description }}</td>
-                    <td class="p-2 border">
+        <div class="hidden md:block">
+            <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg shadow-md">
+                <thead class="bg-blue-500 text-white">
+                    <tr>
+                        <th class="p-2 border">Activity</th>
+                        <th class="p-2 border">Description</th>
+                        <th class="p-2 border">User Role</th>
+                        <th class="p-2 border">User ID</th>
+                        <th class="p-2 border">Asset ID</th>
+                        <th class="p-2 border">Request ID</th>
+                        <th class="p-2 border">Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($logs as $log)
+                    <tr class="hover:bg-gray-100 transition">
+                        <td class="p-2 border">{{ $log->activity }}</td>
+                        <td class="p-2 border">{{ $log->description }}</td>
+                        <td class="p-2 border">
+                            @switch($log->userType)
+                            @case('admin')
+                            Admin
+                            @break
+                            @case('dept_head')
+                            Department Head
+                            @break
+                            @default
+                            System
+                            @endswitch
+                        </td>
+                        <td class="p-2 border">{{ $log->user_id ?? 'System' }}</td>
+                        <td class="p-2 border">{{ $log->asset_id ?? 'N/A' }}</td>
+                        <td class="p-2 border">{{ $log->request_id ?? 'N/A' }}</td>
+                        <td class="p-2 border">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center p-4">No activity logs found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+          <!-- Card layout for small screens -->
+        <div class="block md:hidden space-y-2">
+            {{-- Changed: Added 'block md:hidden' to show cards only on small screens --}}
+            @forelse ($logs as $log)
+                <div class="bg-white shadow-md rounded-lg p-4">
+                    <p class="text-xs"><strong>Activity:</strong> {{ $log->activity }}</p>
+                    <p class="text-xs"><strong>Description:</strong> {{ $log->description }}</p>
+                    <p class="text-xs">
+                        <strong>User Role:</strong>
                         @switch($log->userType)
-                        @case('admin')
-                        Admin
-                        @break
-                        @case('dept_head')
-                        Department Head
-                        @break
-                        @default
-                        System
+                            @case('admin') Admin @break
+                            @case('dept_head') Department Head @break
+                            @default System
                         @endswitch
-                    </td>
-                    <td class="p-2 border">{{ $log->user_id ?? 'System' }}</td>
-                    <td class="p-2 border">{{ $log->asset_id ?? 'N/A' }}</td>
-                    <td class="p-2 border">{{ $log->request_id ?? 'N/A' }}</td>
-                    <td class="p-2 border">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="text-center p-4">No activity logs found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                    </p>
+                    <p class="text-xs"><strong>User ID:</strong> {{ $log->user_id ?? 'System' }}</p>
+                    <p class="text-xs"><strong>Asset ID:</strong> {{ $log->asset_id ?? 'N/A' }}</p>
+                    <p class="text-xs"><strong>Request ID:</strong> {{ $log->request_id ?? 'N/A' }}</p>
+                    <p class="text-xs"><strong>Date & Time:</strong> {{ $log->created_at->format('Y-m-d H:i:s') }}</p>
+                </div>
+            @empty
+                <div class="bg-gray-100 p-4 rounded-lg text-center text-gray-500">
+                    No activity logs found.
+                </div>
+            @endforelse
+        </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg p-6 shadow-lg w-96">
-            <h2 class="text-xl font-bold mb-4">Log Deletion Settings</h2>
+    {{-- <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center"> --}}
+    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-4">
+        {{-- <div class="bg-white rounded-lg p-6 shadow-lg w-96"> --}}
+        <div class="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
+            {{-- <h2 class="text-xl font-bold mb-4">Log Deletion Settings</h2> --}}
+            <h2 class="text-xl font-bold mb-4 text-center">Log Deletion Settings</h2>
 
             <form action="{{ route('activityLogs.updateSettings') }}" method="POST">
                 @csrf
@@ -137,13 +173,15 @@
                 <!-- Dynamic Warning Message -->
                 <div id="warningMessage" class="text-sm text-yellow-600 mb-4"></div>
 
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    Save Settings
-                </button>
-                <button type="button" onclick="toggleSettingsModal()"
-                    class="ml-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-                    Cancel
-                </button>
+                <div class="flex flex-col sm:flex-row justify-center sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Save Settings
+                    </button>
+                    <button type="button" onclick="toggleSettingsModal()"
+                        class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -266,7 +304,7 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
             countdownElement.style.color = timeLeft <= 10 * 1000 ? 'red' : 'black';
-            
+
             // FOR TESTING
             // countdownElement.textContent = `${minutes}m ${seconds}s`;
 

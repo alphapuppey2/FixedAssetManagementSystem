@@ -14,8 +14,9 @@
 
             <!-- Search Bar -->
             <div class="search-container w-full md:w-1/2 flex items-center">
-                <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
+                <form action="{{ route('adminMaintenanceSearch') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}">
+                    <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
                     <x-search-input class="w-80" placeholder="Search Maintenance..." />
                 </form>
             </div>
@@ -25,8 +26,8 @@
                 <div class="flex items-center space-x-1 md:space-x-4">
                     <!-- Refresh Icon -->
                     <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                        <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                        <input type="hidden" name="query"> <!-- Preserve the current search query -->
+                        <input type="hidden" name="tab" value="{{ $tab }}">
+                        <input type="hidden" name="query">
                         <button id="refreshButton" class="p-2 text-black flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -35,16 +36,6 @@
                             </svg>
                         </button>
                     </form>
-
-                    <!-- Download Icon -->
-                    <a href="{{ route('maintenance.download', ['tab' => $tab, 'query']) }}"
-                    class="p-2 text-black flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" class="size-7">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                        </svg>
-                    </a>
 
                     <!-- Create Maintenance Button -->
                     <a href="{{ route('formMaintenance') }}"
@@ -78,7 +69,7 @@
             </div>
 
             <!-- Pagination (on the right) -->
-            <div class="ml-auto pagination-container flex items-center space-x-4">
+            {{-- <div class="ml-auto pagination-container flex items-center space-x-4">
                 <span class="text-gray-600">
                     Showing
                     {{ $requests->firstItem() ?? 0 }}
@@ -94,7 +85,39 @@
                     'sort_by' => $sortBy,
                     'sort_order' => $sortOrder
                 ])->links('vendor.pagination.tailwind') }}
+            </div> --}}
+
+
+            <div class="flex items-center justify-between mb-4 mt-4 flex-col md:flex-row space-x-4 md:space-y-0 pagination-container">
+                <!-- Pagination Info - Only show on medium screens and above -->
+                <span class="text-gray-600 hidden md:block">
+                    Showing {{ $requests->firstItem() ?? 0 }} to {{ $requests->lastItem() ?? 0 }} of {{ $requests->total() }} results
+                </span>
+
+                <!-- Pagination Links -->
+                <div class="w-full md:w-auto">
+                    <!-- Use different pagination links based on screen size -->
+                    <div class="hidden md:block">
+                        {{ $requests->appends([
+                            'rows_per_page' => $perPage,
+                            'tab' => $tab,
+                            'query' => request('query'),
+                            'sort_by' => $sortBy,
+                            'sort_order' => $sortOrder
+                        ])->links('vendor.pagination.tailwind') }}
+                    </div>
+                    <div class="block md:hidden text-sm">
+                        {{ $requests->appends([
+                            'rows_per_page' => $perPage,
+                            'tab' => $tab,
+                            'query' => request('query'),
+                            'sort_by' => $sortBy,
+                            'sort_order' => $sortOrder
+                        ])->links() }}
+                    </div>
+                </div>
             </div>
+
         </div>
 
         <!-- Tabs Section -->
