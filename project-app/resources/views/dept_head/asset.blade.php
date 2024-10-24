@@ -44,9 +44,9 @@
         </button>
 
         <!-- Export Button -->
-        <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+        {{-- <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
             <x-icons.exportIcon />
-        </button>
+        </button> --}}
 
     </div>
 </div>

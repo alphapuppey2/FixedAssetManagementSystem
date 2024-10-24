@@ -155,6 +155,13 @@
                         <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6"/>
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
+
+                    <x-nav-link :href="route('adminMaintenance.records', ['mntncDropdown' => 'open'])"
+                        :active="request()->routeIs('adminMaintenance.records')"
+                        class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
+                        <x-icons.records-icon class="w-8 h-8 md:w-6 md:h-6" />
+                        <span class="hidden sm:inline">Records</span>
+                    </x-nav-link>
                 </ul>
             </li>
 
