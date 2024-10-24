@@ -14,7 +14,7 @@
 
             <!-- Search Bar -->
             <div class="search-container w-full md:w-1/2 flex items-center">
-                <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
+                <form action="{{ route('adminMaintenanceSearch') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}">
                     <x-search-input class="w-80" placeholder="Search Maintenance..." />
                 </form>

@@ -81,6 +81,8 @@ class SearchController extends Controller
         $query = $request->input('query', '');
         $tab = $request->input('tab', 'requests');
         $perPage = $request->input('rows_per_page', 10);
+        $sortBy = $request->input('sort_by', 'maintenance.id');
+        $sortOrder = $request->input('sort_order', 'asc');
 
         // Initialize the maintenance query with joins
         $maintenanceQuery = Maintenance::query()
@@ -120,6 +122,9 @@ class SearchController extends Controller
             });
         }
 
+        // Apply sorting
+        $maintenanceQuery->orderBy($sortBy, $sortOrder);
+
         // Paginate the results
         $requests = $maintenanceQuery->paginate($perPage);
         // Determine which view to return based on user type
@@ -130,7 +135,9 @@ class SearchController extends Controller
             'requests' => $requests,
             'query' => $query,
             'tab' => $tab,
-            'perPage' => $perPage
+            'perPage' => $perPage, // Fix: Pass the perPage variable correctly
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
         ]);
     }
 
