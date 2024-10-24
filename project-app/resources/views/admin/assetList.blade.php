@@ -30,16 +30,14 @@
                         <x-icons.refresh-icon class="w-5 h-5 text-gray-600" />
                     </button>
                 </form>
-                <button>
-                    <span>
-                        <x-icons.importIcon />
-                    </span>
+                <button id="openModalBtn" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+                    <x-icons.importIcon />
                 </button>
-                <button>
+                {{-- <button>
                     <span>
                         <x-icons.exportIcon />
                     </span>
-                </button>
+                </button> --}}
             </div>
         </div>
         <div class="flex justify-between items-center mb-2">
@@ -217,7 +215,10 @@
     </div>
 
     @vite(['resources/js/flashNotification.js'])
+
     <script>
+
+        //Delete Modal Script
         function openDeleteModal(assetId) {
             const deleteForm = document.getElementById('deleteForm');
             const actionUrl = `{{ url('admin/asset/delete') }}/${assetId}`; // Absolute URL
@@ -229,8 +230,6 @@
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
-
-
         document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
             document.getElementById('deleteModal').classList.add('hidden'); // Hide the modal
         });
@@ -238,5 +237,6 @@
         document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
             document.getElementById('deleteForm').submit(); // Submit the form
         });
+
     </script>
 @endsection
