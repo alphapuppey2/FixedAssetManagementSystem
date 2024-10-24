@@ -63,8 +63,6 @@ class MaintenanceController extends Controller
         return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder'));
     }
 
-
-    // Show the list of approved maintenance requests
     public function approvedList(Request $request)
     {
         $user = Auth::user();
@@ -79,13 +77,12 @@ class MaintenanceController extends Controller
             ->leftJoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('maintenance.status', 'approved')
-            ->where('maintenance.is_completed', 0);
+            ->where('maintenance.is_completed', 0)
+            ->orderBy($sortBy, $sortOrder);
 
         if ($user->usertype === 'dept_head') {
             $query->where('asset.dept_ID', $user->dept_id);
         }
-
-        $query->orderBy($sortBy, $sortOrder);
 
         $requests = $query->select(
             'maintenance.*',
@@ -100,10 +97,6 @@ class MaintenanceController extends Controller
         return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'approved');
     }
 
-
-
-
-    // Show the list of denied maintenance requests
     public function deniedList(Request $request)
     {
         $user = Auth::user();
@@ -117,13 +110,12 @@ class MaintenanceController extends Controller
             ->leftJoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
             ->leftJoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('maintenance.status', 'denied');
+            ->where('maintenance.status', 'denied')
+            ->orderBy($sortBy, $sortOrder);
 
         if ($user->usertype === 'dept_head') {
             $query->where('asset.dept_ID', $user->dept_id);
         }
-
-        $query->orderBy($sortBy, $sortOrder);
 
         $requests = $query->select(
             'maintenance.*',
@@ -137,7 +129,6 @@ class MaintenanceController extends Controller
 
         return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'denied');
     }
-
 
 
 
