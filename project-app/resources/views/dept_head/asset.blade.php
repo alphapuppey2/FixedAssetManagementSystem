@@ -199,6 +199,12 @@
 @include('dept_head.modal.filterAssetTable')
 @include('dept_head.modal.deleteAssetModal')
 
+@if (session('success'))
+        <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+           {{ session('success') }}
+        </div>
+    @endif
+
 <script>
     //Filter Modal Script
         document.getElementById('openFilterModalBtn').addEventListener('click', function () {
