@@ -183,7 +183,7 @@
         <!-- Card Layout for small screens -->
         <div class="block md:hidden w-full">
             @forelse($userList as $item)
-            <div class="bg-white shadow rounded-lg p-4 mb-4 flex flex-col">
+            <div class="bg-white shadow rounded-lg p-4 mb-2 flex flex-col">
                 {{-- User Details (Left Aligned) --}}
                 <div class="flex-grow">
                     <p class="text-left"><strong>ID:</strong> {{ $item->id }}</p>
