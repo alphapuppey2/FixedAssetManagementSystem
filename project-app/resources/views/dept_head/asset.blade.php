@@ -139,7 +139,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="bg-gray-100 align-middle text-center text-sm text-gray-400">No List</td>
+                        <td colspan="5" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">No Assets</td>
                     </tr>
                 @endforelse
             </tbody>
