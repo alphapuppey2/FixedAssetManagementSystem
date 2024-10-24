@@ -135,6 +135,13 @@
                         <x-calendarIcon />
                         <span class="ml-2 sm:hidden lg:block">Scheduling</span>
                     </x-nav-link>
+
+                    <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
+                        :href="route('adminMaintenance.records', ['status' => 'completed', 'dropdown' => 'open'])"
+                        :active="request()->routeIs('adminMaintenance.records')">
+                        <x-icons.records-icon />
+                        <span class="ml-2 sm:hidden lg:block">Records</span>
+                    </x-nav-link>
                 </ul>
             </li>
 

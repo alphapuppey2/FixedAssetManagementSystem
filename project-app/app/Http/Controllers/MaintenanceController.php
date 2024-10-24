@@ -416,38 +416,6 @@ class MaintenanceController extends Controller
             'occurrence' => 'nullable|integer', // For custom occurrences
         ]);
 
-        // Determine the frequency in days
-        // $frequencyDays = 0;
-        // switch ($validatedData['frequency']) {
-        //     case 'every_day':
-        //         $frequencyDays = 1;
-        //         break;
-        //     case 'every_week':
-        //         $frequencyDays = 7;
-        //         break;
-        //     case 'every_month':
-        //         $frequencyDays = 30;
-        //         break;
-        //     case 'every_year':
-        //         $frequencyDays = 365;
-        //         break;
-        //     case 'custom':
-        //         if (isset($validatedData['repeat']) && isset($validatedData['interval'])) {
-        //             $frequencyDays = $validatedData['repeat'] * $validatedData['interval'];
-        //         } else {
-        //             $frequencyDays = 1; // Set a default value if repeat or interval is null
-        //         }
-        //         break;
-        // }
-
-        // // Handle 'ends' logic correctly
-        // if ($validatedData['ends'] === 'never') {
-        //     $ends = 0; // Never ends
-        // } else {
-        //     $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
-        // }
-
-
         // Check if active preventive maintenance already exists for the asset
         $existingMaintenance = Preventive::where('asset_key', $validatedData['asset_code'])
                                         ->where('status', 'active')
@@ -528,12 +496,7 @@ class MaintenanceController extends Controller
         session()->flash('status', 'Maintenance schedule created successfully!');
         // session()->flash('status_type', 'success'); // Set the status type for success
 
-        // $route = $userType === 'admin'
-        //     ? 'adminMaintenance_sched'
-        //     : 'maintenance_sched';
-        // return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
-
-            // Set session value for success notification
+        // Set session value for success notification
         return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
         ->with([
             'status' => 'Maintenance schedule created successfully!',
@@ -736,7 +699,7 @@ class MaintenanceController extends Controller
         $records = $query->paginate($perPage);
 
         // Return the appropriate view based on the user type
-        $view = $user->usertype === 'admin' ? 'admin.records' : 'dept_head.maintenance_records';
+        $view = $user->usertype === 'admin' ? 'admin.maintenanceRecords' : 'dept_head.maintenance_records';
 
         return view($view, [
             'records' => $records,

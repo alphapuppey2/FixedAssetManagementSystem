@@ -109,6 +109,10 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::put('admin/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('adminmaintenance.updateDenied');
     Route::put('admin/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('adminmaintenance.updateApproved');
 
+    // MAINTENANCE COMPLETED-CANCELLED
+    Route::get('/admin/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('adminMaintenance.records');
+    Route::get('/admin/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('adminMaintenance.records.search');
+
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
     Route::get('/admin/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('adminMaintenance_sched.predictive');
