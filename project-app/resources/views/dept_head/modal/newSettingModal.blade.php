@@ -132,13 +132,6 @@ function handleEscKey(event) {
     }
 }
 
-// Close modal if the user clicks outside the modal content
-modal.addEventListener('click', (event) => {
-    if (event.target === modal) {
-        closeModal();
-    }
-});
-
 // Prevent clicks inside the modal content from triggering the backdrop close
 modalContent.addEventListener('click', (event) => {
     event.stopPropagation();
