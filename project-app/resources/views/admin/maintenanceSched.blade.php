@@ -19,18 +19,10 @@
     <!-- Top Section -->
     <div class="flex justify-between items-center mb-4">
         <!-- Search Bar -->
-         {{-- }}
-        <div class="flex items-center w-1/2">
-            <form action="" method="GET" class="w-full">
-                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Include the current tab -->
-                <input type="text" name="query" placeholder="Search..." value="{{ request('query') }}" class="w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </form>
-        </div>
-        --}}
-
         <div class="search-container flex items-center w-1/2">
             <form action="{{ route('adminMaintenanceSchedSearch') }}" method="GET" class="w-full">
                 <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
                 <x-search-input class="w-80" placeholder="Search Maintenance..." />
             </form>
         </div>
@@ -38,8 +30,9 @@
         <!-- Right Section: Download Icon and Create Button -->
         <div class="flex items-center space-x-4">
             <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                <input type="hidden" name="query"> <!-- Preserve the current search query -->
+                <!-- Refresh Button -->
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="query">
                 <button id="refreshButton" class="p-2 text-black">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -76,7 +69,7 @@
 
         <!-- Pagination (on the right) -->
         <div class="ml-auto">
-            {{ $records->appends(['rows_per_page' => $perPage])->links() }} <!-- Pagination Links -->
+            {{ $records->appends(['rows_per_page' => $perPage])->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 

@@ -288,4 +288,60 @@ class SearchController extends Controller
             'sortOrder' => $sortOrder,
         ]);
     }
+
+    public function searchMaintenanceRecords(Request $request)
+    {
+        $user = Auth::user();
+        $tab = $request->query('tab', 'completed');
+        $searchQuery = $request->input('query', '');
+        $perPage = $request->input('rows_per_page', 10);
+
+        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+            ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
+            ->select(
+                'maintenance.*',
+                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
+                'category.name AS category_name',
+                'location.name AS location_name',
+                'asset.code as asset_code'
+            );
+
+        if ($tab === 'completed') {
+            $query->where('maintenance.status', 'approved')
+                ->where('maintenance.is_completed', 1)
+                ->orderBy('maintenance.updated_at', 'desc');
+        } elseif ($tab === 'cancelled') {
+            $query->where('maintenance.status', 'cancelled')
+                ->orderBy('maintenance.updated_at', 'desc');
+        }
+
+        if ($user->usertype === 'dept_head') {
+            $query->where('asset.dept_ID', $user->dept_id);
+        } elseif ($user->usertype === 'user') {
+            $query->where('maintenance.requestor', $user->id);
+        }
+
+        if ($searchQuery) {
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('maintenance.id', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.firstname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.middlename', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('users.lastname', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.description', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('asset.code', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('category.name', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('location.name', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.type', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere('maintenance.reason', 'LIKE', "%{$searchQuery}%")
+                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%")
+                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$searchQuery}%");
+            });
+        }
+
+        $paginatedRecords = $query->paginate($perPage)->appends($request->except('page'));
+
+        return $paginatedRecords;
+    }
 }
