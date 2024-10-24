@@ -38,7 +38,7 @@
             <li>
                 <x-nav-link class="flex hover:bg-slate-400/15 mb-1 p-1 rounded-md"
                     :href="route('admin.home')" :active="request()->routeIs('admin.home')">
-                    <x-dashIcon />
+                    <x-DashIcon />
                     <span class="ml-2 sm:hidden lg:block">Dashboard</span>
                 </x-nav-link>
             </li>

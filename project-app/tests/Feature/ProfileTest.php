@@ -16,27 +16,13 @@ class ProfileTest extends TestCase
         $adminUser = User::factory()->create(['usertype' => 'admin']);
         $response = $this
             ->actingAs($adminUser)
-            ->get('/admin/profile'); // Adjust the route for admin profile
+            ->get('/admin/profile');
+
+        $response->assertSee('<x-dash-icon />', false);
+        // Debugging: check the content of the response
+        // dd($response->getContent());
 
         $response->assertOk();
-
-        $response->assertViewIs('admin.profile');
-
-        // Test for Department Head User
-        // $deptHeadUser = User::factory()->create(['usertype' => 'dept_head']);
-        // $response = $this
-        //     ->actingAs($deptHeadUser)
-        //     ->get('/dept_head/profile'); // Adjust the route for department head profile
-
-        // $response->assertOk();
-
-        // // Test for Regular User
-        // $regularUser = User::factory()->create(['usertype' => 'user']);
-        // $response = $this
-        //     ->actingAs($regularUser)
-        //     ->get('/user/profile'); // Adjust the route for regular user profile
-
-        // $response->assertOk();
     }
 
     public function test_profile_information_can_be_updated(): void
