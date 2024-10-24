@@ -78,7 +78,7 @@ class SearchController extends Controller
         $userType = $user->usertype;
         $deptId = $user->dept_id;
 
-        $query = $request->input('query', '');
+        $query = $request->input('query');
         $tab = $request->input('tab', 'requests');
         $perPage = $request->input('rows_per_page', 10);
         $sortBy = $request->input('sort_by', 'maintenance.id');
@@ -103,6 +103,19 @@ class SearchController extends Controller
             $maintenanceQuery->where('asset.dept_ID', $deptId);
         }
 
+        // Filter by tab type
+        switch ($tab) {
+            case 'approved':
+                $maintenanceQuery->where('maintenance.status', 'approved');
+                break;
+            case 'denied':
+                $maintenanceQuery->where('maintenance.status', 'denied');
+                break;
+            default:
+                $maintenanceQuery->where('maintenance.status', 'request');
+                break;
+        }
+
         // Apply search filters
         if ($query) {
             $maintenanceQuery->where(function ($q) use ($query) {
@@ -110,6 +123,7 @@ class SearchController extends Controller
                     ->orWhere('users.firstname', 'LIKE', "%{$query}%")
                     ->orWhere('users.middlename', 'LIKE', "%{$query}%")
                     ->orWhere('users.lastname', 'LIKE', "%{$query}%")
+                    ->orWhere('maintenance.id', 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.description', 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.type', 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.cost', 'LIKE', "%{$query}%")
@@ -135,7 +149,7 @@ class SearchController extends Controller
             'requests' => $requests,
             'query' => $query,
             'tab' => $tab,
-            'perPage' => $perPage, // Fix: Pass the perPage variable correctly
+            'perPage' => $perPage,
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
         ]);
