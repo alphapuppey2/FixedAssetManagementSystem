@@ -78,10 +78,23 @@
             </div>
 
             <!-- Pagination (on the right) -->
-            <div class="ml-auto pagination-container">
-                {{ $requests->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query'])->links('vendor.pagination.tailwind') }}
-            </div>
+            <div class="ml-auto pagination-container flex items-center space-x-4">
+                <span class="text-gray-600">
+                    Showing
+                    {{ $requests->firstItem() ?? 0 }}
+                    to
+                    {{ $requests->lastItem() ?? 0 }}
+                    of {{ $requests->total() }} requests
+                </span>
 
+                {{ $requests->appends([
+                    'rows_per_page' => $perPage,
+                    'tab' => $tab,
+                    'query' => request('query'),
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder
+                ])->links('vendor.pagination.tailwind') }}
+            </div>
         </div>
 
         <!-- Tabs Section -->
@@ -104,23 +117,81 @@
             <table class="min-w-full bg-white border rounded-md">
                 <thead class="bg-gray-100 border-b">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requestor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Code</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'maintenance.id', 'sort_order' => $sortBy === 'maintenance.id' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                Request ID
+                                <x-icons.sort-icon :direction="$sortBy === 'maintenance.id' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'requestor_name', 'sort_order' => $sortBy === 'requestor_name' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                Requestor
+                                <x-icons.sort-icon :direction="$sortBy === 'requestor_name' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'asset_code', 'sort_order' => $sortBy === 'asset_code' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                Asset Code
+                                <x-icons.sort-icon :direction="$sortBy === 'asset_code' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'description', 'sort_order' => $sortBy === 'description' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                Description
+                                <x-icons.sort-icon :direction="$sortBy === 'description' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'category_name', 'sort_order' => $sortBy === 'category_name' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                Category
+                                <x-icons.sort-icon :direction="$sortBy === 'category_name' ? $sortOrder : null" />
+                            </a>
+                        </th>
+
                         @if($tab === 'approved')
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved At</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'type', 'sort_order' => $sortBy === 'type' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Type
+                                    <x-icons.sort-icon :direction="$sortBy === 'type' ? $sortOrder : null" />
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Approved By
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'authorized_at', 'sort_order' => $sortBy === 'authorized_at' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Approved At
+                                    <x-icons.sort-icon :direction="$sortBy === 'authorized_at' ? $sortOrder : null" />
+                                </a>
+                            </th>
                         @elseif($tab === 'denied')
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied By</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Denied At</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Denied By
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'authorized_at', 'sort_order' => $sortBy === 'authorized_at' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Denied At
+                                    <x-icons.sort-icon :direction="$sortBy === 'authorized_at' ? $sortOrder : null" />
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Reason
+                            </th>
                         @else
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested At</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'location_name', 'sort_order' => $sortBy === 'location_name' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Location
+                                    <x-icons.sort-icon :direction="$sortBy === 'location_name' ? $sortOrder : null" />
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a href="{{ route(Route::currentRouteName(), array_merge(request()->query(), ['sort_by' => 'requested_at', 'sort_order' => $sortBy === 'requested_at' && $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Requested At
+                                    <x-icons.sort-icon :direction="$sortBy === 'requested_at' ? $sortOrder : null" />
+                                </a>
+                            </th>
                         @endif
+
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
