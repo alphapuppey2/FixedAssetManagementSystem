@@ -66,23 +66,29 @@
             <div class="flex items-center">
                 <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
                 <form action="{{ route(Route::currentRouteName()) }}" method="GET" id="rowsPerPageForm">
-                    <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                    <input type="hidden" name="query" value="{{ request('query') }}"> <!-- Preserve search query -->
+                    <input type="hidden" name="tab" value="{{ $tab }}">
+                    <input type="hidden" name="query" value="{{ request('query') }}">
                     <input type="hidden" name="sort_by" value="{{ $sortBy }}"> <!-- Preserve sorting -->
                     <input type="hidden" name="sort_order" value="{{ $sortOrder }}"> <!-- Preserve sort order -->
-
-                    <select name="rows_per_page" id="rows_per_page"
-                        class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onchange="document.getElementById('rowsPerPageForm').submit()">
+                    <select name="rows_per_page" id="rows_per_page" class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="document.getElementById('rowsPerPageForm').submit()">
                         <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
                         <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
                     </select>
                 </form>
+
             </div>
             <!-- Pagination (on the right) -->
-            <div class="ml-auto pagination-container">
+            <div class="ml-auto pagination-container flex items-center space-x-4">
+                <span class="text-gray-600">
+                    Showing
+                    {{ $requests->firstItem() ?? 0 }}
+                    to
+                    {{ $requests->lastItem() ?? 0 }}
+                    of {{ $requests->total() }} requests
+                </span>
+
                 {{ $requests->appends([
                     'rows_per_page' => $perPage,
                     'tab' => $tab,
@@ -91,31 +97,33 @@
                     'sort_order' => $sortOrder
                 ])->links('vendor.pagination.tailwind') }}
             </div>
+
         </div>
 
         <!-- Tabs Section -->
         <div class="mb-4 flex justify-end">
             <ul class="flex border-b">
                 <li class="mr-4">
-                    <a href="{{ route('maintenance', array_merge(request()->query(), ['tab' => 'requests'])) }}"
+                    <a href="{{ route('maintenance', ['rows_per_page' => $perPage]) }}"
                     class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                         Requests
                     </a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.approved', array_merge(request()->query(), ['tab' => 'approved'])) }}"
+                    <a href="{{ route('maintenance.approved', ['rows_per_page' => $perPage]) }}"
                     class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                         Approved
                     </a>
                 </li>
                 <li class="mr-4">
-                    <a href="{{ route('maintenance.denied', array_merge(request()->query(), ['tab' => 'denied'])) }}"
+                    <a href="{{ route('maintenance.denied', ['rows_per_page' => $perPage]) }}"
                     class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                         Denied
                     </a>
                 </li>
             </ul>
         </div>
+
 
 
         <!-- Table Section -->

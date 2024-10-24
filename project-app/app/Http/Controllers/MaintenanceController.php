@@ -31,7 +31,7 @@ class MaintenanceController extends Controller
         $tab = $request->query('tab', 'requests');
         $perPage = $request->input('rows_per_page', 10);
 
-        // Set default sorting for index: requested_at in ascending order
+        // Default sorting for index: requested_at in ascending order
         $sortBy = $request->query('sort_by', 'maintenance.requested_at');
         $sortOrder = $request->query('sort_order', 'asc');
 
@@ -62,6 +62,7 @@ class MaintenanceController extends Controller
 
         return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder'));
     }
+
 
     public function approvedList(Request $request)
     {
@@ -97,6 +98,7 @@ class MaintenanceController extends Controller
         return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'approved');
     }
 
+
     public function deniedList(Request $request)
     {
         $user = Auth::user();
@@ -129,6 +131,7 @@ class MaintenanceController extends Controller
 
         return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'denied');
     }
+
 
 
 
