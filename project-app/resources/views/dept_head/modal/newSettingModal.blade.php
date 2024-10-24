@@ -107,22 +107,34 @@
 
 
 <script>
-    const modal = document.getElementById('settingModal');
+  const modal = document.getElementById('settingModal');
+const modalContent = modal.querySelector('.bg-white');
 
-    function openModal() {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex'); // Makes modal visible and center-aligned
+function openModal() {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex'); // Makes modal visible and center-aligned
+
+    // Add an event listener for the Esc key when the modal opens
+    document.addEventListener('keydown', handleEscKey);
+}
+
+function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+
+    // Remove the Esc key listener when the modal closes
+    document.removeEventListener('keydown', handleEscKey);
+}
+
+function handleEscKey(event) {
+    if (event.key === 'Escape') {
+        closeModal();
     }
+}
 
-    function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
+// Prevent clicks inside the modal content from triggering the backdrop close
+modalContent.addEventListener('click', (event) => {
+    event.stopPropagation();
+});
 
-    // Close modal if the user clicks outside the modal content
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
 </script>

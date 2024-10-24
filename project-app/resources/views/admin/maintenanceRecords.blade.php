@@ -12,10 +12,11 @@
     <!-- Top Section -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-2 md:space-y-0">
         <!-- Search Bar -->
-        <div class="w-full md:w-1/2 flex items-center">
-            <form action="{{ route('adminMaintenance.records.search') }}" method="GET" class="w-full">
-                <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}"
-                    class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="search-container w-full md:w-1/2 flex items-center">
+            <form action="{{ route('adminMaintenanceRecords.search') }}" method="GET" class="w-full">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
+                <x-search-input class="w-80" placeholder="Search Maintenance..." />
             </form>
         </div>
 
@@ -51,7 +52,7 @@
         </div>
 
         <div class="ml-auto pagination-container">
-            {{ $records->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links('vendor.pagination.tailwind') }} <!-- Pagination Links -->
+            {{ $records->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 
@@ -133,19 +134,24 @@
         }
 
         .pagination-container nav .page-item {
-            margin: 0 2px; /* Reduce spacing between items */
+            margin: 0 2px;
+            /* Reduce spacing between items */
         }
 
         .pagination-container nav .page-link {
-            font-size: 0.75rem; /* Smaller text */
-            padding: 0.25rem 0.5rem; /* Smaller padding */
-            border-radius: 4px; /* Smaller corners */
+            font-size: 0.75rem;
+            /* Smaller text */
+            padding: 0.25rem 0.5rem;
+            /* Smaller padding */
+            border-radius: 4px;
+            /* Smaller corners */
         }
     }
 
     /* Optional: Add hover styles */
     .pagination-container nav .page-link:hover {
-        background-color: #e5e7eb; /* Light gray hover background */
+        background-color: #e5e7eb;
+        /* Light gray hover background */
     }
 </style>
 
