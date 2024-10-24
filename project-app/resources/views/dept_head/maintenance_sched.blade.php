@@ -11,8 +11,16 @@
     <div class="">
 
         <!-- Toast Notification -->
-        @if(session('status'))
+        {{-- @if(session('status'))
             <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+                {{ session('status') }}
+            </div>
+        @endif --}}
+
+        @if(session('status'))
+            <div id="toast" class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg
+                        {{ session('status_type') === 'error' ? 'bg-red-500' : 'bg-green-500' }}
+                        text-white">
                 {{ session('status') }}
             </div>
         @endif
@@ -195,19 +203,20 @@
                         </tr>
                     @else
                         @foreach ($records as $record)
-                            <tr data-asset-key="{{ $record->asset_key }}">
+                            {{-- <tr data-asset-key="{{ $record->asset_key }}"> --}}
+                            <tr data-asset-key="{{ $record->asset_key }}" data-updated-at="{{ $record->updated_at }}" data-next-maintenance="{{ $record->next_maintenance_timestamp }}">
                                 <td class="px-6 py-4">{{ $record->asset->code }}</td>
                                 <td class="px-6 py-4">{{ $record->asset->name }}</td>
                                 @if ($tab === 'preventive')
                                     <td class="px-6 py-4">₱ {{ $record->cost }}</td>
-                                    <td class="px-6 py-4">Every {{ $record->frequency }} day/s</td>
+                                    <td class="frequency px-6 py-4">Every {{ $record->frequency }} day/s</td>
                                     <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">After {{ $record->ends }} occurrence/s</td>
                                     <td class="occurrences px-6 py-4">{{ $record->occurrences }}</td>
                                     <td class="status px-6 py-4">{{ ucfirst($record->status) }}</td>
-                                    <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}"
-                                        data-next-maintenance="{{ $record->next_maintenance_timestamp ?? 0 }}">
+                                    <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}">
                                         Loading...
                                     </td>
+
                                     <td class="px-6 py-4">
                                         <button
                                             class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -353,7 +362,7 @@
     }
 </style>
 
-    <script>
+<script>
 function toggleFieldsBasedOnStatus() {
     const statusField = document.getElementById('edit_status');
     const cancelReasonField = document.getElementById('cancel_reason');
@@ -450,110 +459,94 @@ function openEditModal(id) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const countdownElems = document.querySelectorAll('[id^="next-maintenance-"]');
+    const rows = document.querySelectorAll('tr[data-next-maintenance]');
 
-    countdownElems.forEach(countdownElem => {
-        let nextMaintenanceTimestamp = parseInt(countdownElem.getAttribute('data-next-maintenance')) * 1000;
-        countdownElem.isRequestPending = false;  // Initialize isRequestPending for each countdown element
-        const row = countdownElem.closest('tr') || countdownElem.closest('p');
-        const statusElem = row.querySelector('.status');  // Get the status element
+    rows.forEach(row => {
+        const countdownElem = row.querySelector('.next-maintenance');
+        const statusElem = row.querySelector('.status');
+        const nextMaintenance = row.getAttribute('data-next-maintenance');
 
-        // If status is 'Cancelled', stop the countdown and show 'Maintenance Cancelled'
-        if (statusElem.innerText.toLowerCase() === 'cancelled') {
-            countdownElem.innerHTML = "Maintenance Cancelled";  // Show maintenance cancelled text
-            return;  // Stop any further countdown logic
+        // Handle 'Cancelled' status early to prevent countdown
+        if (statusElem && statusElem.innerText.trim().toLowerCase() === 'cancelled') {
+            countdownElem.innerHTML = "Maintenance Cancelled";
+            return;
         }
 
-        if (nextMaintenanceTimestamp) {
-            let nextMaintenanceDate = new Date(nextMaintenanceTimestamp);
-            countdownElem.interval = setInterval(() => {
-                updateCountdown(countdownElem, nextMaintenanceDate);
-            }, 1000); // Update every second
+        // Ensure the timestamp exists and is valid
+        if (nextMaintenance && !isNaN(nextMaintenance)) {
+            const nextMaintenanceDate = new Date(parseInt(nextMaintenance) * 1000); // Convert to milliseconds
+
+            if (!isNaN(nextMaintenanceDate.getTime())) {
+                // Start the countdown interval
+                row.interval = setInterval(() => {
+                    updateCountdown(row, countdownElem, nextMaintenanceDate);
+                }, 1000);
+            } else {
+                countdownElem.innerHTML = "Invalid Date";
+            }
         } else {
-            countdownElem.innerHTML = "Invalid Maintenance Date";
+            countdownElem.innerHTML = "No Maintenance Scheduled";
         }
     });
 });
 
-function updateCountdown(countdownElem, nextMaintenanceDate) {
-    const row = countdownElem.closest('tr');
+function updateCountdown(row, countdownElem, nextMaintenanceDate) {
+    const statusElem = row.querySelector('.status');
     const occurrencesElem = row.querySelector('.occurrences');
     const endsElem = row.querySelector('.ends');
-    const statusElem = row.querySelector('.status');  // Get the status element
 
-    const occurrences = parseInt(occurrencesElem.innerText);
-    const ends = parseInt(endsElem.getAttribute('data-ends'));  // Get the numeric value from data-ends
+    const occurrences = parseInt(occurrencesElem.innerText) || 0;
+    const ends = parseInt(endsElem.getAttribute('data-ends')) || 0;
 
-    // If status is 'Cancelled', stop the countdown and show 'Maintenance Cancelled'
-    if (statusElem.innerText.toLowerCase() === 'cancelled') {
+    const currentTime = new Date();
+    const timeDiff = nextMaintenanceDate - currentTime;
+
+    console.log('Current Time:', currentTime);
+    console.log('Next Maintenance Timestamp:', nextMaintenanceDate);
+    console.log('Time Difference (ms):', timeDiff);
+
+    // Stop the countdown if status is 'Cancelled'
+    if (statusElem && statusElem.innerText.trim().toLowerCase() === 'cancelled') {
         countdownElem.innerHTML = "Maintenance Cancelled";
-        clearInterval(countdownElem.interval);  // Stop the countdown by clearing the interval
-        return;  // Exit the function to stop further countdown logic
-    }
-
-    // Handle NaN values and log for debugging
-    if (isNaN(occurrences) || isNaN(ends)) {
-        console.error(`Invalid occurrences or ends value: Occurrences = ${occurrences}, Ends = ${ends}`);
+        clearInterval(row.interval);
         return;
     }
 
-    console.log(`Occurrences: ${occurrences}, Ends: ${ends}`);
-
-    // If occurrences have reached or exceeded ends, stop the countdown and show "Maintenance Completed"
-    if (occurrences >= ends) {
-        countdownElem.innerHTML = "Maintenance Completed";  // Display "Maintenance Completed" in the Next Maintenance In column
-        console.log('Stopping countdown because occurrences reached ends');
-        clearInterval(countdownElem.interval);  // Stop the countdown by clearing the interval
-        return;  // Exit the function to stop further countdown logic
+    // Stop if occurrences have reached or exceeded the limit
+    if (ends !== 0 && occurrences >= ends) {
+        countdownElem.innerHTML = "Maintenance Completed";
+        clearInterval(row.interval);
+        return;
     }
 
-    const currentDate = new Date();
-    const timeDiff = nextMaintenanceDate - currentDate;
-
-    if (timeDiff <= 0 && !countdownElem.isRequestPending) {
-        // Trigger the maintenance request only once per cycle when countdown hits 0
-        countdownElem.isRequestPending = true;  // Prevent multiple requests
-        console.log('Countdown hit 0, generating maintenance request');
-
-        // Trigger the maintenance request
-        generateMaintenanceRequest(countdownElem, () => {
-            // Reset the countdown after the request and set isRequestPending to false
-            resetCountdown(countdownElem);
-            countdownElem.isRequestPending = false;  // Allow the next cycle to proceed
+    // If the time difference is negative, trigger maintenance immediately
+    if (timeDiff <= 0) {
+        countdownElem.innerHTML = "Maintenance Due Now!";
+        clearInterval(row.interval);
+        generateMaintenanceRequest(row, occurrencesElem, () => {
+            resetCountdown(row, countdownElem);
         });
-
-    } else if (timeDiff > 0) {
-       // Calculate time left in days, hours, minutes, and seconds
-        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-        // Display the remaining time
-        countdownElem.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        return;
     }
+
+    // Calculate time components
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    console.log(`Days: ${days}, Hours: ${hours}, Minutes: ${minutes}, Seconds: ${seconds}`);
+
+    // Display the remaining time
+    countdownElem.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
 
-function generateMaintenanceRequest(countdownElem, callback) {
-    const row = countdownElem.closest('tr');
-    const occurrencesElem = row.querySelector('.occurrences');
-    const endsElem = row.querySelector('.ends');
+function generateMaintenanceRequest(row, occurrencesElem, callback) {
+    const assetKey = row.getAttribute('data-asset-key');
+    const countdownElem = row.querySelector('.next-maintenance');
+    let occurrences = parseInt(occurrencesElem.innerText) || 0;
 
-    const occurrences = parseInt(occurrencesElem.innerText);
-    const ends = parseInt(endsElem.getAttribute('data-ends'));
-
-    console.log(`Generating request: Occurrences: ${occurrences}, Ends: ${ends}`);
-
-    // If occurrences >= ends, stop and don't make a request
-    if (occurrences >= ends) {
-        countdownElem.innerHTML = "Maintenance Completed";
-        console.log('Occurrences >= Ends, stopping requests');
-        clearInterval(countdownElem.interval); // Stop the countdown when maintenance is completed
-        return;
-    }
-
-    // Send the request to the backend to increment occurrences and generate the maintenance request
     fetch('{{ route("run-maintenance-check") }}', {
         method: 'POST',
         headers: {
@@ -561,7 +554,7 @@ function generateMaintenanceRequest(countdownElem, callback) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            asset_key: row.getAttribute('data-asset-key'),
+            asset_key: assetKey,
             occurrences: occurrences + 1
         })
     })
@@ -569,40 +562,67 @@ function generateMaintenanceRequest(countdownElem, callback) {
     .then(data => {
         if (data.success) {
             occurrencesElem.innerText = occurrences + 1;
-
-            // Show "Maintenance Generated" message
             countdownElem.innerHTML = "Maintenance Generated";
-            console.log('Maintenance request generated and occurrences incremented');
 
-            setTimeout(() => {
-                callback();  // Reset countdown after showing the message
-            }, 2000);  // Show "Maintenance Generated" for 2 seconds
+            console.log('Maintenance request generated successfully.');
 
+            setTimeout(() => callback(), 2000); // Reset after 2 seconds
         } else {
             console.error('Error:', data.error);
-            countdownElem.isRequestPending = false;  // Reset flag on error
         }
     })
     .catch(error => {
-        console.error('Error generating maintenance request:', error);
-        countdownElem.isRequestPending = false;  // Reset flag on error
+        console.error('Error:', error);
     });
 }
 
-function resetCountdown(countdownElem) {
-    const setTime = 10;  // Set to 10 seconds for testing, adjust to 86400 (1 day) for actual
-    const nextMaintenanceDate = new Date(new Date().getTime() + setTime * 1000); // Reset countdown
-    console.log('Resetting countdown for the next cycle');
 
-    // Clear existing interval
-    if (countdownElem.interval) {
-        clearInterval(countdownElem.interval);
+
+function resetCountdown(row, countdownElem) {
+    const frequencyElem = row.querySelector('.frequency');
+    const frequencyText = frequencyElem ? frequencyElem.innerText : null;
+    const frequencyMatch = frequencyText ? frequencyText.match(/\d+/) : null;
+
+    if (!frequencyMatch) {
+        console.error('Invalid frequency value.');
+        return;
     }
 
-    // Start a new countdown
-    countdownElem.interval = setInterval(() => {
-        updateCountdown(countdownElem, nextMaintenanceDate);
-    }, 1000); // Update every second
+    const frequency = parseInt(frequencyMatch[0]);
+    const nextMaintenanceDate = new Date(Date.now() + frequency * 86400 * 1000); // Calculate next timestamp
+
+    console.log(`Resetting countdown for the next ${frequency} day(s).`);
+
+    // Update backend with the new timestamp
+    fetch('{{ route("reset-countdown") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            asset_key: row.getAttribute('data-asset-key')
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the data attribute with the new timestamp
+            row.setAttribute('data-next-maintenance', Math.floor(nextMaintenanceDate.getTime() / 1000));
+            countdownElem.innerHTML = "Maintenance Generated";
+
+            // Clear the interval and start a new one
+            clearInterval(row.interval);
+            row.interval = setInterval(() => {
+                updateCountdown(row, countdownElem, nextMaintenanceDate);
+            }, 1000);
+        } else {
+            console.error('Failed to reset countdown:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error resetting countdown:', error);
+    });
 }
 
 </script>

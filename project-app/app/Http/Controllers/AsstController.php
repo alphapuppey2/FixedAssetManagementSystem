@@ -662,8 +662,8 @@ public function fetchDepartmentData($id)
 
         // Notify the admin about the new asset creation
         $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been added.",
+            'title' => 'Asset Deleted',
+            'message' => "Asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been deleted.",
             'asset_name' => $assetDel->name,
             'asset_code' => $assetDel->code,
             'authorized_by' => $userLogged->id,

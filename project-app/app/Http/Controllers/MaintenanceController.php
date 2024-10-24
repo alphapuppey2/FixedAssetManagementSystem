@@ -20,6 +20,7 @@ use App\Notifications\SystemNotification;
 use Illuminate\Notifications\Notification as NotificationFacade; // Alias the facade
 use App\Models\User;
 use App\Models\ActivityLog;
+use Carbon\Carbon;
 
 class MaintenanceController extends Controller
 {
@@ -27,166 +28,113 @@ class MaintenanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $tab = $request->query('tab', 'requests'); // Default tab is 'requests'
-        $perPage = $request->input('rows_per_page', 10); // Default rows per page is 10
+        $tab = $request->query('tab', 'requests');
+        $perPage = $request->input('rows_per_page', 10);
 
-        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id');
+        // Default sorting for index: 'requested_at' in ascending order
+        $sortBy = $request->query('sort_by', 'maintenance.requested_at');
+        $sortOrder = $request->query('sort_order', 'asc');
 
-        // Apply department filter for department heads
+        // Initialize the query with necessary joins
+        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
+            ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
+            ->where('maintenance.status', 'request');
+
+        // Apply filters based on user role
         if ($user->usertype === 'dept_head') {
-            $deptId = $user->dept_id;
-            $query->where('asset.dept_ID', $deptId);
+            $query->where('asset.dept_ID', $user->dept_id);
         } elseif ($user->usertype === 'user') {
             $query->where('maintenance.requestor', $user->id);
         }
 
-        // Order by latest created_at to show newest first
-        $query->orderBy('maintenance.requested_at', 'asc');
+        // Apply sorting
+        $query->orderBy($sortBy, $sortOrder);
 
-        // Fetch the filtered and paginated results
-        $requests = $query->leftjoin('users', 'maintenance.requestor', '=', 'users.id')
-            ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->leftjoin('location', 'asset.loc_key', '=', 'location.id')
-            ->where('maintenance.status', 'request')
-            ->select(
-                'maintenance.*',
-                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
-                'category.name AS category_name',
-                'location.name AS location_name',
-                'asset.code as asset_code'
-            )
-            ->paginate($perPage);
+        // Retrieve paginated results
+        $requests = $query->select(
+            'maintenance.*',
+            DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
+            'category.name AS category_name',
+            'location.name AS location_name',
+            'asset.code AS asset_code'
+        )->paginate($perPage);
 
-        // Return the view with the filtered requests and selected tab
-        if ($user->usertype === 'dept_head') {
-            return view('dept_head.maintenance', [
-                'requests' => $requests,
-                'tab' => $tab,
-                'perPage' => $perPage,
-            ]);
-        } elseif ($user->usertype === 'admin') {
-            return view('admin.maintenance', [
-                'requests' => $requests,
-                'tab' => $tab,
-                'perPage' => $perPage,
-            ]);
-        } else {
-            return view('user.requestList', [
-                'requests' => $requests,
-                'perPage' => $perPage,
-            ]);
-        }
+        // Determine the appropriate view based on the user type
+        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' :
+                ($user->usertype === 'admin' ? 'admin.maintenance' : 'user.requestList');
+
+        // Return the view with the necessary data
+        return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder'));
     }
 
-    // Show the list of approved maintenance requests
     public function approvedList(Request $request)
     {
         $user = Auth::user();
-        $searchQuery = ''; // Initialize to empty string
         $perPage = $request->input('rows_per_page', 10);
 
-        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+        // Default sorting: updated_at in descending order
+        $sortBy = $request->query('sort_by', 'maintenance.updated_at');
+        $sortOrder = $request->query('sort_order', 'desc');
+
+        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
+            ->leftJoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('maintenance.status', 'approved')
             ->where('maintenance.is_completed', 0)
-            ->select('maintenance.*')
-            ->orderBy('maintenance.authorized_at', 'asc');
+            ->orderBy($sortBy, $sortOrder);
 
-        // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
-            $deptId = $user->dept_id;
-            $query->where('asset.dept_ID', $deptId);
-        } elseif ($user->usertype !== 'admin') {
-            // Redirect non-admin and non-dept_head users
-            return redirect()->route('user.home');
+            $query->where('asset.dept_ID', $user->dept_id);
         }
 
-        // Apply joins and select relevant columns
-        $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-            ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-            ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select(
-                'maintenance.*',
-                DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
-                DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
-                'category.name AS category_name',
-                'asset.code as asset_code'
-            )
-            ->paginate($perPage);
+        $requests = $query->select(
+            'maintenance.*',
+            DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
+            DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS authorized_by_name"),
+            'category.name AS category_name',
+            'asset.code AS asset_code'
+        )->paginate($perPage);
 
-        // Return the appropriate view for the user's role
-        if ($user->usertype === 'dept_head') {
-            return view('dept_head.maintenance', [
-                'requests' => $requests,
-                'tab' => 'approved',
-                'searchQuery' => $searchQuery,
-                'perPage' => $perPage, // Passing an empty search query
-            ]);
-        } elseif ($user->usertype === 'admin') {
-            return view('admin.maintenance', [
-                'requests' => $requests,
-                'tab' => 'approved',
-                'searchQuery' => $searchQuery,
-                'perPage' => $perPage, // Passing an empty search query
-            ]);
-        }
+        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' : 'admin.maintenance';
 
-        // Fallback redirect for other user types
-        return redirect()->route('user.home');
+        return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'approved');
     }
 
-    // Show the list of denied maintenance requests
+
     public function deniedList(Request $request)
     {
         $user = Auth::user();
-        $searchQuery = ''; // Initialize to empty string
         $perPage = $request->input('rows_per_page', 10);
 
-        $query = Maintenance::leftjoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+        // Default sorting: updated_at in descending order
+        $sortBy = $request->query('sort_by', 'maintenance.updated_at');
+        $sortOrder = $request->query('sort_order', 'desc');
+
+        $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
+            ->leftJoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
+            ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->where('maintenance.status', 'denied')
-            ->select('maintenance.*')
-            ->orderBy('maintenance.authorized_at', 'asc');
+            ->orderBy($sortBy, $sortOrder);
 
-        // Apply department filter for department heads
         if ($user->usertype === 'dept_head') {
-            $deptId = $user->dept_id;
-            $query->where('asset.dept_ID', $deptId);
-        } elseif ($user->usertype !== 'admin') {
-            // Redirect non-admin and non-dept_head users
-            return redirect()->route('user.home');
+            $query->where('asset.dept_ID', $user->dept_id);
         }
 
-        // Apply joins and select relevant columns
-        $requests = $query->leftjoin('users as requestor_user', 'maintenance.requestor', '=', 'requestor_user.id')
-            ->leftjoin('users as authorized_user', 'maintenance.authorized_by', '=', 'authorized_user.id')
-            ->leftjoin('category', 'asset.ctg_ID', '=', 'category.id')
-            ->select(
-                'maintenance.*',
-                DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
-                DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"),
-                'category.name AS category_name',
-                'asset.code as asset_code'
-            )
-            ->paginate($perPage);
+        $requests = $query->select(
+            'maintenance.*',
+            DB::raw("CONCAT(requestor_user.firstname, ' ', IFNULL(requestor_user.middlename, ''), ' ', requestor_user.lastname) AS requestor_name"),
+            DB::raw("CONCAT(authorized_user.firstname, ' ', IFNULL(authorized_user.middlename, ''), ' ', authorized_user.lastname) AS denied_by_name"),
+            'category.name AS category_name',
+            'asset.code AS asset_code'
+        )->paginate($perPage);
 
-        // Return the appropriate view for the user's role
-        if ($user->usertype === 'dept_head') {
-            return view('dept_head.maintenance', [
-                'requests' => $requests,
-                'tab' => 'denied',
-                'searchQuery' => $searchQuery,
-                'perPage' => $perPage, // Passing an empty search query
-            ]);
-        } elseif ($user->usertype === 'admin') {
-            return view('admin.maintenance', [
-                'requests' => $requests,
-                'tab' => 'denied',
-                'searchQuery' => $searchQuery,
-                'perPage' => $perPage, // Passing an empty search query
-            ]);
-        }
+        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' : 'admin.maintenance';
 
-        // Fallback redirect for other user types
-        return redirect()->route('user.home');
+        return view($view, compact('requests', 'perPage', 'sortBy', 'sortOrder'))->with('tab', 'denied');
     }
 
     // Approve a maintenance request
@@ -407,7 +355,10 @@ class MaintenanceController extends Controller
         $userType = $user->usertype;
         // dd($userType);
         // Only retrieve assets that belong to the same department as the user
-        $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        // $assets = assetModel::where('dept_ID', $user->dept_id)->get(['id', 'code', 'name']);
+        $assets = assetModel::where('dept_ID', $user->dept_id)
+                    ->where('isDeleted', 0) // Exclude deleted assets
+                    ->get(['id', 'code', 'name']);
 
         // Retrieve categories, locations, models, manufacturers related to the user's department if applicable
         $categories = category::where('dept_ID', $user->dept_id)->get(['id', 'name']);
@@ -496,6 +447,20 @@ class MaintenanceController extends Controller
         //     $ends = (int)$validatedData['ends']; // Convert to integer for occurrences
         // }
 
+
+        // Check if active preventive maintenance already exists for the asset
+        $existingMaintenance = Preventive::where('asset_key', $validatedData['asset_code'])
+                                        ->where('status', 'active')
+                                        ->first();
+
+        if ($existingMaintenance) {
+            // Set session value for the error notification
+            session()->flash('status', 'An active preventive maintenance already exists for this asset.');
+            session()->flash('status_type', 'error'); // Set the status type for error
+
+            return redirect()->back(); // Redirect back to the form
+        }
+
         // Determine the frequency in days
         $frequencyDays = match ($validatedData['frequency']) {
             'every_day' => 1,
@@ -514,6 +479,9 @@ class MaintenanceController extends Controller
             'cost' => $validatedData['cost'],
             'frequency' => $frequencyDays,  // Frequency stored in days
             'ends' => $ends,  // 0 for "never", a number for occurrences
+            'occurrences' => 0,  // Initialize with 0 occurrences
+            'status' => 'active',  // Set initial status to active
+            'next_maintenance_timestamp' => now()->addDays($frequencyDays)->timestamp,  // Store as Unix timestamp
         ]);
 
         // Retrieve asset and admin user for notification
@@ -558,11 +526,19 @@ class MaintenanceController extends Controller
 
         // Set session value for success notification
         session()->flash('status', 'Maintenance schedule created successfully!');
+        // session()->flash('status_type', 'success'); // Set the status type for success
 
-        $route = $userType === 'admin'
-            ? 'adminMaintenance_sched'
-            : 'maintenance_sched';
-        return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+        // $route = $userType === 'admin'
+        //     ? 'adminMaintenance_sched'
+        //     : 'maintenance_sched';
+        // return redirect()->route($route)->with('success', 'Maintenance schedule created successfully!');
+
+            // Set session value for success notification
+        return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
+        ->with([
+            'status' => 'Maintenance schedule created successfully!',
+            'status_type' => 'success'
+        ]);
     }
 
     // MaintenanceController.php
@@ -592,6 +568,15 @@ class MaintenanceController extends Controller
 
         // Determine if the request is marked as completed
         $isCompleted = $request->has('set_as_completed');
+        $isCancelled = $request->has('set_as_cancelled');
+
+        // Prevent both completed and cancelled from being set at the same time
+        if ($isCompleted && $isCancelled) {
+            return redirect()->back()->withErrors(['error' => 'Maintenance cannot be both completed and cancelled.']);
+        }
+
+        // Set status to 'cancelled' only if cancelled is checked
+        $status = $isCancelled ? 'cancelled' : $maintenance->status;
 
         // Update the maintenance details
         $maintenance->update([
@@ -599,6 +584,7 @@ class MaintenanceController extends Controller
             'start_date' => $request->start_date,
             'cost' => $request->cost,
             'is_completed' => $isCompleted, // Boolean handling
+            'status' => $status, // Only change status to 'cancelled' if applicable
             'completion_date' => $isCompleted ? now() : null,
             'authorized_at' => now(), // Update the authorized_at field
         ]);
@@ -611,10 +597,14 @@ class MaintenanceController extends Controller
             \Log::info('Predictive analysis triggered directly after completion.');
         }
 
+        $statusMessage = $isCancelled
+        ? 'Maintenance request cancelled successfully.'
+        : 'Maintenance request updated successfully.';
+
         // Redirect back with success message
         $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved':'maintenance.approved';
         return redirect()->route($routePath)
-            ->with('status', 'Maintenance request updated successfully.');
+            ->with('status', $statusMessage);
     }
 
 
@@ -629,9 +619,10 @@ class MaintenanceController extends Controller
 
     public function updateDenied(Request $request, $id)
     {
-        // Validate that the status is 'approved' or 'denied' (as per your dropdown in editDenied.blade.php)
+        // Validate that the status and reason are provided
         $request->validate([
             'status' => 'required|string|in:approved,denied',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         // Find the maintenance request by ID
@@ -642,10 +633,11 @@ class MaintenanceController extends Controller
         // Get the department head (logged-in user)
         $deptHead = Auth::user();
 
-        // Update only the status
+        // Update the status, authorized_at, and reason
         $maintenance->update([
             'status' => $request->status,
-            'authorized_at' => now(), // Set authorized_at to the current date and time
+            'authorized_at' => now(),
+            'reason' => $request->reason, // Update the reason field
         ]);
 
         $requestor = User::find($maintenance->requestor);
@@ -654,7 +646,7 @@ class MaintenanceController extends Controller
             // Prepare notification data
             $notificationData = [
                 'title' => 'Maintenance Request Status Updated',
-                'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been changed from denied to approved.",
+                'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been updated to '{$request->status}'.",
                 'authorized_by' => $deptHead->id,
                 'authorized_user_name' => "{$deptHead->firstname} {$deptHead->lastname}",
                 'asset_name' => $asset->name,
