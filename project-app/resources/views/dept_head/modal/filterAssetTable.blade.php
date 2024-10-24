@@ -15,7 +15,15 @@
 
             <div class="mb-4">
                 <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                <input type="text" name="category" id="category" class="w-full mt-1 p-2 border rounded-md" placeholder="Enter category" value="{{ request('category') }}">
+                <select name="category" id="category" class="w-full mt-1 p-2 border rounded-md">
+                    <option value="">All</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->name }}"
+                            {{ request('category') == $category->name ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="flex justify-end gap-2">
@@ -25,4 +33,5 @@
         </form>
     </div>
 </div>
+
 

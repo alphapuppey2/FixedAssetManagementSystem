@@ -85,10 +85,12 @@ class AsstController extends Controller
         return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage', 'deptId'));
     }
 
-
     public function showDeptAsset(Request $request)
     {
         $userDept = Auth::user()->dept_id;
+
+        // Fetch all categories from the database
+        $categories = DB::table('category')->get();
 
         // Get query parameters
         $search = $request->input('search');
@@ -96,12 +98,9 @@ class AsstController extends Controller
         $sortDirection = $request->input('direction', 'asc');
         $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
+        // Filter parameters (ensure these are arrays)
+        $statuses = (array) $request->input('status', []); // Ensure $statuses is always an array
+        $selectedCategories = (array) $request->input('category', []); // Ensure $categories is an array
 
         // Validate sorting field
         $validSortFields = ['code', 'name', 'category_name', 'status'];
@@ -118,11 +117,11 @@ class AsstController extends Controller
             ->when($search, function ($query, $search) {
                 return $query->where('asset.name', 'like', "%{$search}%");
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('asset.status', $status);
+            ->when(!empty($statuses), function ($query) use ($statuses) {
+                return $query->whereIn('asset.status', $statuses); // Filter by multiple statuses
             })
-            ->when($category, function ($query, $category) {
-                return $query->where('category.name', 'like', "%{$category}%");
+            ->when(!empty($selectedCategories), function ($query) use ($selectedCategories) {
+                return $query->whereIn('category.id', $selectedCategories); // Filter by multiple categories
             })
             ->select(
                 'asset.id',
@@ -133,11 +132,14 @@ class AsstController extends Controller
                 'department.name as department'
             )
             ->orderBy($sortField, $sortDirection)
-            ->paginate($rowsPerPage); // Apply rows per page
+            ->paginate($rowsPerPage)
+            ->appends($request->except('page')); // Preserve query parameters
 
-        // Return view with assets and query parameters
-        return view('dept_head.asset', compact('assets'));
+        // Return view with assets and categories for the filter
+        return view('dept_head.asset', compact('assets', 'categories'));
     }
+
+
 
 
 
