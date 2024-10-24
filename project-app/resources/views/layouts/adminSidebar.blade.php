@@ -248,13 +248,6 @@
                         :active="request()->routeIs('adminMaintenance_sched')">
                         <x-calendarIcon />
                         <span class="ml-2 sm:hidden lg:block">Scheduling</span>
-                    </x-nav-link> --}}
-
-                    <x-nav-link :href="route('adminMaintenance_sched', ['mntncDropdown' => 'open'])"
-                        :active="request()->routeIs('adminMaintenance_sched')"
-                        class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6"/>
-                        <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
                 </ul>
             </li>
