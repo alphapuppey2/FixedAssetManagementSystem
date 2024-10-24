@@ -77,7 +77,6 @@
                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
                     </select>
                 </form>
-
             </div>
             <!-- Pagination (on the right) -->
             <div class="ml-auto pagination-container flex items-center space-x-4">
