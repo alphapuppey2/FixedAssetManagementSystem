@@ -151,7 +151,6 @@ class MaintenanceSchedController extends Controller
         }
     }
 
-
     public function showPredictive(Request $request)
     {
         // Get the logged-in user's department ID

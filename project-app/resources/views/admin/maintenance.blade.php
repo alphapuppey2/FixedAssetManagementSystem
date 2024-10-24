@@ -14,8 +14,9 @@
 
             <!-- Search Bar -->
             <div class="search-container w-full md:w-1/2 flex items-center">
-                <form action="{{ route('maintenance.search') }}" method="GET" class="w-full">
+                <form action="{{ route('adminMaintenanceSearch') }}" method="GET" class="w-full">
                     <input type="hidden" name="tab" value="{{ $tab }}">
+                    <input type="hidden" name="rows_per_page" value="{{ $perPage }}">
                     <x-search-input class="w-80" placeholder="Search Maintenance..." />
                 </form>
             </div>
@@ -25,8 +26,8 @@
                 <div class="flex items-center space-x-1 md:space-x-4">
                     <!-- Refresh Icon -->
                     <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                        <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Preserve the current tab -->
-                        <input type="hidden" name="query"> <!-- Preserve the current search query -->
+                        <input type="hidden" name="tab" value="{{ $tab }}">
+                        <input type="hidden" name="query">
                         <button id="refreshButton" class="p-2 text-black flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="size-6">

@@ -59,7 +59,7 @@
                 <x-wrenchicon />
                 <h3 class="text-xl font-semibold text-gray-700">Maintenance</h3>
             </div>
-            @if($maintenanceRecords->isEmpty())
+            @if($request->isEmpty())
                 <p class="text-gray-500">No maintenance records found.</p>
             @else
                 <ul class="list-none space-y-2">

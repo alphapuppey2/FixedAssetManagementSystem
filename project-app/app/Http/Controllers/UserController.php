@@ -16,6 +16,9 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /*
+        ASSIGNED TO
+    */
     public function autocomplete(Request $request)
     {
         try {
@@ -194,24 +197,7 @@ class UserController extends Controller
         return redirect()->route('userList')->with('success', 'User deactivated successfully.');
     }
 
-
-    // public function search(Request $request)
-    // {
-    //     $query = $request->input('query');
-    //     $perPage = $request->input('perPage', 10); // Get rows per page from the request
-
-    //     // Perform search query and paginate the results
-    //     $userList = DB::table('users')
-    //         ->where('firstname', 'like', "%{$query}%")
-    //         ->orWhere('lastname', 'like', "%{$query}%")
-    //         ->orWhere('email', 'like', "%{$query}%")
-    //         ->paginate($perPage) // Use the dynamic per page value
-    //         ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
-
-    //     return view('admin.userList', ['userList' => $userList]);
-    // }
-
-    public function store(Request $request)
+    public function createUser(Request $request)
     {
         // Validate the incoming request data
         $validated = $request->validate([
@@ -229,8 +215,8 @@ class UserController extends Controller
 
         // Generate email and password based on input
 
-        $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-        // $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
+        // $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
