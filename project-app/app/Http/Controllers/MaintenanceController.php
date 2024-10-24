@@ -549,8 +549,8 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
             ->findOrFail($id);
 
-
-        return view('admin.modal.editApprove', compact('maintenance'));
+        $view = Auth::user()->usertype === 'admin' ? 'admin.modal.editApprove' : 'dept_head.modal.editApprove' ;
+        return view($view, compact('maintenance'));
     }
 
     // In your MaintenanceController updateApproved function
