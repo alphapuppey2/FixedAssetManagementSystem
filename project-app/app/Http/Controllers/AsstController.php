@@ -76,6 +76,7 @@ class AsstController extends Controller
 
         // Apply sorting and paginate results
         $assets = $assetsQuery
+            ->where('isDeleted',0)
             ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage)
             ->appends($request->all()); // Preserve query parameters

@@ -545,10 +545,12 @@ class MaintenanceController extends Controller
     public function editApproved($id)
     {
         // Load related asset, category, location, model, and manufacturer data
+
         $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
             ->findOrFail($id);
 
-        return view('dept_head.modal.editApprove', compact('maintenance'));
+        $view = Auth::user()->usertype === 'admin' ? 'admin.modal.editApprove' : 'dept_head.modal.editApprove' ;
+        return view($view, compact('maintenance'));
     }
 
     // In your MaintenanceController updateApproved function
@@ -600,7 +602,8 @@ class MaintenanceController extends Controller
         : 'Maintenance request updated successfully.';
 
         // Redirect back with success message
-        return redirect()->route('maintenance.approved')
+        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved':'maintenance.approved';
+        return redirect()->route($routePath)
             ->with('status', $statusMessage);
     }
 
@@ -610,8 +613,8 @@ class MaintenanceController extends Controller
         // Load related asset, category, location, model, and manufacturer data
         $maintenance = Maintenance::with(['asset', 'category', 'location', 'model', 'manufacturer'])
             ->findOrFail($id);
-
-        return view('dept_head.modal.editDenied', compact('maintenance'));
+            $routePath = Auth::user()->usertype === 'admin' ? 'admin.modal.editDenied':'dept_head.modal.editDenied';
+        return view($routePath, compact('maintenance'));
     }
 
     public function updateDenied(Request $request, $id)
@@ -659,7 +662,8 @@ class MaintenanceController extends Controller
         }
 
         // Redirect back with success message
-        return redirect()->route('maintenance.denied')
+        $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceDenied':'maintenance.denied';
+        return redirect()->route($routePath)
             ->with('status', 'Maintenance request status updated successfully.');
     }
 
