@@ -76,6 +76,7 @@ class AsstController extends Controller
 
         // Apply sorting and paginate results
         $assets = $assetsQuery
+            ->where('isDeleted',0)
             ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage)
             ->appends($request->all()); // Preserve query parameters
@@ -662,8 +663,8 @@ public function fetchDepartmentData($id)
 
         // Notify the admin about the new asset creation
         $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been added.",
+            'title' => 'Asset Deleted',
+            'message' => "Asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been deleted.",
             'asset_name' => $assetDel->name,
             'asset_code' => $assetDel->code,
             'authorized_by' => $userLogged->id,

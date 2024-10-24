@@ -127,7 +127,7 @@
                                                 class="desc-input"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td>
+                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $dataItem->id }}"
@@ -166,8 +166,8 @@
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td class="py-2 text-left text-xs font-medium text-gray-500 tracking-wider">
-                                            <a class="bg-blue-950 h-full text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
+                                        <td class="flex py-2 text-left text-xs font-medium text-gray-500 tracking-wider">
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
                                                 style="display: none;">Save</a>

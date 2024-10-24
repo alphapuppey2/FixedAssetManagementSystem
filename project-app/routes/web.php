@@ -122,9 +122,15 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     */
 
     // MAINTENANCE REQUEST-APPROVE-DENY
-    Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
-    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
-    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+    Route::get('admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
+    Route::get('admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
+    Route::get('admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+    Route::get('admin/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('adminMaintenanceSearch');
+
+    Route::get('admin/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('adminmaintenance.editApproved');
+    Route::get('admin/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('adminmaintenance.editDenied');
+    Route::put('admin/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('adminmaintenance.updateDenied');
+    Route::put('admin/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('adminmaintenance.updateApproved');
 
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
