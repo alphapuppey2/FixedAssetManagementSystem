@@ -15,14 +15,19 @@ class FiltersController extends Controller
         $categories = $request->input('category', []);
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $perPage = $request->input('perPage', 10);
+        $sortBy = $request->input('sort_by', 'asset.name');
+        $sortOrder = $request->input('sort_order', 'asc');
 
-
-        // Redirect to the asset route with query parameters
+        // Redirect with filters and sorting to showAllAssets
         return redirect()->route('assetList', [
             'status' => $statuses,
             'category' => $categories,
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'perPage' => $perPage,
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 

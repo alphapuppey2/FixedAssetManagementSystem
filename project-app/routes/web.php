@@ -98,8 +98,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     -------------------
     */
 
+
     // ASSET LIST
     Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    //ASSET LIST FILTER
+    Route::get('/admin/assets/filter', [FiltersController::class, 'filterAssetsAdmin'])->name('admin.assets.filter');
 
     // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
@@ -117,8 +121,6 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
 
-    //ASSET LIST FILTER
-    Route::get('/admin/asset/filter', [FiltersController::class, 'filterAssefilterAssetsAdmints'])->name('admin.asset.filter');
     /*
     -------------------
         MAINTENANCE
