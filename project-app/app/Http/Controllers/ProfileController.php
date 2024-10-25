@@ -32,7 +32,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
         $departmentName = $user->department ? $user->department->name : 'N/A';
-        
+
         return view('admin.profile', [
             'user' => $request->user(),
             'departmentName' => $departmentName,
@@ -70,8 +70,14 @@ class ProfileController extends Controller
         // Update text fields
         $user->address = $request->input('location');
         $user->contact = $request->input('contact');
-        $user->birthdate = $request->input('birthdate');
-        $user->gender = $request->input('gender');
+        // $user->birthdate = $request->input('birthdate');
+        // $user->gender = $request->input('gender');
+
+        // Only update the birthdate if the user is an admin
+        if ($user->usertype === 'admin') {
+            $user->birthdate = $request->input('birthdate');
+            $user->gender = $request->input('gender');
+        }
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {

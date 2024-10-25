@@ -103,13 +103,16 @@
                     @include('components.asset-status', ['status' => $data->status])
                 </div>
                 <select name="status" id="status" onchange="toggleRequired(this)"
-                    class="edit hidden w-full border-gray-300 text-base">
+                    class="hidden w-full border-gray-300 text-base">
                     @foreach ($status['sts'] as $stat)
                         <option value="{{ $stat }}" @selected($data->status == $stat)>
                             {{ $stat === 'under_maintenance' ? 'under maintenance' : $stat }}
                         </option>
                     @endforeach
                 </select>
+                <div class="edit hidden field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
+                    @include('components.asset-status', ['status' => $data->status])
+                </div>
             </div>
 
             <div class="info flex items-center p-4 bg-white">
@@ -260,6 +263,9 @@
         const editElements = document.querySelectorAll('.edit');
         const viewElements = document.querySelectorAll('.view-only');
 
+        // Target the specific 'edit' div inside the status section
+        const statusEditDiv = document.querySelector('.info .edit.field-Info');
+
         // assigned to and also status to interactions
         const selectUsersInput = document.getElementById('selectUsers');
         const statusAssetInput = document.getElementById('status');
@@ -267,13 +273,24 @@
         let initialUsrActValue = selectUsersInput.value;
         let initialStatusValue = statusAssetInput.value;
 
+        // selectUsersInput.addEventListener('change', function() {
+        //     if (initialUsrActValue === '' && selectUsers.value !== '') {
+        //         // Change the status to 'deployed' if usrAct changes from empty to non-empty
+        //         statusAssetInput.value = 'deployed';
+        //     } else {
+        //         statusAssetInput.value = initialStatusValue;
+        //     }
+        // });
 
         selectUsersInput.addEventListener('change', function() {
-            if (initialUsrActValue === '' && selectUsers.value !== '') {
-                // Change the status to 'deployed' if usrAct changes from empty to non-empty
-                statusAssetInput.value = 'deployed';
+            const selectedValue = selectUsersInput.value;
+
+            if (selectedValue === '') {
+                // If 'Assign no one' is selected, set the status to 'active'
+                statusAssetInput.value = 'active';
             } else {
-                statusAssetInput.value = initialStatusValue;
+                // Otherwise, keep the original status value or set it to 'deployed'
+                statusAssetInput.value = 'deployed';
             }
         });
 
@@ -285,6 +302,9 @@
             editButton.classList.add('hidden');
             saveButton.classList.remove('hidden');
             cancelButton.classList.remove('hidden');
+
+            // Ensure the status edit div becomes visible in edit mode
+            statusEditDiv.classList.remove('hidden');
         });
 
         cancelButton.addEventListener('click', () => {
@@ -293,6 +313,9 @@
             editButton.classList.remove('hidden');
             saveButton.classList.add('hidden');
             cancelButton.classList.add('hidden');
+
+            // Ensure the status edit div hides in cancel mode
+            statusEditDiv.classList.add('hidden');
         });
 
         const imageInput = document.getElementById('image');
