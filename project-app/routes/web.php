@@ -126,6 +126,9 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
 
+    Route::post('admin/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('adminMaintenance.approve');
+    Route::post('admin/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('adminMaintenance.deny');
+
     Route::get('admin/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('adminmaintenance.editApproved');
     Route::get('admin/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('adminmaintenance.editDenied');
     Route::put('admin/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('adminmaintenance.updateDenied');

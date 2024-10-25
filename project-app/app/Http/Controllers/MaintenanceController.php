@@ -148,9 +148,9 @@ class MaintenanceController extends Controller
         Log::info('Approving request with user ID: ' . $user->id);
 
         // Ensure the user is a department head
-        if ($user->usertype !== 'dept_head') {
-            return redirect()->route('user.home');
-        }
+        // if ($user->usertype !== 'dept_head') {
+        //     return redirect()->route('user.home');
+        // }
 
         // Find the maintenance request
         $maintenance = Maintenance::findOrFail($id);
@@ -204,7 +204,9 @@ class MaintenanceController extends Controller
             'request_id' => $maintenance->id,
         ]);
 
-        return redirect()->route('maintenance')->with('status', 'Request approved successfully.');
+        $redirectRoute = $user->usertype === 'admin' ? 'adminMaintenance' : 'maintenance';
+
+        return redirect()->route($redirectRoute)->with('status', 'Request approved successfully.');
     }
 
     // Deny a maintenance request
@@ -213,9 +215,9 @@ class MaintenanceController extends Controller
         $user = Auth::user();
 
         // Ensure the user is a department head
-        if ($user->usertype !== 'dept_head') {
-            return redirect()->route('user.home');
-        }
+        // if ($user->usertype !== 'dept_head') {
+        //     return redirect()->route('user.home');
+        // }
 
         // Find the maintenance request
         $maintenance = Maintenance::findOrFail($id);
@@ -264,7 +266,9 @@ class MaintenanceController extends Controller
             'request_id' => $maintenance->id,
         ]);
 
-        return redirect()->route('maintenance')->with('status', 'Request denied.');
+        $redirectRoute = $user->usertype === 'admin' ? 'adminMaintenance' : 'maintenance';
+
+        return redirect()->route($redirectRoute)->with('status', 'Request denied.');
     }
 
     //download button
@@ -548,6 +552,7 @@ class MaintenanceController extends Controller
 
         // Find the maintenance request by ID
         $maintenance = Maintenance::findOrFail($id);
+        $asset = assetModel::findOrFail($maintenance->asset_key); // Get associated asset
 
         // Determine if the request is marked as completed
         $isCompleted = $request->has('set_as_completed');
@@ -571,6 +576,12 @@ class MaintenanceController extends Controller
             'completion_date' => $isCompleted ? now() : null,
             'authorized_at' => now(), // Update the authorized_at field
         ]);
+
+        // If completed or cancelled, set the asset status to 'active'
+        if ($isCompleted || $isCancelled) {
+            $asset->status = 'active';
+            $asset->save();
+        }
 
         //trigger predictive maintenance when an approved request is set as completed (checkbox)
         if ($isCompleted) {

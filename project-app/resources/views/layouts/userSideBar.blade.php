@@ -6,7 +6,7 @@
         <!-- Image changes size smoothly based on sidebar state -->
         <div class="imagepart overflow-hidden rounded-full relative border-2 border-slate-500
                     transition-all duration-300 ease-in-out w-[45px] h-[45px] md:w-[60px] md:h-[60px]">
-            <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
+            <img src="{{ Auth::user()->userPicture ? asset('storage/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                  class="absolute inset-0 object-cover w-full h-full rounded-full"
                  alt="User Profile Photo">
         </div>

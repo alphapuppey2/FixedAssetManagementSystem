@@ -12,7 +12,7 @@ $qrCodePath = $data->qr_img ? 'storage/' . $data->qr_img : 'images/defaultQR.png
 <div class="flex items-center justify-between w-full">
     <div class="flex items-center space-x-2">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight flex">
-            <a href="{{ route('back') }}">Asset</a>
+            <a href="{{ url()->previous() }}">Asset</a>
             <div class="direct ml-2">></div>
         </h2>
         <h2 class="assetID font-semibold text-xl">{{ $data->code ?? 'No Code' }}</h2>
