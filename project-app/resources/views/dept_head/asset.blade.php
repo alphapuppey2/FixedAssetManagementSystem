@@ -44,9 +44,9 @@
         </button>
 
         <!-- Export Button -->
-        <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+        {{-- <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
             <x-icons.exportIcon />
-        </button>
+        </button> --}}
 
     </div>
 </div>
@@ -198,6 +198,12 @@
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable')
 @include('dept_head.modal.deleteAssetModal')
+
+@if (session('success'))
+        <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+           {{ session('success') }}
+        </div>
+    @endif
 
 <script>
     //Filter Modal Script
