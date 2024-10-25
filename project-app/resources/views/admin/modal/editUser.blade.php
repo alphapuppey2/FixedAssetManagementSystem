@@ -5,13 +5,15 @@
 --}}
 
 <!-- Modal backdrop -->
-<div id="editUserModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl mx-4 sm:mx-auto relative">
+<div id="editUserModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 hidden overflow-y-auto">
+    {{-- <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl mx-4 sm:mx-auto relative"> --}}
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-5xl mx-4 sm:mx-auto relative max-h-screen overflow-y-auto">
         <!-- Close button -->
         <button type="button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-3xl font-bold" onclick="closeModal()">
             &times;
         </button>
 
+        {{-- <h2 class="text-xl font-semibold mb-4">Edit User</h2> --}}
         <h2 class="text-xl font-semibold mb-4">Edit User</h2>
 
         <hr class="my-4 border-gray-700">
@@ -20,9 +22,13 @@
             @csrf
             @method('PUT')
 
-            <div class="flex mb-4 space-x-4">
-                <div class="flex-none">
-                    <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border">
+            {{-- <div class="flex mb-4 space-x-4"> --}}
+            <div class="flex mb-4 space-x-4 flex-col sm:flex-row">
+
+                {{-- <div class="flex-none"> --}}
+                <div class="flex flex-col items-center justify-center sm:items-start">
+                    {{-- <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border"> --}}
+                    <div class="w-32 h-32 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 border">
                         <img
                             id="currentProfilePhoto"
                             src="{{ isset($user) && $user->userPicture ? asset('storage/' . $user->userPicture) : asset('images/default_profile.jpg') }}"
@@ -34,6 +40,7 @@
                         name="profile_photo"
                         id="profile_photo"
                         class="mt-2 block w-full text-sm text-gray-700"
+                        {{-- class="mt-2 text-right text-sm text-gray-700" --}}
                         accept="image/*">
                 </div>
 
@@ -151,8 +158,10 @@
             </div>
 
             <div class="flex justify-end">
-                <button type="button" id="cancelEdit" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save</button>
+                {{-- <button type="button" id="cancelEdit" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button> --}}
+                {{-- <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save</button> --}}
+                <button type="button" id="cancelEdit" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2 sm:text-sm">Cancel</button>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded sm:text-sm">Save</button>
             </div>
         </form>
     </div>

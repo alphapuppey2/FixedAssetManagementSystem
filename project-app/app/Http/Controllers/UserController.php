@@ -215,8 +215,8 @@ class UserController extends Controller
 
         // Generate email and password based on input
 
-        $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-        // $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
+        // $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
+        $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 

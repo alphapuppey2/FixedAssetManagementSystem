@@ -43,11 +43,6 @@
             <x-icons.importIcon />
         </button>
 
-        <!-- Export Button -->
-        <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
-            <x-icons.exportIcon />
-        </button>
-
     </div>
 </div>
 
@@ -76,14 +71,22 @@
     </div>
 
     <!-- Pagination -->
-    <div class="ml-auto pagination-container">
-        <div class="flex items-center space-x-4 mt-4">
-        <span class="text-gray-600">
+    <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
+        <span class="text-gray-600 hidden md:block">
             Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
         </span>
-        {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+        <div class="text-sm md:text-base">
+            @if ($assets->hasPages())
+                <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2" >
+                    {{ $assets->appends(request()->query())->links() }}
+                </div>
+                <div class="hidden md:block">
+                    {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
+                </div>
+            @endif
         </div>
     </div>
+
 </div>
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
@@ -139,17 +142,54 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="bg-gray-100 align-middle text-center text-sm text-gray-400">No List</td>
+                        <td colspan="5" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">No Assets</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
+    <!-- Card layout for small screens -->
+    <div class="block md:hidden space-y-4">
+        {{-- Changed: Added 'block md:hidden' to display cards only on small screens --}}
+        @forelse ($assets as $asset)
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <p class="text-xs"><strong>Code:</strong> {{ $asset->code ?? 'NONE' }}</p>
+                <p class="text-xs"><strong>Name:</strong> {{ $asset->name }}</p>
+                <p class="text-xs"><strong>Category:</strong> {{ $asset->category_name }}</p>
+                <p class="text-xs"><strong>Status:</strong>
+                    @include('components.asset-status', ['status' => $asset->status])
+                </p>
+                <div class="flex justify-end space-x-2">
+                    <a href="{{ route('assetDetails', $asset->code) }}" class="text-blue-900 hover:text-blue-700">
+                        <x-icons.view-icon class="w-6 h-6" />
+                        {{-- Changed: Adjusted icon size to 'w-5 h-5' for smaller screens --}}
+                    </a>
+                    <button type="button" onclick="openDeleteModal('{{ $asset->id }}')">
+                        <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
+                        {{-- Changed: Adjusted icon size to 'w-5 h-5' for smaller screens --}}
+                    </button>
+                </div>
+            </div>
+        @empty
+            <div class="bg-gray-100 p-4 rounded-lg text-center text-xs text-gray-500">
+                {{-- Changed: Adjusted text size to 'text-xs' for consistency --}}
+                No assets found.
+            </div>
+        @endforelse
+    </div>
+
 </div>
 
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable')
 @include('dept_head.modal.deleteAssetModal')
+
+@if (session('success'))
+        <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+           {{ session('success') }}
+        </div>
+    @endif
 
 <script>
     //Filter Modal Script

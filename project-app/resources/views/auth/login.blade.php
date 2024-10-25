@@ -1,6 +1,5 @@
 <x-guest-layout>
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <div class="contentContainer flex flex-col items-center justify-center min-h-screen">
         <div class="z-10">
@@ -9,11 +8,7 @@
                 {{ $errors->first('email') }}
             </div>
             @endif
-            @if ($errors->has('InavlidPage'))
-            <div class="mb-4 p-4 text-red-700 bg-red-100 border border-red-700 rounded">
-                {{ $errors->first('InavlidPage') }}
-            </div>
-            @endif
+            <x-auth-session-status class="mb-4" :status="session('status')" />
 
             <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate>
                 @csrf

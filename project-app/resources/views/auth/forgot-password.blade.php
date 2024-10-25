@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="container w-[30%] flex flex-col items-center justify-center h-full">
-        <div class="cont bg-white p-3 rounded-lg  shadow-md">
+        <div class="cont bg-white p-3 rounded-lg  shadow-lg">
             <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
             </div>
@@ -16,7 +16,7 @@
                     <x-input-label for="email" :value="__('Email')" />
                     <x-text-input id="email" class="block mt-1 w-full rounded-md border-solid border-slate-300" type="email" name="email" :value="old('email')"
                         required autofocus />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400" />
                 </div>
 
                 <div class="flex items-center justify-between mt-4 ">

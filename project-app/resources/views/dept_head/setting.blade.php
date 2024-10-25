@@ -84,26 +84,26 @@
                         <tr>
                             @if ($activeTab !== 'customFields')
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Description</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Actions</td>
                             @else
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Type</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Helper Text</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Action</td>
                             @endif
                         </tr>
@@ -113,21 +113,21 @@
                             @foreach ($data as $key => $dataItem)
                                 <tr class="" id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
-                                        <td class="w-64 px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="desc-text ">{{ $dataItem->description }}</span>
                                             <input type="text"
                                                 class="desc-input"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td>
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $dataItem->id }}"
@@ -144,13 +144,13 @@
                                             </form>
                                         </td>
                                     @else
-                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="type-text ">{{ $dataItem->type }}</span>
                                             <select name="type" class="type-input" style="display: none">
                                                 <option value="number">Number</option>
@@ -160,34 +160,36 @@
                                             {{-- <input type="text" class="type-input" style="display: none"
                                                 value="{{ $dataItem->type }}"> --}}
                                         </td>
-                                        <td class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
 
                                             <input type="text" class="helper-input" style="display: none"
                                                 value="{{ $dataItem->helptext }}">
                                         </td>
-                                        <td class="py-2 text-left text-xs font-medium text-gray-500 tracking-wider">
-                                            <a class="bg-blue-950 h-full text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
+                                        <td class="flex py-2 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
                                                 style="display: none;">Save</a>
                                             <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
                                                 data-row-id="{{ $key }}" style="display: none;">Cancel</a>
 
-                                            <form
+                                            <div class="ml-1">
+                                                <form
                                                 action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $key]) }}"
                                                 method="post" >
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
                                             </form>
+                                            </div>
                                         </td>
                                     @endif
                                 </tr>
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}" class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">NO DATA FOUND</td>
+                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}" class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 text-center uppercase tracking-wider ">NO DATA FOUND</td>
                             </tr>
                         @endif
                     </tbody>
@@ -268,7 +270,7 @@
                 const rowId = this.getAttribute('data-row-id');
                 const row = document.getElementById('row-' + rowId);
                 const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab');
+                let activeTab = urlParams.get('tab') ?? 'model' ;
 
                 const nameValue = row.querySelector('.name-input').value;
                 let loader;

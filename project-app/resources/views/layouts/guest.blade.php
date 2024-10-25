@@ -17,10 +17,10 @@
     </head>
     <body class="font-sans antialiased h-screen w-screen max-md:text-xs">
 
-        <div class="min-h-screen w-full" style="background: linear-gradient(135deg, white 50%, #0A2942 50%); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="min-h-screen w-full flex justify-center items-center " style="background: linear-gradient(135deg, white 50%, #0A2942 50%); background-size: cover; background-position: center; background-repeat: no-repeat;">
             {{ $slot }}
         </div>
-   
+
         {{-- nice sad na bg --}}
         {{-- <div class="min-h-screen w-full" style="background: linear-gradient(135deg, white 35%, #0A2942 65%); background-size: cover; background-position: center; background-repeat: no-repeat;">
             {{ $slot }}

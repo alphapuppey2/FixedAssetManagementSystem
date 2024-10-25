@@ -121,9 +121,20 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     */
 
     // MAINTENANCE REQUEST-APPROVE-DENY
-    Route::get('/admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
-    Route::get('/admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
-    Route::get('/admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+    Route::get('admin/maintenance', [MaintenanceController::class, 'index'])->name('adminMaintenance');
+    Route::get('admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
+    Route::get('admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
+
+    Route::post('admin/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('adminMaintenance.approve');
+    Route::post('admin/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('adminMaintenance.deny');
+
+    Route::get('admin/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('adminmaintenance.editApproved');
+    Route::get('admin/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('adminmaintenance.editDenied');
+    Route::put('admin/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('adminmaintenance.updateDenied');
+    Route::put('admin/maintenance/{id}/updateApproved', [MaintenanceController::class, 'updateApproved'])->name('adminmaintenance.updateApproved');
+
+    // MAINTENANCE COMPLETED-CANCELLED
+    Route::get('/admin/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('adminMaintenance.records');
 
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
@@ -165,6 +176,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     route::get('/admin/assets/search', [SearchController::class, 'searchAssets'])->name('searchAssets');
     Route::get('/admin/activity-logs/search', [SearchController::class, 'searchActivityLogs'])->name('searchActivity');
     Route::get('/admin/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('adminMaintenanceSchedSearch');
+    Route::get('/admin/maintenance/records/search', [SearchController::class, 'searchMaintenanceRecords'])->name('adminMaintenanceRecords.search');
 
     /*
     -------------------
@@ -281,6 +293,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
+    Route::get('/maintenance/filter', [SearchController::class, 'filterMaintenance'])->name('maintenance.filter');
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');

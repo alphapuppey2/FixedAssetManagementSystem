@@ -76,6 +76,7 @@ class AsstController extends Controller
 
         // Apply sorting and paginate results
         $assets = $assetsQuery
+            ->where('isDeleted',0)
             ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage)
             ->appends($request->all()); // Preserve query parameters
@@ -662,8 +663,8 @@ public function fetchDepartmentData($id)
 
         // Notify the admin about the new asset creation
         $notificationData = [
-            'title' => 'New Asset Created',
-            'message' => "A new asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been added.",
+            'title' => 'Asset Deleted',
+            'message' => "Asset '{$assetDel->assetname}' (Code: {$assetDel->code}) has been deleted.",
             'asset_name' => $assetDel->name,
             'asset_code' => $assetDel->code,
             'authorized_by' => $userLogged->id,
@@ -753,6 +754,29 @@ public function fetchDepartmentData($id)
         if (!$retrieveData) {
             return redirect()->route('asset')->with('error', 'Asset not found.');
         }
+
+        // $imagePath = $retrieveData->asst_img
+        // ? asset('storage/' . $retrieveData->asst_img)
+        // : asset('images/no-image.png');
+
+        // // Check if the request is an AJAX call, return JSON if true
+        // if (request()->ajax()) {
+        //     return response()->json([
+        //         'image_url' => $imagePath,
+        //     ]);
+        // }
+
+            // Generate the correct asset image path or fallback to the default
+    $imagePath = $retrieveData->asst_img && Storage::exists('public/' . $retrieveData->asst_img)
+    ? asset('storage/' . $retrieveData->asst_img)
+    : asset('images/no-image.png');
+
+// Check if the request is an AJAX call, return JSON if true
+if (request()->ajax()) {
+    return response()->json([
+        'image_url' => $imagePath,
+    ]);
+}
 
         $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
 
