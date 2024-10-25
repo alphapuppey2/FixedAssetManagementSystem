@@ -30,30 +30,34 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
         <!-- Logo Section: Hidden on small screens -->
         <div class="hidden md:flex items-center space-x-2">
             <a href="{{ $homeRoute }}" class="flex items-center space-x-2">
-                <img src="{{ asset('images/system_logo.png') }}" alt="FAMAS Logo"
-                     class="h-8 w-8 md:h-10 md:w-10">
-                <span class="text-lg md:text-xl font-bold text-gray-800">FAMS</span>
+                <img src="{{ asset('images/fams_logo.png') }}" alt="FAMAS Logo"
+                     {{-- class="h-8 w-8 md:h-10 md:w-10"> --}}
+                     class="logo"> <!-- Increased size -->
+                {{-- <span class="text-lg md:text-xl font-bold text-gray-800">FAMS</span> --}}
             </a>
         </div>
 
         <!-- Search Bar: Larger on big screens -->
-        <div class="w-full md:max-w-3xl lg:max-w-4xl mx-2">
+        {{-- <div class="w-full md:max-w-3xl lg:max-w-4xl mx-2"> --}}
+        <div class="flex-grow mx-2">
             <form action="{{ route('search.global') }}" method="GET"
                   onsubmit="return validateSearchInput();"
                   class="flex items-center space-x-2">
-                <div class="relative search-container">
+                <div class="relative w-full">
                     <x-search-input
                         placeholder="{{ Auth::user()->usertype == 'admin'
                             ? 'Search for users, assets, or maintenance...'
                             : 'Search for assets or maintenance...' }}"
-                        class="w-96" />
+                        {{-- class="w-96" /> --}}
+                        class="w-full" />
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Navigation Section -->
-    <nav class="flex items-center space-x-2 md:space-x-4">
+    {{-- <nav class="flex items-center space-x-2 md:space-x-4"> --}}
+    <div class="flex items-center space-x-4 ml-auto">
         <!-- Notification Icon -->
         <div
             x-data="{ open: false }"
@@ -130,7 +134,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
             </div>
         </div>
         @if(Auth::user()->usertype !== 'user')
-        <nav>
+        <div>
             <x-dropdown2>
                 <x-slot name="trigger">
                     <div class="div text-blue-950">Create New</div>
@@ -169,10 +173,21 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                     @endif
                 </x-slot>
             </x-dropdown2>
-        </nav>
+        </div>
         @endif
-    </nav>
+    </div>
 </div>
+
+<!-- CSS -->
+<style>
+    .logo {
+        height: auto;
+        max-height: 140px;
+        width: auto;
+        max-width: 140px;
+    }
+
+</style>
 
 <!-- Alpine.js -->
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

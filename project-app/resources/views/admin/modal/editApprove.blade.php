@@ -113,12 +113,25 @@
                 </div>
 
                 <!-- Set as Completed -->
-                <div class="flex items-center mb-4">
+                {{-- <div class="flex items-center mb-4">
                     <input type="checkbox" name="set_as_completed" id="set_as_completed"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         {{ $maintenance->is_completed ? 'checked' : '' }}>
                     <label for="set_as_completed" class="ml-2 text-sm font-medium text-gray-700">Set As
                         Completed</label>
+                </div> --}}
+
+                <!-- Set as Completed and Set as Cancelled -->
+                <div class="flex items-center mb-4 space-x-6">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="set_as_completed" id="set_as_completed" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" {{ $maintenance->is_completed ? 'checked' : '' }}>
+                        <label for="set_as_completed" class="ml-2 text-sm font-medium text-gray-700">Set As Completed</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="set_as_cancelled" id="set_as_cancelled" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" {{ $maintenance->is_cancelled ? 'checked' : '' }}>
+                        <label for="set_as_cancelled" class="ml-2 text-sm font-medium text-gray-700">Set As Cancelled</label>
+                    </div>
                 </div>
 
                 <!-- Completion Date -->

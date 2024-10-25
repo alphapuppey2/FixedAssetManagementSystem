@@ -1,4 +1,3 @@
-<!-- resources/views/dept_head/maintenance.blade.php -->
 @extends('layouts.app')
 
 @section('header')
@@ -242,14 +241,14 @@
                             <td class="px-6 py-4 text-sm text-gray-900">
                                 @if($tab === 'requests')
                                     <!-- Approve and Deny buttons for Requests tab -->
-                                    <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                                    <form id="approveForm_{{ $maintenance->id }}" action="{{ route('adminMaintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
                                     </form>
                                     <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
                                         @csrf
                                         <input type="hidden" name="reason" value="N/A">
-                                        <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('maintenance.deny', $maintenance->id) }}">Deny</button>
+                                        <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('adminMaintenance.deny', $maintenance->id) }}">Deny</button>
                                     </form>
                                 @elseif($tab === 'approved')
                                     <a href="javascript:void(0)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 block w-48 text-center" onclick="openEditModal({{ $maintenance->id }})">Edit (Approved)</a>
@@ -295,14 +294,14 @@
                 <!-- Actions -->
                 <div class="mt-4">
                     @if($tab === 'requests')
-                        <form id="approveForm_{{ $maintenance->id }}" action="{{ route('maintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
+                        <form id="approveForm_{{ $maintenance->id }}" action="{{ route('adminMaintenance.approve', $maintenance->id) }}" method="POST" style="display:inline;">
                             @csrf
                             <button type="button" class="approveButton px-2 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" data-id="{{ $maintenance->id }}">Approve</button>
                         </form>
                         <form id="denyForm_{{ $maintenance->id }}" data-id="{{ $maintenance->id }}" style="display:inline;">
                             @csrf
                             <input type="hidden" name="reason" value="N/A">
-                            <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('maintenance.deny', $maintenance->id) }}">Deny</button>
+                            <button type="button" class="denyButton px-2 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" data-action="{{ route('adminMaintenance.deny', $maintenance->id) }}">Deny</button>
                         </form>
                     @elseif($tab === 'approved')
                         <a href="javascript:void(0)" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 block w-full text-center" onclick="openEditModal({{ $maintenance->id }})">Edit (Approved)</a>
