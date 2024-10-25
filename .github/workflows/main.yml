@@ -102,6 +102,6 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Restart Apache
-      run: ssh -o StrictHostKeyChecking=no root@<your-droplet-ip> 'systemctl restart apache2'
+      run: ssh -o StrictHostKeyChecking=no root@165.22.59.23> 'systemctl restart apache2'
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
