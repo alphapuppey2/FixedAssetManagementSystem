@@ -15,11 +15,6 @@
 <div class="flex justify-between items-center mb-2">
     <div class="relative searchBox w-full max-w-md ml-2">
         <form action="{{ route('assets.search') }}" method="GET" id="searchForm" class="relative flex items-center">
-            <!-- Filter Button Inside Search Input -->
-            <button type="button" id="openFilterModalBtn" class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
-                <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
-            </button>
-
             <!-- Search Input Field -->
             <x-text-input
                 name="search"
@@ -28,6 +23,9 @@
                 value="{{ request('search') }}"
                 class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
         </form>
+        <button type="button" id="openFilterModalBtn" class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
+            <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
+        </button>
     </div>
 
     <div class="header-R flex items-center space-x-0.5">
@@ -54,14 +52,28 @@
 <div class="flex justify-between items-center mb-2">
     <!-- Rows per page dropdown -->
     <div class="flex items-center">
+    <!-- Rows per page dropdown -->
+    <div class="flex items-center">
         <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
         <form action="{{ route('asset') }}" method="GET" id="rowsPerPageForm" class="flex items-center">
             <!-- Preserve current filter and search parameters -->
             <input type="hidden" name="search" value="{{ request('search') }}">
             <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
             <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
-            <input type="hidden" name="status" value="{{ request('status') }}">
-            <input type="hidden" name="category" value="{{ request('category') }}">
+
+            <!-- Status: Preserve multiple selected values -->
+            @if (is_array(request('status')))
+                @foreach (request('status') as $status)
+                    <input type="hidden" name="status[]" value="{{ $status }}">
+                @endforeach
+            @endif
+
+            <!-- Category: Preserve multiple selected values -->
+            @if (is_array(request('category')))
+                @foreach (request('category') as $category)
+                    <input type="hidden" name="category[]" value="{{ $category }}">
+                @endforeach
+            @endif
 
             <!-- Rows per page select -->
             <select name="rows_per_page" id="rows_per_page"
@@ -73,6 +85,8 @@
                 <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
             </select>
         </form>
+    </div>
+
     </div>
 
     <!-- Pagination -->

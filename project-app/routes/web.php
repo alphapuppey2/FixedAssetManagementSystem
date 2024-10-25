@@ -20,6 +20,8 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\FiltersController;
+
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -212,6 +214,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
+
+    Route::get('/assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
 
     // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');

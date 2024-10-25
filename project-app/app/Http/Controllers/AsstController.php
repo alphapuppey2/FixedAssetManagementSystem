@@ -96,12 +96,16 @@ class AsstController extends Controller
         $sortDirection = $request->input('direction', 'asc');
         $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
+        // Filter parameters (multiple selections and date range)
+        $statuses = (array) $request->input('status', []); // Multiple status filter
+        $categories = (array) $request->input('category', []); // Multiple category filter
+        $startDate = $request->input('start_date'); // Start date filter
+        $endDate = $request->input('end_date'); // End date filter
+
+        // Fetch categories only for the user's department
+        $categoriesList = DB::table('category')
+            ->where('dept_ID', $userDept)
+            ->get();
 
         // Validate sorting field
         $validSortFields = ['code', 'name', 'category_name', 'status'];
@@ -118,11 +122,14 @@ class AsstController extends Controller
             ->when($search, function ($query, $search) {
                 return $query->where('asset.name', 'like', "%{$search}%");
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('asset.status', $status);
+            ->when(!empty($statuses), function ($query) use ($statuses) {
+                return $query->whereIn('asset.status', $statuses);
             })
-            ->when($category, function ($query, $category) {
-                return $query->where('category.name', 'like', "%{$category}%");
+            ->when(!empty($categories), function ($query) use ($categories) {
+                return $query->whereIn('category.id', $categories);
+            })
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
             })
             ->select(
                 'asset.id',
@@ -133,11 +140,14 @@ class AsstController extends Controller
                 'department.name as department'
             )
             ->orderBy($sortField, $sortDirection)
-            ->paginate($rowsPerPage); // Apply rows per page
+            ->paginate($rowsPerPage)
+            ->appends($request->except('page'));
 
-        // Return view with assets and query parameters
-        return view('dept_head.asset', compact('assets'));
+        // Return view with assets and categories for filtering
+        return view('dept_head.asset', compact('assets', 'categoriesList', 'statuses', 'categories', 'startDate', 'endDate'));
     }
+
+
 
 
 
