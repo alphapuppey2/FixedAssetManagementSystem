@@ -12,52 +12,86 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
-
+        // Test for Admin User
+        $adminUser = User::factory()->create(['usertype' => 'admin']);
         $response = $this
-            ->actingAs($user)
-            ->get('/profile');
+            ->actingAs($adminUser)
+            ->get('/admin/profile');
+
+        $response->assertSee('<x-dash-icon />', false);
+        // Debugging: check the content of the response
+        // dd($response->getContent());
 
         $response->assertOk();
     }
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = User::factory()->create();
+        // Create an admin user for the test
+        $adminUser = User::factory()->create(['usertype' => 'admin']);
 
+        // Define the data to be updated
+        $updateData = [
+            'location' => '123 Main St', // This corresponds to the address field in the database
+            'contact' => '01231234567',   // Ensure this matches your validation rules
+            'birthdate' => '2000-01-01',
+            'gender' => 'male',            // Ensure this matches your validation rules
+        ];
+
+        // Update the user's profile
         $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
+            ->actingAs($adminUser)
+            ->patch('/admin/profile_update', $updateData);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect('/admin/profile');
 
-        $user->refresh();
+        // Refresh the user to get the updated values
+        $adminUser->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        // Assert the values have been updated
+        $this->assertSame('123 Main St', $adminUser->address);
+        $this->assertSame('01231234567', $adminUser->contact);
+        $this->assertSame('2000-01-01', $adminUser->birthdate);
+        $this->assertSame('male', $adminUser->gender);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
         $user = User::factory()->create();
 
+        // Update to the correct route based on the user type
+        $route = match ($user->usertype) {
+            'admin' => '/admin/profile_update',
+            'dept_head' => '/dept_head/profile_update',
+            'user' => '/user/profile_update',
+        };
+
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
+            ->patch($route, [
+                'firstname' => 'Test User',
+                'lastname' => 'User',           // Include last name
+                'email' => $user->email,        // Unchanged email
+                'contact' => '01231234567',     // Ensure this matches your validation rules
+                'birthdate' => '2000-01-01',    // Include birthdate
+                'location' => '123 Main St',     // Include address
+                'gender' => 'male',              // Include gender
             ]);
+
+        // Ensure the expected redirect matches the route after updating
+        $expectedRedirect = match ($user->usertype) {
+            'admin' => '/admin/profile',
+            'dept_head' => '/dept_head/profile',
+            'user' => '/user/profile',
+        };
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect($expectedRedirect); // Use the expected redirect based on user type
 
+        // Check if the email verification status is unchanged
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
