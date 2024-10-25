@@ -29,69 +29,71 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AsstController extends Controller
 {
-     public function showAllAssets(Request $request)
-        {
-            // Fetch all categories for the filter modal
-            $categoriesList = DB::table('category')->get();
+    public function showAllAssets(Request $request)
+    {
+        // Fetch categories based on department ID (if provided)
+        $deptId = $request->input('dept', null);
 
-            // Get department ID from the request (null if not provided)
-            $deptId = $request->input('dept', null);
+        $categoriesList = DB::table('category')
+            ->when($deptId, fn($q) => $q->where('dept_ID', $deptId))
+            ->get();
 
-            // Get sorting parameters (default to 'asset.name' and 'asc')
-            $sortBy = $request->input('sort_by', 'asset.name');
-            $sortOrder = strtolower($request->input('sort_order', 'asc'));
+        // Get sorting parameters with defaults
+        $sortBy = $request->input('sort_by', 'asset.name');
+        $sortOrder = strtolower($request->input('sort_order', 'asc'));
 
-            // Validate sort field and order
-            $validSortFields = [
-                'asset.name', 'asset.code', 'category.name',
-                'department.name', 'asset.depreciation', 'asset.status'
-            ];
+        // Validate sort field and order
+        $validSortFields = [
+            'asset.name', 'asset.code', 'category.name',
+            'department.name', 'asset.depreciation', 'asset.status'
+        ];
 
-            if (!in_array($sortBy, $validSortFields)) {
-                $sortBy = 'asset.name';
-            }
-            if (!in_array($sortOrder, ['asc', 'desc'])) {
-                $sortOrder = 'asc';
-            }
-
-            // Get rows per page (default to 10)
-            $perPage = max((int) $request->input('perPage', 10), 10);
-
-            // Get search query from request
-            $query = $request->input('query', '');
-
-            // Get filter parameters (status, category, date range)
-            $statuses = $request->input('status', []);
-            $categories = $request->input('category', []);
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
-
-            // Build the query with department, search, and filters
-            $assetsQuery = DB::table('asset')
-                ->join('department', 'asset.dept_ID', '=', 'department.id')
-                ->join('category', 'asset.ctg_ID', '=', 'category.id')
-                ->select('asset.*', 'department.name as department', 'category.name as category')
-                ->where('asset.isDeleted', 0)  // Exclude deleted assets
-                ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
-                ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
-                    $subquery->where('asset.name', 'like', '%' . $query . '%')
-                             ->orWhere('asset.code', 'like', '%' . $query . '%')
-                             ->orWhere('category.name', 'like', '%' . $query . '%')
-                             ->orWhere('department.name', 'like', '%' . $query . '%');
-                }))
-                ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
-                ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
-                ->when($startDate && $endDate, fn($q) => $q->whereBetween('asset.created_at', [$startDate, $endDate]));
-
-            // Apply sorting and paginate results
-            $assets = $assetsQuery
-                ->orderBy($sortBy, $sortOrder)
-                ->paginate($perPage)
-                ->appends($request->all());  // Preserve query parameters
-
-            // Return the view with the asset list and parameters
-            return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'));
+        if (!in_array($sortBy, $validSortFields)) {
+            $sortBy = 'asset.name';
         }
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'asc';
+        }
+
+        // Get pagination and search query parameters
+        $perPage = max((int) $request->input('rows_per_page', 10), 10);
+        $query = $request->input('query', '');
+
+        // Get filter parameters (status, category, date range)
+        $statuses = $request->input('status', []);
+        $categories = $request->input('category', []);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Build the query for assets
+        $assetsQuery = DB::table('asset')
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->select('asset.*', 'department.name as department', 'category.name as category')
+            ->where('asset.isDeleted', 0)  // Exclude deleted assets
+            ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
+            ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                         ->orWhere('asset.code', 'like', '%' . $query . '%')
+                         ->orWhere('category.name', 'like', '%' . $query . '%')
+                         ->orWhere('department.name', 'like', '%' . $query . '%');
+            }))
+            ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
+            ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
+            ->when($startDate && $endDate, fn($q) => $q->whereBetween('asset.created_at', [$startDate, $endDate]));
+
+        // Apply sorting and paginate the results
+        $assets = $assetsQuery
+            ->orderBy($sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->all());  // Preserve query parameters for pagination
+
+        // Return the view with all required parameters
+        return view('admin.assetList', compact(
+            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'
+        ));
+    }
+
 
 
 

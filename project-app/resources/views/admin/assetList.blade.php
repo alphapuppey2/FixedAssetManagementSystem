@@ -252,7 +252,7 @@
     </div>
 
     @vite(['resources/js/flashNotification.js'])
-    @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
+    @include('admin.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 
     <script>
 
@@ -280,8 +280,6 @@
         document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
             document.getElementById('deleteForm').submit(); // Submit the form
         });
-
-
 
     </script>
 @endsection

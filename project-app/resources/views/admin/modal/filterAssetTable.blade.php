@@ -21,12 +21,13 @@
                     @foreach (['active', 'under_maintenance', 'deployed', 'disposed'] as $status)
                         <label class="block px-4 py-2 cursor-pointer hover:bg-gray-100">
                             <input type="checkbox" name="status[]" value="{{ $status }}"
-                                {{ in_array($status, (array) request('status', [])) ? 'checked' : '' }} class="mr-2">
+                                   {{ in_array($status, (array) request('status', [])) ? 'checked' : '' }} class="mr-2">
                             {{ ucfirst(str_replace('_', ' ', $status)) }}
                         </label>
                     @endforeach
                 </div>
             </div>
+
             <!-- Category Dropdown -->
             <div class="mb-4 relative">
                 <button type="button" id="categoryDropdownBtn" class="w-full bg-gray-100 border px-4 py-2 rounded-md flex justify-between items-center">
@@ -37,23 +38,24 @@
                 </button>
                 <div id="categoryDropdown" class="absolute hidden bg-white border rounded-md mt-2 w-full z-10 shadow-lg max-h-56 overflow-y-auto">
                     @foreach ($categoriesList as $category)
-                    <label class="block px-4 py-2 cursor-pointer hover:bg-gray-100">
-                        <input type="checkbox" name="category[]" value="{{ $category->id }}"
-                            {{ in_array($category->id, (array) request('category', [])) ? 'checked' : '' }} class="mr-2">
-                        {{ $category->name }}
-                    </label>
-                   @endforeach
+                        <label class="block px-4 py-2 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" name="category[]" value="{{ $category->id }}"
+                                   {{ in_array($category->id, (array) request('category', [])) ? 'checked' : '' }} class="mr-2">
+                            {{ $category->name }}
+                        </label>
+                    @endforeach
                 </div>
             </div>
+
             <!-- Date Range -->
             <div class="mb-4">
                 <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
                 <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
 
                 <label for="end_date" class="block mt-4 text-sm font-medium text-gray-700">End Date</label>
                 <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
             <!-- Action Buttons -->
@@ -70,29 +72,28 @@
 </div>
 
 <script>
-// Toggle Status Dropdown
-document.getElementById('statusDropdownBtn').addEventListener('click', () => {
-    document.getElementById('statusDropdown').classList.toggle('hidden');
-});
+    // Toggle Status Dropdown
+    document.getElementById('statusDropdownBtn').addEventListener('click', () => {
+        document.getElementById('statusDropdown').classList.toggle('hidden');
+    });
 
-// Toggle Category Dropdown
-document.getElementById('categoryDropdownBtn').addEventListener('click', () => {
-    document.getElementById('categoryDropdown').classList.toggle('hidden');
-});
+    // Toggle Category Dropdown
+    document.getElementById('categoryDropdownBtn').addEventListener('click', () => {
+        document.getElementById('categoryDropdown').classList.toggle('hidden');
+    });
 
-// Close Modal on Cancel
-document.getElementById('cancelFilterBtn').addEventListener('click', () => {
-    document.getElementById('filterModal').classList.add('hidden');
-});
+    // Close Modal on Cancel
+    document.getElementById('cancelFilterBtn').addEventListener('click', () => {
+        document.getElementById('filterModal').classList.add('hidden');
+    });
 
-// Close Dropdowns when clicking outside
-document.addEventListener('click', (event) => {
-    if (!event.target.closest('#statusDropdownBtn') && !event.target.closest('#statusDropdown')) {
-        document.getElementById('statusDropdown').classList.add('hidden');
-    }
-    if (!event.target.closest('#categoryDropdownBtn') && !event.target.closest('#categoryDropdown')) {
-        document.getElementById('categoryDropdown').classList.add('hidden');
-    }
-});
-
+    // Close Dropdowns when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#statusDropdownBtn') && !event.target.closest('#statusDropdown')) {
+            document.getElementById('statusDropdown').classList.add('hidden');
+        }
+        if (!event.target.closest('#categoryDropdownBtn') && !event.target.closest('#categoryDropdown')) {
+            document.getElementById('categoryDropdown').classList.add('hidden');
+        }
+    });
 </script>
