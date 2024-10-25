@@ -49,18 +49,17 @@
             <li>
                 <x-nav-link :href="route('userList')" :active="request()->routeIs('userList')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-userListIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.user-list-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">User List</span>
                 </x-nav-link>
             </li>
 
             <!-- Assets Dropdown -->
             <li class="relative">
-
                 <button id="adminAssetDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Assets</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor"
@@ -72,7 +71,6 @@
 
                 <!-- Dropdown Menu with left margin for indentation -->
                 <ul id="adminAssetDropdownMenu">
-
                     <!-- All Assets -->
                     <x-nav-link :href="route('assetList', ['dept' => null, 'asstDropdown' => 'open'])"
                         :active="request()->routeIs('assetList') && !request()->has('dept')"
@@ -127,7 +125,6 @@
             </li>
 
             <li class="relative">
-
                 <button id="adminMaintenanceDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
@@ -146,14 +143,14 @@
                     <x-nav-link :href="route('adminMaintenance', ['mntncDropdown' => 'open'])"
                         :active="request()->routeIs('adminMaintenance')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-envelopeicon class="w-8 h-8 md:w-6 md:h-6"/>
+                        <x-icons.envelope-icon class="w-8 h-8 md:w-6 md:h-6"/>
                         <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
 
                     <x-nav-link :href="route('adminMaintenance_sched', ['mntncDropdown' => 'open'])"
                         :active="request()->routeIs('adminMaintenance_sched')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6"/>
+                        <x-icons.calendar-icon class="w-8 h-8 md:w-6 md:h-6"/>
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
 
@@ -169,7 +166,7 @@
             <li>
                 <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-bellIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.bell-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Notification</span>
                 </x-nav-link>
             </li>
@@ -177,7 +174,7 @@
             <li>
                 <x-nav-link :href="route('admin.activity-logs')" :active="request()->routeIs('admin.activity-logs')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Activity Logs</span>
                 </x-nav-link>
             </li>
