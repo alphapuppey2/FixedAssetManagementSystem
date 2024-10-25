@@ -78,13 +78,13 @@ class SearchController extends Controller
         $userType = $user->usertype;
         $deptId = $user->dept_id;
 
-        $query = $request->input('query');
+        $query = $request->input('query', '');
         $tab = $request->input('tab', 'requests');
         $perPage = $request->input('rows_per_page', 10);
         $sortBy = $request->input('sort_by', 'maintenance.id');
         $sortOrder = $request->input('sort_order', 'asc');
 
-        // Initialize the maintenance query with joins
+        // Initialize the query with joins
         $maintenanceQuery = Maintenance::query()
             ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
@@ -98,48 +98,38 @@ class SearchController extends Controller
                 'asset.code AS asset_code'
             );
 
-        // Apply department filter if the user is a department head
+        // Filter by department for department head users
         if ($userType === 'dept_head') {
             $maintenanceQuery->where('asset.dept_ID', $deptId);
         }
 
-        // Filter by tab type
-        switch ($tab) {
-            case 'approved':
-                $maintenanceQuery->where('maintenance.status', 'approved');
-                break;
-            case 'denied':
-                $maintenanceQuery->where('maintenance.status', 'denied');
-                break;
-            default:
-                $maintenanceQuery->where('maintenance.status', 'request');
-                break;
-        }
+        // Apply tab-specific filters
+        $statusFilter = [
+            'approved' => 'approved',
+            'denied' => 'denied',
+            'requests' => 'request',
+        ];
+        $maintenanceQuery->where('maintenance.status', $statusFilter[$tab] ?? 'request');
 
         // Apply search filters
-        if ($query) {
+        if (!empty($query)) {
             $maintenanceQuery->where(function ($q) use ($query) {
                 $q->where('maintenance.id', 'LIKE', "%{$query}%")
-                    ->orWhere('users.firstname', 'LIKE', "%{$query}%")
-                    ->orWhere('users.middlename', 'LIKE', "%{$query}%")
-                    ->orWhere('users.lastname', 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.id', 'LIKE', "%{$query}%")
+                    ->orWhere('asset.code', 'LIKE', "%{$query}%")
+                    ->orWhere(DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname)"), 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.description', 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.type', 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.cost', 'LIKE', "%{$query}%")
                     ->orWhere('maintenance.reason', 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.status', 'LIKE', "%{$query}%")
                     ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$query}%")
                     ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$query}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.completion_date, '%Y-%m-%d')"), 'LIKE', "%{$query}%")
-                    ->orWhere('asset.code', 'LIKE', "%{$query}%");
+                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.completion_date, '%Y-%m-%d')"), 'LIKE', "%{$query}%");
             });
         }
 
         // Apply sorting
         $maintenanceQuery->orderBy($sortBy, $sortOrder);
 
-        // Paginate the results
+        // Paginate results
         $requests = $maintenanceQuery->paginate($perPage)->appends([
             'query' => $query,
             'tab' => $tab,
@@ -147,19 +137,14 @@ class SearchController extends Controller
             'sort_by' => $sortBy,
             'sort_order' => $sortOrder,
         ]);
-        // Determine which view to return based on user type
+
+        // Select the appropriate view based on user type
         $view = $userType === 'admin' ? 'admin.maintenance' : 'dept_head.maintenance';
 
-        // Return the search results to a view
-        return view($view, [
-            'requests' => $requests,
-            'query' => $query,
-            'tab' => $tab,
-            'perPage' => $perPage,
-            'sortBy' => $sortBy,
-            'sortOrder' => $sortOrder,
-        ]);
+        // Return view with data
+        return view($view, compact('requests', 'query', 'tab', 'perPage', 'sortBy', 'sortOrder'));
     }
+
 
     public function searchUser(Request $request)
     {
