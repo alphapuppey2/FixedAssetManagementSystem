@@ -755,6 +755,29 @@ public function fetchDepartmentData($id)
             return redirect()->route('asset')->with('error', 'Asset not found.');
         }
 
+        // $imagePath = $retrieveData->asst_img
+        // ? asset('storage/' . $retrieveData->asst_img)
+        // : asset('images/no-image.png');
+
+        // // Check if the request is an AJAX call, return JSON if true
+        // if (request()->ajax()) {
+        //     return response()->json([
+        //         'image_url' => $imagePath,
+        //     ]);
+        // }
+
+            // Generate the correct asset image path or fallback to the default
+    $imagePath = $retrieveData->asst_img && Storage::exists('public/' . $retrieveData->asst_img)
+    ? asset('storage/' . $retrieveData->asst_img)
+    : asset('images/no-image.png');
+
+// Check if the request is an AJAX call, return JSON if true
+if (request()->ajax()) {
+    return response()->json([
+        'image_url' => $imagePath,
+    ]);
+}
+
         $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
 
         // dd($userType,$retrieveData->dept_ID ,$retrieveData);

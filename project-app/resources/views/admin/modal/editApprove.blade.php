@@ -47,7 +47,9 @@
                     <div class="flex items-center justify-center">
                         <div class="text-center">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Asset Image</label>
-                            <img id="assetImage" src="https://via.placeholder.com/200" alt="Asset Image"
+                            <img id="assetImage"
+                            src="https://via.placeholder.com/200"
+                            alt="Asset Image"
                                 class="w-36 h-36 md:w-48 md:h-48 object-cover rounded-md shadow-md">
                         </div>
                     </div>
