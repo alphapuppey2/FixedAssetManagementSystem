@@ -93,7 +93,7 @@ jobs:
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ root@<your-droplet-ip>:/var/www/html/laravel-app/project-app
+        rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ root@165.22.59.23:/var/www/html/laravel-app/project-app
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
