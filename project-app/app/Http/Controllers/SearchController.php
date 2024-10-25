@@ -175,7 +175,12 @@ class SearchController extends Controller
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
 
-        return view('admin.userList', ['userList' => $userList]);
+        return view('admin.userList', ['userList' => $userList,
+                                        'sortOrder'=>'asc',
+                                        'sortBy'=>'id',
+                                        'perPage'=>$perPage,
+                                        'query'=>$query,
+                                        ]);
     }
 
     public function searchAssets(Request $request)
