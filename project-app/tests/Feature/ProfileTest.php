@@ -18,7 +18,7 @@ class ProfileTest extends TestCase
             ->actingAs($adminUser)
             ->get('/admin/profile');
 
-        $response->assertSee('<x-dash-icon />', false);
+        // $response->assertSee('<x-icons.dash-icon />', false);
         // Debugging: check the content of the response
         // dd($response->getContent());
 

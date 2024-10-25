@@ -41,7 +41,7 @@
             <li>
                 <x-nav-link :href="route('admin.home')" :active="request()->routeIs('admin.home')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-dashIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.dash-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Dashboard</span>
                 </x-nav-link>
             </li>
