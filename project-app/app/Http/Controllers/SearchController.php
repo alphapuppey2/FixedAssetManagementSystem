@@ -84,7 +84,10 @@ class SearchController extends Controller
         $sortBy = $request->input('sort_by', 'maintenance.id');
         $sortOrder = $request->input('sort_order', 'asc');
 
-        // Initialize the query with joins
+        // Fetch only users under the same department
+        $users = User::where('dept_id', $deptId)->get();
+
+        // Initialize the query with proper joins
         $maintenanceQuery = Maintenance::query()
             ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
@@ -98,52 +101,117 @@ class SearchController extends Controller
                 'asset.code AS asset_code'
             );
 
-        // Filter by department for department head users
+        // Filter by department for department heads
         if ($userType === 'dept_head') {
             $maintenanceQuery->where('asset.dept_ID', $deptId);
         }
 
         // Apply tab-specific filters
-        $statusFilter = [
-            'approved' => 'approved',
-            'denied' => 'denied',
-            'requests' => 'request',
-        ];
-        $maintenanceQuery->where('maintenance.status', $statusFilter[$tab] ?? 'request');
+        if ($tab === 'approved') {
+            $maintenanceQuery->where('maintenance.status', 'approved');
+        } elseif ($tab === 'denied') {
+            $maintenanceQuery->where('maintenance.status', 'denied');
+        } else {
+            $maintenanceQuery->where('maintenance.status', 'request');
+        }
 
-        // Apply search filters
+        // Apply search filters if any query is provided
         if (!empty($query)) {
             $maintenanceQuery->where(function ($q) use ($query) {
                 $q->where('maintenance.id', 'LIKE', "%{$query}%")
                     ->orWhere('asset.code', 'LIKE', "%{$query}%")
                     ->orWhere(DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname)"), 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.description', 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.type', 'LIKE', "%{$query}%")
-                    ->orWhere('maintenance.reason', 'LIKE', "%{$query}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.requested_at, '%Y-%m-%d')"), 'LIKE', "%{$query}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.authorized_at, '%Y-%m-%d')"), 'LIKE', "%{$query}%")
-                    ->orWhere(DB::raw("DATE_FORMAT(maintenance.completion_date, '%Y-%m-%d')"), 'LIKE', "%{$query}%");
+                    ->orWhere('maintenance.description', 'LIKE', "%{$query}%");
             });
         }
 
         // Apply sorting
         $maintenanceQuery->orderBy($sortBy, $sortOrder);
 
-        // Paginate results
-        $requests = $maintenanceQuery->paginate($perPage)->appends([
-            'query' => $query,
-            'tab' => $tab,
-            'rows_per_page' => $perPage,
-            'sort_by' => $sortBy,
-            'sort_order' => $sortOrder,
-        ]);
+        // Paginate the results
+        $requests = $maintenanceQuery->paginate($perPage)->appends($request->all());
 
-        // Select the appropriate view based on user type
+        // Determine the view to return based on user type
         $view = $userType === 'admin' ? 'admin.maintenance' : 'dept_head.maintenance';
 
-        // Return view with data
-        return view($view, compact('requests', 'query', 'tab', 'perPage', 'sortBy', 'sortOrder'));
+        // Return the view with all necessary data
+        return view($view, [
+            'requests' => $requests,
+            'query' => $query,
+            'tab' => $tab,
+            'perPage' => $perPage,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+            'users' => $users // Pass the users variable here
+        ]);
     }
+
+    public function filterMaintenance(Request $request)
+    {
+        $user = Auth::user();
+        $deptId = $user->dept_id;
+
+        // Fetch users and department heads within the same department
+        $users = User::where('dept_id', $deptId)->get();
+        $deptHeads = User::where('usertype', 'dept_head')->where('dept_id', $deptId)->get();
+
+        // Retrieve the tab, sorting, and pagination parameters (default values provided)
+        $tab = $request->query('tab', 'requests');
+        $sortBy = $request->query('sort_by', 'maintenance.requested_at');
+        $sortOrder = $request->query('sort_order', 'asc');
+        $perPage = $request->input('rows_per_page', 10);  // Default to 10 rows per page
+
+        // Initialize the query for maintenance records
+        $query = Maintenance::query()
+            ->leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
+            ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
+            ->select(
+                'maintenance.*',
+                DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
+                'asset.code AS asset_code'
+            );
+
+        // Apply filters
+        if ($request->filled('requestor')) {
+            $query->whereIn('maintenance.requestor', $request->input('requestor'));
+        }
+
+        if ($request->filled('type')) {
+            $query->whereIn('maintenance.type', $request->input('type'));
+        }
+
+        if ($request->filled('dept_head')) {
+            $query->where('authorized_by', $request->input('dept_head'));
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('maintenance.requested_at', [
+                $request->input('start_date'),
+                $request->input('end_date')
+            ]);
+        }
+
+        // Apply sorting
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Retrieve the filtered maintenance records with pagination
+        $requests = $query->paginate($perPage);
+
+        // Return the view with all necessary data
+        return view('dept_head.maintenance', compact(
+            'requests',
+            'users',
+            'deptHeads',
+            'tab',
+            'sortBy',
+            'sortOrder',
+            'perPage'
+        ));
+    }
+
+
+
+
 
 
     public function searchUser(Request $request)

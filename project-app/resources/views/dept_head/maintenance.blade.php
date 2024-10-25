@@ -62,6 +62,8 @@
         </div>
     </div>
 
+    @include('dept_head.modal.maintenanceFilter')
+
     <div class="flex justify-between items-center mb-4">
         <!-- Rows per page dropdown (on the left) -->
         <div class="flex items-center">
@@ -123,8 +125,6 @@
             </li>
         </ul>
     </div>
-
-
 
     <!-- Table Section -->
     <div class="overflow-x-auto hidden md:block">
@@ -501,8 +501,45 @@
     });
 </script>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Load Select2 after jQuery -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('#requestor').select2({
+            placeholder: "Select requestors",
+            allowClear: true,
+            width: 'resolve'
+        });
+
+        $('#mtcType').select2({
+            placeholder: "Select Maintenance Types",
+            allowClear: true
+        });
+
+        // Open and close the filter modal
+        $('#openFilterModalBtn').on('click', function() {
+            $('#filterModal').removeClass('hidden');
+        });
+
+        $('#cancelFilterBtn').on('click', function() {
+            $('#filterModal').addClass('hidden');
+        });
+
+        // Close the modal when clicking outside of it
+        $(window).on('click', function(e) {
+            if ($(e.target).is('#filterModal')) {
+                $('#filterModal').addClass('hidden');
+            }
+        });
+    });
+
+
+
     // Function to open the modal with the AJAX-loaded content
     function openEditDeniedModal(maintenanceId) {
         $.ajax({
