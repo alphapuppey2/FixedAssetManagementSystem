@@ -15,8 +15,6 @@ class FiltersController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        dd($request);
-
         // Redirect to the asset route with query parameters
         return redirect()->route('asset', [
             'status' => $statuses,
@@ -25,7 +23,5 @@ class FiltersController extends Controller
             'end_date' => $endDate,
         ]);
     }
-
-
 
 }

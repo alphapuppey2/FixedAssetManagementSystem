@@ -87,67 +87,69 @@ class AsstController extends Controller
 
 
     public function showDeptAsset(Request $request)
-{
-    $userDept = Auth::user()->dept_id;
+    {
+        $userDept = Auth::user()->dept_id;
 
-    // Get query parameters with defaults
-    $search = $request->input('search');
-    $sortField = $request->input('sort', 'code');
-    $sortDirection = $request->input('direction', 'asc');
-    $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
+        // Get query parameters with defaults
+        $search = $request->input('search');
+        $sortField = $request->input('sort', 'code');
+        $sortDirection = $request->input('direction', 'asc');
+        $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
-    // Ensure statuses and categories are always arrays
-    $statuses = $request->input('status', []);
-    $categories = $request->input('category', []);
+        // Ensure statuses and categories are always arrays
+        $statuses = $request->input('status', []);
+        $categories = $request->input('category', []);
 
-    if (is_string($statuses)) {
-        $statuses = json_decode($statuses, true) ?? [];  // Decode JSON if it's a string
+        if (is_string($statuses)) {
+            $statuses = json_decode($statuses, true) ?? [];  // Decode JSON if it's a string
+        }
+
+        if (is_string($categories)) {
+            $categories = json_decode($categories, true) ?? [];  // Decode JSON if it's a string
+        }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Validate sorting field
+        $validSortFields = ['code', 'name', 'category_name', 'status'];
+        if (!in_array($sortField, $validSortFields)) {
+            $sortField = 'code';
+        }
+
+        // Build the query with filters
+        $assets = DB::table('asset')
+            ->join('department', 'asset.dept_ID', '=', 'department.id')
+            ->join('category', 'asset.ctg_ID', '=', 'category.id')
+            ->where('asset.dept_ID', $userDept)
+            ->where('asset.isDeleted', 0)
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('asset.name', 'like', "%{$search}%")
+                             ->orWhere('asset.code', 'like', "%{$search}%");
+                });
+            })
+            ->when(!empty($statuses), function ($query) use ($statuses) {
+                return $query->whereIn('asset.status', $statuses);
+            })
+            ->when(!empty($categories), function ($query) use ($categories) {
+                return $query->whereIn('category.id', $categories);
+            })
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
+            })
+            ->select('asset.*', 'category.name as category_name', 'department.name as department')
+            ->orderBy($sortField, $sortDirection)
+            ->paginate($rowsPerPage) // Handle pagination
+            ->appends($request->except('page')); // Retain query parameters on pagination
+
+        // Fetch all categories for the dropdown (filtered by department)
+        $categoriesList = DB::table('category')->where('dept_ID', $userDept)->get();
+
+        // Return the view with the necessary data
+        return view('dept_head.asset', compact('assets', 'categoriesList'));
     }
 
-    if (is_string($categories)) {
-        $categories = json_decode($categories, true) ?? [];  // Decode JSON if it's a string
-    }
-
-    $startDate = $request->input('start_date');
-    $endDate = $request->input('end_date');
-
-    // Validate sorting field
-    $validSortFields = ['code', 'name', 'category_name', 'status'];
-    if (!in_array($sortField, $validSortFields)) {
-        $sortField = 'code';
-    }
-
-    // Build the query with filters
-    $assets = DB::table('asset')
-        ->join('department', 'asset.dept_ID', '=', 'department.id')
-        ->join('category', 'asset.ctg_ID', '=', 'category.id')
-        ->where('asset.dept_ID', $userDept)
-        ->where('asset.isDeleted', 0)
-        ->when($search, function ($query, $search) {
-            return $query->where('asset.name', 'like', "%{$search}%");
-        })
-        ->when(!empty($statuses), function ($query) use ($statuses) {
-            return $query->whereIn('asset.status', $statuses);
-        })
-        ->when(!empty($categories), function ($query) use ($categories) {
-            return $query->whereIn('category.id', $categories);
-        })
-        ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-            return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
-        })
-        ->select('asset.*', 'category.name as category_name', 'department.name as department')
-        ->orderBy($sortField, $sortDirection)
-        ->paginate($rowsPerPage) // Handle pagination
-        ->appends($request->except('page')); // Retain query parameters on pagination
-
-    // Fetch all categories for the dropdown (filtered by department)
-    $categoriesList = DB::table('category')->where('dept_ID', $userDept)->get();
-
-    // dd($request);
-
-    // Return the view with the necessary data
-    return view('dept_head.asset', compact('assets', 'categoriesList'));
-}
 
 
 
