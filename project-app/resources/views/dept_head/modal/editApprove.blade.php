@@ -125,9 +125,13 @@
         var assetId = "{{ $maintenance->asset->code }}";
         fetchAssetDetails(assetId);
         console.log(`asset url::  {{ url('asset') }}/assetId`);
+
         function fetchAssetDetails(assetId) {
+            // const assetDetailsUrl = "{{ url('assets/details') }}"; // Updated route URL
+            const assetDetailsUrl = "{{ url('asset') }}"; // Use Laravel's URL help
             $.ajax({
-                url: `{{ url('asset') }}/assetId`,
+                // url: `{{ url('asset') }}/assetId`,
+                url: `${assetDetailsUrl}/${assetId}`, // Construct correct URL
                 method: 'GET',
                 success: function (response) {
                     var assetImage = response.image_url ? response.image_url : '/images/no-image.png';
