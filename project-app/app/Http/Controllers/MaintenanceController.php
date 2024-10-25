@@ -31,28 +31,31 @@ class MaintenanceController extends Controller
         $tab = $request->query('tab', 'requests');
         $perPage = $request->input('rows_per_page', 10);
 
-        // Default sorting for index: 'requested_at' in ascending order
         $sortBy = $request->query('sort_by', 'maintenance.requested_at');
         $sortOrder = $request->query('sort_order', 'asc');
 
-        // Initialize the query with necessary joins
+        // Fetch users based on the user's department
+        $users = User::where('dept_id', $user->dept_id)->get();
+
+        // Fetch department heads in the same department
+        $deptHeads = User::where('usertype', 'dept_head')
+            ->where('dept_id', $user->dept_id)
+            ->get();
+
         $query = Maintenance::leftJoin('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->leftJoin('users', 'maintenance.requestor', '=', 'users.id')
             ->leftJoin('category', 'asset.ctg_ID', '=', 'category.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
             ->where('maintenance.status', 'request');
 
-        // Apply filters based on user role
         if ($user->usertype === 'dept_head') {
             $query->where('asset.dept_ID', $user->dept_id);
         } elseif ($user->usertype === 'user') {
             $query->where('maintenance.requestor', $user->id);
         }
 
-        // Apply sorting
         $query->orderBy($sortBy, $sortOrder);
 
-        // Retrieve paginated results
         $requests = $query->select(
             'maintenance.*',
             DB::raw("CONCAT(users.firstname, ' ', IFNULL(users.middlename, ''), ' ', users.lastname) AS requestor_name"),
@@ -61,12 +64,13 @@ class MaintenanceController extends Controller
             'asset.code AS asset_code'
         )->paginate($perPage);
 
-        // Determine the appropriate view based on the user type
-        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance' : ($user->usertype === 'admin' ? 'admin.maintenance' : 'user.requestList');
+        $view = $user->usertype === 'dept_head' ? 'dept_head.maintenance'
+            : ($user->usertype === 'admin' ? 'admin.maintenance' : 'user.requestList');
 
-        // Return the view with the necessary data
-        return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder'));
+        // Pass the users along with other data
+        return view($view, compact('requests', 'tab', 'perPage', 'sortBy', 'sortOrder', 'users', 'deptHeads'));
     }
+
 
     public function approvedList(Request $request)
     {
@@ -368,11 +372,11 @@ class MaintenanceController extends Controller
 
         // Retrieve assets based on user type
         $assets = assetModel::where('isDeleted', 0) // Exclude deleted assets for all users
-        ->when($userType !== 'admin', function ($query) use ($user) {
-            // If the user is not an admin, filter by their department
-            $query->where('dept_ID', $user->dept_id);
-        })
-        ->get(['id', 'code', 'name']);
+            ->when($userType !== 'admin', function ($query) use ($user) {
+                // If the user is not an admin, filter by their department
+                $query->where('dept_ID', $user->dept_id);
+            })
+            ->get(['id', 'code', 'name']);
 
         // Retrieve categories, locations, models, and manufacturers
         $categories = category::where(function ($query) use ($userType, $user) {

@@ -294,6 +294,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
+    Route::get('/maintenance/filter', [SearchController::class, 'filterMaintenance'])->name('maintenance.filter');
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
