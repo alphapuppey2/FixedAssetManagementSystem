@@ -215,7 +215,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
 
-    Route::get('/assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
+    Route::get('/filter-assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
 
     // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
@@ -298,6 +298,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    Route::get('asset/filteredsearch',[FiltersController::class , 'filterAssets'])->name('asset.filtered');
 
     /*
     -------------------
