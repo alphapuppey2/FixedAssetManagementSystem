@@ -128,7 +128,7 @@
                 <button id="adminMaintenanceDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-wrenchicon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor"
