@@ -60,20 +60,15 @@
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
 
-            <!-- Rows Per Page -->
-            <div class="mb-4 hidden">
-                <label for="rows_per_page" class="block text-sm font-medium text-gray-700">Rows Per Page</label>
-                <select name="rows_per_page" id="rows_per_page"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="10" {{ request('rows_per_page') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="20" {{ request('rows_per_page') == 20 ? 'selected' : '' }}>20</option>
-                    <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
-                </select>
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelFilterBtn"
+                    class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                    Apply
+                </button>
             </div>
-
-            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                Apply
-            </button>
         </form>
     </div>
 </div>
@@ -100,5 +95,11 @@
             !event.target.closest('#categoryDropdownBtn')) {
             document.getElementById('categoryDropdown').classList.add('hidden');
         }
+    });
+
+    // Cancel Button Logic
+    document.getElementById('cancelFilterBtn').addEventListener('click', function () {
+        document.getElementById('filterModal').classList.add('hidden'); // Hide the modal
+        document.getElementById('filterForm').reset(); // Reset the form inputs
     });
 </script>

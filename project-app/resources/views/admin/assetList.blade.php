@@ -215,6 +215,8 @@
     </div>
 
     @vite(['resources/js/flashNotification.js'])
+    {{-- @include('admin.modal.filterAssetTable', ['categoriesList' => $categoriesList]) --}}
+
 
     <script>
 
