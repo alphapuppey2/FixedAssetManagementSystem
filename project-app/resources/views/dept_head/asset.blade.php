@@ -128,7 +128,6 @@
             @endif
         </div>
     </div>
-
 </div>
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
@@ -248,7 +247,7 @@
     console.log('Form data:', Object.fromEntries(formData));  // Log all form data
 
     // form.submit();  // Proceed with form submission
-});
+    });
 
     //Filter Modal Script
         document.getElementById('openFilterModalBtn').addEventListener('click', function () {

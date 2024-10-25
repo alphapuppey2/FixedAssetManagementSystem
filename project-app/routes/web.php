@@ -117,6 +117,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
 
+    //ASSET LIST FILTER
+    Route::get('/admin/asset/filter', [FiltersController::class, 'filterAssefilterAssetsAdmints'])->name('admin.asset.filter');
     /*
     -------------------
         MAINTENANCE
@@ -192,6 +194,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // CHANGE PASSWORD
     Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
+
+
 });
 
 // DeptHead Routes
