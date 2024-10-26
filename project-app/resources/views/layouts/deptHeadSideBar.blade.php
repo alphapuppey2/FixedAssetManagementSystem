@@ -31,7 +31,7 @@
             <li>
                 <x-nav-link :href="route('dept_head.home')" :active="request()->routeIs('dept_head.home')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-dashIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.dash-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Dashboard</span>
                 </x-nav-link>
             </li>
@@ -39,7 +39,7 @@
             <li>
                 <x-nav-link :href="route('asset')" :active="request()->routeIs('asset')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Asset</span>
                 </x-nav-link>
             </li>
@@ -48,7 +48,7 @@
                 <button id="maintenanceDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
                     {{-- <i class="fas fa-chevron-down ml-auto"></i> --}}
                     <!-- SVG Icon on the Right Side -->
@@ -64,14 +64,14 @@
                     <x-nav-link :href="route('maintenance', ['dropdown' => 'open'])"
                         :active="request()->routeIs('maintenance')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-envelopeIcon class="w-8 h-8 md:w-6 md:h-6" />
+                        <x-icons.envelope-icon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
 
                     <x-nav-link :href="route('maintenance_sched', ['dropdown' => 'open'])"
                         :active="request()->routeIs('maintenance_sched')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6" />
+                        <x-icons.calendar-icon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
 
@@ -88,7 +88,7 @@
                 <button id="reportsDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-chartIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.chart-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Reports</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor"
@@ -102,14 +102,14 @@
                     <x-nav-link :href="route('asset.report', ['dropdown' => 'open'])"
                         :active="request()->routeIs('asset.report')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-envelopeIcon class="w-8 h-8 md:w-6 md:h-6" />
+                        <x-icons.envelope-icon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Assets</span>
                     </x-nav-link>
 
                     <x-nav-link :href="route('maintenance.report')"
                         :active="request()->routeIs('maintenance.report')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6" />
+                        <x-icons.calendar-icon class="w-8 h-8 md:w-6 md:h-6" />
                         <span class="hidden sm:inline">Maintenance</span>
                     </x-nav-link>
                 </ul>
@@ -119,7 +119,7 @@
             <li>
                 <x-nav-link :href="route('setting')" :active="request()->routeIs('setting')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-gearIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.gear-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Settings</span>
                 </x-nav-link>
             </li>
@@ -127,7 +127,7 @@
             <li>
                 <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-bellIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.bell-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Notifications</span>
                 </x-nav-link>
             </li>
