@@ -544,7 +544,8 @@ class MaintenanceController extends Controller
     public function updateApproved(Request $request, $id)
     {
         $request->validate([
-            'cost' => 'required|numeric|min:0',
+            // 'cost' => 'required|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
             'completion_date' => 'nullable|date|after_or_equal:start_date',
@@ -570,7 +571,8 @@ class MaintenanceController extends Controller
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
-            'cost' => $request->cost,
+            // 'cost' => $request->cost,
+            'cost' => $request->cost ?? 0, // Default to 0 if not provided
             'is_completed' => $isCompleted, // Boolean handling
             'status' => $status, // Only change status to 'cancelled' if applicable
             'completion_date' => $isCompleted ? now() : null,
