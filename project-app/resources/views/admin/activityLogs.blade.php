@@ -26,7 +26,7 @@
             </div>
             <!-- Settings Button -->
             <button onclick="toggleSettingsModal()">
-                <x-gearIcon />
+                <x-icons.gear-icon />
             </button>
         </div>
     </div>
