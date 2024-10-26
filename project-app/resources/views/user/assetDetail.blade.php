@@ -47,7 +47,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Depreciation:</span>
-                        <span>{{ $retrieveData->depreciation }}%</span>
+                        <span>{{ $retrieveData->depreciation }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Salvage Value:</span>
@@ -87,6 +87,21 @@
                     <div class="flex justify-between">
                         <span class="font-medium">Last Used:</span>
                         <span>NONE</span>
+                    </div>
+                    <div class="flex flex-col justify-between">
+                        <span class="font-medium">Custom Fields </span>
+                        <div id="modalAdditionalInfo" class="space-y-2 text-gray-600">
+                            @if (!empty($fields))
+                                @foreach ($fields as $field)
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">{{ $field['name'] }}:</span>
+                                        <span>{{ $field['value'] }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p>No additional information available.</p>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

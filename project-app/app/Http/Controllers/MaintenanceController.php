@@ -634,6 +634,13 @@ class MaintenanceController extends Controller
             'reason' => $request->reason, // Update the reason field
         ]);
 
+        // Check if the status is 'approved' and update the asset status to 'under_maintenance'
+        if ($request->status === 'approved') {
+            $asset->update([
+                'status' => 'under_maintenance',
+            ]);
+        }
+
         $requestor = User::find($maintenance->requestor);
 
         if ($requestor) {
@@ -674,6 +681,8 @@ class MaintenanceController extends Controller
 
     public function showRecords(Request $request)
     {
+        $user = auth()->user(); // Get the logged-in user.
+
         $searchController = app(SearchController::class);
         $records = $searchController->searchMaintenanceRecords($request);
 
@@ -681,11 +690,31 @@ class MaintenanceController extends Controller
         $searchQuery = $request->input('query', '');
         $perPage = $request->input('rows_per_page', 10);
 
-        return view('admin.maintenanceRecords', [
-            'records' => $records,
-            'tab' => $tab,
-            'searchQuery' => $searchQuery,
-            'perPage' => $perPage,
-        ]);
+        // return view('admin.maintenanceRecords', [
+        //     'records' => $records,
+        //     'tab' => $tab,
+        //     'searchQuery' => $searchQuery,
+        //     'perPage' => $perPage,
+        // ]);
+
+        // Check user type and select appropriate view
+        if ($user->usertype === 'dept_head') {
+            return view('dept_head\maintenance_records', [
+                'records' => $records,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
+        } elseif ($user->usertype === 'admin') {
+            return view('admin.maintenanceRecords', [
+                'records' => $records,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
+        }
+
+        // Optionally handle other cases or redirect if no valid user type is found
+        return redirect()->route('home')->with('error', 'Invalid user type.');
     }
 }
