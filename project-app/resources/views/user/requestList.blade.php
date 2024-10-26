@@ -181,9 +181,10 @@
                             '{{ $request->asset_status }}',
                             '{{ $request->description }}',
                             '{{ $request->id }}',
-                            '{{ $request->status }}',
+                            '{{ $request->asset_status }}',
                             '{{ $request->qr_code }}',
-                            '{{ $request->reason }}'
+                            '{{ $request->reason }}',
+                             {!! json_encode($request->additional_info) !!}
                         )"
                         class="w-8 h-8" aria-label="View Request">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />

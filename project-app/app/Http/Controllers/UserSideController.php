@@ -60,6 +60,8 @@ class UserSideController extends Controller
                 'asset.qr_img as qr_code', // Use the correct QR column name
                 'asset.name as asset_name',
                 'asset.depreciation',
+                'asset.purchase_cost as cost',
+                'asset.custom_fields as additional_info',
                 'asset.salvage_value as salvageVal', // Use correct column name
                 'asset.usage_lifespan as usage_Lifespan', // Correct casing
                 'category.name as category',
@@ -70,6 +72,11 @@ class UserSideController extends Controller
             )
             ->orderBy($sort_by, $sort_direction)
             ->paginate(5);
+
+            foreach ($requests as $request) {
+                $request->additional_info = json_decode($request->additional_info ,true);
+            }
+
 
         return view('user.requestList', [
             'requests' => $requests,
