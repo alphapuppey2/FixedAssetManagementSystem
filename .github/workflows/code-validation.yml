@@ -6,9 +6,23 @@ on:
       - main
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: fixedasset
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+          
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,10 +50,6 @@ jobs:
           DB_PASSWORD=password
           EOF
 
-      - name: Install Composer dependencies
-        working-directory: project-app
-        run: composer install --prefer-dist --no-interaction
-
       - name: Wait for MySQL to be ready
         run: sleep 15
 
@@ -52,9 +62,17 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Install Composer dependencies
+        working-directory: project-app
+        run: composer install --prefer-dist --no-interaction
+
       - name: Install Vite dependencies
         working-directory: project-app
         run: npm install
+
+      - name: Build Vite assets
+        working-directory: project-app
+        run: npm run build
 
       - name: Run Laravel tests
         working-directory: project-app
