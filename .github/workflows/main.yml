@@ -89,6 +89,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh  # Create the .ssh directory
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
     - name: Copy files to the server
       run: |
         rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ root@165.22.59.23:/var/www/html/laravel-app/project-app
@@ -96,6 +102,6 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Restart Apache
-      run: ssh -o StrictHostKeyChecking=no root@<your-droplet-ip> 'systemctl restart apache2'
+      run: ssh -o StrictHostKeyChecking=no root@165.22.59.23> 'systemctl restart apache2'
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
