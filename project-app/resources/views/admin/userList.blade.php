@@ -70,89 +70,130 @@
         </select>
     </form>
 
-    @if($userList->hasPages())
-    <div class="flex items-center space-x-4">
-        <span class="text-gray-600">
+
+    <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
+        <span class="text-gray-600 hidden md:block">
             Showing {{ $userList->firstItem() }} to {{ $userList->lastItem() }} of {{ $userList->total() }} items
         </span>
-        <div>
+        @if($userList->hasPages())
+        <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2">
+            {{ $userList->appends(request()->all())->links() }}
+        </div>
+        <div class="text-sm md:text-base">
             {{ $userList->appends(request()->all())->links('vendor.pagination.tailwind') }}
         </div>
+        @endif
     </div>
-    @endif
+
 </div>
 
 <!-- Table Layout -->
 <div class="contents relative flex mt-6">
-    <div class="text-center max-w-100 flex justify-center sm:flex-col md:flex-row w-full">
+    <div class="text-center max-w-100 flex justify-center w-full">
         <div class="hidden md:block w-full">
-            <x-table class="table table-striped">
-                <x-slot name='header'>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'id', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            ID <x-icons.sort-icon :direction="$sortBy === 'id' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'employee_id', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            Employee ID <x-icons.sort-icon :direction="$sortBy === 'employee_id' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'firstname', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            First Name <x-icons.sort-icon :direction="$sortBy === 'firstname' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'lastname', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            Last Name <x-icons.sort-icon :direction="$sortBy === 'lastname' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'email', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            Email <x-icons.sort-icon :direction="$sortBy === 'email' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'department_name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            Department <x-icons.sort-icon :direction="$sortBy === 'department_name' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'usertype', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            User Type <x-icons.sort-icon :direction="$sortBy === 'usertype' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'is_deleted', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}">
-                            Status <x-icons.sort-icon :direction="$sortBy === 'is_deleted' ? $sortOrder : null" />
-                        </a>
-                    </th>
-                    <th>Action</th>
-                </x-slot>
-
-                <x-slot name='slot'>
-                    @forelse($userList as $item)
+            <table class="table-auto w-full border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                <thead class="bg-gray-100 border-b">
                     <tr>
-                        <td>{{ $item->id }}</td>
-                        <td>{{ $item->employee_id }}</td>
-                        <td>{{ $item->firstname }}</td>
-                        <td>{{ $item->lastname }}</td>
-                        <td>{{ $item->email }}</td>
-                        <td><x-department :deptId="$item->dept_id" /></td>
-                        <td>{{ $item->usertype }}</td>
-                        <td>@include('components.user-status', ['is_deleted' => $item->is_deleted])</td>
-                        <td>@include('components.user-list-actions', ['item' => $item])</td>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'id', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                ID <x-icons.sort-icon :direction="$sortBy === 'id' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'employee_id', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                Employee ID <x-icons.sort-icon :direction="$sortBy === 'employee_id' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'firstname', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                First Name <x-icons.sort-icon :direction="$sortBy === 'firstname' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'lastname', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                Last Name <x-icons.sort-icon :direction="$sortBy === 'lastname' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'email', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                Email <x-icons.sort-icon :direction="$sortBy === 'email' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'department_name', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                Department <x-icons.sort-icon :direction="$sortBy === 'department_name' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'usertype', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                User Type <x-icons.sort-icon :direction="$sortBy === 'usertype' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            <a href="{{ route('userList', array_merge(request()->all(), ['sort_by' => 'is_deleted', 'sort_order' => $sortOrder === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
+                                Status <x-icons.sort-icon :direction="$sortBy === 'is_deleted' ? $sortOrder : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">
+                            Action
+                        </th>
                     </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse($userList as $item)
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->id }}</td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->employee_id }}</td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->firstname }}</td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->lastname }}</td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->email }}</td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">
+                                <x-department :deptId="$item->dept_id" />
+                            </td>
+                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->usertype }}</td>
+                            <td class="py-2 px-4 text-sm text-center">
+                                @include('components.user-status', ['is_deleted' => $item->is_deleted])
+                            </td>
+                            <td class="py-2 px-4 text-sm text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    @include('components.user-list-actions', ['item' => $item])
+                                </div>
+                            </td>
+                        </tr>
                     @empty
-                    <tr class="text-center text-gray-800">
-                        <td colspan='9' class="text-gray-500">No List</td>
-                    </tr>
+                        <tr>
+                            <td colspan="9" class="py-4 px-4 text-center text-gray-500">No List</td>
+                        </tr>
                     @endforelse
-                </x-slot>
-            </x-table>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+
+
+<!-- Card Layout for smaller screens -->
+<div class="block md:hidden w-full">
+    @forelse($userList as $item)
+        <div class="bg-white shadow rounded-lg p-4 mb-4">
+            <p><strong>ID:</strong> {{ $item->id }}</p>
+            <p><strong>Employee ID:</strong> {{ $item->employee_id }}</p>
+            <p><strong>First Name:</strong> {{ $item->firstname }}</p>
+            <p><strong>Last Name:</strong> {{ $item->lastname }}</p>
+            <p><strong>Email:</strong> {{ $item->email }}</p>
+            <p><strong>Department:</strong> <x-department :deptId="$item->dept_id" /></p>
+            <p><strong>User Type:</strong> {{ $item->usertype }}</p>
+            <p><strong>Status:</strong>
+                @include('components.user-status', ['is_deleted' => $item->is_deleted])
+            </p>
+
+            <div class="flex justify-end mt-2 space-x-2">
+                @include('components.user-list-actions', ['item' => $item])
+            </div>
+        </div>
+    @empty
+        <p class="text-center text-gray-800">No List</p>
+    @endforelse
 </div>
 
 @include('admin.modal.editUser')

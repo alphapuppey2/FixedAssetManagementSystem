@@ -132,83 +132,89 @@
 
         {{-- <div> --}}
         <div class="hidden md:block">
-            <table class="table table-hover">
-                <thead class="p-5 bg-gray-100 border-b">
+            <table class="table table-hover border-collapse border border-gray-300 w-full">
+                <thead class="bg-gray-100 border-b border-gray-300">
                     <tr>
                         @php
                             $queryParams = request()->query(); // Capture all query parameters for reuse
                         @endphp
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.code', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Code
                                 <x-icons.sort-icon :direction="request('sort_by') === 'asset.code' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.name', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Name
                                 <x-icons.sort-icon :direction="request('sort_by') === 'asset.name' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'category.name', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Category
                                 <x-icons.sort-icon :direction="request('sort_by') === 'category.name' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'department.name', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Department
                                 <x-icons.sort-icon :direction="request('sort_by') === 'department.name' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.depreciation', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Depreciation
                                 <x-icons.sort-icon :direction="request('sort_by') === 'asset.depreciation' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                             <a href="{{ route('assetList', array_merge($queryParams, ['sort_by' => 'asset.status', 'sort_order' => request('sort_order', 'asc') === 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                                 Status
                                 <x-icons.sort-icon :direction="request('sort_by') === 'asset.status' ? request('sort_order') : null" />
                             </a>
                         </th>
 
-                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Actions</th>
+                        <th class="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                            Actions
+                        </th>
                     </tr>
                 </thead>
 
-
-
-                <tbody id="table-body">
+                <tbody class="divide-y divide-gray-200">
                     @if (!$assets->isEmpty())
                         @foreach ($assets as $asset)
-                            <tr>
-                                <th class="align-middle text-center text-sm text-gray-900" scope="col">
-                                    {{ $asset->code ? $asset->code : 'NONE' }}</th>
-                                <td class="align-middle text-center text-sm text-gray-900">{{ $asset->name }}</td>
-                                <td class="align-middle text-center text-sm text-gray-900">{{ $asset->category }}</td>
-                                <td class="align-middle text-center text-sm text-gray-900">{{ $asset->department }}</td>
-                                <td class="align-middle text-center text-sm text-gray-900">{{ $asset->depreciation }}</td>
-
-                                <td class="align-middle text-center text-sm text-gray-900">
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
+                                    {{ $asset->code ?? 'NONE' }}
+                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
+                                    {{ $asset->name }}
+                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
+                                    {{ $asset->category }}
+                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
+                                    {{ $asset->department }}
+                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
+                                    {{ $asset->depreciation }}
+                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 text-center">
                                     @include('components.asset-status', ['status' => $asset->status])
                                 </td>
-                                <td class="w-40">
-                                    <div class="grp flex gap-2 justify-center">
-                                        <a href="{{ route('adminAssetDetails', $asset->code) }}"
-                                            class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                                <td class="py-2 px-4 text-sm text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <a href="{{ route('adminAssetDetails', $asset->code) }}" class="inline-flex items-center justify-center w-8 h-8">
                                             <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                                         </a>
-                                        <button type="button" class="inline-flex items-center w-8 h-8"
-                                            onclick="openDeleteModal('{{ $asset->id }}')">
+                                        <button type="button" class="inline-flex items-center justify-center w-8 h-8" onclick="openDeleteModal('{{ $asset->id }}')">
                                             <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
                                         </button>
                                     </div>
@@ -216,12 +222,15 @@
                             </tr>
                         @endforeach
                     @else
-                        <tr class="text-center text-gray-800">
-                            <td colspan='7' style="color: rgb(177, 177, 177)">No Assets Found</td>
+                        <tr>
+                            <td colspan="7" class="py-4 px-4 text-center text-gray-500">
+                                No Assets Found
+                            </td>
                         </tr>
                     @endif
                 </tbody>
             </table>
+
         </div>
 
         <!-- Card Layout for Small Screens -->
@@ -248,7 +257,6 @@
         </div>
 
         @include('admin.modal.deleteAssetModal')
-        {{-- @include('admin.modal.filterAssetTable') --}}
         @vite(['resources/js/flashNotification.js'])
         <!-- Flash notification -->
         @if (session('success'))
