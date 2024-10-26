@@ -162,7 +162,6 @@
         }
     });
 
-
     // Render pagination based on screen size
     function renderPagination() {
         const paginationContainer = document.getElementById('pagination-container');

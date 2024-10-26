@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production 
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Sync files to the server
+        run: |
+          rsync -avz --delete \
+            --exclude=node_modules --exclude=vendor --exclude=.env \
+            -e "ssh -o StrictHostKeyChecking=no" ./project-app/ \
+            root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Set Correct Permissions on Server
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          chown -R www-data:www-data /var/www/html/FixedAssetManagementSystem/project-app &&
+          chmod -R 775 /var/www/html/FixedAssetManagementSystem/project-app/storage &&
+          chmod -R 775 /var/www/html/FixedAssetManagementSystem/project-app/bootstrap/cache"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install Composer dependencies on server
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          cd /var/www/html/FixedAssetManagementSystem/project-app &&
+          npm ci && npm run build &&
+          composer install --no-dev --optimize-autoloader &&
+          php artisan config:clear &&
+          php artisan cache:clear &&
+          php artisan config:cache &&
+          php artisan route:cache &&
+          php artisan view:cache "
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Restart Apache
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          systemctl restart apache2 "
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

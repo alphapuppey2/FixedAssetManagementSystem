@@ -24,6 +24,7 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate the user's password
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
@@ -33,8 +34,18 @@ class ConfirmablePasswordController extends Controller
             ]);
         }
 
+        // Store the password confirmation timestamp in the session
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect based on user type
+        $user = $request->user();
+        $redirectRoute = match ($user->usertype) {
+            'admin' => route('admin.home'),
+            'dept_head' => route('dept_head.home'),
+            'user' => route('user.scanQR'),
+            default => route('login'), // Fallback if user type is unexpected
+        };
+
+        return redirect()->intended($redirectRoute);
     }
 }

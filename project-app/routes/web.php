@@ -39,7 +39,6 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
 
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
@@ -133,6 +132,9 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('admin/maintenance/approved', [MaintenanceController::class, 'approvedList'])->name('adminMaintenanceAproved');
     Route::get('admin/maintenance/denied', [MaintenanceController::class, 'deniedList'])->name('adminMaintenanceDenied');
 
+    Route::post('admin/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('adminMaintenance.approve');
+    Route::post('admin/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('adminMaintenance.deny');
+
     Route::get('admin/maintenance/{id}/editApproved', [MaintenanceController::class, 'editApproved'])->name('adminmaintenance.editApproved');
     Route::get('admin/maintenance/{id}/editDenied', [MaintenanceController::class, 'editDenied'])->name('adminmaintenance.editDenied');
     Route::put('admin/maintenance/{id}/updateDenied', [MaintenanceController::class, 'updateDenied'])->name('adminmaintenance.updateDenied');
@@ -196,9 +198,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
     // CHANGE PASSWORD
     Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
-    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
-
-
+    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.changePassword');
 });
 
 // DeptHead Routes
@@ -303,6 +303,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/search', [SearchController::class, 'searchMaintenance'])->name('maintenance.search');
     Route::get('/maintenance-scheduling/search', [SearchController::class, 'searchPreventive'])->name('maintenanceSchedSearch');
+    Route::get('/maintenance/filter', [SearchController::class, 'filterMaintenance'])->name('maintenance.filter');
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
@@ -326,7 +327,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     */
 
     // DETAILS
-    Route::get('/profile', function () {return view('dept_head.profile');})->name('profile');
+    Route::get('/dept_head/profile', function () {return view('dept_head.profile');})->name('profile');
 
     // UPDATE
     Route::patch('/dept_head/profile_update', [ProfileController::class, 'update'])->name('dept_head.profile_update');

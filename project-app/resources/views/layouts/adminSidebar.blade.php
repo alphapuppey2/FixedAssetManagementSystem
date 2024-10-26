@@ -10,7 +10,8 @@
     <x-nav-link :href="route('admin.profile')" class="mt-3 items-center justify-center">
         <div class="profileAccount flex items-center p-2 rounded-lg transition-all">
             <div class="imagepart overflow-hidden rounded-full w-[30px] h-[30px] md:w-[60px] md:h-[60px] border-2 border-slate-500">
-                <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
+                {{-- <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" --}}
+                <img src="{{ Auth::user()->userPicture ? asset('storage/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                     class="w-full h-full object-cover rounded-full" alt="User Profile Photo">
             </div>
             <div class="profileUser flex-col ml-2 text-[12px] hidden lg:flex">
@@ -40,7 +41,7 @@
             <li>
                 <x-nav-link :href="route('admin.home')" :active="request()->routeIs('admin.home')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-dashIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.dash-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Dashboard</span>
                 </x-nav-link>
             </li>
@@ -48,18 +49,17 @@
             <li>
                 <x-nav-link :href="route('userList')" :active="request()->routeIs('userList')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-userListIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.user-list-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">User List</span>
                 </x-nav-link>
             </li>
 
             <!-- Assets Dropdown -->
             <li class="relative">
-
                 <button id="adminAssetDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Assets</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor"
@@ -71,7 +71,6 @@
 
                 <!-- Dropdown Menu with left margin for indentation -->
                 <ul id="adminAssetDropdownMenu">
-
                     <!-- All Assets -->
                     <x-nav-link :href="route('assetList', ['dept' => null, 'asstDropdown' => 'open'])"
                         :active="request()->routeIs('assetList') && !request()->has('dept')"
@@ -126,11 +125,10 @@
             </li>
 
             <li class="relative">
-
                 <button id="adminMaintenanceDropdownToggle"
                     class="flex items-center w-full text-left p-2 hover:bg-slate-400/15 rounded-md transition-all"
                     aria-expanded="false">
-                    <x-wrenchicon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.wrench-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">&nbsp;&nbsp;Maintenance</span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor"
@@ -145,14 +143,14 @@
                     <x-nav-link :href="route('adminMaintenance', ['mntncDropdown' => 'open'])"
                         :active="request()->routeIs('adminMaintenance')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-envelopeicon class="w-8 h-8 md:w-6 md:h-6"/>
+                        <x-icons.envelope-icon class="w-8 h-8 md:w-6 md:h-6"/>
                         <span class="hidden sm:inline">Request</span>
                     </x-nav-link>
 
                     <x-nav-link :href="route('adminMaintenance_sched', ['mntncDropdown' => 'open'])"
                         :active="request()->routeIs('adminMaintenance_sched')"
                         class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                        <x-calendarIcon class="w-8 h-8 md:w-6 md:h-6"/>
+                        <x-icons.calendar-icon class="w-8 h-8 md:w-6 md:h-6"/>
                         <span class="hidden sm:inline">Scheduling</span>
                     </x-nav-link>
 
@@ -168,7 +166,7 @@
             <li>
                 <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-bellIcon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.bell-icon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Notification</span>
                 </x-nav-link>
             </li>
@@ -176,7 +174,7 @@
             <li>
                 <x-nav-link :href="route('admin.activity-logs')" :active="request()->routeIs('admin.activity-logs')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
-                    <x-receipticon class="w-8 h-8 md:w-6 md:h-6" />
+                    <x-icons.receipticon class="w-8 h-8 md:w-6 md:h-6" />
                     <span class="hidden md:inline">Activity Logs</span>
                 </x-nav-link>
             </li>
@@ -304,53 +302,3 @@
         }
     });
 </script>
-
-{{-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleDropdown = (toggleButton, dropdownMenu, storageKey) => {
-            const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-            toggleButton.setAttribute('aria-expanded', !isExpanded);
-            dropdownMenu.classList.toggle('hidden', isExpanded);
-            localStorage.setItem(storageKey, !isExpanded);
-        };
-
-        const restoreDropdownState = (toggleButton, dropdownMenu, storageKey) => {
-            const savedState = localStorage.getItem(storageKey) === 'true';
-            toggleButton.setAttribute('aria-expanded', savedState);
-            dropdownMenu.classList.toggle('hidden', !savedState);
-        };
-
-        const sidebar = document.getElementById('adminSidebar');
-        const hamburgerToggle = document.getElementById('hamburgerToggleAdmin');
-
-        // Restore sidebar state
-        if (localStorage.getItem('adminSidebarExpanded') === 'true') {
-            sidebar.classList.add('lg:w-[205px]');
-        } else {
-            sidebar.classList.add('md:w-[50px]');
-        }
-
-        hamburgerToggle.addEventListener('click', () => {
-            const isExpanded = sidebar.classList.contains('lg:w-[205px]');
-            sidebar.classList.toggle('md:w-[50px]', isExpanded);
-            sidebar.classList.toggle('lg:w-[205px]', !isExpanded);
-            localStorage.setItem('adminSidebarExpanded', !isExpanded);
-        });
-
-        // Asset dropdown
-        const assetToggle = document.getElementById('adminAssetDropdownToggle');
-        const assetMenu = document.getElementById('adminAssetDropdownMenu');
-        assetToggle.addEventListener('click', () => {
-            toggleDropdown(assetToggle, assetMenu, 'adminAssetDropdownOpen');
-        });
-        restoreDropdownState(assetToggle, assetMenu, 'adminAssetDropdownOpen');
-
-        // Maintenance dropdown
-        const adminMaintenanceToggle = document.getElementById('adminMaintenanceDropdownToggle');
-        const adminMaintenanceMenu = document.getElementById('adminMaintenanceDropdownMenu');
-        adminMaintenanceToggle.addEventListener('click', () => {
-            toggleDropdown(adminMaintenanceToggle, adminMaintenanceMenu, 'adminMaintenanceDropdownOpen');
-        });
-        restoreDropdownState(adminMaintenanceToggle, adminMaintenanceMenu, 'adminMaintenanceDropdownOpen');
-    });
-</script> --}}

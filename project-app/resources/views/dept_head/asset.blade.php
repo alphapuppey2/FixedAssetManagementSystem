@@ -61,11 +61,6 @@
             <x-icons.importIcon />
         </button>
 
-        <!-- Export Button -->
-        {{-- <button class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
-            <x-icons.exportIcon />
-        </button> --}}
-
     </div>
 </div>
 
@@ -104,15 +99,6 @@
 
 
     <!-- Pagination -->
-    {{-- <div class="ml-auto pagination-container">
-        <div class="flex items-center space-x-4 mt-4">
-        <span class="text-gray-600">
-            Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
-        </span>
-        {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
-        </div>
-    </div> --}}
-
     <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
         <span class="text-gray-600 hidden md:block">
             Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
