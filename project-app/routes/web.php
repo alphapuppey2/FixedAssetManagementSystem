@@ -121,6 +121,9 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
 
+    //DISPOSE
+    Route::post('admin/asset/dispose/{id}', [AsstController::class, 'dispose'])->name('adminAsset.dispose');
+
     /*
     -------------------
         MAINTENANCE
@@ -247,6 +250,10 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
     Route::post('/asset/upload-csv', [AsstController::class, 'uploadCsv'])->name('upload.csv');
+
+    //DISPOSE
+    Route::post('/asset/dispose/{id}', [AsstController::class, 'dispose'])->name('asset.dispose');
+
 
     /*
     -------------------

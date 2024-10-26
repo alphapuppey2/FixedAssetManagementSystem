@@ -1150,4 +1150,15 @@ if (request()->ajax()) {
             ], 500);
         }
     }
+
+    public function dispose($id)
+    {
+        $asset = assetModel::findOrFail($id);
+        $asset->status = 'disposed'; // Set the status to disposed
+        $asset->save();
+
+        return response()->json(['success' => true, 'message' => 'Asset disposed successfully.']);
+
+    }
+
 }
