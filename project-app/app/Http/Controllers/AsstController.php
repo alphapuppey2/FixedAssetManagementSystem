@@ -31,10 +31,14 @@ class AsstController extends Controller
 {
     public function showAllAssets(Request $request)
     {
-        // Get department ID from the request (null if not provided)
+        // Fetch categories based on department ID (if provided)
         $deptId = $request->input('dept', null);
 
-        // Get sorting parameters (default to 'asset.name' and 'asc')
+        $categoriesList = DB::table('category')
+            ->when($deptId, fn($q) => $q->where('dept_ID', $deptId))
+            ->get();
+
+        // Get sorting parameters with defaults
         $sortBy = $request->input('sort_by', 'asset.name');
         $sortOrder = strtolower($request->input('sort_order', 'asc'));
 
@@ -51,38 +55,42 @@ class AsstController extends Controller
             $sortOrder = 'asc';
         }
 
-        // Get rows per page (default to 10)
-        $perPage = max((int) $request->input('perPage', 10), 10);
-
-        // Get search query from request
+        // Get pagination and search query parameters
+        $perPage = max((int) $request->input('rows_per_page', 10), 10);
         $query = $request->input('query', '');
 
-        // Build the query with department filtering and search
+        // Get filter parameters (status, category, date range)
+        $statuses = $request->input('status', []);
+        $categories = $request->input('category', []);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Build the query for assets
         $assetsQuery = DB::table('asset')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
             ->select('asset.*', 'department.name as department', 'category.name as category')
-            ->when($deptId, function ($q) use ($deptId) {
-                return $q->where('asset.dept_ID', $deptId);
-            })
-            ->when($query !== '', function ($q) use ($query) {
-                $q->where(function ($subquery) use ($query) {
-                    $subquery->where('asset.name', 'like', '%' . $query . '%')
-                        ->orWhere('asset.code', 'like', '%' . $query . '%')
-                        ->orWhere('category.name', 'like', '%' . $query . '%')
-                        ->orWhere('department.name', 'like', '%' . $query . '%');
-                });
-            });
+            ->where('asset.isDeleted', 0)  // Exclude deleted assets
+            ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
+            ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
+                // Only search by asset name or code
+                $subquery->where('asset.name', 'like', '%' . $query . '%')
+                ->orWhere('asset.code', 'like', '%' . $query . '%');
+            }))
+            ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
+            ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
+            ->when($startDate && $endDate, fn($q) => $q->whereBetween('asset.created_at', [$startDate, $endDate]));
 
-        // Apply sorting and paginate results
+        // Apply sorting and paginate the results
         $assets = $assetsQuery
-            ->where('isDeleted',0)
             ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage)
-            ->appends($request->all()); // Preserve query parameters
+            ->appends($request->all());  // Preserve query parameters for pagination
 
-        // Return the view with the asset list and parameters
-        return view('admin.assetList', compact('assets', 'sortBy', 'sortOrder', 'perPage', 'deptId'));
+        // Return the view with all required parameters
+        return view('admin.assetList', compact(
+            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'
+        ));
     }
 
 
@@ -90,18 +98,26 @@ class AsstController extends Controller
     {
         $userDept = Auth::user()->dept_id;
 
-        // Get query parameters
+        // Get query parameters with defaults
         $search = $request->input('search');
         $sortField = $request->input('sort', 'code');
         $sortDirection = $request->input('direction', 'asc');
         $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
-        // Filter parameters
-        $status = $request->input('status');
-        $category = $request->input('category');
+        // Ensure statuses and categories are always arrays
+        $statuses = $request->input('status', []);
+        $categories = $request->input('category', []);
+
+        if (is_string($statuses)) {
+            $statuses = json_decode($statuses, true) ?? [];  // Decode JSON if it's a string
+        }
+
+        if (is_string($categories)) {
+            $categories = json_decode($categories, true) ?? [];  // Decode JSON if it's a string
+        }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         // Validate sorting field
         $validSortFields = ['code', 'name', 'category_name', 'status'];
@@ -116,28 +132,36 @@ class AsstController extends Controller
             ->where('asset.dept_ID', $userDept)
             ->where('asset.isDeleted', 0)
             ->when($search, function ($query, $search) {
-                return $query->where('asset.name', 'like', "%{$search}%");
+                return $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('asset.name', 'like', "%{$search}%")
+                             ->orWhere('asset.code', 'like', "%{$search}%");
+                });
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('asset.status', $status);
+            ->when(!empty($statuses), function ($query) use ($statuses) {
+                return $query->whereIn('asset.status', $statuses);
             })
-            ->when($category, function ($query, $category) {
-                return $query->where('category.name', 'like', "%{$category}%");
+            ->when(!empty($categories), function ($query) use ($categories) {
+                return $query->whereIn('category.id', $categories);
             })
-            ->select(
-                'asset.id',
-                'asset.code',
-                'asset.name',
-                'asset.status',
-                'category.name as category_name',
-                'department.name as department'
-            )
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
+            })
+            ->select('asset.*', 'category.name as category_name', 'department.name as department')
             ->orderBy($sortField, $sortDirection)
-            ->paginate($rowsPerPage); // Apply rows per page
+            ->paginate($rowsPerPage) // Handle pagination
+            ->appends($request->except('page')); // Retain query parameters on pagination
 
-        // Return view with assets and query parameters
-        return view('dept_head.asset', compact('assets'));
+        // Fetch all categories for the dropdown (filtered by department)
+        $categoriesList = DB::table('category')->where('dept_ID', $userDept)->get();
+
+        // Return the view with the necessary data
+        return view('dept_head.asset', compact('assets', 'categoriesList'));
     }
+
+
+
+
+
 
 
 
@@ -635,9 +659,10 @@ public function fetchDepartmentData($id)
 
         // Paginate results
         $assets = $assetsQuery->paginate(10)->appends($request->all());
+        $categoriesList = DB::table('category')->where('dept_ID', Auth::user()->dept_ID)->get();
 
         // Return the view with filtered and sorted results
-        return view('dept_head.asset', compact('assets'));
+        return view('dept_head.asset', compact('assets','categoriesList'));
     }
 
     public function delete($id)

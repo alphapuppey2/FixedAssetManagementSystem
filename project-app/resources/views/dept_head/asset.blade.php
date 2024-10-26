@@ -14,7 +14,7 @@
 @section('content')
 <div class="flex justify-between items-center mb-2">
     <div class="relative searchBox w-full max-w-md ml-2">
-        <form action="{{ route('assets.search') }}" method="GET" id="searchForm" class="relative flex items-center">
+        <form action="{{ route('asset') }}" method="GET" id="searchForm" class="relative flex items-center">
             <!-- Filter Button Inside Search Input -->
             <button type="button" id="openFilterModalBtn" class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
                 <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
@@ -24,11 +24,29 @@
             <x-text-input
                 name="search"
                 id="searchFilt"
-                placeholder="Search by Code, Name, Category, etc..."
+                placeholder="Search by Code, Name"
                 value="{{ request('search') }}"
                 class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
+
+            <!-- Retain the filter values as hidden inputs -->
+            <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
+            <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
+            <input type="hidden" name="rows_per_page" value="{{ request('rows_per_page', 10) }}">
+
+            <!-- Handle status and category as arrays -->
+            @foreach ((array) request('status', []) as $status)
+                <input type="hidden" name="status[]" value="{{ $status }}">
+            @endforeach
+
+            @foreach ((array) request('category', []) as $category)
+                <input type="hidden" name="category[]" value="{{ $category }}">
+            @endforeach
+
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
         </form>
     </div>
+
 
     <div class="header-R flex items-center space-x-0.5">
         <!-- Refresh Button -->
@@ -51,24 +69,34 @@
     <div class="flex items-center">
         <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
         <form action="{{ route('asset') }}" method="GET" id="rowsPerPageForm" class="flex items-center">
-            <!-- Preserve current filter and search parameters -->
             <input type="hidden" name="search" value="{{ request('search') }}">
             <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
             <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
-            <input type="hidden" name="status" value="{{ request('status') }}">
-            <input type="hidden" name="category" value="{{ request('category') }}">
 
-            <!-- Rows per page select -->
+            <!-- Handle status and category as JSON -->
+            @foreach ((array) request('status', []) as $status)
+                <input type="hidden" name="status[]" value="{{ $status }}">
+            @endforeach
+
+            @foreach ((array) request('category', []) as $category)
+                <input type="hidden" name="category[]" value="{{ $category }}">
+            @endforeach
+
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+
             <select name="rows_per_page" id="rows_per_page"
                 class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="document.getElementById('rowsPerPageForm').submit()">
-                <option value="5" {{ request('rows_per_page', 10) == 5 ? 'selected' : '' }}>5</option>
+                <option value="5" {{ request('rows_per_page', 5) == 5 ? 'selected' : '' }}>5</option>
                 <option value="10" {{ request('rows_per_page', 10) == 10 ? 'selected' : '' }}>10</option>
                 <option value="20" {{ request('rows_per_page') == 20 ? 'selected' : '' }}>20</option>
                 <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
             </select>
         </form>
     </div>
+
+
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
@@ -77,16 +105,15 @@
         </span>
         <div class="text-sm md:text-base">
             @if ($assets->hasPages())
-                <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2" >
-                    {{ $assets->appends(request()->query())->links() }}
+                <div class="md:hidden text-xs flex justify-center space-x-1 mt-2">
+                    {{ $assets->appends(request()->except('page'))->links() }}
                 </div>
                 <div class="hidden md:block">
-                    {{ $assets->appends(request()->query())->links('vendor.pagination.tailwind') }}
+                    {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
                 </div>
             @endif
         </div>
     </div>
-
 </div>
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
@@ -128,7 +155,9 @@
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->code ?? 'NONE' }}</td>
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->name }}</td>
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->category_name }}</td>
-                        <td class="align-middle text-center text-sm text-gray-900">@include('components.asset-status', ['status' => $asset->status])</td>
+                        <td class="align-middle text-center text-sm text-gray-900">
+                            @include('components.asset-status', ['status' => $asset->status])
+                        </td>
                         <td class="w-40">
                             <div class="flex gap-2 justify-center">
                                 <a href="{{ route('assetDetails', $asset->code) }}" class="inline-flex items-center w-8 h-8">
@@ -142,10 +171,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">No Assets</td>
+                        <td colspan="5" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            No Assets Found
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
+
         </table>
     </div>
 
@@ -182,7 +214,7 @@
 </div>
 
 @include('dept_head.modal.modalImportAsset')
-@include('dept_head.modal.filterAssetTable')
+@include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 @include('dept_head.modal.deleteAssetModal')
 
 @if (session('success'))
@@ -192,14 +224,25 @@
     @endif
 
 <script>
+    document.getElementById('rows_per_page').addEventListener('change', function () {
+    const rowsPerPage = this.value;
+    console.log('Rows per page selected:', rowsPerPage);
+
+    const form = document.getElementById('rowsPerPageForm');
+    const formData = new FormData(form);
+    console.log('Form data:', Object.fromEntries(formData));  // Log all form data
+
+    // form.submit();  // Proceed with form submission
+    });
+
     //Filter Modal Script
         document.getElementById('openFilterModalBtn').addEventListener('click', function () {
             document.getElementById('filterModal').classList.remove('hidden'); // Show the modal
         });
 
-        document.getElementById('closeFilterModalBtn').addEventListener('click', function () {
-            document.getElementById('filterModal').classList.add('hidden'); // Hide the modal
-        });
+        // document.getElementById('closeFilterModalBtn').addEventListener('click', function () {
+        //     document.getElementById('filterModal').classList.add('hidden'); // Hide the modal
+        // });
 
 
     //Delete Modal Script

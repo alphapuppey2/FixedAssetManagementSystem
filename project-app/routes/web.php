@@ -20,6 +20,8 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\FiltersController;
+
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -95,8 +97,12 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     -------------------
     */
 
+
     // ASSET LIST
     Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    //ASSET LIST FILTER
+    Route::get('/admin/assets/filter', [FiltersController::class, 'filterAssetsAdmin'])->name('admin.assets.filter');
 
     // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
@@ -192,6 +198,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // CHANGE PASSWORD
     Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
     Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
+
+
 });
 
 // DeptHead Routes
@@ -214,6 +222,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
+
+    Route::get('/filter-assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
 
     // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
@@ -297,6 +307,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    Route::get('asset/filteredsearch',[FiltersController::class , 'filterAssets'])->name('asset.filtered');
 
     /*
     -------------------
