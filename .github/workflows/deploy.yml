@@ -39,6 +39,7 @@ jobs:
       - name: Install Composer dependencies on server
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
           cd /var/www/html/FixedAssetManagementSystem/project-app &&
+          npm ci && npm run build &&
           composer install --no-dev --optimize-autoloader &&
           php artisan config:clear &&
           php artisan cache:clear &&
@@ -47,14 +48,6 @@ jobs:
           php artisan view:cache "
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Install Node.js dependencies
-        working-directory: project-app
-        run: npm install
-      
-      - name: Build Vite assets
-        working-directory: project-app
-        run: npm run build
           
       - name: Restart Apache
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
