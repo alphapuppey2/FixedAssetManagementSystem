@@ -28,6 +28,14 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Set Correct Permissions on Server
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          chown -R www-data:www-data /var/www/html/FixedAssetManagementSystem/project-app &&
+          chmod -R 775 /var/www/html/FixedAssetManagementSystem/project-app/storage &&
+          chmod -R 775 /var/www/html/FixedAssetManagementSystem/project-app/bootstrap/cache"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Install Composer dependencies on server
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
           cd /var/www/html/FixedAssetManagementSystem/project-app &&
