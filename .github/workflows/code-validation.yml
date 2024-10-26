@@ -9,20 +9,6 @@ jobs:
   validate:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: fixedasset
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -34,12 +20,14 @@ jobs:
           extensions: mbstring, intl, pdo, mysql
 
       - name: Install Composer dependencies
+        working-directory: project-app
         run: composer install --prefer-dist --no-interaction
 
       - name: Wait for MySQL to be ready
         run: sleep 15
 
       - name: Run database migrations
+        working-directory: project-app
         run: php artisan migrate --force
 
       - name: Install Node.js
@@ -48,7 +36,9 @@ jobs:
           node-version: '16'
 
       - name: Install Vite dependencies
+        working-directory: project-app
         run: npm install
 
       - name: Run Laravel tests
+        working-directory: project-app
         run: php artisan test
