@@ -202,15 +202,26 @@ class UserSideController extends Controller
             'qr_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Store the uploaded image
-        $imagePath = $request->file('qr_image')->store('qr_images', 'public');
+        try {
+            // Store the uploaded image in 'public/qr_images'
+            $imagePath = $request->file('qr_image')->store('qr_images', 'public');
 
-        // Decode the QR code from the image
-        $qrcode = new QrReader(storage_path('app/public/' . $imagePath));
-        $text = $qrcode->text();
+            // Decode the QR code from the stored image
+            $qrcode = new QrReader(storage_path('app/public/' . $imagePath));
+            $text = $qrcode->text();
 
-        // Redirect to asset details view
-        return redirect()->route('qr.asset.details', ['code' => $text]);
+            // Check if QR code decoding was successful
+            if (empty($text)) {
+                return redirect()->back()->with('error', 'Failed to decode the QR code. Please try another image.');
+            }
+
+            // Redirect to asset details with the decoded text as a parameter
+            return redirect()->route('qr.asset.details', ['code' => $text]);
+
+        } catch (\Exception $e) {
+            // Handle any unexpected errors gracefully
+            return redirect()->back()->with('error', 'An error occurred while processing the QR code. Please try again.');
+        }
     }
 
     // CHECK IF ASSET EXISTS
