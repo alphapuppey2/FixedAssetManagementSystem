@@ -67,26 +67,6 @@
                 </form>
             </div>
 
-            <!-- Pagination (on the right) -->
-            {{-- <div class="ml-auto pagination-container flex items-center space-x-4">
-                <span class="text-gray-600">
-                    Showing
-                    {{ $requests->firstItem() ?? 0 }}
-                    to
-                    {{ $requests->lastItem() ?? 0 }}
-                    of {{ $requests->total() }} requests
-                </span>
-
-                {{ $requests->appends([
-                    'rows_per_page' => $perPage,
-                    'tab' => $tab,
-                    'query' => request('query'),
-                    'sort_by' => $sortBy,
-                    'sort_order' => $sortOrder
-                ])->links('vendor.pagination.tailwind') }}
-            </div> --}}
-
-
             <div class="flex items-center justify-between mb-4 mt-4 flex-col md:flex-row space-x-4 md:space-y-0 pagination-container">
                 <!-- Pagination Info - Only show on medium screens and above -->
                 <span class="text-gray-600 hidden md:block">

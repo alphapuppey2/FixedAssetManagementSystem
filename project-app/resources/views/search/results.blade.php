@@ -9,7 +9,7 @@
             <!-- Users Section -->
             <div class="bg-white shadow-md rounded-lg p-6 border">
                 <div class="flex items-center mb-4">
-                <x-userListIcon />
+                <x-icons.user-list-icon />
                     <h3 class="text-xl font-semibold text-gray-700">Users</h3>
                 </div>
                 @if($users->isEmpty())
@@ -32,7 +32,7 @@
         <!-- Assets Section -->
         <div class="bg-white shadow-md rounded-lg p-6 border">
             <div class="flex items-center mb-4">
-                <x-receipticon />
+                <x-icons.receipticon />
                 <h3 class="text-xl font-semibold text-gray-700">Assets</h3>
             </div>
             @if($assets->isEmpty())
@@ -56,7 +56,7 @@
         <!-- Maintenance Section -->
         <div class="bg-white shadow-md rounded-lg p-6 border">
             <div class="flex items-center mb-4">
-                <x-wrenchicon />
+                <x-icons.wrench-icon />
                 <h3 class="text-xl font-semibold text-gray-700">Maintenance</h3>
             </div>
             @if($request->isEmpty())

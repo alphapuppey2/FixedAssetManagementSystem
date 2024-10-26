@@ -13,7 +13,7 @@
 
 @section('content')
     <div class="max-w-xl mx-auto py-12">
-        <form method="POST" action="{{ route('admin.profile_password') }}">
+        <form method="POST" action="{{ route('admin.changePassword') }}">
             @csrf
             @method('PATCH')
 
