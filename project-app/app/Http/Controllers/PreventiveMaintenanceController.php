@@ -152,9 +152,9 @@ class PreventiveMaintenanceController extends Controller
         $preventive = Preventive::findOrFail($id);
 
         // Update basic fields
-        $preventive->cost = $request->input('cost');
-        $preventive->frequency = $request->input('frequency');
-        $preventive->ends = $request->input('ends');
+        // $preventive->cost = $request->input('cost');
+        // $preventive->frequency = $request->input('frequency');
+        // $preventive->ends = $request->input('ends');
 
         // Handle status change
         $preventive->status = $request->input('status');
