@@ -33,7 +33,11 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, intl, pdo, mysql
 
-      - name: Create .env file with APP_KEY
+      - name: Install Composer dependencies
+        working-directory: project-app
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Create .env file
         run: |
           cat <<EOF > project-app/.env
           APP_NAME=Laravel
@@ -53,18 +57,14 @@ jobs:
       - name: Wait for MySQL to be ready
         run: sleep 15
 
-      - name: Run database migrations
+      - name: Run database migrations and seeders
         working-directory: project-app
-        run: php artisan migrate --force
+        run: php artisan migrate:fresh --seed --force
 
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-
-      - name: Install Composer dependencies
-        working-directory: project-app
-        run: composer install --prefer-dist --no-interaction
 
       - name: Install Vite dependencies
         working-directory: project-app
