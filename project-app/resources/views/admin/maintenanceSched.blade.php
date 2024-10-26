@@ -73,14 +73,6 @@
             </form>
         </div>
 
-        <!-- Pagination (on the right) -->
-        {{-- <div class="ml-auto pagination-container flex items-center justify-between flex-col md:flex-row space-x-4 md:space-y-0">
-            <span class="text-gray-600 hidden md:block">
-                Showing {{ $records->firstItem() }} to {{ $records->lastItem() }} of {{ $records->total() }} assets
-            </span>
-            {{ $records->appends(['rows_per_page' => $perPage])->links('vendor.pagination.tailwind') }}
-        </div> --}}
-
         <div class="flex items-center justify-between mb-4 mt-4 flex-col md:flex-row space-x-4 md:space-y-0 pagination-container">
             <!-- Pagination Info - Only show on medium screens and above -->
             <span class="text-gray-600 hidden md:block">

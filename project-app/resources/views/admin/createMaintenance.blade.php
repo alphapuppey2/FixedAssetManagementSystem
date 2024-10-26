@@ -270,24 +270,6 @@
                     $('#location').val(response.location ? response.location.name : '').trigger('input');
                     $('#manufacturer').val(response.manufacturer ? response.manufacturer.name : '').trigger('input');
 
-                    // Populate the other related fields
-                    // if (response.model) {
-                    //     console.log('Setting Model to: ' + response.model.name);
-                    //     $('#model').val(response.model.id).trigger('change.select2'); // Populate model dropdown
-                    // }
-                    // if (response.category) {
-                    //     console.log('Setting Category to: ' + response.category.name);
-                    //     $('#category').val(response.category.id).trigger('change.select2'); // Populate category dropdown
-                    // }
-                    // if (response.location) {
-                    //     console.log('Setting Location to: ' + response.location.name);
-                    //     $('#location').val(response.location.id).trigger('change.select2'); // Populate location dropdown
-                    // }
-                    // if (response.manufacturer) {
-                    //     console.log('Setting Manufacturer to: ' + response.manufacturer.name);
-                    //     $('#manufacturer').val(response.manufacturer.id).trigger('change.select2'); // Populate manufacturer dropdown
-                    // }
-
                     // Update the asset image
                     var assetImage = response.image_url ? response.image_url : '/images/no-image.png';
                     $('#assetImage').attr('src', assetImage);

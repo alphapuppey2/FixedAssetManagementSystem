@@ -85,7 +85,6 @@
         </div>
 
         <!-- Pagination (on the right) -->
-        {{-- <div class="ml-auto"> --}}
         <div class="ml-auto pagination-container">
             {{ $records->appends(['rows_per_page' => $perPage])->links() }} <!-- Pagination Links -->
         </div>
@@ -412,8 +411,6 @@ function toggleFieldsBasedOnStatus() {
     document.addEventListener('DOMContentLoaded', function() {
         toggleFieldsBasedOnStatus(); // Call the function to handle fields based on the status
     });
-
-
 
     function openEditModal(id) {
         console.log('Edit button clicked for ID:', id);
