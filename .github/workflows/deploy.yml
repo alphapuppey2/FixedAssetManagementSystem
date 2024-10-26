@@ -56,6 +56,12 @@ jobs:
         working-directory: project-app
         run: npm run build
 
+      - name: Copy Vite build to public directory
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          cp -r /var/www/html/FixedAssetManagementSystem/project-app/dist/* /var/www/html/FixedAssetManagementSystem/project-app/public/build/"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          
       - name: Restart Apache
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
           systemctl restart apache2 "
