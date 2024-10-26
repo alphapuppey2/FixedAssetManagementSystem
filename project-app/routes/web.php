@@ -20,6 +20,8 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\FiltersController;
+
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -88,15 +90,20 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/user-create', function () {
         return view('admin.createUser');
     })->name('users.create');
-
+    // USER FILTER LIST
+    Route::get('/admin/users/filter', [FiltersController::class, 'filterUsers'])->name('filterUsers');
     /*
     -------------------
         ASSETS
     -------------------
     */
 
+
     // ASSET LIST
     Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    //ASSET LIST FILTER
+    Route::get('/admin/assets/filter', [FiltersController::class, 'filterAssetsAdmin'])->name('admin.assets.filter');
 
     // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
@@ -215,6 +222,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
 
+    Route::get('/filter-assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
+
     // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
     // route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
@@ -233,6 +242,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // UPDATE
     Route::put('/asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
     Route::delete('/asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
+    Route::delete('/assets/multi-delete', [AsstController::class, 'multiDelete'])->name('asset.multiDelete');
 
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
@@ -297,6 +307,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    Route::get('asset/filteredsearch',[FiltersController::class , 'filterAssets'])->name('asset.filtered');
 
     /*
     -------------------
