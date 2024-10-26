@@ -191,7 +191,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
     // CHANGE PASSWORD
     Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
-    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
+    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.changePassword');
 });
 
 // DeptHead Routes
