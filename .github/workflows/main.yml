@@ -95,9 +95,14 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
+    - name: Clean up existing project files
+      run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "rm -rf /var/www/html/FixedAssetManagementSystem/project-app/*"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
     - name: Copy files to the server
       run: |
-        rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app
+        rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" project-app/ root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
