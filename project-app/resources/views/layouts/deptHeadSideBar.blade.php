@@ -179,23 +179,6 @@
 </style>
 
 <script>
-    //     document.addEventListener('DOMContentLoaded', function () {
-    //     const toggleDropdown = (toggleButton, dropdownMenu, icon) => {
-    //         const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-    //         toggleButton.setAttribute('aria-expanded', !isExpanded);
-    //         dropdownMenu.classList.toggle('hidden', isExpanded);
-    //         icon.classList.toggle('rotate-180', !isExpanded); // Rotate the icon
-    //     };
-
-    //     const maintenanceToggle = document.getElementById('maintenanceDropdownToggle');
-    //     const maintenanceMenu = document.getElementById('maintenanceDropdownMenu');
-    //     const maintenanceIcon = document.getElementById('maintenanceIcon');
-
-    //     maintenanceToggle.addEventListener('click', () => {
-    //         toggleDropdown(maintenanceToggle, maintenanceMenu, maintenanceIcon);
-    //     });
-    // });
-
     document.addEventListener('DOMContentLoaded', function() {
         const reportsToggle = document.getElementById('reportsDropdownToggle');
         const reportsMenu = document.getElementById('reportsDropdownMenu');
@@ -277,47 +260,3 @@
         }
     });
 </script>
-
-<!-- JavaScript -->
-{{-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleDropdown = (toggleButton, dropdownMenu, storageKey) => {
-            const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-            toggleButton.setAttribute('aria-expanded', !isExpanded);
-            dropdownMenu.classList.toggle('hidden', isExpanded);
-
-            // Save the state in localStorage
-            localStorage.setItem(storageKey, !isExpanded);
-        };
-
-        const restoreDropdownState = (toggleButton, dropdownMenu, storageKey) => {
-            const savedState = localStorage.getItem(storageKey) === 'true';
-            toggleButton.setAttribute('aria-expanded', savedState);
-            dropdownMenu.classList.toggle('hidden', !savedState);
-        };
-
-        // Sidebar toggle logic
-        document.getElementById('hamburgerToggle').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('w-[50px]');
-            document.getElementById('sidebar').classList.toggle('md:w-[205px]');
-        });
-
-        // Maintenance dropdown logic
-        const maintenanceToggle = document.getElementById('maintenanceDropdownToggle');
-        const maintenanceMenu = document.getElementById('maintenanceDropdownMenu');
-        maintenanceToggle.addEventListener('click', () => {
-            toggleDropdown(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
-        });
-
-        // Reports dropdown logic
-        const reportsToggle = document.getElementById('reportsDropdownToggle');
-        const reportsMenu = document.getElementById('reportsDropdownMenu');
-        reportsToggle.addEventListener('click', () => {
-            toggleDropdown(reportsToggle, reportsMenu, 'reportsDropdownOpen');
-        });
-
-        // Restore the state on page load
-        restoreDropdownState(maintenanceToggle, maintenanceMenu, 'maintenanceDropdownOpen');
-        restoreDropdownState(reportsToggle, reportsMenu, 'reportsDropdownOpen');
-    });
-</script> --}}
