@@ -66,15 +66,15 @@ class UserController extends Controller
     // SHOWS USER LIST
     public function getUserList(Request $request)
     {
-        // Get the search query and pagination settings from the request
+        // Get search query and pagination settings
         $query = $request->input('query', '');
         $perPage = $request->input('perPage', 10);
 
-        // Get sorting parameters from the request (default to 'id' and 'asc')
+        // Get sorting parameters from the request (default: id, asc)
         $sortBy = $request->input('sort_by', 'id');
         $sortOrder = $request->input('sort_order', 'asc');
 
-        // List of valid columns to sort by
+        // List of valid columns for sorting
         $validSortFields = [
             'id', 'employee_id', 'firstname', 'middlename', 'lastname',
             'email', 'usertype', 'is_deleted', 'department_name',
@@ -86,24 +86,54 @@ class UserController extends Controller
             $sortBy = 'id';
         }
 
-        // Build the query with search, sorting, and pagination
+        // Retrieve filter parameters from the request
+        $userTypes = $request->input('usertype', []);
+        $departments = $request->input('department', []);
+        $statuses = $request->input('status', []);
+
+        // Build the query with search, filtering, sorting, and pagination
         $userList = DB::table('users')
             ->leftJoin('department', 'users.dept_id', '=', 'department.id')
             ->select('users.*', 'department.name as department_name')
             ->when($query, function ($q) use ($query) {
                 // Apply search filter
-                $q->where('users.firstname', 'like', "%{$query}%")
-                  ->orWhere('users.lastname', 'like', "%{$query}%")
-                  ->orWhere('users.email', 'like', "%{$query}%");
+                $q->where(function ($subquery) use ($query) {
+                    $subquery->where('users.firstname', 'like', "%{$query}%")
+                             ->orWhere('users.lastname', 'like', "%{$query}%")
+                             ->orWhere('users.email', 'like', "%{$query}%");
+                });
+            })
+            ->when(!empty($userTypes), function ($q) use ($userTypes) {
+                // Handle 'Department Head' (which is 'dept_head')
+                if (in_array('Department Head', $userTypes)) {
+                    $userTypes = array_replace($userTypes, array_fill_keys(
+                        array_keys($userTypes, 'Department Head'), 'dept_head'
+                    ));
+                }
+                // Apply user type filter
+                $q->whereIn('users.usertype', $userTypes);
+            })
+            ->when(!empty($departments), function ($q) use ($departments) {
+                // Apply department filter
+                $q->whereIn('users.dept_id', $departments);
+            })
+            ->when(!empty($statuses), function ($q) use ($statuses) {
+                // Apply status filter (0 = Active, 1 = Inactive)
+                $q->where(function ($subquery) use ($statuses) {
+                    if (in_array('Active', $statuses)) {
+                        $subquery->orWhere('users.is_deleted', 0);
+                    }
+                    if (in_array('Inactive', $statuses)) {
+                        $subquery->orWhere('users.is_deleted', 1);
+                    }
+                });
             })
             ->orderBy($sortBy, $sortOrder) // Apply sorting
             ->paginate($perPage) // Apply pagination
-            ->appends([
-                'query' => $query,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-                'perPage' => $perPage,
-            ]);
+            ->appends($request->all()); // Preserve query parameters for pagination links
+
+        // Retrieve all departments for the filter dropdown
+        $departments = DB::table('department')->select('id', 'name')->get();
 
         // Pass the necessary data to the view
         return view('admin.userList', [
@@ -112,8 +142,12 @@ class UserController extends Controller
             'sortOrder' => $sortOrder,
             'perPage' => $perPage,
             'query' => $query,
+            'userTypes' => $userTypes,
+            'departments' => $departments,
+            'statuses' => $statuses,
         ]);
     }
+
 
 
     // EDIT/UPDATE USER DETAILS

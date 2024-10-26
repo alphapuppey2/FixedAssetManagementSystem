@@ -20,6 +20,8 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\FiltersController;
+
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -36,7 +38,6 @@ Route::get('/', function () {
 });
 
 Route::middleware('auth')->group(function () {
-
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -89,15 +90,20 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/user-create', function () {
         return view('admin.createUser');
     })->name('users.create');
-
+    // USER FILTER LIST
+    Route::get('/admin/users/filter', [FiltersController::class, 'filterUsers'])->name('filterUsers');
     /*
     -------------------
         ASSETS
     -------------------
     */
 
+
     // ASSET LIST
     Route::get('/admin/assets', [AsstController::class, 'showAllAssets'])->name('assetList');
+
+    //ASSET LIST FILTER
+    Route::get('/admin/assets/filter', [FiltersController::class, 'filterAssetsAdmin'])->name('admin.assets.filter');
 
     // Route::get('/admin/assets/department/{dept}', [AsstController::class, 'showAssetsByDept'])->name('assetListByDept');
     // route::get('/admin/assets/search', [AsstController::class, 'searchAssets'])->name('searchAssets');
@@ -192,7 +198,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::patch('/admin/profile_update', [ProfileController::class, 'update'])->name('admin.profile_update');
     // CHANGE PASSWORD
     Route::get('/admin/profile_password', function () {return view('admin.profilePassword');})->name('admin.profile_password');
-    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.profile_password');
+    Route::patch('/admin/profile_password', [ProfileController::class, 'changePassword'])->name('admin.changePassword');
 });
 
 // DeptHead Routes
@@ -216,6 +222,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // LIST ALL IN DEPARTMENT
     Route::get('/asset', [AsstController::class, 'showDeptAsset'])->name('asset');
 
+    Route::get('/filter-assets', [FiltersController::class, 'filterAssets'])->name('asset.filter');
+
     // CREATE NEW
     Route::post('/asset', [AsstController::class, 'create'])->name('asset.create');
     // route::get('asset/graph', [AsstController::class, 'assetGraph'])->name('asset.graph');
@@ -234,6 +242,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // UPDATE
     Route::put('/asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
     Route::delete('/asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
+    Route::delete('/assets/multi-delete', [AsstController::class, 'multiDelete'])->name('asset.multiDelete');
 
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');
@@ -298,6 +307,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     Route::get('/maintenance/records/search', [MaintenanceController::class, 'showRecords'])->name('maintenance.records.search');
     route::get('/asset/search/row', [AsstController::class, 'searchFiltering'])->name('assets.search');
+    Route::get('asset/filteredsearch',[FiltersController::class , 'filterAssets'])->name('asset.filtered');
 
     /*
     -------------------
@@ -317,7 +327,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     */
 
     // DETAILS
-    Route::get('/profile', function () {return view('dept_head.profile');})->name('profile');
+    Route::get('/dept_head/profile', function () {return view('dept_head.profile');})->name('profile');
 
     // UPDATE
     Route::patch('/dept_head/profile_update', [ProfileController::class, 'update'])->name('dept_head.profile_update');
