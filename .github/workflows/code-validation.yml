@@ -19,6 +19,23 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, intl, pdo, mysql
 
+      - name: Create .env file with APP_KEY
+        run: |
+          cat <<EOF > project-app/.env
+          APP_NAME=Laravel
+          APP_ENV=testing
+          APP_KEY=$(php project-app/artisan key:generate --show)
+          APP_DEBUG=true
+          APP_URL=http://localhost
+
+          DB_CONNECTION=mysql
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_DATABASE=fixedasset
+          DB_USERNAME=root
+          DB_PASSWORD=password
+          EOF
+
       - name: Install Composer dependencies
         working-directory: project-app
         run: composer install --prefer-dist --no-interaction
