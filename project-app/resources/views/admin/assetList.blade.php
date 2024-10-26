@@ -64,13 +64,12 @@
         </div>
         <div class="flex justify-between items-center mb-2">
             <div class="flex items-center">
-                <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
                 <form action="{{ route('assetList') }}" method="GET" id="rowsPerPageForm" class="flex items-center">
+                    <input type="hidden" name="dept" value="{{ request('dept') }}">  <!-- Retain Department ID -->
                     <input type="hidden" name="search" value="{{ request('search') }}">
-                    <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
-                    <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
+                    <input type="hidden" name="sort_by" value="{{ request('sort_by', 'asset.name') }}">
+                    <input type="hidden" name="sort_order" value="{{ request('sort_order', 'asc') }}">
 
-                    <!-- Handle status and category as JSON -->
                     @foreach ((array) request('status', []) as $status)
                         <input type="hidden" name="status[]" value="{{ $status }}">
                     @endforeach
@@ -82,17 +81,17 @@
                     <input type="hidden" name="start_date" value="{{ request('start_date') }}">
                     <input type="hidden" name="end_date" value="{{ request('end_date') }}">
 
+                    <label for="rows_per_page" class="mr-2">Rows per page:</label>
                     <select name="rows_per_page" id="rows_per_page"
-                        class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onchange="document.getElementById('rowsPerPageForm').submit()">
-                        <option value="5" {{ request('rows_per_page', 5) == 5 ? 'selected' : '' }}>5</option>
-                        <option value="10" {{ request('rows_per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                            class="border rounded-md"
+                            onchange="document.getElementById('rowsPerPageForm').submit()">
+
+                        <option value="10" {{ request('rows_per_page') == 10 ? 'selected' : '' }}>10</option>
                         <option value="20" {{ request('rows_per_page') == 20 ? 'selected' : '' }}>20</option>
                         <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
                     </select>
                 </form>
             </div>
-
             <!-- Pagination Links and Showing Results -->
 
             {{-- <div class="flex items-center space-x-4 mt-4">

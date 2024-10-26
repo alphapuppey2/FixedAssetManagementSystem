@@ -73,10 +73,9 @@ class AsstController extends Controller
             ->where('asset.isDeleted', 0)  // Exclude deleted assets
             ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
             ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
+                // Only search by asset name or code
                 $subquery->where('asset.name', 'like', '%' . $query . '%')
-                         ->orWhere('asset.code', 'like', '%' . $query . '%')
-                         ->orWhere('category.name', 'like', '%' . $query . '%')
-                         ->orWhere('department.name', 'like', '%' . $query . '%');
+                ->orWhere('asset.code', 'like', '%' . $query . '%');
             }))
             ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
             ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
@@ -93,10 +92,6 @@ class AsstController extends Controller
             'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'
         ));
     }
-
-
-
-
 
 
     public function showDeptAsset(Request $request)
