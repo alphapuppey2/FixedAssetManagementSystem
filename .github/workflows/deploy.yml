@@ -23,7 +23,7 @@ jobs:
         run: |
           rsync -avz --delete \
             --exclude=node_modules --exclude=vendor --exclude=.env \
-            -e "ssh -o StrictHostKeyChecking=no" ./ \
+            -e "ssh -o StrictHostKeyChecking=no" ./project-app/ \
             root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
