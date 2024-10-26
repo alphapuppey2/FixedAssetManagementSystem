@@ -91,7 +91,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/user-create', function () {
         return view('admin.createUser');
     })->name('users.create');
-
+    // USER FILTER LIST
+    Route::get('/admin/users/filter', [FiltersController::class, 'filterUsers'])->name('filterUsers');
     /*
     -------------------
         ASSETS

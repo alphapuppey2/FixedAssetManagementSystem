@@ -1,11 +1,14 @@
 @extends('layouts.app')
 
 @section('header')
-    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
-        <div class="title">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
-        </div>
+<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+    <div class="title">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ $departmentName ? $departmentName . ' Assets' : 'Assets' }}
+        </h2>
     </div>
+</div>
+
 @endsection
 
 @section('content')
@@ -20,11 +23,15 @@
 
                     <!-- Search Input Field -->
                     <x-text-input
-                        name="search"
+                        name="query"
                         id="searchFilt"
                         placeholder="Search by Code, Name"
-                        value="{{ request('search') }}"
-                        class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
+                        value="{{ request('query') }}"
+                        class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
+                    />
+
+                    <!-- Retain department filter -->
+                    <input type="hidden" name="dept" value="{{ request('dept') }}">
 
                     <!-- Retain the filter values as hidden inputs -->
                     <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
@@ -44,6 +51,7 @@
                     <input type="hidden" name="end_date" value="{{ request('end_date') }}">
                 </form>
             </div>
+
 
 
             <div class="header-R flex items-center space-x-0.5">

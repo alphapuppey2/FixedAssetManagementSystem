@@ -31,23 +31,23 @@ class AsstController extends Controller
 {
     public function showAllAssets(Request $request)
     {
-        // Fetch categories based on department ID (if provided)
+        // Fetch department information (if provided)
         $deptId = $request->input('dept', null);
+        $departmentName = $deptId ? DB::table('department')->where('id', $deptId)->value('name') : null;
 
+        // Fetch categories based on department ID
         $categoriesList = DB::table('category')
             ->when($deptId, fn($q) => $q->where('dept_ID', $deptId))
             ->get();
 
-        // Get sorting parameters with defaults
+        // Sorting parameters with default values
         $sortBy = $request->input('sort_by', 'asset.name');
         $sortOrder = strtolower($request->input('sort_order', 'asc'));
 
-        // Validate sort field and order
         $validSortFields = [
             'asset.name', 'asset.code', 'category.name',
             'department.name', 'asset.depreciation', 'asset.status'
         ];
-
         if (!in_array($sortBy, $validSortFields)) {
             $sortBy = 'asset.name';
         }
@@ -55,11 +55,10 @@ class AsstController extends Controller
             $sortOrder = 'asc';
         }
 
-        // Get pagination and search query parameters
+        // Pagination, search query, and filters
         $perPage = max((int) $request->input('rows_per_page', 10), 10);
         $query = $request->input('query', '');
 
-        // Get filter parameters (status, category, date range)
         $statuses = $request->input('status', []);
         $categories = $request->input('category', []);
         $startDate = $request->input('start_date');
@@ -73,9 +72,8 @@ class AsstController extends Controller
             ->where('asset.isDeleted', 0)  // Exclude deleted assets
             ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
             ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
-                // Only search by asset name or code
                 $subquery->where('asset.name', 'like', '%' . $query . '%')
-                ->orWhere('asset.code', 'like', '%' . $query . '%');
+                         ->orWhere('asset.code', 'like', '%' . $query . '%');
             }))
             ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
             ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
@@ -87,9 +85,9 @@ class AsstController extends Controller
             ->paginate($perPage)
             ->appends($request->all());  // Preserve query parameters for pagination
 
-        // Return the view with all required parameters
+        // Return the view with all parameters
         return view('admin.assetList', compact(
-            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'
+            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'departmentName', 'categoriesList'
         ));
     }
 
