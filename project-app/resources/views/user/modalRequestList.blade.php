@@ -1,8 +1,8 @@
-
 <div id="viewModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-[999]">
     <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[80vh]">
         <!-- Close Button (Top-Right) -->
-        <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
+        <button onclick="closeModal()"
+            class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -19,7 +19,8 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Asset Image & QR Code</h3>
                 <div class="flex space-x-4">
                     <!-- Asset Image -->
-                    <div class="imagepart relative w-36 h-36 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                    <div
+                        class="imagepart relative w-36 h-36 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                         <img id="modalAssetImage" src="" class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->
@@ -82,8 +83,15 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Status:</span>
-                        <span id="modalAssetStatus" class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
+                        <span id="modalAssetStatus"
+                            class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
                     </div>
+                    <div class="flex flex-col justify-between">
+                        <span class="font-medium">Custom Fields </span>
+                        <div id="modalAdditionalInfo" class="space-y-2 text-gray-600"></div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -100,7 +108,8 @@
             <div class="space-y-2">
                 <div>
                     <span class="font-medium">Status:</span>
-                    <span id="modalRequestStatus" class="inline-block px-2 py-1 rounded-full text-xs font-semibold"></span>
+                    <span id="modalRequestStatus"
+                        class="inline-block px-2 py-1 rounded-full text-xs font-semibold"></span>
                 </div>
                 <div id="authorizedByContainer" class="hidden">
                     <span class="font-medium">Authorized by:</span>
@@ -115,7 +124,8 @@
 
         <!-- Cancel Button (Only show if request is pending) -->
         <div id="cancelRequestButton" class="mt-4 text-right hidden">
-            <button type="button" onclick="showDaCancelModal()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+            <button type="button" onclick="showDaCancelModal()"
+                class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
                 Cancel Request
             </button>
         </div>
@@ -124,69 +134,102 @@
 
 <!-- JavaScript -->
 <script>
-function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciation, assetSalvage, assetCategory, assetLifespan, assetModel, assetManufacturer, assetLocation, assetStatus, requestReason, requestId, requestStatus, qrCodePath, authorizedBy = null, denialReason = null) {
-    // Set modal content
-    document.getElementById('modalAssetCode').innerText = assetCode;
-    document.getElementById('modalAssetImage').src = assetImage ? `/storage/${assetImage}` : '/images/defaultICON.png';
-    document.getElementById('modalAssetQr').src = qrCodePath ? `/storage/${qrCodePath}` : '/images/defaultQR.png';
-    document.getElementById('modalAssetName').innerText = assetName;
-    document.getElementById('modalAssetCost').innerText = assetCost;
-    document.getElementById('modalAssetDepreciation').innerText = assetDepreciation + "%";
-    document.getElementById('modalAssetSalvage').innerText = assetSalvage;
-    document.getElementById('modalAssetCategory').innerText = assetCategory;
-    document.getElementById('modalAssetLifespan').innerText = assetLifespan + " years";
-    document.getElementById('modalAssetModel').innerText = assetModel;
-    document.getElementById('modalAssetManufacturer').innerText = assetManufacturer;
-    document.getElementById('modalAssetLocation').innerText = assetLocation;
+    function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciation, assetSalvage, assetCategory,
+        assetLifespan, assetModel, assetManufacturer, assetLocation, assetStatus, requestReason, requestId,
+        requestStatus, qrCodePath, authorizedBy = null, denialReason = null, additionalInfo = []) {
+        // Set modal content
+        document.getElementById('modalAssetCode').innerText = assetCode;
+        document.getElementById('modalAssetImage').src = assetImage ? `/storage/${assetImage}` :
+            '/images/defaultICON.png';
+        document.getElementById('modalAssetQr').src = qrCodePath ? `/storage/${qrCodePath}` : '/images/defaultQR.png';
+        document.getElementById('modalAssetName').innerText = assetName;
+        document.getElementById('modalAssetCost').innerText = assetCost;
+        document.getElementById('modalAssetDepreciation').innerText = assetDepreciation;
+        document.getElementById('modalAssetSalvage').innerText = assetSalvage;
+        document.getElementById('modalAssetStatus').innerText = assetStatus;
+        document.getElementById('modalAssetCategory').innerText = assetCategory;
+        document.getElementById('modalAssetLifespan').innerText = assetLifespan + " years";
+        document.getElementById('modalAssetModel').innerText = assetModel;
+        document.getElementById('modalAssetManufacturer').innerText = assetManufacturer;
+        document.getElementById('modalAssetLocation').innerText = assetLocation;
 
-    // Set reason for the request
-    document.getElementById('modalRequestReason').innerText = requestReason;
+        // Clear the previous content from the additional info section
+        const additionalInfoContainer = document.querySelector('#modalAdditionalInfo');
+        additionalInfoContainer.innerHTML = '';
 
-    // Set request status
-    document.getElementById('modalRequestStatus').innerText = requestStatus;
+        // Check if additionalInfo is null or empty, and display appropriate message
+        if (!additionalInfo || additionalInfo.length === 0) {
+            additionalInfoContainer.innerHTML = '<p>No additional information available.</p>';
+        } else {
+            // Populate the additional info dynamically
+            additionalInfo.forEach(info => {
+                const infoRow = `
+                <div class="flex justify-between">
+                    <span class="font-medium">${info.name}:</span>
+                    <span>${info.value}</span>
+                </div>
+                ${info.helperText ? `<div class="text-sm text-gray-500">${info.helperText}</div>` : ''}
+            `;
+                additionalInfoContainer.insertAdjacentHTML('beforeend', infoRow);
+            });
+        }
 
-    // Show or hide sections based on request status
-    if (requestStatus === 'approved') {
-        document.getElementById('authorizedByContainer').classList.remove('hidden');
-        document.getElementById('modalAuthorizedBy').innerText = authorizedBy ? authorizedBy : 'N/A';
-        document.getElementById('denialReasonContainer').classList.add('hidden');
-    } else if (requestStatus === 'denied') {
-        document.getElementById('authorizedByContainer').classList.remove('hidden');
-        document.getElementById('modalAuthorizedBy').innerText = denialReason ? denialReason : 'N/A';
-        document.getElementById('denialReasonContainer').classList.remove('hidden');
-        document.getElementById('modalDenialReason').innerText = authorizedBy ? authorizedBy : 'N/A';
-    } else {
-        document.getElementById('authorizedByContainer').classList.add('hidden');
-        document.getElementById('denialReasonContainer').classList.add('hidden');
+        // Set reason for the request
+        document.getElementById('modalRequestReason').innerText = requestReason;
+
+        // Set request status
+        document.getElementById('modalRequestStatus').innerText = requestStatus;
+
+        // Show or hide sections based on request status
+        if (requestStatus === 'approved') {
+            document.getElementById('authorizedByContainer').classList.remove('hidden');
+            document.getElementById('modalAuthorizedBy').innerText = authorizedBy ? authorizedBy : 'N/A';
+            document.getElementById('denialReasonContainer').classList.add('hidden');
+        } else if (requestStatus === 'denied') {
+            document.getElementById('authorizedByContainer').classList.remove('hidden');
+            document.getElementById('modalAuthorizedBy').innerText = denialReason ? denialReason : 'N/A';
+            document.getElementById('denialReasonContainer').classList.remove('hidden');
+            document.getElementById('modalDenialReason').innerText = authorizedBy ? authorizedBy : 'N/A';
+        } else {
+            document.getElementById('authorizedByContainer').classList.add('hidden');
+            document.getElementById('denialReasonContainer').classList.add('hidden');
+        }
+
+        // Show the cancel button only if the request status is "request"
+        if (requestStatus === 'request') {
+            document.getElementById('cancelRequestButton').classList.remove('hidden');
+            document.getElementById('cancelForm').action = `/requests/cancel/${requestId}`;
+        } else {
+            document.getElementById('cancelRequestButton').classList.add('hidden');
+        }
+
+        // Show the view modal
+        document.getElementById('viewModal').classList.remove('hidden');
+        document.getElementById('viewModal').classList.add('flex');
+        document.addEventListener('keydown', handleEscKey);
     }
 
-    // Show the cancel button only if the request status is "request"
-    if (requestStatus === 'request') {
-        document.getElementById('cancelRequestButton').classList.remove('hidden');
-        document.getElementById('cancelForm').action = `/requests/cancel/${requestId}`;
-    } else {
-        document.getElementById('cancelRequestButton').classList.add('hidden');
+
+    function closeModal() {
+        // Hide the view modal
+        document.getElementById('viewModal').classList.add('hidden');
+        document.getElementById('viewModal').classList.remove('flex');
+
+        document.removeEventListener('keydown', handleEscKey);
+
+    }
+    function handleEscKey(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+}
+    function showDaCancelModal() {
+        // Show the cancel modal
+        document.getElementById('cancelRequestModal').classList.remove('hidden');
     }
 
-    // Show the view modal
-    document.getElementById('viewModal').classList.remove('hidden');
-    document.getElementById('viewModal').classList.add('flex');
-}
-
-
-function closeModal() {
-    // Hide the view modal
-    document.getElementById('viewModal').classList.add('hidden');
-    document.getElementById('viewModal').classList.remove('flex');
-}
-
-function showDaCancelModal() {
-    // Show the cancel modal
-    document.getElementById('cancelRequestModal').classList.remove('hidden');
-}
-
-function hideDaCancelModal() {
-    // Hide the cancel modal
-    document.getElementById('cancelRequestModal').classList.add('hidden');
-}
+    function hideDaCancelModal() {
+        // Hide the cancel modal
+        document.getElementById('cancelRequestModal').classList.add('hidden');
+    }
 </script>

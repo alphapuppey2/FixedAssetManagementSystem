@@ -167,6 +167,9 @@ class settingController extends Controller
 
         switch($tab){
             case 'model':
+                if (ModelAsset::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
+                    return redirect()->back()->withErrors(['errors' => 'The model name already exists.']);
+                }
                 ModelAsset::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
@@ -174,6 +177,9 @@ class settingController extends Controller
                 ]);
                 break;
             case 'manufacturer':
+                if (Manufacturer::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
+                    return redirect()->back()->withErrors(['errors' => 'The manufacturer name already exists.']);
+                }
                 Manufacturer::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
@@ -181,6 +187,9 @@ class settingController extends Controller
                 ]);
                 break;
             case 'location':
+                if (locationModel::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
+                    return redirect()->back()->withErrors(['errors' => 'The location name already exists.']);
+                }
                 locationModel::create([
                     'name' => $validation['nameSet'],
                     'description' => $validation['description'],
@@ -188,6 +197,9 @@ class settingController extends Controller
                 ]);
                 break;
             case 'category':
+                if (category::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
+                    return redirect()->back()->withErrors(['errors' => 'The category name already exists.']);
+                }
                 category::create([
                     'name' => $validation['nameSet'],
                     'dept_ID' => $userDept,
@@ -195,33 +207,62 @@ class settingController extends Controller
                 ]);
                 break;
             case 'customFields':
-                $department = department::where('id',$userDept)->get();
-                $customF = json_decode($department[0]->custom_fields);
+                // $department = department::where('id',$userDept)->get();
+                $department = department::where('id',$userDept)->first();
 
-                if($customF === null){
-                    $customF = [];
-                    array_unshift($customF,["name" => $validation['nameSet'],
-                                     "type" => $validation['type'],
-                                     "helptext" => $validation['helptxt']]);
+                // Check if the department record exists
+                if (!$department) {
+                    return redirect()->back()->withErrors(['errors' => 'Department not found.']);
                 }
-                else{
-                    $collect = collect($customF);
-                    $column = $collect->contains('name' , $validation['nameSet']);
 
+                // $customF = json_decode($department[0]->custom_fields);
 
+                    // Initialize $customF as an array if the custom_fields column is null
+                $customF = json_decode($department->custom_fields) ?? [];
 
-                    if($column !== false ){
-                        return redirect()->back()->withErrors(['errors' =>'The Name already exists']);
-                    }
+                $exists = collect($customF)->contains('name', $validation['nameSet']);
 
-
-
-                    array_unshift($customF,["name" => $validation['nameSet'],
-                                     "type" => $validation['type'],
-                                     "helptext" => $validation['helptxt']]);
-
+                if ($exists) {
+                    return redirect()->back()->withErrors(['errors' => 'The custom field name already exists.']);
                 }
-                department::where('id',$userDept)->update(['custom_fields' => json_encode($customF)]);
+
+                // Add the new custom field at the beginning of the array
+                array_unshift($customF, [
+                    'name' => $validation['nameSet'],
+                    'type' => $validation['type'],
+                    'helptext' => $validation['helptxt']
+                ]);
+
+                // Update the department with the new custom fields JSON
+                department::where('id', $userDept)->update(['custom_fields' => json_encode($customF)]);
+                break;
+
+                // if($customF === null){
+                //     $customF = [];
+                //     array_unshift($customF,["name" => $validation['nameSet'],
+                //                      "type" => $validation['type'],
+                //                      "helptext" => $validation['helptxt']]);
+                // }
+                // else{
+                //     $collect = collect($customF);
+                //     $column = $collect->contains('name' , $validation['nameSet']);
+
+
+
+                //     if($column !== false ){
+                //         return redirect()->back()->withErrors(['errors' =>'The Name already exists']);
+                //     }
+
+
+
+                //     array_unshift($customF,["name" => $validation['nameSet'],
+                //                      "type" => $validation['type'],
+                //                      "helptext" => $validation['helptxt']]);
+
+                // }
+                // department::where('id',$userDept)->update(['custom_fields' => json_encode($customF)]);
+            default:
+                return redirect()->back()->withErrors(['errors' => 'Invalid tab selection.']);
         }
 
         return redirect()->back()->with('session', 'Setting added successfully.');
