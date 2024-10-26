@@ -242,6 +242,7 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // UPDATE
     Route::put('/asset/edit/{id}', [AsstController::class, 'update'])->name('assetDetails.edit');
     Route::delete('/asset/delete/{id}', [AsstController::class, 'delete'])->name('asset.delete');
+    Route::delete('/assets/multi-delete', [AsstController::class, 'multiDelete'])->name('asset.multiDelete');
 
     // IMPORT
     Route::get('/download-template', [AsstController::class, 'downloadCsvTemplate'])->name('download.csv.template');

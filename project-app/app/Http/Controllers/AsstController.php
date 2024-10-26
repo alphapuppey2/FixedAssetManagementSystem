@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-
+use Exception;
 
 
 use Illuminate\Http\Request;
@@ -155,14 +155,6 @@ class AsstController extends Controller
         // Return the view with the necessary data
         return view('dept_head.asset', compact('assets', 'categoriesList'));
     }
-
-
-
-
-
-
-
-
 
         // ->orderByRaw("
         //     CASE
@@ -662,6 +654,30 @@ public function fetchDepartmentData($id)
         // Return the view with filtered and sorted results
         return view('dept_head.asset', compact('assets','categoriesList'));
     }
+
+    public function multiDelete(Request $request)
+    {
+        // Get the selected asset IDs from the request
+        $assetIds = $request->input('asset_ids', []);
+
+        if (count($assetIds) > 0) {
+            try {
+                // Loop through each asset ID and call the delete function
+                foreach ($assetIds as $id) {
+                    $this->delete($id); // Call the delete function for each asset
+                }
+
+                return redirect()->route('asset')->with('success', 'Selected assets have been deleted.');
+            } catch (Exception $e) {
+                // Handle the exception and redirect with error message
+                return redirect()->route('asset')->with('error', 'Failed to delete selected assets.');
+            }
+        }
+
+        return redirect()->route('asset')->with('error', 'No assets selected for deletion.');
+    }
+
+
 
     public function delete($id)
     {
