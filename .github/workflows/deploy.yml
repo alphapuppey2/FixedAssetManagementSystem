@@ -24,7 +24,7 @@ jobs:
           rsync -avz --delete \
             --exclude=node_modules --exclude=vendor --exclude=.env \
             -e "ssh -o StrictHostKeyChecking=no" ./ \
-            root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app
+            root@165.22.59.23:/var/www/html/FixedAssetManagementSystem/project-app/
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -39,6 +39,14 @@ jobs:
           php artisan view:cache "
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install Node.js dependencies
+        working-directory: project-app
+        run: npm install
+      
+      - name: Build Vite assets
+        working-directory: project-app
+        run: npm run build
 
       - name: Restart Apache
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
