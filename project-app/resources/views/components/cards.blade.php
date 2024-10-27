@@ -10,16 +10,16 @@
             $textColor = 'text-green-950';
             break;
         case 'under maintenance':
-            $cardColor = 'bg-yellow-300';
+            $cardColor = 'bg-yellow-200';
             $textColor = 'text-yellow-950';
             break;
         case 'disposed':
-            $cardColor = 'bg-gray-300';
+            $cardColor = 'bg-gray-400';
             $textColor = 'text-gray-950';
             break;
         case 'deployed':
             $cardColor = 'bg-blue-300';
-            $textColor = 'text-blue-950';
+            $textColor = 'text-blue-950 outline-1';
             break;
     }
 @endphp
@@ -31,7 +31,7 @@
         {{ $title }}
     </div>
     {{-- <div class="text-3xl font-bold mt-3"> --}}
-    <div class="mt-3 font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
+    <div class="mt-3 font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl {{ $textColor }}">
         {{ $counts }}
     </div>
 </div>

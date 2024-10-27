@@ -439,7 +439,7 @@ public function fetchDepartmentData($id)
         }
 
         // Query for counts by status (filtered by department if not admin)
-        $statuses = ['active','deployed','under_maintenance',"disposed"];
+        $statuses = ['active', 'deployed', 'under_maintenance', 'disposed'];
         foreach ($statuses as $status) {
             $query = DB::table('asset')->where('status', '=', $status);
 
@@ -871,7 +871,7 @@ if (request()->ajax()) {
         //     )
         //     ->get();
 
-        $allUserInDept = User::select('Users.id', 'Users.firstname', 'Users.lastname')->get();
+        $allUserInDept = User::select('users.id', 'users.firstname', 'users.lastname')->get();
 
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
