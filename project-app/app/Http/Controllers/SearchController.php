@@ -14,6 +14,7 @@ use App\Models\Predictive;
 use App\Models\Preventive;
 use App\Models\User;
 use App\Models\assetModel;
+use App\Models\department;
 use App\Models\Maintenance;
 use App\Models\ActivityLog;
 
@@ -227,12 +228,14 @@ class SearchController extends Controller
             ->orWhere('employee_id', 'like', "%{$query}%")
             ->paginate($perPage) // Use the dynamic per page value
             ->appends(['query' => $query, 'perPage' => $perPage]); // Keep the query and perPage in pagination links
+        $department = department::get();
 
         return view('admin.userList', ['userList' => $userList,
                                         'sortOrder'=>'asc',
                                         'sortBy'=>'id',
                                         'perPage'=>$perPage,
                                         'query'=>$query,
+                                        'departments'=>$department,
                                         ]);
     }
 
