@@ -238,12 +238,12 @@
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 @include('dept_head.modal.deleteAssetModal')
+@if(session('success'))
+<div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+    {{ session('success') }}
+</div>
+@endif
 
-@if (session('success'))
-        <div id="toast" class="absolute bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
-           {{ session('success') }}
-        </div>
-    @endif
 
 <script>
     document.getElementById('rows_per_page').addEventListener('change', function () {
@@ -349,6 +349,18 @@
         // Initial state on page load
         updateSelectedCount();
     });
+
+    // Hide the toast after 3 seconds
+    setTimeout(function() {
+        var toast = document.getElementById('toast');
+        if (toast) {
+            toast.style.transition = 'opacity 0.5s';
+            toast.style.opacity = '0';
+            setTimeout(function() {
+                toast.remove();
+            }, 500); // Remove after the fade-out transition
+        }
+    }, 3000); // 3 seconds before hiding
     </script>
 
 @endsection
