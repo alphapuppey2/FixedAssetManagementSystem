@@ -122,6 +122,32 @@
 
 <script>
     $(document).ready(function () {
+
+        const setAsCompleted = $('#set_as_completed');
+        const setAsCancelled = $('#set_as_cancelled');
+        const costInput = $('input[name="cost"]');
+
+        // Handle "Set as Completed" click
+        setAsCompleted.on('change', function () {
+            if (this.checked) {
+                setAsCancelled.prop('checked', false); // Uncheck "Set as Cancelled"
+            }
+        });
+
+        // Handle "Set as Cancelled" click
+        setAsCancelled.on('change', function () {
+            if (this.checked) {
+                setAsCompleted.prop('checked', false); // Uncheck "Set as Completed"
+            }
+        });
+
+        // Automatically set the cost to 0 if left empty
+        costInput.on('blur', function () {
+            if ($(this).val().trim() === '') {
+                $(this).val(0);
+            }
+        });
+
         var assetId = "{{ $maintenance->asset->code }}";
         fetchAssetDetails(assetId);
         console.log(`asset url::  {{ url('asset') }}/assetId`);

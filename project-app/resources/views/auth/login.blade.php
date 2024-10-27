@@ -13,7 +13,9 @@
             <form method="POST" action="{{ route('login') }}" class="needs-validation" novalidate>
                 @csrf
                 <div class="w-96">
-                    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+                    {{-- <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md"> --}}
+                    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md border-1 border-gray-300">
+
                         <div class="border-b border-black py-8 mb-8">
                             <h2 class="text-2xl font-bold text-center">LOGIN</h2>
                         </div>

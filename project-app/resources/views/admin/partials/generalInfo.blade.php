@@ -12,6 +12,14 @@
     @method('PUT')
 
     <div class="flex justify-end space-x-4 mt-4">
+        <!-- Dispose Button -->
+        @if($data->status !== 'disposed')
+            <button id="disposeBTN" type="button"
+                class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all duration-300"
+                onclick="openDisposeModal()">
+                DISPOSE
+            </button>
+        @endif
         <button id="editBTN" type="button"
             class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-300">
             EDIT
@@ -235,6 +243,25 @@
     </div>
 </form>
 
+<div id="disposeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-left">Confirm Disposal</h2>
+        <p class="text-base text-gray-700 mb-6 text-left">
+            Are you sure you want to dispose this asset?
+        </p>
+        <div class="flex justify-end space-x-4">
+            <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                onclick="closeDisposeModal()">
+                Cancel
+            </button>
+            <button type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                onclick="confirmDisposal()">
+                Yes, Dispose
+            </button>
+        </div>
+    </div>
+</div>
+
 @if (session('success'))
     <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow">
         {{ session('success') }}
@@ -242,6 +269,44 @@
 @endif
 
 @vite(['resources/js/flashNotification.js'])
+
+<script>
+
+    let assetId = {{ $data->id }}; // Store asset ID
+
+    function openDisposeModal() {
+        document.getElementById('disposeModal').classList.remove('hidden');
+    }
+
+    function closeDisposeModal() {
+        document.getElementById('disposeModal').classList.add('hidden');
+    }
+
+    function confirmDisposal() {
+        fetch(`/admin/asset/dispose/${assetId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Asset disposed successfully!');
+                location.reload(); // Reload the page to reflect changes
+            } else {
+                alert('Failed to dispose of the asset.');
+            }
+        })
+        .catch(error => {
+            console.error('Error disposing asset:', error);
+        });
+
+        closeDisposeModal(); // Close the modal
+    }
+
+</script>
 
 <script>
     function toggleRequired(select) {

@@ -740,15 +740,39 @@ public function fetchDepartmentData($id)
 
         // Retrieve necessary data from related tables
         $department = ['list' => DB::table('department')->get()];
+        // $categories = [
+        //     'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+        //         return $query->where('dept_ID', $userDept);
+        //     })->get()
+        // ];
+        // $location = ['locs' => DB::table('location')->get()];
+        // $model = ['mod' => DB::table('model')->get()];
+        // $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+        $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
+
         $categories = [
             'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
                 return $query->where('dept_ID', $userDept);
             })->get()
         ];
-        $location = ['locs' => DB::table('location')->get()];
-        $model = ['mod' => DB::table('model')->get()];
-        $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
-        $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
+
+        $location = [
+            'locs' => DB::table('location')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
+
+        $model = [
+            'mod' => DB::table('model')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
+
+        $manufacturer = [
+            'mcft' => DB::table('manufacturer')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
 
         // Build the query to retrieve the asset data based on the asset code
         $retrieveDataQuery = assetModel::where('code', $code)
@@ -825,13 +849,16 @@ if (request()->ajax()) {
         $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
 
         // dd($userType,$retrieveData->dept_ID ,$retrieveData);
-        $allUserInDept = User::where('dept_id', $usersDeptId)
-            ->select(
-                'Users.id',
-                'Users.firstname',
-                'Users.lastname',
-            )
-            ->get();
+        // $allUserInDept = User::where('dept_id', $usersDeptId)
+        //     ->select(
+        //         'Users.id',
+        //         'Users.firstname',
+        //         'Users.lastname',
+        //     )
+        //     ->get();
+
+        $allUserInDept = User::select('Users.id', 'Users.firstname', 'Users.lastname')->get();
+
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
         $department = Department::find($asset->dept_ID);
@@ -1128,4 +1155,15 @@ if (request()->ajax()) {
             ], 500);
         }
     }
+
+    public function dispose($id)
+    {
+        $asset = assetModel::findOrFail($id);
+        $asset->status = 'disposed'; // Set the status to disposed
+        $asset->save();
+
+        return response()->json(['success' => true, 'message' => 'Asset disposed successfully.']);
+
+    }
+
 }
