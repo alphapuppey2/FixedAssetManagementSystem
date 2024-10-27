@@ -102,7 +102,7 @@
         <!-- Reason for Request Section -->
         <div class="bg-gray-100 p-4 rounded-lg shadow-sm mb-4">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Reason for Request:</h3>
-            <p id="modalRequestReason" class="text-gray-600">{{ $request->description }}</p>
+            <p id="modalRequestReason" class="text-gray-600"></p>
         </div>
 
         <!-- Request Status Section -->
@@ -112,11 +112,11 @@
                 <div>
                     <span class="font-medium">Status:</span>
                     <span id="modalRequestStatus"
-                        class="inline-block px-2 py-1 rounded-full text-xs font-semibold">{{ $request->status }}</span>
+                        class="inline-block px-2 py-1 rounded-full text-xs font-semibold"></span>
                 </div>
                 <div id="authorizedByContainer" class="hidden">
                     <span class="font-medium">Authorized by:</span>
-                    <span id="modalAuthorizedBy">{{ $request->authorized_at }}</span>
+                    <span id="modalAuthorizedBy"></span>
                 </div>
                 <div id="denialReasonContainer" class="hidden">
                     <span class="font-medium">Reason Denied:</span>
