@@ -425,7 +425,7 @@ public function fetchDepartmentData($id)
         }
 
         // Query for counts by status (filtered by department if not admin)
-        $statuses = ['active', 'deployed', 'under_maintenance', 'dispose'];
+        $statuses = ['active', 'deployed', 'under_maintenance', 'disposed'];
         foreach ($statuses as $status) {
             $query = DB::table('asset')->where('status', '=', $status);
             if ($usertype !== 'admin') {
