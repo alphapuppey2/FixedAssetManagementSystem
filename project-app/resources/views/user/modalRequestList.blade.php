@@ -21,12 +21,16 @@
                     <!-- Asset Image -->
                     <div
                         class="imagepart relative w-36 h-36 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
-                        <img id="modalAssetImage" src="" class="w-full h-full object-cover" alt="Asset Image">
+                        <img id="modalAssetImage"
+                            src="{{ asset('storage/' . $request->asset_image ?? 'images/no-image.png') }}"
+                            class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->
                     <div class="qrContainer flex flex-col items-center">
                         <div class="QRBOX w-32 h-32 bg-gray-200 rounded-lg shadow-md flex items-center justify-center">
-                            <img id="modalAssetQr" src="" alt="QR Code" class="w-full h-full object-cover">
+                            <img id="modalAssetQr"
+                                src="{{ asset('storage/' . $request->qr_code ?? 'images/defaultICON.png') }}"
+                                alt="QR Code" class="w-full h-full object-cover">
                         </div>
                     </div>
                 </div>
@@ -40,27 +44,27 @@
                 <div class="space-y-2 text-gray-600">
                     <div class="flex justify-between">
                         <span class="font-medium">Name:</span>
-                        <span id="modalAssetName"></span>
+                        <span id="modalAssetName">{{ $request->asset_name }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Cost:</span>
-                        <span id="modalAssetCost"></span>
+                        <span id="modalAssetCost">{{ number_format($request->cost, 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Depreciation:</span>
-                        <span id="modalAssetDepreciation"></span>
+                        <span id="modalAssetDepreciation">{{ number_format($request->depreciation, 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Salvage Value:</span>
-                        <span id="modalAssetSalvage"></span>
+                        <span id="modalAssetSalvage">{{ number_format($request->salvageVal, 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Category:</span>
-                        <span id="modalAssetCategory"></span>
+                        <span id="modalAssetCategory">{{ $request->category }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Lifespan:</span>
-                        <span id="modalAssetLifespan"></span>
+                        <span id="modalAssetLifespan">{{ $request->usage_Lifespan }}</span>
                     </div>
                 </div>
             </div>
@@ -71,24 +75,37 @@
                 <div class="space-y-2 text-gray-600">
                     <div class="flex justify-between">
                         <span class="font-medium">Model:</span>
-                        <span id="modalAssetModel"></span>
+                        <span id="modalAssetModel">{{ $request->model }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Manufacturer:</span>
-                        <span id="modalAssetManufacturer"></span>
+                        <span id="modalAssetManufacturer">{{ $request->manufacturer }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Location:</span>
-                        <span id="modalAssetLocation"></span>
+                        <span id="modalAssetLocation">{{ $request->location }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Status:</span>
                         <span id="modalAssetStatus"
-                            class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
+                            class="inline-block px-3 py-1 rounded-full text-xs font-semibold">{{ $request->status }}</span>
                     </div>
                     <div class="flex flex-col justify-between">
                         <span class="font-medium">Custom Fields </span>
-                        <div id="modalAdditionalInfo" class="space-y-2 text-gray-600"></div>
+                        <div id="modalAdditionalInfo" class="flex flex-col" class="space-y-2 grid grid-rows-2  bg-blue-500 text-gray-600">
+                            @if (!empty($request->custom_fields_array))
+                                @foreach ($request->custom_fields_array as $field)
+                                   <div class="fieldItem grid grid-cols-[20%_auto]">
+                                    <span> {{ ucfirst($field['name']) }}</span>
+                                   <span>{{ $field['value'] }}</span>
+                                   </div>
+                                @endforeach
+
+                            @else
+                                <p>No custom fields available.</p>
+                            @endif
+
+                        </div>
                     </div>
 
 
@@ -99,7 +116,7 @@
         <!-- Reason for Request Section -->
         <div class="bg-gray-100 p-4 rounded-lg shadow-sm mb-4">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Reason for Request:</h3>
-            <p id="modalRequestReason" class="text-gray-600"></p>
+            <p id="modalRequestReason" class="text-gray-600">{{ $request->description }}</p>
         </div>
 
         <!-- Request Status Section -->
@@ -109,11 +126,11 @@
                 <div>
                     <span class="font-medium">Status:</span>
                     <span id="modalRequestStatus"
-                        class="inline-block px-2 py-1 rounded-full text-xs font-semibold"></span>
+                        class="inline-block px-2 py-1 rounded-full text-xs font-semibold">{{ $request->status }}</span>
                 </div>
                 <div id="authorizedByContainer" class="hidden">
                     <span class="font-medium">Authorized by:</span>
-                    <span id="modalAuthorizedBy"></span>
+                    <span id="modalAuthorizedBy">{{ $request->authorized_at }}</span>
                 </div>
                 <div id="denialReasonContainer" class="hidden">
                     <span class="font-medium">Reason Denied:</span>
@@ -134,71 +151,51 @@
 
 <!-- JavaScript -->
 <script>
-    function showModal(assetCode, assetImage, assetName, assetCost, assetDepreciation, assetSalvage, assetCategory,
-        assetLifespan, assetModel, assetManufacturer, assetLocation, assetStatus, requestReason, requestId,
-        requestStatus, qrCodePath, authorizedBy = null, denialReason = null, additionalInfo = []) {
+    function showModal(request) {
+        console.log("you clicked the modal" , request);
+
         // Set modal content
-        document.getElementById('modalAssetCode').innerText = assetCode;
-        document.getElementById('modalAssetImage').src = assetImage ? `/storage/${assetImage}` :
+        document.getElementById('modalAssetCode').innerText = request.asset_code;
+        document.getElementById('modalAssetImage').src = request.asset_image ? `/storage/${request.asset_image}` :
             '/images/defaultICON.png';
-        document.getElementById('modalAssetQr').src = qrCodePath ? `/storage/${qrCodePath}` : '/images/defaultQR.png';
-        document.getElementById('modalAssetName').innerText = assetName;
-        document.getElementById('modalAssetCost').innerText = assetCost;
-        document.getElementById('modalAssetDepreciation').innerText = assetDepreciation;
-        document.getElementById('modalAssetSalvage').innerText = assetSalvage;
-        document.getElementById('modalAssetStatus').innerText = assetStatus;
-        document.getElementById('modalAssetCategory').innerText = assetCategory;
-        document.getElementById('modalAssetLifespan').innerText = assetLifespan + " years";
-        document.getElementById('modalAssetModel').innerText = assetModel;
-        document.getElementById('modalAssetManufacturer').innerText = assetManufacturer;
-        document.getElementById('modalAssetLocation').innerText = assetLocation;
+        document.getElementById('modalAssetQr').src = request.qr_code ? `/storage/${request.qr_code}` : '/images/defaultQR.png';
+        document.getElementById('modalAssetName').innerText = request.name;
+        document.getElementById('modalAssetCost').innerText = request.cost;
+        document.getElementById('modalAssetDepreciation').innerText = request.depreciation;
+        document.getElementById('modalAssetSalvage').innerText = request.salvageVal;
+        document.getElementById('modalAssetStatus').innerText = request.asset_status;
+        document.getElementById('modalAssetCategory').innerText = request.category;
+        document.getElementById('modalAssetLifespan').innerText = request.usage_Lifespan + " years";
+        document.getElementById('modalAssetModel').innerText = request.model;
+        document.getElementById('modalAssetManufacturer').innerText = request.manufacturer;
+        document.getElementById('modalAssetLocation').innerText = request.location;
 
-        // Clear the previous content from the additional info section
-        const additionalInfoContainer = document.querySelector('#modalAdditionalInfo');
-        additionalInfoContainer.innerHTML = '';
 
-        // Check if additionalInfo is null or empty, and display appropriate message
-        if (!additionalInfo || additionalInfo.length === 0) {
-            additionalInfoContainer.innerHTML = '<p>No additional information available.</p>';
-        } else {
-            // Populate the additional info dynamically
-            additionalInfo.forEach(info => {
-                const infoRow = `
-                <div class="flex justify-between">
-                    <span class="font-medium">${info.name}:</span>
-                    <span>${info.value}</span>
-                </div>
-                ${info.helperText ? `<div class="text-sm text-gray-500">${info.helperText}</div>` : ''}
-            `;
-                additionalInfoContainer.insertAdjacentHTML('beforeend', infoRow);
-            });
-        }
+        // // Set reason for the request
+        document.getElementById('modalRequestReason').innerText = request.description;
 
-        // Set reason for the request
-        document.getElementById('modalRequestReason').innerText = requestReason;
+        // // Set request status
+        document.getElementById('modalRequestStatus').innerText = request.status;
 
-        // Set request status
-        document.getElementById('modalRequestStatus').innerText = requestStatus;
-
-        // Show or hide sections based on request status
-        if (requestStatus === 'approved') {
+        // // Show or hide sections based on request status
+        if (request.status === 'approved') {
             document.getElementById('authorizedByContainer').classList.remove('hidden');
-            document.getElementById('modalAuthorizedBy').innerText = authorizedBy ? authorizedBy : 'N/A';
+            document.getElementById('modalAuthorizedBy').innerText = request.authorized_by ?? 'N/A';
             document.getElementById('denialReasonContainer').classList.add('hidden');
-        } else if (requestStatus === 'denied') {
+        } else if (request.status === 'denied') {
             document.getElementById('authorizedByContainer').classList.remove('hidden');
-            document.getElementById('modalAuthorizedBy').innerText = denialReason ? denialReason : 'N/A';
+            document.getElementById('modalAuthorizedBy').innerText = request.reason ?? 'N/A';
             document.getElementById('denialReasonContainer').classList.remove('hidden');
-            document.getElementById('modalDenialReason').innerText = authorizedBy ? authorizedBy : 'N/A';
+            document.getElementById('modalDenialReason').innerText = request.authorized_by ??  'N/A';
         } else {
             document.getElementById('authorizedByContainer').classList.add('hidden');
             document.getElementById('denialReasonContainer').classList.add('hidden');
         }
 
-        // Show the cancel button only if the request status is "request"
-        if (requestStatus === 'request') {
+        // // Show the cancel button only if the request status is "request"
+        if (request.status === 'request') {
             document.getElementById('cancelRequestButton').classList.remove('hidden');
-            document.getElementById('cancelForm').action = `/requests/cancel/${requestId}`;
+            document.getElementById('cancelForm').action = `/requests/cancel/${request.id}`;
         } else {
             document.getElementById('cancelRequestButton').classList.add('hidden');
         }
@@ -218,11 +215,13 @@
         document.removeEventListener('keydown', handleEscKey);
 
     }
+
     function handleEscKey(event) {
-    if (event.key === 'Escape') {
-        closeModal();
+        if (event.key === 'Escape') {
+            closeModal();
+        }
     }
-}
+
     function showDaCancelModal() {
         // Show the cancel modal
         document.getElementById('cancelRequestModal').classList.remove('hidden');

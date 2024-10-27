@@ -308,17 +308,31 @@ public function fetchDepartmentData($id)
         'purchasedDate' => 'nullable|date|before_or_equal:today',
         'pCost' => 'required|numeric|min:0.01',
         'lifespan' => 'required|integer|min:0',
-        'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
-        'depreciation' => 'required|numeric|min:0.01',
+        'salvageValue' => 'required|numeric|min:0|lt:pCost',
+        'depreciation' => 'required|numeric|min:0',
         'loc' => 'required|exists:location,id',
         'mod' => 'required|exists:model,id',
         'mcft' => 'required|exists:manufacturer,id',
         'field.key.*' => 'nullable|string|max:255',
         'field.value.*' => 'nullable|string|max:255',
     ], [
-        'salvageValue.lt' => "Salvage value must be less than the Purchase cost",
-        'purchaseDate.before_or_equal' => "The Purchase date must not have future dates",
+        'asst_img.image' => 'The asset image must be a valid image file.',
+        'asst_img.mimes' => 'The asset image must be a file of type: jpeg, png, jpg, or gif.',
+        'assetname.required' => 'The asset name is required.',
+        'category.required' => 'Please select a category for the asset.',
+        'department.required' => 'The department field is required.',
+        'purchasedDate.date' => 'The purchase date must be a valid date.',
+        'purchasedDate.before_or_equal' => 'The purchase date cannot be in the future.',
+        'pCost.required' => 'The purchase cost is required.',
+        'lifespan.required' => 'The lifespan of the asset is required.',
+        'salvageValue.required' => 'The salvage value is required.',
+        'salvageValue.lt' => 'The salvage value must be less than the purchase cost.',
+        'depreciation.required' => 'The depreciation value is required.',
+        'loc.required' => 'The location is required.',
+        'mod.required' => 'The model is required.',
+        'mcft.required' => 'The manufacturer is required.',
     ]);
+
 
     // Determine the department ID
     $departmentId = $isAdmin ? $request->department : $userDept;
@@ -428,11 +442,16 @@ public function fetchDepartmentData($id)
         $statuses = ['active', 'deployed', 'under_maintenance', 'disposed'];
         foreach ($statuses as $status) {
             $query = DB::table('asset')->where('status', '=', $status);
+
             if ($usertype !== 'admin') {
                 $query->where('dept_ID', '=', $userDept);
             }
+
+            // Dump the SQL and the results to debug
+            // dump($status, $query->toSql(), $query->get());
             $asset[$status] = $query->count();
         }
+        // $asset['disposed'] = DB::table('asset')->where('status', '=', 'disposed')->count();
 
         // Query for recently created assets (last 5) - filtered by department if not admin
         $newAssetCreatedQuery = assetModel::whereMonth('created_at', Carbon::now()->month)

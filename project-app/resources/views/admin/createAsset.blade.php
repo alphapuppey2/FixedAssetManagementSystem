@@ -56,7 +56,7 @@
                     <div class="formFields flex flex-col gap-2 md:row-start-1 md:col-start-1">
                         <div class="form-group">
                             <x-input-label for='assetname' class="font-regular p-1">Asset Name</x-input-label>
-                            <x-text-input id="assetname" name='assetname' required
+                            <x-text-input id="assetname" name='assetname'
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                         </div>
                         <div class="form-group">
@@ -74,24 +74,24 @@
                             <div class="form-group">
                                 <x-input-label for='pCost' class="font-regular p-1">Purchase Cost</x-input-label>
                                 <x-text-input id="pCost" name="pCost" type="number" step="0.01" min="0"
-                                    required
+
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                             <div class="form-group">
                                 <x-input-label for='pDate' class="font-regular p-1">Purchase Date</x-input-label>
-                                <x-text-input type="date" id="pDate" name='purchasedDate' required
+                                <x-text-input type="date" id="pDate" name='purchasedDate'
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                         </div>
                         <div class="grpInline grid md:grid-cols-2 max-md:grid-cols-1 gap-4">
                             <div class="form-group">
                                 <x-input-label for='lifespan' class="font-regular p-1">Lifespan (Years)</x-input-label>
-                                <x-text-input type="number" id="lifespan" name='lifespan' min="0" required
+                                <x-text-input type="number" id="lifespan" name='lifespan' min="0"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                             <div class="form-group">
                                 <x-input-label for='salvageValue' class="font-regular p-1">Salvage Value</x-input-label>
-                                <x-text-input id="salvageValue" name="salvageValue" step="0.01" min="0" required
+                                <x-text-input id="salvageValue" name="salvageValue" step="0.01" min="0"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                         </div>
