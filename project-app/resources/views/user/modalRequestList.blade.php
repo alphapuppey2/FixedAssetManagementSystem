@@ -170,6 +170,24 @@
         document.getElementById('modalAssetManufacturer').innerText = request.manufacturer;
         document.getElementById('modalAssetLocation').innerText = request.location;
 
+        const customFields = request.custom_fields_array || request.department_custom_fields_array || [];
+    const customFieldsContainer = document.getElementById('modalAdditionalInfo');
+    customFieldsContainer.innerHTML = ''; // Clear previous fields
+
+    if (customFields.length > 0) {
+        customFields.forEach(field => {
+            const fieldElement = document.createElement('div');
+            fieldElement.className = 'fieldItem grid grid-cols-[20%_auto]';
+            fieldElement.innerHTML = `
+                <span>${field.name}</span>
+                <span>${field.value}</span>
+            `;
+            customFieldsContainer.appendChild(fieldElement);
+        });
+    } else {
+        customFieldsContainer.innerHTML = '<p>No custom fields available.</p>';
+    }
+
 
         // // Set reason for the request
         document.getElementById('modalRequestReason').innerText = request.description;
