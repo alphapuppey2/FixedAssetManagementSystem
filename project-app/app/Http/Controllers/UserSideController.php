@@ -294,7 +294,7 @@ class UserSideController extends Controller
 
 
         $asset = assetModel::find($retrieveData->id);
-        $department = Department::find($asset->dept_ID);
+        $department = department::find($asset->dept_ID);
 
             // Decode custom_fields from both asset and department (assuming they are stored as JSON)
             $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
