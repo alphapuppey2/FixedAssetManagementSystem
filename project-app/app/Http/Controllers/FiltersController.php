@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class FiltersController extends Controller
 {
-
+ //ASSETS
     //admin
 
     public function filterAssetsAdmin(Request $request)
@@ -33,6 +33,7 @@ class FiltersController extends Controller
         ]);
     }
 
+
     //dept head
     public function filterAssets(Request $request)
     {
@@ -50,7 +51,5 @@ class FiltersController extends Controller
             'end_date' => $endDate,
         ]);
     }
-
-
 
 }

@@ -61,7 +61,7 @@
             }
         }
 
-        function startScanning() {
+        async function startScanning() {
             if (isScanning) return;
 
             isScanning = true;
@@ -69,19 +69,38 @@
             document.getElementById('placeholderImage').style.display = 'none';
             document.getElementById('qr-scanner-container').style.display = 'block';
 
-            codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
-                if (result) {
-                    showSuccessNotification(result.text);
-                    stopScanning();
-                } else if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error("Scanning Error:", err);
-                }
-            });
+            try {
+                const constraints = {
+                    video: { facingMode: { ideal: "environment" } } // Rear camera preference
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                document.getElementById('video').srcObject = stream;
+
+                codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+                    if (result) {
+                        showSuccessNotification(result.text);
+                        stopScanning();
+                    } else if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error("Scanning Error:", err);
+                    }
+                });
+            } catch (error) {
+                console.error('Camera Access Error:', error);
+                showErrorNotification('Unable to access the camera. Please allow camera access.');
+                stopScanning();
+            }
         }
 
         function stopScanning() {
             codeReader.reset();
             isScanning = false;
+
+            const videoElement = document.querySelector('video');
+            if (videoElement.srcObject) {
+                const stream = videoElement.srcObject;
+                stream.getTracks().forEach(track => track.stop());
+            }
 
             document.getElementById('scanButton').textContent = 'Scan QR Code';
             document.getElementById('qr-scanner-container').style.display = 'none';
@@ -92,7 +111,7 @@
             stopScanning();
 
             const file = event.target.files[0];
-            if (file) {
+            if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function () {
                     showLoading();
@@ -110,6 +129,8 @@
                     };
                 };
                 reader.readAsDataURL(file);
+            } else {
+                showErrorNotification('Please upload a valid image file.');
             }
         }
 
@@ -156,4 +177,6 @@
             }
         }, 3000);
     </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 @endsection

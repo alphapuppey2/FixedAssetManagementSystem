@@ -37,9 +37,13 @@
                 <label for="deptHead" class="block text-sm font-medium text-gray-700">Department Head</label>
                 <select name="dept_head" id="deptHead" class="w-full mt-2 border border-gray-300 rounded-lg px-4 py-2">
                     <option value="">Select a Department Head</option>
-                    @foreach ($deptHeads as $head)
-                    <option value="{{ $head->id }}">{{ $head->firstname }} {{ $head->lastname }}</option>
-                    @endforeach
+                    @if (isset($deptHeads) && count($deptHeads) > 0)
+                        @foreach ($deptHeads as $head)
+                        <option value="{{ $head->id }}">{{ $head->firstname }} {{ $head->lastname }}</option>
+                        @endforeach
+                    @else
+                        <option disabled>No department heads found</option>
+                    @endif
                 </select>
             </div>
 

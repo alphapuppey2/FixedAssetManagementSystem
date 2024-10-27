@@ -15,7 +15,7 @@
                 <div class="flex space-x-8">
                     <!-- Asset Image -->
                     <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
-                        <img src="{{ asset('storage/' . $retrieveData->image ?? 'images/defaultICON.png') }}"
+                        <img src="{{ asset('storage/' . $retrieveData->image ?? 'images/defaultQR.png') }}"
                              class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->
@@ -47,7 +47,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Depreciation:</span>
-                        <span>{{ $retrieveData->depreciation }}%</span>
+                        <span>{{ $retrieveData->depreciation }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Salvage Value:</span>
@@ -87,6 +87,22 @@
                     <div class="flex justify-between">
                         <span class="font-medium">Last Used:</span>
                         <span>NONE</span>
+                    </div>
+                    <div class="flex flex-col justify-between">
+                        <span class="font-medium">Custom Fields </span>
+                        <div id="modalAdditionalInfo" class="space-y-2 text-gray-600">
+                            @if (!empty($updatedCustomFields))
+                                {{-- {{ $fields }} --}}
+                                @foreach ($updatedCustomFields as $field)
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">{{ $field['name'] }}:</span>
+                                        <span>{{ $field['value'] }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p>No additional information available.</p>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

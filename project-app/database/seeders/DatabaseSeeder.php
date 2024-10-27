@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             deptSeeder::class,
             UserSeeder::class,
-            ManufacturerSeeder::class,
-            ModelSeeder::class,
-            location::class,
-            category::class,
-            assetSeeder::class,
-            MaintenanceSeeder::class,
+            // ManufacturerSeeder::class,
+            // ModelSeeder::class,
+            // location::class,
+            // category::class,
+            // assetSeeder::class,
+            // MaintenanceSeeder::class,
         ]);
     }
 }

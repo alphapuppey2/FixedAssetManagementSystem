@@ -231,8 +231,9 @@ class SearchController extends Controller
         return view('admin.userList', ['userList' => $userList,
                                         'sortOrder'=>'asc',
                                         'sortBy'=>'id',
-                                        'perPage'=>'perPage',
-                                      'query'=>$query]);
+                                        'perPage'=>$perPage,
+                                        'query'=>$query,
+                                        ]);
     }
 
     public function searchAssets(Request $request)

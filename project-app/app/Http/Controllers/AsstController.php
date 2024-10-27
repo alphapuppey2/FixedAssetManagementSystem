@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-
+use Exception;
 
 
 use Illuminate\Http\Request;
@@ -31,23 +31,23 @@ class AsstController extends Controller
 {
     public function showAllAssets(Request $request)
     {
-        // Fetch categories based on department ID (if provided)
+        // Fetch department information (if provided)
         $deptId = $request->input('dept', null);
+        $departmentName = $deptId ? DB::table('department')->where('id', $deptId)->value('name') : null;
 
+        // Fetch categories based on department ID
         $categoriesList = DB::table('category')
             ->when($deptId, fn($q) => $q->where('dept_ID', $deptId))
             ->get();
 
-        // Get sorting parameters with defaults
+        // Sorting parameters with default values
         $sortBy = $request->input('sort_by', 'asset.name');
         $sortOrder = strtolower($request->input('sort_order', 'asc'));
 
-        // Validate sort field and order
         $validSortFields = [
             'asset.name', 'asset.code', 'category.name',
             'department.name', 'asset.depreciation', 'asset.status'
         ];
-
         if (!in_array($sortBy, $validSortFields)) {
             $sortBy = 'asset.name';
         }
@@ -55,11 +55,10 @@ class AsstController extends Controller
             $sortOrder = 'asc';
         }
 
-        // Get pagination and search query parameters
+        // Pagination, search query, and filters
         $perPage = max((int) $request->input('rows_per_page', 10), 10);
         $query = $request->input('query', '');
 
-        // Get filter parameters (status, category, date range)
         $statuses = $request->input('status', []);
         $categories = $request->input('category', []);
         $startDate = $request->input('start_date');
@@ -73,9 +72,8 @@ class AsstController extends Controller
             ->where('asset.isDeleted', 0)  // Exclude deleted assets
             ->when($deptId, fn($q) => $q->where('asset.dept_ID', $deptId))
             ->when($query !== '', fn($q) => $q->where(function ($subquery) use ($query) {
-                // Only search by asset name or code
                 $subquery->where('asset.name', 'like', '%' . $query . '%')
-                ->orWhere('asset.code', 'like', '%' . $query . '%');
+                         ->orWhere('asset.code', 'like', '%' . $query . '%');
             }))
             ->when(!empty($statuses), fn($q) => $q->whereIn('asset.status', $statuses))
             ->when(!empty($categories), fn($q) => $q->whereIn('category.id', $categories))
@@ -87,9 +85,9 @@ class AsstController extends Controller
             ->paginate($perPage)
             ->appends($request->all());  // Preserve query parameters for pagination
 
-        // Return the view with all required parameters
+        // Return the view with all parameters
         return view('admin.assetList', compact(
-            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'categoriesList'
+            'assets', 'sortBy', 'sortOrder', 'perPage', 'deptId', 'departmentName', 'categoriesList'
         ));
     }
 
@@ -157,14 +155,6 @@ class AsstController extends Controller
         // Return the view with the necessary data
         return view('dept_head.asset', compact('assets', 'categoriesList'));
     }
-
-
-
-
-
-
-
-
 
         // ->orderByRaw("
         //     CASE
@@ -318,17 +308,31 @@ public function fetchDepartmentData($id)
         'purchasedDate' => 'nullable|date|before_or_equal:today',
         'pCost' => 'required|numeric|min:0.01',
         'lifespan' => 'required|integer|min:0',
-        'salvageValue' => 'required|numeric|min:0.01|lt:pCost',
-        'depreciation' => 'required|numeric|min:0.01',
+        'salvageValue' => 'required|numeric|min:0|lt:pCost',
+        'depreciation' => 'required|numeric|min:0',
         'loc' => 'required|exists:location,id',
         'mod' => 'required|exists:model,id',
         'mcft' => 'required|exists:manufacturer,id',
         'field.key.*' => 'nullable|string|max:255',
         'field.value.*' => 'nullable|string|max:255',
     ], [
-        'salvageValue.lt' => "Salvage value must be less than the Purchase cost",
-        'purchaseDate.before_or_equal' => "The Purchase date must not have future dates",
+        'asst_img.image' => 'The asset image must be a valid image file.',
+        'asst_img.mimes' => 'The asset image must be a file of type: jpeg, png, jpg, or gif.',
+        'assetname.required' => 'The asset name is required.',
+        'category.required' => 'Please select a category for the asset.',
+        'department.required' => 'The department field is required.',
+        'purchasedDate.date' => 'The purchase date must be a valid date.',
+        'purchasedDate.before_or_equal' => 'The purchase date cannot be in the future.',
+        'pCost.required' => 'The purchase cost is required.',
+        'lifespan.required' => 'The lifespan of the asset is required.',
+        'salvageValue.required' => 'The salvage value is required.',
+        'salvageValue.lt' => 'The salvage value must be less than the purchase cost.',
+        'depreciation.required' => 'The depreciation value is required.',
+        'loc.required' => 'The location is required.',
+        'mod.required' => 'The model is required.',
+        'mcft.required' => 'The manufacturer is required.',
     ]);
+
 
     // Determine the department ID
     $departmentId = $isAdmin ? $request->department : $userDept;
@@ -435,14 +439,19 @@ public function fetchDepartmentData($id)
         }
 
         // Query for counts by status (filtered by department if not admin)
-        $statuses = ['active', 'deployed', 'under_maintenance', 'dispose'];
+        $statuses = ['active', 'deployed', 'under_maintenance', 'disposed'];
         foreach ($statuses as $status) {
             $query = DB::table('asset')->where('status', '=', $status);
+
             if ($usertype !== 'admin') {
                 $query->where('dept_ID', '=', $userDept);
             }
+
+            // Dump the SQL and the results to debug
+            // dump($status, $query->toSql(), $query->get());
             $asset[$status] = $query->count();
         }
+        // $asset['disposed'] = DB::table('asset')->where('status', '=', 'disposed')->count();
 
         // Query for recently created assets (last 5) - filtered by department if not admin
         $newAssetCreatedQuery = assetModel::whereMonth('created_at', Carbon::now()->month)
@@ -665,6 +674,30 @@ public function fetchDepartmentData($id)
         return view('dept_head.asset', compact('assets','categoriesList'));
     }
 
+    public function multiDelete(Request $request)
+    {
+        // Get the selected asset IDs from the request
+        $assetIds = $request->input('asset_ids', []);
+
+        if (count($assetIds) > 0) {
+            try {
+                // Loop through each asset ID and call the delete function
+                foreach ($assetIds as $id) {
+                    $this->delete($id); // Call the delete function for each asset
+                }
+
+                return redirect()->route('asset')->with('success', 'Selected assets have been deleted.');
+            } catch (Exception $e) {
+                // Handle the exception and redirect with error message
+                return redirect()->route('asset')->with('error', 'Failed to delete selected assets.');
+            }
+        }
+
+        return redirect()->route('asset')->with('error', 'No assets selected for deletion.');
+    }
+
+
+
     public function delete($id)
     {
         $assetDel = assetModel::findOrFail($id); // Find asset by ID
@@ -721,15 +754,39 @@ public function fetchDepartmentData($id)
 
         // Retrieve necessary data from related tables
         $department = ['list' => DB::table('department')->get()];
+        // $categories = [
+        //     'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
+        //         return $query->where('dept_ID', $userDept);
+        //     })->get()
+        // ];
+        // $location = ['locs' => DB::table('location')->get()];
+        // $model = ['mod' => DB::table('model')->get()];
+        // $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
+        $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
+
         $categories = [
             'ctglist' => DB::table('category')->when($userType != 'admin', function ($query) use ($userDept) {
                 return $query->where('dept_ID', $userDept);
             })->get()
         ];
-        $location = ['locs' => DB::table('location')->get()];
-        $model = ['mod' => DB::table('model')->get()];
-        $manufacturer = ['mcft' => DB::table('manufacturer')->get()];
-        $status = ['sts' => ['active', 'deployed', 'need repair', 'under_maintenance', 'dispose']];
+
+        $location = [
+            'locs' => DB::table('location')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
+
+        $model = [
+            'mod' => DB::table('model')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
+
+        $manufacturer = [
+            'mcft' => DB::table('manufacturer')->when($userType != 'admin', function ($query) use ($userDept) {
+                return $query->where('dept_ID', $userDept);
+            })->get()
+        ];
 
         // Build the query to retrieve the asset data based on the asset code
         $retrieveDataQuery = assetModel::where('code', $code)
@@ -806,13 +863,16 @@ if (request()->ajax()) {
         $usersDeptId = ($userType === 'admin') ? $retrieveData->dept_ID : $userDept;
 
         // dd($userType,$retrieveData->dept_ID ,$retrieveData);
-        $allUserInDept = User::where('dept_id', $usersDeptId)
-            ->select(
-                'Users.id',
-                'Users.firstname',
-                'Users.lastname',
-            )
-            ->get();
+        // $allUserInDept = User::where('dept_id', $usersDeptId)
+        //     ->select(
+        //         'Users.id',
+        //         'Users.firstname',
+        //         'Users.lastname',
+        //     )
+        //     ->get();
+
+        $allUserInDept = User::select('users.id', 'users.firstname', 'users.lastname')->get();
+
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
         $department = Department::find($asset->dept_ID);
@@ -1109,4 +1169,15 @@ if (request()->ajax()) {
             ], 500);
         }
     }
+
+    public function dispose($id)
+    {
+        $asset = assetModel::findOrFail($id);
+        $asset->status = 'disposed'; // Set the status to disposed
+        $asset->save();
+
+        return response()->json(['success' => true, 'message' => 'Asset disposed successfully.']);
+
+    }
+
 }

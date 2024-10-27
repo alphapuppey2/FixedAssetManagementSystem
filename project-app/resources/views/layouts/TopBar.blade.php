@@ -166,8 +166,14 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                         </x-dropdown-link>
                     </li>
                     <li>
-                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
+                        {{-- <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('newasset')">
                             {{ __('Report') }}
+                        </x-dropdown-link> --}}
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('asset.report')">
+                            {{ __('Asset Reports') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link class="w-full pl-3 block hover:bg-blue-100" :href="route('maintenance.report')">
+                            {{ __('Maint Reports') }}
                         </x-dropdown-link>
                     </li>
                     @endif

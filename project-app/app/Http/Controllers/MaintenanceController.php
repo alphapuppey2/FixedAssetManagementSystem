@@ -389,7 +389,7 @@ class MaintenanceController extends Controller
         $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
         $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
 
-        $route = $userType === 'admin' ? 'admin.createmaintenance' : 'dept_head.createmaintenance';
+        $route = $userType === 'admin' ? 'admin.createMaintenance' : 'dept_head.createmaintenance';
 
         return view($route, compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
     }
@@ -544,7 +544,8 @@ class MaintenanceController extends Controller
     public function updateApproved(Request $request, $id)
     {
         $request->validate([
-            'cost' => 'required|numeric|min:0',
+            // 'cost' => 'required|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
             'completion_date' => 'nullable|date|after_or_equal:start_date',
@@ -570,7 +571,8 @@ class MaintenanceController extends Controller
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
-            'cost' => $request->cost,
+            // 'cost' => $request->cost,
+            'cost' => $request->cost ?? 0, // Default to 0 if not provided
             'is_completed' => $isCompleted, // Boolean handling
             'status' => $status, // Only change status to 'cancelled' if applicable
             'completion_date' => $isCompleted ? now() : null,
@@ -634,6 +636,13 @@ class MaintenanceController extends Controller
             'reason' => $request->reason, // Update the reason field
         ]);
 
+        // Check if the status is 'approved' and update the asset status to 'under_maintenance'
+        if ($request->status === 'approved') {
+            $asset->update([
+                'status' => 'under_maintenance',
+            ]);
+        }
+
         $requestor = User::find($maintenance->requestor);
 
         if ($requestor) {
@@ -674,6 +683,8 @@ class MaintenanceController extends Controller
 
     public function showRecords(Request $request)
     {
+        $user = auth()->user(); // Get the logged-in user.
+
         $searchController = app(SearchController::class);
         $records = $searchController->searchMaintenanceRecords($request);
 
@@ -681,11 +692,31 @@ class MaintenanceController extends Controller
         $searchQuery = $request->input('query', '');
         $perPage = $request->input('rows_per_page', 10);
 
-        return view('admin.maintenanceRecords', [
-            'records' => $records,
-            'tab' => $tab,
-            'searchQuery' => $searchQuery,
-            'perPage' => $perPage,
-        ]);
+        // return view('admin.maintenanceRecords', [
+        //     'records' => $records,
+        //     'tab' => $tab,
+        //     'searchQuery' => $searchQuery,
+        //     'perPage' => $perPage,
+        // ]);
+
+        // Check user type and select appropriate view
+        if ($user->usertype === 'dept_head') {
+            return view('dept_head\maintenance_records', [
+                'records' => $records,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
+        } elseif ($user->usertype === 'admin') {
+            return view('admin.maintenanceRecords', [
+                'records' => $records,
+                'tab' => $tab,
+                'searchQuery' => $searchQuery,
+                'perPage' => $perPage,
+            ]);
+        }
+
+        // Optionally handle other cases or redirect if no valid user type is found
+        return redirect()->route('home')->with('error', 'Invalid user type.');
     }
 }

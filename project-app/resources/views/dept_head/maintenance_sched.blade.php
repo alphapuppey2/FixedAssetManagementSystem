@@ -85,7 +85,6 @@
         </div>
 
         <!-- Pagination (on the right) -->
-        {{-- <div class="ml-auto"> --}}
         <div class="ml-auto pagination-container">
             {{ $records->appends(['rows_per_page' => $perPage])->links() }} <!-- Pagination Links -->
         </div>
@@ -286,7 +285,7 @@
             @csrf
             @method('PUT')
 
-            <!-- Cost Field -->
+            {{-- <!-- Cost Field -->
             <div class="mb-4">
                 <label for="cost" class="block text-sm font-medium text-gray-700">Cost</label>
                 <input type="number" step="0.01" name="cost" id="edit_cost" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
@@ -302,14 +301,14 @@
             <div class="mb-4">
                 <label for="ends" class="block text-sm font-medium text-gray-700">Ends After (Occurrences)</label>
                 <input type="number" name="ends" id="edit_ends" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            </div>
+            </div> --}}
 
             <!-- Status Field (Dropdown) -->
             <div class="mb-4">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select name="status" id="edit_status" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required onchange="toggleFieldsBasedOnStatus()">
                     <option value="active">Active</option>
-                    <option value="completed">Completed</option>
+                    {{-- <option value="completed">Completed</option> --}}
                     <option value="cancelled">Cancelled</option>
                 </select>
             </div>
@@ -413,8 +412,6 @@ function toggleFieldsBasedOnStatus() {
         toggleFieldsBasedOnStatus(); // Call the function to handle fields based on the status
     });
 
-
-
     function openEditModal(id) {
         console.log('Edit button clicked for ID:', id);
 
@@ -422,9 +419,9 @@ function toggleFieldsBasedOnStatus() {
         fetch(`/preventive/${id}/edit`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('edit_cost').value = data.cost;
-                document.getElementById('edit_frequency').value = data.frequency;
-                document.getElementById('edit_ends').value = data.ends;
+                // document.getElementById('edit_cost').value = data.cost;
+                // document.getElementById('edit_frequency').value = data.frequency;
+                // document.getElementById('edit_ends').value = data.ends;
                 document.getElementById('edit_status').value = data.status;
                 document.getElementById('cancel_reason').value = data.cancel_reason;
 

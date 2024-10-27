@@ -116,12 +116,30 @@
     </div>
 </div>
 
+<form action="{{ route('asset.multiDelete') }}" method="POST" id="multiDeleteForm">
+    @csrf
+    @method('DELETE')
+        <!-- Display Selected Count -->
+    <div class="mb-2 text-gray-600 ">
+        Selected Assets: <span id="selectedCount">0</span>
+    </div>
+    <div class="flex justify-between items-center mb-2">
+        <!-- Multi-Delete Button -->
+        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" id="multiDeleteButton">
+            Delete Selected
+        </button>
+    </div>
+
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
     {{-- <div class="tableContainer overflow-auto rounded-md h-full w-full"> --}}
+
     <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
-        <table class="w-full  border-gray-300">
-            <thead class="p-5 bg-gray-100 border-b">
+        <table class="w-full border border-gray-300 rounded-lg text-sm">
+            <thead class="bg-gray-100 border-b">
                 <tr>
+                    <th class="w-12 py-3 text-xs font-medium text-gray-500 uppercase text-center">
+                        <input type="checkbox" id="selectAll" class="w-5 h-5">
+                    </th>
                     <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
                         <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center gap-1">
                             Code
@@ -151,7 +169,10 @@
             </thead>
             <tbody>
                 @forelse ($assets as $asset)
-                    <tr>
+                    <tr class="hover:bg-gray-100">
+                        <td class="align-middle text-center">
+                            <input type="checkbox" name="asset_ids[]" value="{{ $asset->id }}" class="assetCheckbox w-5 h-5">
+                        </td>
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->code ?? 'NONE' }}</td>
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->name }}</td>
                         <td class="align-middle text-center text-sm text-gray-900">{{ $asset->category_name }}</td>
@@ -171,15 +192,16 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                        <td colspan="6" class="bg-gray-100 text-center py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
                             No Assets Found
                         </td>
                     </tr>
                 @endforelse
             </tbody>
-
         </table>
+
     </div>
+    </form>
 
     <!-- Card layout for small screens -->
     <div class="block md:hidden space-y-4">
@@ -216,12 +238,18 @@
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 @include('dept_head.modal.deleteAssetModal')
+@if(session('success'))
+<div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+    {{ session('success') }}
+</div>
+@endif
 
 @if (session('success'))
         <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
            {{ session('success') }}
         </div>
     @endif
+
 
 <script>
     document.getElementById('rows_per_page').addEventListener('change', function () {
@@ -276,6 +304,69 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.assetCheckbox');
+
+        // When "Select All" is checked or unchecked
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Ensure "Select All" reflects the state of individual checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (!this.checked) {
+                    selectAll.checked = false;  // Uncheck "Select All" if any checkbox is unchecked
+                } else if (Array.from(checkboxes).every(cb => cb.checked)) {
+                    selectAll.checked = true;  // Check "Select All" if all checkboxes are checked
+                }
+            });
+        });
+    });
+//MULTI DELETE
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.assetCheckbox');
+        const selectAll = document.getElementById('selectAll');
+        const multiDeleteButton = document.getElementById('multiDeleteButton');
+        const selectedCount = document.getElementById('selectedCount');
+        const actionColumns = document.querySelectorAll('.action-buttons'); // Select all action columns
+
+        // Function to update the count and toggle buttons/columns
+        function updateSelectedCount() {
+            const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+            selectedCount.textContent = count; // Update selected count
+            multiDeleteButton.classList.toggle('hidden', count === 0); // Show/hide delete button
+            toggleActionColumn(count > 0); // Hide action column if any checkbox is selected
+        }
+
+        // Handle 'Select All' checkbox behavior
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            updateSelectedCount();
+        });
+
+        // Handle individual checkbox behavior
+        checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelectedCount));
+
+        // Initial state on page load
+        updateSelectedCount();
+    });
+
+    // Hide the toast after 3 seconds
+    setTimeout(function() {
+        var toast = document.getElementById('toast');
+        if (toast) {
+            toast.style.transition = 'opacity 0.5s';
+            toast.style.opacity = '0';
+            setTimeout(function() {
+                toast.remove();
+            }, 500); // Remove after the fade-out transition
+        }
+    }, 3000); // 3 seconds before hiding
     </script>
 
 @endsection

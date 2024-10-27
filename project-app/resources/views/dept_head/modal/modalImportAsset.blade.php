@@ -134,7 +134,7 @@
             const headers = rows[0]; // CSV headers
 
             // Build Table Header
-            previewTableHeader.innerHTML = `<th><input type="checkbox" id="selectAll" checked></th>`;
+            previewTableHeader.innerHTML = `<th><input type="checkbox" id="selectAllImport" checked></th>`;
             headers.forEach(header => {
                 previewTableHeader.innerHTML += `<th>${header}</th>`;
             });
@@ -167,7 +167,7 @@
         // Checkbox Logic for Rows and "Select All"
         function setupCheckboxListeners() {
             const rowCheckboxes = document.querySelectorAll('.rowCheckbox');
-            const selectAllCheckbox = document.getElementById('selectAll');
+            const selectAllCheckbox = document.getElementById('selectAllImport');
 
             // Handle "Select All" Checkbox
             selectAllCheckbox.checked = true; // Set selectAll as checked by default
