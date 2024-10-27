@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Zxing\QrReader;
 use App\Models\assetModel;
 use App\Models\Maintenance;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class UserSideController extends Controller
                 'asset.name as asset_name',
                 'asset.depreciation',
                 'asset.purchase_cost as cost',
-                'asset.custom_fields as additional_info',
+                'asset.custom_fields',
                 'asset.salvage_value as salvageVal', // Use correct column name
                 'asset.usage_lifespan as usage_Lifespan', // Correct casing
                 'category.name as category',
@@ -74,9 +75,24 @@ class UserSideController extends Controller
             ->paginate(5);
 
             foreach ($requests as $request) {
-                $request->additional_info = json_decode($request->additional_info ,true);
-            }
+                if ($request->custom_fields) {
+                    $customFields = json_decode($request->custom_fields, true);
+                    $fields = [];
 
+                    foreach ($customFields as $key => $value) {
+                        $fields[] = [
+                            'name' => $key,
+                            'value' => $value
+                        ];
+                    }
+
+                    // Attach the $fields array to the request object for easy access in the view
+                    $request->custom_fields_array = $fields;
+                } else {
+                    $request->custom_fields_array = [];
+                }
+            }
+            // dd($requests);
 
         return view('user.requestList', [
             'requests' => $requests,
@@ -265,8 +281,39 @@ class UserSideController extends Controller
         // Decode the custom fields
         $fields = json_decode($retrieveData->custom_fields, true);
 
+
+        $asset = assetModel::find($retrieveData->id);
+        $department = Department::find($asset->dept_ID);
+
+            // Decode custom_fields from both asset and department (assuming they are stored as JSON)
+            $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
+            $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
+
+
+
+            // Create an empty array to hold the updated custom fields
+            $updatedCustomFields = [];
+            // dd($departmentCustomFields ,$assetCustomFields);
+            // dd($departmentCustomFields);
+            // Loop through the department custom fields and map the values from the asset custom fields
+            foreach ($departmentCustomFields as $deptField) {
+                $fieldName = $deptField['name']; // For example: "RAM"
+
+            // Check if the asset has a value for this field
+            $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
+
+
+            // Add the field to the updated custom fields array
+            $updatedCustomFields[] = [
+                'name' => $fieldName,
+                'value' => $fieldValue, // Take the value from the asset
+                'type' => $deptField['type'], // Keep type from department
+                'helper' => $deptField['helptext'] // Keep helper from department
+            ];
+        }
+
         // Pass asset data to the view
-        return view('user.assetDetail', compact('retrieveData', 'fields'));
+        return view('user.assetDetail', compact('retrieveData', 'updatedCustomFields'));
     }
 
 }

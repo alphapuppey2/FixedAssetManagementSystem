@@ -425,14 +425,19 @@ public function fetchDepartmentData($id)
         }
 
         // Query for counts by status (filtered by department if not admin)
-        $statuses = ['active', 'deployed', 'under_maintenance', 'dispose'];
+        $statuses = ['active','deployed','under_maintenance',"disposed"];
         foreach ($statuses as $status) {
             $query = DB::table('asset')->where('status', '=', $status);
+
             if ($usertype !== 'admin') {
                 $query->where('dept_ID', '=', $userDept);
             }
+
+            // Dump the SQL and the results to debug
+            // dump($status, $query->toSql(), $query->get());
             $asset[$status] = $query->count();
         }
+        // $asset['disposed'] = DB::table('asset')->where('status', '=', 'disposed')->count();
 
         // Query for recently created assets (last 5) - filtered by department if not admin
         $newAssetCreatedQuery = assetModel::whereMonth('created_at', Carbon::now()->month)

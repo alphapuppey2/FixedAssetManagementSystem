@@ -108,27 +108,13 @@
 
                     <!-- Action (View and Cancel Buttons) -->
                     <td class="py-2 px-3 flex justify-center items-center space-x-2">
-                        <button type="button" onclick="showModal(
-                                '{{ $request->asset_code }}',
-                                '{{ $request->asset_image }}',
-                                '{{ $request->asset_name }}',
-                                '{{ $request->cost }}',
-                                '{{ $request->depreciation }}',
-                                '{{ $request->salvageVal }}',
-                                '{{ $request->category }}',
-                                '{{ $request->usage_Lifespan }}',
-                                '{{ $request->model }}',
-                                '{{ $request->manufacturer }}',
-                                '{{ $request->location }}',
-                                '{{ $request->asset_status }}',
-                                '{{ $request->description }}',
-                                '{{ $request->id }}',
-                                '{{ $request->status }}',
-                                '{{ $request->qr_code }}',
-                                '{{ $request->reason }}' // Add this line to pass the denial reason
-                            )" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
+                        <button type="button" onclick="showModal()"
+                             class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                             <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                         </button>
+                        {{-- modal here --}}
+
+                        @include('user.modalRequestList' ,['request' =>$request])
 
                         @if ($request->status === 'request')
                         <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
@@ -161,34 +147,15 @@
                     </span>
                 </p>
                 <p><strong>Asset Code:</strong> {{ $request->asset_code }}</p>
-
-                <!-- Action Buttons -->
+                <!-- Action Button  s -->
                 <div class="flex justify-end space-x-2 mt-4">
                     <!-- View Button -->
                     <button
-                        onclick="showModal(
-                            '{{ $request->asset_code }}',
-                            '{{ $request->asset_image }}',
-                            '{{ $request->asset_name }}',
-                            '{{ $request->cost }}',
-                            '{{ $request->depreciation }}',
-                            '{{ $request->salvageVal }}',
-                            '{{ $request->category }}',
-                            '{{ $request->usage_Lifespan }}',
-                            '{{ $request->model }}',
-                            '{{ $request->manufacturer }}',
-                            '{{ $request->location }}',
-                            '{{ $request->asset_status }}',
-                            '{{ $request->description }}',
-                            '{{ $request->id }}',
-                            '{{ $request->asset_status }}',
-                            '{{ $request->qr_code }}',
-                            '{{ $request->reason }}',
-                             {!! json_encode($request->additional_info) !!}
-                        )"
-                        class="w-8 h-8" aria-label="View Request">
+                        class="w-8 h-8" onclick="showModal()">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                     </button>
+
+                    @include('user.modalRequestList' ,['request' => $request])
 
                     <!-- Cancel Button -->
                     @if ($request->status === 'request')
@@ -210,28 +177,24 @@
 </div>
 
 <script>
-    function showModal(
-    assetCode, assetImage, assetName, cost, depreciation, salvageVal,
-    category, lifespan, model, manufacturer, location, assetStatus,
-    description, id, status, qrCode, reason
-    ) {
-        // Example: Use console to ensure the data is passed correctly
-        console.log({ assetCode, assetName, cost });
+    // function showModal(
+    // ) {
+    //     // Example: Use console to ensure the data is passed correctly
+    //     // console.log({ assetCode, assetName, cost });
 
-        // Inject the data into the modal (or display it as needed)
-        document.getElementById('modalTitle').textContent = `Asset Code: ${assetCode}`;
-        document.getElementById('modalDescription').textContent = description;
-        document.getElementById('modalImage').src = assetImage;
+    //     // // Inject the data into the modal (or display it as needed)
+    //     // document.getElementById('modalTitle').textContent = `Asset Code: ${assetCode}`;
+    //     // document.getElementById('modalDescription').textContent = description;
+    //     // document.getElementById('modalImage').src = assetImage;
 
-        // Show the modal
-        document.getElementById('assetModal').classList.remove('hidden');
-    }
+    //     // Show the modal
+    //     document.getElementById('viewModal').classList.remove('hidden');
+    // }
 
 </script>
 
 <!-- Include the modal for the search filter -->
 @include('user.modalSearchFilter') <!-- Search Modal -->
 @include('user.modalCancel')
-@include('user.modalRequestList')
 
 @endsection

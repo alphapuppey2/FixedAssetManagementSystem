@@ -13,7 +13,7 @@
             $cardColor = 'bg-yellow-300';
             $textColor = 'text-yellow-950';
             break;
-        case 'dispose':
+        case 'disposed':
             $cardColor = 'bg-gray-300';
             $textColor = 'text-gray-950';
             break;
