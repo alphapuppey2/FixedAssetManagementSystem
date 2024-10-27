@@ -92,14 +92,15 @@
                     </div>
                     <div class="flex flex-col justify-between">
                         <span class="font-medium">Custom Fields </span>
-                        <div id="modalAdditionalInfo" class="flex flex-col" class="space-y-2 text-gray-600">
+                        <div id="modalAdditionalInfo" class="flex flex-col" class="space-y-2 grid grid-rows-2  bg-blue-500 text-gray-600">
                             @if (!empty($request->custom_fields_array))
                                 @foreach ($request->custom_fields_array as $field)
-                                   <div class="fieldItem">
+                                   <div class="fieldItem grid grid-cols-[20%_auto]">
                                     <span> {{ ucfirst($field['name']) }}</span>
                                    <span>{{ $field['value'] }}</span>
                                    </div>
                                 @endforeach
+
                             @else
                                 <p>No custom fields available.</p>
                             @endif
@@ -150,52 +151,54 @@
 
 <!-- JavaScript -->
 <script>
-    function showModal() {
+    function showModal(request) {
+        console.log("you clicked the modal" , request);
+
         // Set modal content
-        // document.getElementById('modalAssetCode').innerText = assetCode;
-        // document.getElementById('modalAssetImage').src = assetImage ? `/storage/${assetImage}` :
-        //     '/images/defaultICON.png';
-        // document.getElementById('modalAssetQr').src = qrCodePath ? `/storage/${qrCodePath}` : '/images/defaultQR.png';
-        // document.getElementById('modalAssetName').innerText = assetName;
-        // document.getElementById('modalAssetCost').innerText = assetCost;
-        // document.getElementById('modalAssetDepreciation').innerText = assetDepreciation;
-        // document.getElementById('modalAssetSalvage').innerText = assetSalvage;
-        // document.getElementById('modalAssetStatus').innerText = assetStatus;
-        // document.getElementById('modalAssetCategory').innerText = assetCategory;
-        // document.getElementById('modalAssetLifespan').innerText = assetLifespan + " years";
-        // document.getElementById('modalAssetModel').innerText = assetModel;
-        // document.getElementById('modalAssetManufacturer').innerText = assetManufacturer;
-        // document.getElementById('modalAssetLocation').innerText = assetLocation;
+        document.getElementById('modalAssetCode').innerText = request.asset_code;
+        document.getElementById('modalAssetImage').src = request.asset_image ? `/storage/${request.asset_image}` :
+            '/images/defaultICON.png';
+        document.getElementById('modalAssetQr').src = request.qr_code ? `/storage/${request.qr_code}` : '/images/defaultQR.png';
+        document.getElementById('modalAssetName').innerText = request.name;
+        document.getElementById('modalAssetCost').innerText = request.cost;
+        document.getElementById('modalAssetDepreciation').innerText = request.depreciation;
+        document.getElementById('modalAssetSalvage').innerText = request.salvageVal;
+        document.getElementById('modalAssetStatus').innerText = request.asset_status;
+        document.getElementById('modalAssetCategory').innerText = request.category;
+        document.getElementById('modalAssetLifespan').innerText = request.usage_Lifespan + " years";
+        document.getElementById('modalAssetModel').innerText = request.model;
+        document.getElementById('modalAssetManufacturer').innerText = request.manufacturer;
+        document.getElementById('modalAssetLocation').innerText = request.location;
 
 
         // // Set reason for the request
-        // document.getElementById('modalRequestReason').innerText = requestReason;
+        document.getElementById('modalRequestReason').innerText = request.description;
 
         // // Set request status
-        // document.getElementById('modalRequestStatus').innerText = requestStatus;
+        document.getElementById('modalRequestStatus').innerText = request.status;
 
         // // Show or hide sections based on request status
-        // if (requestStatus === 'approved') {
-        //     document.getElementById('authorizedByContainer').classList.remove('hidden');
-        //     document.getElementById('modalAuthorizedBy').innerText = authorizedBy ? authorizedBy : 'N/A';
-        //     document.getElementById('denialReasonContainer').classList.add('hidden');
-        // } else if (requestStatus === 'denied') {
-        //     document.getElementById('authorizedByContainer').classList.remove('hidden');
-        //     document.getElementById('modalAuthorizedBy').innerText = denialReason ? denialReason : 'N/A';
-        //     document.getElementById('denialReasonContainer').classList.remove('hidden');
-        //     document.getElementById('modalDenialReason').innerText = authorizedBy ? authorizedBy : 'N/A';
-        // } else {
-        //     document.getElementById('authorizedByContainer').classList.add('hidden');
-        //     document.getElementById('denialReasonContainer').classList.add('hidden');
-        // }
+        if (request.status === 'approved') {
+            document.getElementById('authorizedByContainer').classList.remove('hidden');
+            document.getElementById('modalAuthorizedBy').innerText = request.authorized_by ?? 'N/A';
+            document.getElementById('denialReasonContainer').classList.add('hidden');
+        } else if (request.status === 'denied') {
+            document.getElementById('authorizedByContainer').classList.remove('hidden');
+            document.getElementById('modalAuthorizedBy').innerText = request.reason ?? 'N/A';
+            document.getElementById('denialReasonContainer').classList.remove('hidden');
+            document.getElementById('modalDenialReason').innerText = request.authorized_by ??  'N/A';
+        } else {
+            document.getElementById('authorizedByContainer').classList.add('hidden');
+            document.getElementById('denialReasonContainer').classList.add('hidden');
+        }
 
         // // Show the cancel button only if the request status is "request"
-        // if (requestStatus === 'request') {
-        //     document.getElementById('cancelRequestButton').classList.remove('hidden');
-        //     document.getElementById('cancelForm').action = `/requests/cancel/${requestId}`;
-        // } else {
-        //     document.getElementById('cancelRequestButton').classList.add('hidden');
-        // }
+        if (request.status === 'request') {
+            document.getElementById('cancelRequestButton').classList.remove('hidden');
+            document.getElementById('cancelForm').action = `/requests/cancel/${request.id}`;
+        } else {
+            document.getElementById('cancelRequestButton').classList.add('hidden');
+        }
 
         // Show the view modal
         document.getElementById('viewModal').classList.remove('hidden');

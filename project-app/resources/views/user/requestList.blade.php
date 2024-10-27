@@ -108,13 +108,13 @@
 
                     <!-- Action (View and Cancel Buttons) -->
                     <td class="py-2 px-3 flex justify-center items-center space-x-2">
-                        <button type="button" onclick="showModal()"
+                        <button type="button"  onclick="showModal({{ json_encode($request) }})"
                              class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
                             <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                         </button>
                         {{-- modal here --}}
 
-                        @include('user.modalRequestList' ,['request' =>$request])
+                        {{-- @include('user.modalRequestList' ,['request' =>$request]) --}}
 
                         @if ($request->status === 'request')
                         <button type="button" onclick="showCancelModal({{ $request->id }})" class="inline-flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out">
@@ -151,11 +151,10 @@
                 <div class="flex justify-end space-x-2 mt-4">
                     <!-- View Button -->
                     <button
-                        class="w-8 h-8" onclick="showModal()">
+                        class="w-8 h-8" onclick="showModal({{ json_encode($request) }})">
                         <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                     </button>
 
-                    @include('user.modalRequestList' ,['request' => $request])
 
                     <!-- Cancel Button -->
                     @if ($request->status === 'request')
@@ -196,5 +195,6 @@
 <!-- Include the modal for the search filter -->
 @include('user.modalSearchFilter') <!-- Search Modal -->
 @include('user.modalCancel')
+@include('user.modalRequestList')
 
 @endsection
