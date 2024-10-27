@@ -61,6 +61,13 @@ jobs:
           php artisan view:cache "
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create Storage Symlink
+        run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
+          cd /var/www/html/FixedAssetManagementSystem/project-app &&
+          php artisan storage:link"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           
       - name: Restart Apache
         run: ssh -o StrictHostKeyChecking=no root@165.22.59.23 "
