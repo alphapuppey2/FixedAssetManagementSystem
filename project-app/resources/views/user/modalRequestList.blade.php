@@ -22,14 +22,12 @@
                     <div
                         class="imagepart relative w-36 h-36 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                         <img id="modalAssetImage"
-                            src="{{ asset('storage/' . $request->asset_image ?? 'images/no-image.png') }}"
                             class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->
                     <div class="qrContainer flex flex-col items-center">
                         <div class="QRBOX w-32 h-32 bg-gray-200 rounded-lg shadow-md flex items-center justify-center">
                             <img id="modalAssetQr"
-                                src="{{ asset('storage/' . $request->qr_code ?? 'images/defaultICON.png') }}"
                                 alt="QR Code" class="w-full h-full object-cover">
                         </div>
                     </div>
@@ -44,27 +42,27 @@
                 <div class="space-y-2 text-gray-600">
                     <div class="flex justify-between">
                         <span class="font-medium">Name:</span>
-                        <span id="modalAssetName">{{ $request->asset_name }}</span>
+                        <span id="modalAssetName"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Cost:</span>
-                        <span id="modalAssetCost">{{ number_format($request->cost, 2) }}</span>
+                        <span id="modalAssetCost"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Depreciation:</span>
-                        <span id="modalAssetDepreciation">{{ number_format($request->depreciation, 2) }}</span>
+                        <span id="modalAssetDepreciation"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Salvage Value:</span>
-                        <span id="modalAssetSalvage">{{ number_format($request->salvageVal, 2) }}</span>
+                        <span id="modalAssetSalvage"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Category:</span>
-                        <span id="modalAssetCategory">{{ $request->category }}</span>
+                        <span id="modalAssetCategory"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Lifespan:</span>
-                        <span id="modalAssetLifespan">{{ $request->usage_Lifespan }}</span>
+                        <span id="modalAssetLifespan"></span>
                     </div>
                 </div>
             </div>
@@ -75,36 +73,24 @@
                 <div class="space-y-2 text-gray-600">
                     <div class="flex justify-between">
                         <span class="font-medium">Model:</span>
-                        <span id="modalAssetModel">{{ $request->model }}</span>
+                        <span id="modalAssetModel"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Manufacturer:</span>
-                        <span id="modalAssetManufacturer">{{ $request->manufacturer }}</span>
+                        <span id="modalAssetManufacturer"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Location:</span>
-                        <span id="modalAssetLocation">{{ $request->location }}</span>
+                        <span id="modalAssetLocation"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Status:</span>
                         <span id="modalAssetStatus"
-                            class="inline-block px-3 py-1 rounded-full text-xs font-semibold">{{ $request->status }}</span>
+                            class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
                     </div>
                     <div class="flex flex-col justify-between">
                         <span class="font-medium">Custom Fields </span>
                         <div id="modalAdditionalInfo" class="flex flex-col" class="space-y-2 grid grid-rows-2  bg-blue-500 text-gray-600">
-                            @if (!empty($request->custom_fields_array))
-                                @foreach ($request->custom_fields_array as $field)
-                                   <div class="fieldItem grid grid-cols-[20%_auto]">
-                                    <span> {{ ucfirst($field['name']) }}</span>
-                                   <span>{{ $field['value'] }}</span>
-                                   </div>
-                                @endforeach
-
-                            @else
-                                <p>No custom fields available.</p>
-                            @endif
-
                         </div>
                     </div>
 
