@@ -9,7 +9,7 @@ class AssignedToUser extends Model
 {
     use HasFactory;
 
-    protected $table ='userassetactivity';
+    protected $table ='userAssetActivity';
     public $timestamps = false;
 
     public $fillable = [
