@@ -852,7 +852,7 @@ if (request()->ajax()) {
         //     )
         //     ->get();
 
-        $allUserInDept = User::select('Users.id', 'Users.firstname', 'Users.lastname')->get();
+        $allUserInDept = User::select('users.id', 'users.firstname', 'users.lastname')->get();
 
         // Retrieve asset and department data
         $asset = assetModel::find($retrieveData->id);
