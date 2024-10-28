@@ -1,19 +1,5 @@
 @extends('layouts.app')
 
-<style>
-    /* Hides spinners in Chrome, Edge, and Safari */
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Hides spinners in Firefox */
-    input[type="number"] {
-        -moz-appearance: textfield;
-    }
-</style>
-
 
 @section('header')
     <div class="headerTitle">

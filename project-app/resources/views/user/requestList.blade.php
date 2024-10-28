@@ -141,6 +141,9 @@
                 <p><strong>Type:</strong> {{ $request->type }}</p>
                 <p><strong>Created At:</strong> {{ $request->created_at }}</p>
                 <p>
+                    @php
+                    $statusClass = $statusClasses[$request->status] ?? 'bg-purple-100 text-purple-800';
+                @endphp
                     <strong>Status:</strong>
                     <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
                         {{ ucfirst($request->status) }}

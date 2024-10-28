@@ -60,7 +60,7 @@
 <!-- Modal Structure -->
 <!-- Modal Structure -->
 <div id="settingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-1">
-    <div class="bg-white p-6 rounded-md shadow-md w-1/3">
+    <div class="bg-white p-6 rounded-md shadow-md md:w-1/4 sm:w-[80%]">
         <span class="close-button text-xl cursor-pointer" onclick="closeModal()">×</span>
         <h2 class="text-xl font-semibold mb-4">New Setting</h2>
         <form action="{{ route('setting.create', $activeTab) }}" method="post">
@@ -98,8 +98,8 @@
                 </div>
             @endif
             <div class="mt-4 flex justify-end gap-2">
-                <button type="button" class="px-4 py-2 bg-gray-300 rounded-md" onclick="closeModal()">Close</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Save</button>
+                <button type="button" class="px-4 py-2 bg-gray-200 transition duration-300 ease-in-out rounded-md" onclick="closeModal()">Close</button>
+                <button type="submit" class="px-4 py-2 bg-blue-950 text-white transition duration-300 ease-in-out hover:bg-blue-950/80 rounded-md">Save</button>
             </div>
         </form>
     </div>

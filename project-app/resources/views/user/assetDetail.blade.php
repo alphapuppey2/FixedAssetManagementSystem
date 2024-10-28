@@ -86,7 +86,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Last Used:</span>
-                        <span>NONE</span>
+                        <span>{{ isset($retrieveData->lub_firstname) && $retrieveData->lub_middlename && $retrieveData->lub_lastname ? $retrieveData->lub_firstname." ".$retrieveData->lub_middlename." ".$retrieveData->lub_lastname :  'N/a'  }}</span>
                     </div>
                     <div class="flex flex-col justify-between">
                         <span class="font-medium">Custom Fields </span>
