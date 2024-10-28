@@ -11,7 +11,7 @@
         <div class="profileAccount flex items-center p-2 rounded-lg transition-all">
             <div class="imagepart overflow-hidden rounded-full w-[30px] h-[30px] md:w-[60px] md:h-[60px] border-2 border-slate-500">
                 {{-- <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}" --}}
-                <img src="{{ Auth::user()->userPicture ? asset('storage/profile_photos/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
+                <img src="{{ Auth::user()->userPicture ? asset('storage/' . Auth::user()->userPicture) : asset('images/default_profile.jpg') }}"
                     class="w-full h-full object-cover rounded-full" alt="User Profile Photo">
             </div>
             <div class="profileUser flex-col ml-2 text-[12px] hidden lg:flex">

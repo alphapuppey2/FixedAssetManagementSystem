@@ -15,7 +15,7 @@
             <div class="relative flex justify-center mb-6">
                 <!-- Profile Photo -->
                 <img id="profilePhotoPreview"
-                    src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
+                    src="{{ auth()->user()->userPicture ? asset('storage/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
                     alt="Profile Image"
                     class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-300 transition-all duration-300">
 

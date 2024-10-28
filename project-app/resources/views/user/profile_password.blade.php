@@ -7,7 +7,7 @@
 
     <!-- Profile Photo and User Name -->
     <div class="text-center mb-6">
-        <img src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
+        <img src="{{ auth()->user()->userPicture ? asset('storage/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
              alt="Profile Image"
              class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-300 mx-auto transition-all duration-300">
         <!-- Adjusted size for small screens with transition for smooth resizing -->
