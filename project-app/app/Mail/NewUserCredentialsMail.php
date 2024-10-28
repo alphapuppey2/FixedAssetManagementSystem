@@ -21,7 +21,7 @@ class NewUserCredentialsMail extends Mailable{
 
     public function envelope(): Envelope{
         return new Envelope(
-            subject: 'FAMAS User Credentials',
+            subject: 'FAMS User Credentials',
         );
     }
 

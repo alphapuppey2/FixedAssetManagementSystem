@@ -5,9 +5,9 @@
         <title>New User Credentials</title>
     </head>
     <body>
-        <h1>Welcome to FAMAS</h1>
+        <h1>Welcome to FAMS</h1>
         <h4>Fixed Asset Management System</h4>
-        <p>System: {INSERT SYSTEM LINK HERE}</p>
+        <p>System: https://famsvirginia.duckdns.org</p>
 
         <br>
 
@@ -17,7 +17,8 @@
 
         <br>
 
-        <p>Change your password here: {INSERT CHANGE PASSWORD LINK HERE}</p>
+        {{-- <p>Change your password here: {INSERT CHANGE PASSWORD LINK HERE}</p> --}}
+        <p>You may change your password located on your profile.</p>
 
         <br>
 
