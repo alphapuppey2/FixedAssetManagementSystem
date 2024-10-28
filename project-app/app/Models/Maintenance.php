@@ -59,7 +59,7 @@ class Maintenance extends Model
 
     public function category()
     {
-        return $this->hasOneThrough(Category::class, assetModel::class, 'id', 'id', 'asset_key', 'ctg_ID');
+        return $this->hasOneThrough(category::class, assetModel::class, 'id', 'id', 'asset_key', 'ctg_ID');
     }
 
     public function location()
