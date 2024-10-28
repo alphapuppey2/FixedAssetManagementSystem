@@ -1,9 +1,10 @@
 <style>
-    .info:nth-child(even){
-        background-color:rgb(243, 242, 242);
+    .info:nth-child(even) {
+        background-color: rgb(243, 242, 242);
     }
-    .info:nth-child(odd){
-        background-color:rgb(255, 255, 255);
+
+    .info:nth-child(odd) {
+        background-color: rgb(255, 255, 255);
     }
 </style>
 
@@ -13,7 +14,7 @@
 
     <div class="flex justify-end space-x-4 mt-4">
         <!-- Dispose Button -->
-        @if($data->status !== 'disposed')
+        @if ($data->status !== 'disposed')
             <button id="disposeBTN" type="button"
                 class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all duration-300"
                 onclick="openDisposeModal()">
@@ -148,10 +149,10 @@
                     class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase
                     date:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->purchase_date }}</div>
-                <x-text-input name="purchasedDate" id="purchase_date"
+                    {{ \Carbon\Carbon::parse($data->purchase_date)->format('d-m-Y') }}</div>
+                <x-text-input type="text" name="purchasedDate" id="purchase_date"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
-                    value="{{ $data->purchase_date }}" />
+                    value="{{ \Carbon\Carbon::parse($data->purchase_date)->format('d-m-Y') }}" />
             </div>
             <div class="info flex items-center p-4 " id="salvageGroup">
                 <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Salvage
@@ -192,19 +193,21 @@
 
 
                 @if (!empty($updatedCustomFields))
-                <div class="addInfoBox grid gap-2">
-                    @foreach ($updatedCustomFields as $item)
-                        <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_auto] gap-2">
-                            <div class="field-Key customField capitalize text-slate-400 flex items-center h-full">{{ ucfirst($item['name']) }}
-                            </div>
+                    <div class="addInfoBox grid gap-2">
+                        @foreach ($updatedCustomFields as $item)
+                            <div class="extraInfo grid grid-cols-2 lg:grid-cols-[minmax(20%,50px)_auto] gap-2">
+                                <div class="field-Key customField capitalize text-slate-400 flex items-center h-full">
+                                    {{ ucfirst($item['name']) }}
+                                </div>
 
-                            <div class="field-Info edit view-only">{{  empty($item['value']) ? 'N/a' : $item['value'] }}</div>
-                            <x-text-input class="edit hidden" name="field[value][]" aria-placeholder="Value"
-                                value="{{  empty($item['value']) ? '': $item['value'] }} " />
-                            <x-text-input class="hidden" name="field[key][]" value="{{$item['name']}}" />
-                        </div>
-                    @endforeach
-                </div>
+                                <div class="field-Info edit view-only">
+                                    {{ empty($item['value']) ? 'N/a' : $item['value'] }}</div>
+                                <x-text-input class="edit hidden" name="field[value][]" aria-placeholder="Value"
+                                    value="{{ empty($item['value']) ? '' : $item['value'] }} " />
+                                <x-text-input class="hidden" name="field[key][]" value="{{ $item['name'] }}" />
+                            </div>
+                        @endforeach
+                    </div>
                 @else
                     <div class="noneField">No Additional Information</div>
                 @endif
@@ -270,9 +273,12 @@
 @endif
 
 @vite(['resources/js/flashNotification.js'])
+<!-- Include Flatpickr CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 
 <script>
-
     let assetId = {{ $data->id }}; // Store asset ID
 
     function openDisposeModal() {
@@ -285,28 +291,27 @@
 
     function confirmDisposal() {
         fetch(`/asset/dispose/${assetId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Asset disposed successfully!');
-                location.reload(); // Reload the page to reflect changes
-            } else {
-                alert('Failed to dispose of the asset.');
-            }
-        })
-        .catch(error => {
-            console.error('Error disposing asset:', error);
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Asset disposed successfully!');
+                    location.reload(); // Reload the page to reflect changes
+                } else {
+                    alert('Failed to dispose of the asset.');
+                }
+            })
+            .catch(error => {
+                console.error('Error disposing asset:', error);
+            });
 
         closeDisposeModal(); // Close the modal
     }
-
 </script>
 
 <script>
@@ -399,51 +404,56 @@
         });
     });
     // Depreciation Calculation
-            const depreciationInput = document.getElementById('depreciation');
-            const purchaseCostInput = document.getElementById('pCost');
-            const salvageValueInput = document.getElementById('salvageValue');
-            const lifespanInput = document.getElementById('lifespan');
+    const depreciationInput = document.getElementById('depreciation');
+    const purchaseCostInput = document.getElementById('pCost');
+    const salvageValueInput = document.getElementById('salvageValue');
+    const lifespanInput = document.getElementById('lifespan');
 
-            // Error message element
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('text-red-500');
-            errorMessage.style.display = 'none'; // Initially hidden
-            errorMessage.innerHTML = "Salvage value cannot exceed the purchase cost.";
-            salvageValueInput.parentNode.appendChild(errorMessage); // Append the error message after the salvage value field
+    // Error message element
+    const errorMessage = document.createElement('div');
+    errorMessage.classList.add('text-red-500');
+    errorMessage.style.display = 'none'; // Initially hidden
+    errorMessage.innerHTML = "Salvage value cannot exceed the purchase cost.";
+    salvageValueInput.parentNode.appendChild(errorMessage); // Append the error message after the salvage value field
 
-            function calculateDepreciation() {
-                const cost = parseFloat(purchaseCostInput.value) || 0;
-                const salvageValue = parseFloat(salvageValueInput.value) || 0;
-                const lifespan = parseInt(lifespanInput.value) || 1;
+    function calculateDepreciation() {
+        const cost = parseFloat(purchaseCostInput.value) || 0;
+        const salvageValue = parseFloat(salvageValueInput.value) || 0;
+        const lifespan = parseInt(lifespanInput.value) || 1;
 
-                // Check if Salvage Value is greater than Purchase Cost
-                if (salvageValue > cost) {
-                    salvageValueInput.classList.add('border-red-500');
-                    errorMessage.style.display = 'block'; // Show error message
-                    depreciationInput.value = "0.00"; // Prevent calculation
-                    return; // Stop further execution if invalid
-                } else {
-                    salvageValueInput.classList.remove('border-red-500');
-                    errorMessage.style.display = 'none'; // Hide error message
-                }
+        // Check if Salvage Value is greater than Purchase Cost
+        if (salvageValue > cost) {
+            salvageValueInput.classList.add('border-red-500');
+            errorMessage.style.display = 'block'; // Show error message
+            depreciationInput.value = "0.00"; // Prevent calculation
+            return; // Stop further execution if invalid
+        } else {
+            salvageValueInput.classList.remove('border-red-500');
+            errorMessage.style.display = 'none'; // Hide error message
+        }
 
-                // Calculate depreciation if the lifespan is greater than 0
-                if (lifespan > 0) {
-                    const depreciation = (cost - salvageValue) / lifespan;
-                    depreciationInput.value = depreciation.toFixed(2);
-                } else {
-                    depreciationInput.value = "0.00";
-                }
-            }
+        // Calculate depreciation if the lifespan is greater than 0
+        if (lifespan > 0) {
+            const depreciation = (cost - salvageValue) / lifespan;
+            depreciationInput.value = depreciation.toFixed(2);
+        } else {
+            depreciationInput.value = "0.00";
+        }
+    }
 
-            // Add input event listeners to trigger depreciation calculation
-            purchaseCostInput.addEventListener('input', calculateDepreciation);
-            salvageValueInput.addEventListener('input', calculateDepreciation);
-            lifespanInput.addEventListener('input', calculateDepreciation);
+    // Add input event listeners to trigger depreciation calculation
+    purchaseCostInput.addEventListener('input', calculateDepreciation);
+    salvageValueInput.addEventListener('input', calculateDepreciation);
+    lifespanInput.addEventListener('input', calculateDepreciation);
 
-            // Initialize fields with default values
-            // purchaseCostInput.value = "";
-            // salvageValueInput.value = "";
-            // lifespanInput.value = "";
-            // depreciationInput.value = "";
+    // Initialize fields with default values
+    // purchaseCostInput.value = "";
+    // salvageValueInput.value = "";
+    // lifespanInput.value = "";
+    // depreciationInput.value = "";
+
+    // Initialize Flatpickr with the desired format
+    flatpickr("#purchase_date", {
+        dateFormat: "d-m-Y", // Change to your preferred format
+    });
 </script>
