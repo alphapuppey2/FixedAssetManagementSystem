@@ -120,14 +120,16 @@
     @csrf
     @method('DELETE')
         <!-- Display Selected Count -->
-    <div class="mb-2 text-gray-600 ">
+    <div class="mb-2 text-gray-600 " id="selectedCountContainer">
         Selected Assets: <span id="selectedCount">0</span>
     </div>
     <div class="flex justify-between items-center mb-2">
         <!-- Multi-Delete Button -->
-        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" id="multiDeleteButton">
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" onclick="showModal()" id="multiDeleteButton">
             Delete Selected
         </button>
+
+        @include('dept_head.modal.deleteAssetModal')
     </div>
 
 <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
@@ -184,9 +186,6 @@
                                 <a href="{{ route('assetDetails', $asset->code) }}" class="inline-flex items-center w-8 h-8">
                                     <x-icons.view-icon class="text-blue-900 hover:text-blue-700 w-6 h-6" />
                                 </a>
-                                <button type="button" class="inline-flex items-center w-8 h-8" onclick="openDeleteModal('{{ $asset->id }}')">
-                                    <x-icons.cancel-icon class="text-red-500 hover:text-red-600 w-6 h-6" />
-                                </button>
                             </div>
                         </td>
                     </tr>
@@ -237,7 +236,6 @@
 
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
-@include('dept_head.modal.deleteAssetModal')
 @if(session('success'))
 <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
     {{ session('success') }}
@@ -268,9 +266,9 @@
 
 
     //Delete Modal Script
-        function openDeleteModal(assetId) {
-            const deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = `/asset/delete/${assetId}`; // Set the form action with the asset ID
+        function openDeleteModal() {
+            const deleteForm = document.getElementById('confirmDeleteBtn');
+            deleteForm.action = `/assets/multi-delete`; // Set the form action with the asset ID
             console.log(`Delete form action: ${deleteForm.action}`); // For debugging
             document.getElementById('deleteModal').classList.remove('hidden'); // Show the modal
         }
@@ -322,33 +320,46 @@
         });
     });
 //MULTI DELETE
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkboxes = document.querySelectorAll('.assetCheckbox');
-        const selectAll = document.getElementById('selectAll');
-        const multiDeleteButton = document.getElementById('multiDeleteButton');
-        const selectedCount = document.getElementById('selectedCount');
-        const actionColumns = document.querySelectorAll('.action-buttons'); // Select all action columns
+document.addEventListener('DOMContentLoaded', function () {
+    const checkboxes = document.querySelectorAll('.assetCheckbox');
+    const selectAll = document.getElementById('selectAll');
+    const multiDeleteButton = document.getElementById('multiDeleteButton');
+    const selectedCount = document.getElementById('selectedCount');
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteMessage = document.getElementById('deleteMessage');
+    const assetCount = document.getElementById('assetCount');
 
-        // Function to update the count and toggle buttons/columns
-        function updateSelectedCount() {
-            const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
-            selectedCount.textContent = count; // Update selected count
-            multiDeleteButton.classList.toggle('hidden', count === 0); // Show/hide delete button
-            toggleActionColumn(count > 0); // Hide action column if any checkbox is selected
-        }
+    function updateSelectedCount() {
+        const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+        selectedCount.textContent = count;
+        multiDeleteButton.classList.toggle('hidden', count === 0); // Show/hide delete button
+    }
 
-        // Handle 'Select All' checkbox behavior
-        selectAll.addEventListener('change', function () {
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-            updateSelectedCount();
-        });
+    multiDeleteButton.addEventListener('click', function (e) {
+        e.preventDefault(); // Prevent form submission
+        const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+        assetCount.textContent = count; // Update the asset count in the modal
+        deleteModal.classList.remove('hidden'); // Show the modal
+    });
 
-        // Handle individual checkbox behavior
-        checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelectedCount));
+    document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
+        deleteModal.classList.add('hidden'); // Hide the modal
+    });
 
-        // Initial state on page load
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        document.getElementById('multiDeleteForm').submit(); // Submit the form
+    });
+
+    selectAll.addEventListener('change', function () {
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
         updateSelectedCount();
     });
+
+    checkboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelectedCount));
+
+    updateSelectedCount(); // Initialize on page load
+});
+
 
     // Hide the toast after 3 seconds
     setTimeout(function() {
