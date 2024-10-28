@@ -61,7 +61,7 @@
                         <div class="relative flex justify-center mb-3">
                             <!-- Profile Photo with Camera Icon (Initially Hidden) -->
                             <img id="profilePhoto"
-                                src="{{ auth()->user()->userPicture ? asset('storage/profile_photos/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
+                                src="{{ auth()->user()->userPicture ? asset('storage/' . auth()->user()->userPicture) : asset('images/default_profile.jpg') }}"
                                 alt="Profile Picture"
                                 class="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-gray-300">
                             <label id="cameraIcon" for="profile_photo"
