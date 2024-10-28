@@ -378,6 +378,8 @@ Route::middleware(['workerUserType', 'auth', 'verified'])->group(function () {
 
     route::post('/requests/cancel/{id}', [UserSideController::class, 'cancelRequest'])->name('requests.cancel');
 
+    Route::post('/validate-qr', [UserSideController::class, 'checkAssetCode'])->name('validate.qr');
+
 
     //PROFFILE SECTION
     Route::get('/user/notification', function () {
