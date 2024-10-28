@@ -241,26 +241,33 @@ class UserSideController extends Controller
     }
 
     // CHECK IF ASSET EXISTS
-    public function checkAsset($code)
+    public function checkAssetCode(Request $request)
     {
-        $asset = assetModel::where('code', $code)->first();
+        // Validate the request to ensure 'qr_code' is provided
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Search for the asset using the provided QR code
+        $asset = assetModel::where('code', $request->input('qr_code'))->first();
 
         if ($asset) {
-            // Asset exists, return the asset details view
-            return view('assetdetails', compact('asset'));
+            // If asset found, return success response with asset code
+            return response()->json(['found' => true, 'code' => $asset->code]);
         } else {
-            // Asset does not exist, return JSON response with an error
-            return response()->json(['error' => 'Asset not found'], 404);
+            // If not found, return a JSON error response
+            return response()->json(['found' => false, 'message' => 'Asset not found.']);
         }
     }
+
 
     //  ASSET DETAILS
     public function showDetails($code)
     {
-        // Get the user details
-        $userType = Auth::user()->usertype;
+        // Get the user type from the authenticated user
+        $userType = Auth::user()->usertype ?? 'guest'; // Default to 'guest' if user is null
 
-        // Query the asset based on the scanned code, including relevant joins
+        // Query the asset based on the scanned code, including joins with related tables
         $retrieveData = assetModel::where('asset.code', $code)
             ->join('department', 'asset.dept_ID', '=', 'department.id')
             ->join('category', 'asset.ctg_ID', '=', 'category.id')
@@ -282,51 +289,52 @@ class UserSideController extends Controller
                 'location.name as location', 'manufacturer.name as manufacturer',
                 'department.name as department', 'maintenance.reason',
                 'maintenance.status as request_status', 'maintenance.authorized_at',
-                'users.firstname as authorized_firstname', 'users.middlename as authorized_middlename',
-                'users.lastname as authorized_lastname', 'department.name as authorized_department'
+                'users.firstname as authorized_firstname',
+                'users.middlename as authorized_middlename',
+                'users.lastname as authorized_lastname',
+                'department.name as authorized_department'
             )
             ->first();
 
-        // If asset not found, return with an error
+        // If asset not found, redirect back with an error message
         if (!$retrieveData) {
-            return redirect()->back()->with('status', 'No asset found with the scanned QR code.');
+            return redirect()->back()->with('error', 'No asset found with the scanned QR code.');
         }
 
-        // Decode the custom fields
-        $fields = json_decode($retrieveData->custom_fields, true);
+        // Decode custom fields from the asset, or set to an empty array if null
+        $assetCustomFields = json_decode($retrieveData->custom_fields, true) ?? [];
 
+        // Fetch the related department
+        $department = department::find($retrieveData->dept_ID);
 
-        $asset = assetModel::find($retrieveData->id);
-        $department = department::find($asset->dept_ID);
+        // Handle cases where department or department custom fields may be null
+        $departmentCustomFields = $department
+            ? json_decode($department->custom_fields, true) ?? []
+            : [];
 
-            // Decode custom_fields from both asset and department (assuming they are stored as JSON)
-            $assetCustomFields = json_decode($asset->custom_fields, true) ?? [];
-            $departmentCustomFields = json_decode($department->custom_fields, true) ?? [];
+        // Create an array to hold the updated custom fields
+        $updatedCustomFields = [];
 
-
-
-            // Create an empty array to hold the updated custom fields
-            $updatedCustomFields = [];
-            // dd($departmentCustomFields ,$assetCustomFields);
-            // dd($departmentCustomFields);
-            // Loop through the department custom fields and map the values from the asset custom fields
-            foreach ($departmentCustomFields as $deptField) {
-                $fieldName = $deptField['name']; // For example: "RAM"
+        // Map the department's custom fields with asset values, if available
+        foreach ($departmentCustomFields as $deptField) {
+            $fieldName = $deptField['name']; // Example: "RAM"
 
             // Check if the asset has a value for this field
             $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
 
+
             // Add the field to the updated custom fields array
             $updatedCustomFields[] = [
                 'name' => $fieldName,
-                'value' => $fieldValue, // Take the value from the asset
-                'type' => $deptField['type'], // Keep type from department
-                'helper' => $deptField['helptext'] // Keep helper from department
+                'value' => $fieldValue,
+                'type' => $deptField['type'],
+                'helper' => $deptField['helptext'] ?? '',
             ];
         }
 
-        // Pass asset data to the view
+        // Pass the asset data and updated custom fields to the view
         return view('user.assetDetail', compact('retrieveData', 'updatedCustomFields'));
     }
+
 
 }

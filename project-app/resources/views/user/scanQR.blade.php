@@ -18,19 +18,7 @@
     <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
         <div id="qr-scanner-container" class="hidden relative w-full max-w-md max-h-screen aspect-square bg-black">
             <video id="video" class="w-full h-full border border-black object-cover bg-black"></video>
-            <div id="qr-bar"
-                 class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/3 h-1/3 border-2 border-gray-300"></div>
         </div>
-    </div>
-
-    <!-- Success Notification -->
-    <div id="scan-success" aria-live="polite" class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-md shadow-md">
-        Scan Successful: <span id="qr-result"></span>
-    </div>
-
-    <!-- Error Notification -->
-    <div id="scan-error" class="hidden fixed bottom-20 right-20 bg-red-600 text-white px-4 py-2 rounded-md">
-        No QR code found in the image.
     </div>
 
     <!-- Buttons for Scanning or Uploading -->
@@ -38,7 +26,8 @@
         <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">
             Scan QR Code
         </button>
-        <button onclick="document.getElementById('uploadInput').click()" class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">
+        <button onclick="document.getElementById('uploadInput').click()"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">
             Upload Image
         </button>
     </div>
@@ -46,48 +35,70 @@
     <!-- Hidden File Input for Image Upload -->
     <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
 
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="loader mb-4"></div>
+            <p class="text-white text-lg">Processing, please wait...</p>
+        </div>
+    </div>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- ZXing Library -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+
+    <style>
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 
     <script>
         let codeReader = new ZXing.BrowserQRCodeReader();
         let isScanning = false;
+        const SCAN_DELAY_MS = 2000; // Delay duration (2 seconds)
 
         function toggleScan() {
-            if (isScanning) {
-                stopScanning();
-            } else {
-                startScanning();
-            }
+            isScanning ? stopScanning() : startScanning();
         }
 
         async function startScanning() {
             if (isScanning) return;
-
             isScanning = true;
-            document.getElementById('scanButton').textContent = 'Cancel Scan';
-            document.getElementById('placeholderImage').style.display = 'none';
-            document.getElementById('qr-scanner-container').style.display = 'block';
+            updateUIForScanning(true);
 
             try {
-                const constraints = {
-                    video: { facingMode: { ideal: "environment" } } // Rear camera preference
-                };
-
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('video').srcObject = stream;
 
                 codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
                     if (result) {
-                        showSuccessNotification(result.text);
+                        console.log('QR Code Found:', result.text);
+                        showLoadingScreen(); // Show loading screen
+                        setTimeout(() => {
+                            hideLoadingScreen();
+                            checkQRCode(result.text);
+                        }, SCAN_DELAY_MS); // Delay for smooth UI experience
                         stopScanning();
                     } else if (err && !(err instanceof ZXing.NotFoundException)) {
                         console.error("Scanning Error:", err);
+                        showErrorToast('Scanning failed. Please try again.');
                     }
                 });
             } catch (error) {
                 console.error('Camera Access Error:', error);
-                showErrorNotification('Unable to access the camera. Please allow camera access.');
+                showErrorToast('Unable to access the camera. Please check your permissions.');
                 stopScanning();
             }
         }
@@ -95,88 +106,96 @@
         function stopScanning() {
             codeReader.reset();
             isScanning = false;
+            stopVideoStream();
+            updateUIForScanning(false);
+        }
 
-            const videoElement = document.querySelector('video');
-            if (videoElement.srcObject) {
-                const stream = videoElement.srcObject;
+        function stopVideoStream() {
+            const videoElement = document.getElementById('video');
+            const stream = videoElement.srcObject;
+            if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
-
-            document.getElementById('scanButton').textContent = 'Scan QR Code';
-            document.getElementById('qr-scanner-container').style.display = 'none';
-            document.getElementById('placeholderImage').style.display = 'block';
         }
 
         function handleImageChange(event) {
             stopScanning();
-
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function () {
-                    showLoading();
                     const img = new Image();
                     img.src = reader.result;
                     img.onload = function () {
-                        codeReader.decodeFromImage(img).then(result => {
-                            hideLoading();
-                            showSuccessNotification(result.text);
-                        }).catch(err => {
-                            hideLoading();
-                            console.error(err);
-                            showErrorNotification("No QR code found in the image.");
-                        });
+                        showLoadingScreen(); // Show loading screen during image processing
+                        setTimeout(() => {
+                            codeReader.decodeFromImage(img).then(result => {
+                                console.log('QR Code Found:', result.text);
+                                hideLoadingScreen();
+                                checkQRCode(result.text);
+                            }).catch(err => {
+                                console.error("Error:", err);
+                                hideLoadingScreen();
+                                showErrorToast("No QR code found in the image.");
+                            });
+                        }, SCAN_DELAY_MS);
                     };
                 };
                 reader.readAsDataURL(file);
             } else {
-                showErrorNotification('Please upload a valid image file.');
+                showErrorToast('Please upload a valid image file.');
             }
         }
 
-        function showSuccessNotification(qrText) {
-            const notification = document.getElementById('scan-success');
-            const resultElement = document.getElementById('qr-result');
-
-            resultElement.textContent = qrText;
-            notification.style.display = 'block';
-
-            setTimeout(() => {
-                notification.style.display = 'none';
-                window.location.href = `/assetdetails/${qrText}`;
-            }, 3000);
+        function checkQRCode(qrText) {
+            fetch('/validate-qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ qr_code: qrText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    window.location.href = `/assetdetails/${data.code}`;
+                } else {
+                    showErrorToast('No asset found with the scanned QR code.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorToast('An error occurred. Please try again.');
+            });
         }
 
-        function showErrorNotification(message) {
-            const notification = document.getElementById('scan-error');
-            notification.textContent = message;
-            notification.style.display = 'block';
-
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').classList.remove('hidden');
         }
 
-        function showLoading() {
-            const loader = document.createElement('div');
-            loader.id = 'loading';
-            loader.textContent = 'Processing...';
-            loader.className = 'fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-700 text-white';
-            document.body.appendChild(loader);
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').classList.add('hidden');
         }
 
-        function hideLoading() {
-            const loader = document.getElementById('loading');
-            if (loader) loader.remove();
+        function showErrorToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
+        function updateUIForScanning(isScanning) {
+            document.getElementById('scanButton').textContent = isScanning ? 'Cancel Scan' : 'Scan QR Code';
+            document.getElementById('placeholderImage').style.display = isScanning ? 'none' : 'block';
+            document.getElementById('qr-scanner-container').style.display = isScanning ? 'block' : 'none';
+        }
+
+        // Auto-hide session-based toast after 3 seconds
         setTimeout(() => {
-            const sessionError = document.getElementById('session-error');
-            if (sessionError) {
-                sessionError.style.display = 'none';
-            }
+            const toast = document.getElementById('toast');
+            if (toast) toast.remove();
         }, 3000);
     </script>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 @endsection
