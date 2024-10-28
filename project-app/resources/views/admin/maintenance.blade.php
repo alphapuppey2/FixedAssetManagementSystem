@@ -37,7 +37,7 @@
                     </form>
 
                     <!-- Create Maintenance Button -->
-                    <a href="{{ route('formMaintenance') }}"
+                    <a href="{{ route('adminFormMaintenance') }}"
                     class="px-3 py-1 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600
                             focus:outline-none flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

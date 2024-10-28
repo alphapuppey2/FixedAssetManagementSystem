@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\assetModel;
-use App\Models\Category;
+use App\Models\category;
 use App\Models\Manufacturer;
 use App\Models\ModelAsset;
 use App\Models\locationModel;
@@ -25,7 +25,7 @@ class ReportsController extends Controller
     public function showAssetFilter()
     {
         $user = Auth::user();
-        $categoryOptions = Category::where('dept_ID', $user->dept_id)->get();
+        $categoryOptions = category::where('dept_ID', $user->dept_id)->get();
         $manufacturerOptions = Manufacturer::where('dept_ID', $user->dept_id)->get();
         $modelOptions = ModelAsset::where('dept_ID', $user->dept_id)->get();
         $locationOptions = locationModel::where('dept_ID', $user->dept_id)->get();
