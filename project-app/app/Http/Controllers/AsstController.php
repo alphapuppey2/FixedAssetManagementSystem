@@ -99,7 +99,7 @@ class AsstController extends Controller
         // Get query parameters with defaults
         $search = $request->input('search');
         $sortField = $request->input('sort', 'code');
-        $sortDirection = $request->input('direction', 'asc');
+        $sortDirection = $request->input('direction', 'desc');
         $rowsPerPage = $request->input('rows_per_page', 10); // Default to 10 rows per page
 
         // Ensure statuses and categories are always arrays
