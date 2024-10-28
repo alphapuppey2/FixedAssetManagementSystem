@@ -276,14 +276,16 @@ class UserSideController extends Controller
             ->join('location', 'asset.loc_key', '=', 'location.id')
             ->leftJoin('maintenance', 'maintenance.asset_key', '=', 'asset.id')
             ->leftJoin('users', 'maintenance.authorized_by', '=', 'users.id')
+            ->leftJoin('users as lastusedby', 'lastusedby.id' ,'=', 'asset.last_used_by' )
             ->select(
                 'asset.id', 'asset.code', 'asset.name',
                 'asset.asst_img as image', 'asset.purchase_cost as cost',
                 'asset.depreciation', 'asset.salvage_value as salvageVal',
                 'asset.usage_lifespan as usage_Lifespan', 'asset.status',
-                'asset.custom_fields', 'asset.qr_img as qr',
-                'asset.created_at', 'asset.updated_at',
-                'category.name as category', 'model.name as model',
+                'asset.custom_fields', 'asset.qr_img as qr', 'asset.created_at',
+                'asset.updated_at', 'category.name as category', 'model.name as model',
+                'asset.last_used_by',
+                'lastusedby.firstname as lub_firstname','lastusedby.middlename as lub_middlename','lastusedby.lastname as lub_lastname',
                 'location.name as location', 'manufacturer.name as manufacturer',
                 'department.name as department', 'maintenance.reason',
                 'maintenance.status as request_status', 'maintenance.authorized_at',
@@ -317,8 +319,9 @@ class UserSideController extends Controller
         foreach ($departmentCustomFields as $deptField) {
             $fieldName = $deptField['name']; // Example: "RAM"
 
-            // Check if the asset has a value for this field, or default to null
-            $fieldValue = $assetCustomFields[$fieldName] ?? null;
+            // Check if the asset has a value for this field
+            $fieldValue = isset($assetCustomFields[$fieldName]) ? $assetCustomFields[$fieldName] : null;
+
 
             // Add the field to the updated custom fields array
             $updatedCustomFields[] = [

@@ -567,6 +567,7 @@ public function fetchDepartmentData($id)
             $path = $image->storeAs('asset_images', $filename, 'public');
             $pathFile = $path; // Use new image path
         }
+        $validatedData['purchasedDate'] = Carbon::parse($validatedData['purchasedDate'])->format('Y-m-d');
 
         // Update asset data in the database
         $updatedRow = assetModel::findOrFail($id);
@@ -588,6 +589,7 @@ public function fetchDepartmentData($id)
             'custom_fields' => $fieldUpdate,
             'updated_at' => now(),
         ]);
+
 
         // Log the asset update activity
         ActivityLog::create([
