@@ -238,6 +238,7 @@ class UserController extends Controller
             'firstname' => 'required|string|max:255',
             'middlename' => 'nullable|string|max:255',
             'lastname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
             'birthdate' => 'required|date',
             'usertype' => 'required|string|in:admin,dept_head,user',
             'gender' => 'required|string|in:male,female,other',
@@ -245,12 +246,16 @@ class UserController extends Controller
             'address' => 'nullable|string',
             'contact' => 'nullable|string|max:255',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'email' => 'required|string|email|max:255|unique:users,email', //temp only
         ]);
 
         // Generate email and password based on input
 
         // $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-        $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
+
+        // $email = strtolower(substr($validated['firstname'], 0, 1) .($validated['middlename'] ? substr($validated['middlename'], 0, 1) : '') .$validated['lastname'] .'@virginiafood.com.ph');
+
+        // $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
         $password = $validated['lastname'] . $validated['birthdate'];
         $hashedPassword = Hash::make($password);
 
@@ -268,7 +273,8 @@ class UserController extends Controller
             'firstname' => $validated['firstname'],
             'middlename' => $validated['middlename'] ?? null,
             'lastname' => $validated['lastname'],
-            'email' => $email,
+            // 'email' => $email,
+            'email' => $validated['email'],
             'password' => $hashedPassword,
             'birthdate' => $validated['birthdate'],
             'usertype' => $validated['usertype'],
