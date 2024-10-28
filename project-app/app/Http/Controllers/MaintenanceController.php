@@ -701,7 +701,7 @@ class MaintenanceController extends Controller
 
         // Check user type and select appropriate view
         if ($user->usertype === 'dept_head') {
-            return view('dept_head\maintenance_records', [
+            return view('dept_head.maintenance_records', [
                 'records' => $records,
                 'tab' => $tab,
                 'searchQuery' => $searchQuery,
