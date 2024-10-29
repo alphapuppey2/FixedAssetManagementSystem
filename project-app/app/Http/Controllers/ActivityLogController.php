@@ -22,32 +22,14 @@ class ActivityLogController extends Controller
         $perPage = $request->input('perPage', 10);
 
         // Fetch logs in descending order with pagination (10 logs per page)
-        $logs = ActivityLog::orderBy('created_at', 'desc')->paginate($perPage);
+        // $logs = ActivityLog::orderBy('created_at', 'desc')->paginate($perPage);
+        $logs = ActivityLog::with(['user', 'asset'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
         // Return the logs view to admin
         return view('admin.activityLogs', compact('logs', 'interval'));
     }
-
-    // public function search(Request $request)
-    // {
-    //     $query = $request->input('query');
-    //     $perPage = $request->input('perPage', 10);
-
-    //     // Get the current interval from cache (default to 'never' if not set)
-    //     $interval = Cache::get('activity_log_deletion_interval', 'never');
-
-    //     // Perform search and paginate results
-    //     $logs = ActivityLog::where('activity', 'like', "%{$query}%")
-    //         ->orWhere('description', 'like', "%{$query}%")
-    //         ->orderBy('created_at', 'desc')
-    //         ->paginate($perPage)
-    //         ->appends(['query' => $query, 'perPage' => $perPage]);
-
-    //     return view('admin.activityLogs', [
-    //         'logs' => $logs,
-    //         'interval' => $interval, // Pass interval to the view
-    //     ]);
-    // }
 
     public function export(Request $request)
     {
