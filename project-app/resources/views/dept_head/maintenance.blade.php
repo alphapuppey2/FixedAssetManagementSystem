@@ -14,21 +14,24 @@
 
         <!-- Search Bar -->
         <div class="relative searchBox w-full max-w-md ml-2">
-            <form action="{{ route('maintenance.search') }}" method="GET" id="searchForm" class="relative flex items-center">
-                <input type="hidden" name="rows_per_page" value="{{ request('perPage') }}">
-                <!-- Filter Button Inside Search Input -->
-                <button type="button" id="openFilterModalBtn" class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
-                    <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
-                </button>
+        <!-- Search Form -->
+        <form action="{{ route('maintenance.search') }}" method="GET" id="searchForm" class="relative flex items-center">
+            <input type="hidden" name="tab" value="{{ request('tab', 'requests') }}"> <!-- Preserve current tab -->
+            <input type="hidden" name="rows_per_page" value="{{ request('rows_per_page', 10) }}"> <!-- Preserve rows per page -->
 
-                <!-- Search Input Field -->
-                <x-text-input
-                    name="query"
-                    id="searchFilt"
-                    placeholder="Search by ID, Requestor, Asset Code, Description"
-                    value="{{ request('query') }}"
-                    class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
-            </form>
+            <!-- Filter Button -->
+            <button type="button" id="openFilterModalBtn" class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
+                <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
+            </button>
+
+            <!-- Search Input Field -->
+            <x-text-input
+                name="query"
+                id="searchFilt"
+                placeholder="Search by ID, Requestor, Asset Code, Description"
+                value="{{ request('query') }}"
+                class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
+        </form>
         </div>
 
         <!-- Right Section: Icons and Button -->
@@ -101,25 +104,24 @@
         </div>
 
     </div>
-
     <!-- Tabs Section -->
     <div class="mb-4 flex justify-end">
         <ul class="flex border-b">
             <li class="mr-4">
-                <a href="{{ route('maintenance', ['rows_per_page' => $perPage]) }}"
-                    class="inline-block px-4 py-2 {{ $tab === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                <a href="{{ route('maintenance', ['tab' => 'requests'] + request()->except('page')) }}"
+                class="inline-block px-4 py-2 {{ request('tab', 'requests') === 'requests' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Requests
                 </a>
             </li>
             <li class="mr-4">
-                <a href="{{ route('maintenance.approved', ['rows_per_page' => $perPage]) }}"
-                    class="inline-block px-4 py-2 {{ $tab === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                <a href="{{ route('maintenance.approved', ['tab' => 'approved'] + request()->except('page')) }}"
+                class="inline-block px-4 py-2 {{ request('tab') === 'approved' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Approved
                 </a>
             </li>
             <li class="mr-4">
-                <a href="{{ route('maintenance.denied', ['rows_per_page' => $perPage]) }}"
-                    class="inline-block px-4 py-2 {{ $tab === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                <a href="{{ route('maintenance.denied', ['tab' => 'denied'] + request()->except('page')) }}"
+                class="inline-block px-4 py-2 {{ request('tab') === 'denied' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Denied
                 </a>
             </li>
