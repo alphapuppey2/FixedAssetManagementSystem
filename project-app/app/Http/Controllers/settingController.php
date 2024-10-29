@@ -149,7 +149,7 @@ class settingController extends Controller
 
         if($tab !== 'customFields' && $deleteFrom !== null){
             $deleteFrom->delete();
-            return redirect()->back()->with('Setting deleted successfully.');
+            return redirect()->route('settings')->with('Setting deleted successfully.');
         }
 
 
