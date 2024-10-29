@@ -63,7 +63,7 @@
                     <div class="hidden md:block">
                         {{ $logs->links('vendor.pagination.tailwind') }}
                     </div>
-                    <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2" >
+                    <div class="md:hidden md:hidden text-xs flex justify-center space-x-1 mt-2">
                         {{ $logs->links() }}
                     </div>
                 </div>
@@ -85,8 +85,8 @@
                         <th class="p-2 border">Activity</th>
                         <th class="p-2 border">Description</th>
                         <th class="p-2 border">User Role</th>
-                        <th class="p-2 border">User ID</th>
-                        <th class="p-2 border">Asset ID</th>
+                        <th class="p-2 border">User Name</th>
+                        <th class="p-2 border">Asset Name</th>
                         <th class="p-2 border">Request ID</th>
                         <th class="p-2 border">Date & Time</th>
                     </tr>
@@ -108,8 +108,14 @@
                             System
                             @endswitch
                         </td>
-                        <td class="p-2 border">{{ $log->user_id ?? 'System' }}</td>
-                        <td class="p-2 border">{{ $log->asset_id ?? 'N/A' }}</td>
+                        <!-- <td class="p-2 border">{{ $log->user_id ?? 'System' }}</td>
+                        <td class="p-2 border">{{ $log->asset_id ?? 'N/A' }}</td> -->
+                        <td class="p-2 border">
+                            {{ $log->user ? $log->user->firstname . ' ' . $log->user->lastname : 'System' }}
+                        </td>
+                        <td class="p-2 border">
+                            {{ $log->asset ? $log->asset->name : 'N/A' }}
+                        </td>
                         <td class="p-2 border">{{ $log->request_id ?? 'N/A' }}</td>
                         <td class="p-2 border">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
                     </tr>
@@ -122,30 +128,36 @@
             </table>
         </div>
 
-          <!-- Card layout for small screens -->
+        <!-- Card layout for small screens -->
         <div class="block md:hidden space-y-2">
             {{-- Changed: Added 'block md:hidden' to show cards only on small screens --}}
             @forelse ($logs as $log)
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-xs"><strong>Activity:</strong> {{ $log->activity }}</p>
-                    <p class="text-xs"><strong>Description:</strong> {{ $log->description }}</p>
-                    <p class="text-xs">
-                        <strong>User Role:</strong>
-                        @switch($log->userType)
-                            @case('admin') Admin @break
-                            @case('dept_head') Department Head @break
-                            @default System
-                        @endswitch
-                    </p>
-                    <p class="text-xs"><strong>User ID:</strong> {{ $log->user_id ?? 'System' }}</p>
-                    <p class="text-xs"><strong>Asset ID:</strong> {{ $log->asset_id ?? 'N/A' }}</p>
-                    <p class="text-xs"><strong>Request ID:</strong> {{ $log->request_id ?? 'N/A' }}</p>
-                    <p class="text-xs"><strong>Date & Time:</strong> {{ $log->created_at->format('Y-m-d H:i:s') }}</p>
-                </div>
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <p class="text-xs"><strong>Activity:</strong> {{ $log->activity }}</p>
+                <p class="text-xs"><strong>Description:</strong> {{ $log->description }}</p>
+                <p class="text-xs">
+                    <strong>User Role:</strong>
+                    @switch($log->userType)
+                    @case('admin') Admin @break
+                    @case('dept_head') Department Head @break
+                    @default System
+                    @endswitch
+                </p>
+                <td class="text-xs">
+                    {{ $log->user ? $log->user->firstname . ' ' . $log->user->lastname : 'System' }}
+                </td>
+                <td class="text-xs">
+                    {{ $log->asset ? $log->asset->name : 'N/A' }}
+                </td>
+                <!-- <p class="text-xs"><strong>User ID:</strong> {{ $log->user_id ?? 'System' }}</p> -->
+                <!-- <p class="text-xs"><strong>Asset ID:</strong> {{ $log->asset_id ?? 'N/A' }}</p> -->
+                <p class="text-xs"><strong>Request ID:</strong> {{ $log->request_id ?? 'N/A' }}</p>
+                <p class="text-xs"><strong>Date & Time:</strong> {{ $log->created_at->format('Y-m-d H:i:s') }}</p>
+            </div>
             @empty
-                <div class="bg-gray-100 p-4 rounded-lg text-center text-gray-500">
-                    No activity logs found.
-                </div>
+            <div class="bg-gray-100 p-4 rounded-lg text-center text-gray-500">
+                No activity logs found.
+            </div>
             @endforelse
         </div>
     </div>

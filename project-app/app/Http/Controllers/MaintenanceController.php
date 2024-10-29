@@ -684,20 +684,11 @@ class MaintenanceController extends Controller
     public function showRecords(Request $request)
     {
         $user = auth()->user(); // Get the logged-in user.
-
         $searchController = app(SearchController::class);
         $records = $searchController->searchMaintenanceRecords($request);
-
         $tab = $request->query('tab', 'completed');
         $searchQuery = $request->input('query', '');
         $perPage = $request->input('rows_per_page', 10);
-
-        // return view('admin.maintenanceRecords', [
-        //     'records' => $records,
-        //     'tab' => $tab,
-        //     'searchQuery' => $searchQuery,
-        //     'perPage' => $perPage,
-        // ]);
 
         // Check user type and select appropriate view
         if ($user->usertype === 'dept_head') {
