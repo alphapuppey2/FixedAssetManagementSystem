@@ -616,9 +616,19 @@
         }
 
         const frequency = parseInt(frequencyMatch[0]);
-        const nextMaintenanceDate = new Date(Date.now() + frequency * 86400 * 1000); // Calculate next timestamp
 
-        console.log(`Resetting countdown for the next ${frequency} day(s).`);
+        //current code
+        // const nextMaintenanceDate = new Date(Date.now() + frequency * 86400 * 1000); // Calculate next timestamp
+
+        // console.log(`Resetting countdown for the next ${frequency} day(s).`);
+
+        //test code, Use test or actual logic based on environment
+        const isTesting = true;  // Set this to 'false' for actual environment
+        const nextMaintenanceDate = isTesting
+            ? new Date(Date.now() + frequency * 20 * 1000)  // Testing: 1 day = 20 seconds
+            : new Date(Date.now() + frequency * 86400 * 1000); // Actual: 1 day = 86400 seconds
+
+        console.log(`Resetting countdown for the next ${isTesting ? frequency * 20 : frequency * 86400} millisecond(s).`);
 
         // Update backend with the new timestamp
         fetch('{{ route("admin.reset-countdown") }}', {
