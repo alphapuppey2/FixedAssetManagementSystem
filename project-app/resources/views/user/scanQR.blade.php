@@ -7,39 +7,40 @@
 @endsection
 
 @section('content')
+    <div class= 'flex flex-col justify-center items-center'>
+        <p class="text-center">Choose one of the options below:</p>
 
-    <p class="text-center">Choose one of the options below:</p>
-
-    <div id="placeholderImage">
-        <img src="{{ asset('images/scanQRImage.png') }}" alt="QR Code Scanning" class="w-full max-w-md mx-auto">
-    </div>
-
-    <!-- QR Scanner Container -->
-    <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
-        <div id="qr-scanner-container" class="hidden relative w-full max-w-md max-h-screen aspect-square bg-black">
-            <video id="video" class="w-full h-full border border-black object-cover bg-black"></video>
+        <div id="placeholderImage">
+            <img src="{{ asset('images/scanQRImage.png') }}" alt="QR Code Scanning" class="w-full max-w-md mx-auto">
         </div>
-    </div>
 
-    <!-- Buttons for Scanning or Uploading -->
-    <div class="flex justify-center mt-10 space-x-4">
-        <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Scan QR Code
-        </button>
-        <button onclick="document.getElementById('uploadInput').click()"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">
-            Upload Image
-        </button>
-    </div>
+        <!-- QR Scanner Container -->
+        <div id="qr-scanner-wrapper" class="mt-4 flex justify-center">
+            <div id="qr-scanner-container" class="hidden relative w-full max-w-md max-h-screen aspect-square bg-black">
+                <video id="video" class="w-full h-full border border-black object-cover bg-black"></video>
+            </div>
+        </div>
 
-    <!-- Hidden File Input for Image Upload -->
-    <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
+        <!-- Buttons for Scanning or Uploading -->
+        <div class="flex justify-center mt-10 space-x-4">
+            <button id="scanButton" onclick="toggleScan()" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Scan QR Code
+            </button>
+            <button onclick="document.getElementById('uploadInput').click()"
+                class="bg-gray-500 text-white px-4 py-2 rounded hover:text-gray-400">
+                Upload Image
+            </button>
+        </div>
 
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="text-center">
-            <div class="loader mb-4"></div>
-            <p class="text-white text-lg">Processing, please wait...</p>
+        <!-- Hidden File Input for Image Upload -->
+        <input type="file" id="uploadInput" name="qr_image" accept="image/*" class="hidden" onchange="handleImageChange(event)">
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="text-center flex flex-col justify-center items-center">
+                <div class="loader mb-4 "></div>
+                <p class="text-white text-lg">Processing, please wait...</p>
+            </div>
         </div>
     </div>
 
