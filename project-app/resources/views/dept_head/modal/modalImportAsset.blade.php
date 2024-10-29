@@ -1,7 +1,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Import Modal -->
 <div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative"> <!-- Added relative for positioning -->
+    <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative">
 
         <!-- Close Icon at the top-right corner -->
         <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-2xl">
@@ -44,11 +44,11 @@
 
 <!-- Preview Modal (Increased Size) -->
 <div id="previewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-[80%] h-[80%] shadow-lg"> <!-- Increased size to 80% of the viewport -->
+    <div class="bg-white rounded-lg p-6 w-[80%] h-[80%] shadow-lg">
         <h3 class="text-lg font-semibold mb-4">Preview CSV Data</h3>
 
         <!-- Scrollable Table for CSV Data -->
-        <div class="tableContainer overflow-y-auto max-h-[60vh] border rounded-md"> <!-- Scrollable with a max height -->
+        <div class="tableContainer overflow-y-auto max-h-[60vh] border rounded-md">
             <table class="min-w-full bg-white">
                 <thead class="bg-gray-100">
                     <tr id="previewTableHeader">
@@ -128,7 +128,7 @@
             const rows = csvText
                 .split('\n')
                 .map(row => row.split(','))
-                .filter(row => row.some(cell => cell.trim() !== "")); // Filter out empty rows
+                .filter(row => row.some(cell => cell.trim() !== ""));
 
             csvData = rows.slice(1);
             const headers = rows[0];
@@ -151,17 +151,17 @@
 
             // Set default selected rows to all
             selectedRows = csvData.map((_, index) => index);
-            updateSelectedSummary(); // Update the checked summary
-            setupCheckboxListeners(); // Setup the checkbox interactions
+            updateSelectedSummary();
+            setupCheckboxListeners();
         }
 
         // Open and Close Modals
         function openPreviewModal() {
-            previewModal.classList.remove('hidden'); // Show the preview modal
+            previewModal.classList.remove('hidden');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden'); // Close the modal by adding the 'hidden' class
+            document.getElementById(modalId).classList.add('hidden');
         }
 
         // Checkbox Logic for Rows and "Select All"
@@ -170,16 +170,16 @@
             const selectAllCheckbox = document.getElementById('selectAllImport');
 
             // Handle "Select All" Checkbox
-            selectAllCheckbox.checked = true; // Set selectAll as checked by default
+            selectAllCheckbox.checked = true;
             selectAllCheckbox.addEventListener('change', function() {
                 const checked = selectAllCheckbox.checked;
-                selectedRows = []; // Reset selected rows
+                selectedRows = [];
 
                 rowCheckboxes.forEach(checkbox => {
                     checkbox.checked = checked;
                     const index = parseInt(checkbox.getAttribute('data-index'));
                     if (checked) {
-                        selectedRows.push(index); // Select all rows
+                        selectedRows.push(index);
                     }
                 });
                 updateSelectedSummary();
@@ -201,7 +201,7 @@
 
         // Update Selected Summary
         function updateSelectedSummary() {
-            const totalRows = csvData.length; // Only count data rows, not the header
+            const totalRows = csvData.length;
             selectedSummary.textContent = `${selectedRows.length} of ${totalRows} rows are checked`;
         }
 
@@ -256,24 +256,19 @@
             const toastContainer = document.getElementById('toastContainer');
             const toast = document.createElement('div');
 
-            // Assign classes based on the type (success or error)
             toast.className = `px-4 py-2 rounded shadow-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
             toast.textContent = message;
 
-            // Append the toast to the container
             toastContainer.appendChild(toast);
-            toastContainer.classList.remove('hidden'); // Ensure the container is visible
+            toastContainer.classList.remove('hidden');
 
-            // Automatically hide the toast after 3 seconds
             setTimeout(() => {
                 toast.style.transition = 'opacity 0.5s';
                 toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 500); // Remove the toast after fade-out
+                setTimeout(() => toast.remove(), 500);
             }, 3000);
         }
 
-
-        // Close Buttons for Modals
         closeModalBtn.addEventListener('click', function() {
             closeModal('importModal');
         });
