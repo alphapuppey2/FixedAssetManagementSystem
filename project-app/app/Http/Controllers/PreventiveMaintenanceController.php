@@ -58,7 +58,8 @@ class PreventiveMaintenanceController extends Controller
 
             // Generate a maintenance request
             Maintenance::create([
-                'description' => 'Scheduled preventive maintenance for asset ' . $preventive->asset_key,
+                // 'description' => 'Scheduled preventive maintenance for asset ' . $preventive->asset_key,
+                'description' => "Scheduled preventive maintenance for asset: {$asset->name}",
                 'status' => 'request',
                 'asset_key' => $preventive->asset_key,
                 'type' => 'maintenance',

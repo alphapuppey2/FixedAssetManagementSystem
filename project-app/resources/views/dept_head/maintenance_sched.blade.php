@@ -210,7 +210,10 @@
                                 @if ($tab === 'preventive')
                                     <td class="px-6 py-4">₱ {{ $record->cost }}</td>
                                     <td class="frequency px-6 py-4">Every {{ $record->frequency }} day/s</td>
-                                    <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">After {{ $record->ends }} occurrence/s</td>
+                                    {{-- <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">After {{ $record->ends }} occurrence/s</td> --}}
+                                    <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">
+                                        {{ $record->ends == 0 ? 'Never' : 'After ' . $record->ends . ' occurrence/s' }}
+                                    </td>
                                     <td class="occurrences px-6 py-4">{{ $record->occurrences }}</td>
                                     <td class="status px-6 py-4">{{ ucfirst($record->status) }}</td>
                                     <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}">
