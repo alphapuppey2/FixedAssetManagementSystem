@@ -29,9 +29,9 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-4 space-y-4 md:space-y-0">
         <!-- Search Bar -->
         <div class="search-container flex items-center w-1/2">
-            <form action="{{ route('maintenanceSchedSearch') }}" method="GET" class="w-full">
+            <form action="{{ route(Route::currentRouteName()) }}" method="GET" class="w-full">
                 <input type="hidden" name="tab" value="{{ $tab }}">
-                <x-search-input class="w-80" placeholder="Search Maintenance..." />
+                <x-search-input class="w-80" placeholder="Search by Code, Asset" />
             </form>
         </div>
 
