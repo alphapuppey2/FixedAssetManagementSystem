@@ -38,7 +38,7 @@
                             Select New Image
                             <x-text-input type="file" id="image" name="asst_img" class="hidden" />
                         </label>
-                       </div>
+                    </div>
                     <div class="formFields flex flex-col gap-2 md:row-start-1 md:col-start-1">
                         <div class="form-group">
                             <x-input-label for='assetname' class="font-regular p-1">Asset Name</x-input-label>
@@ -50,7 +50,6 @@
                             <div class="form-group">
                                 <x-input-label for='pCost' class="font-regular p-1">Purchase Cost</x-input-label>
                                 <x-text-input id="pCost" name="pCost" type="number" step="0.01" min="0"
-
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                             <div class="form-group">
@@ -67,13 +66,15 @@
                             </div>
                             <div class="form-group">
                                 <x-input-label for='salvageValue' class="font-regular p-1">Salvage Value</x-input-label>
-                                <x-text-input id="salvageValue" name="salvageValue" step="0.01" min="0" type="number"
+                                <x-text-input id="salvageValue" name="salvageValue" step="0.01" min="0"
+                                    type="number"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <x-input-label for='depreciation' class="font-regular p-1" >Depreciation (Per Year)</x-input-label>
+                            <x-input-label for='depreciation' class="font-regular p-1">Depreciation (Per
+                                Year)</x-input-label>
                             <x-text-input type="text" id="depreciation" value="0.00" name='depreciation' readonly
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                         </div>
@@ -130,10 +131,12 @@
                                 Additional Information</div>
                             <div class="addInfo grid grid-col-2 w-full" id="field">
                                 <div class="addInfoContainer w-full p-2 scroll-smooth">
-                                    <div class="fieldSet mt-2 min-md:flex min-md:flex-row {{ isset($addInfos) ? 'md:grid md:grid-cols-[20%_80%]' : 'flex' }} gap-2">
+                                    <div
+                                        class="fieldSet mt-2 min-md:flex min-md:flex-row {{ isset($addInfos) ? 'md:grid md:grid-cols-[20%_80%]' : 'flex' }} gap-2">
                                         @if ($addInfos)
                                             @foreach ($addInfos as $key => $dataItem)
-                                                <span class="flex w-full h-full items-center font-regular p-1">{{ $dataItem->name }}</span>
+                                                <span
+                                                    class="flex w-full h-full items-center font-regular p-1">{{ $dataItem->name }}</span>
                                                 <input type="text" name="field[key][]" placeholder="key"
                                                     class="hidden" value="{{ $dataItem->name }}">
                                                 <input type="{{ $dataItem->type }}"
@@ -188,7 +191,8 @@
             errorMessage.style.color = 'red';
             errorMessage.style.display = 'none'; // Initially hidden
             errorMessage.innerHTML = "Salvage value cannot exceed the purchase cost.";
-            salvageValueInput.parentNode.appendChild(errorMessage); // Append the error message after the salvage value field
+            salvageValueInput.parentNode.appendChild(
+            errorMessage); // Append the error message after the salvage value field
 
             function calculateDepreciation() {
                 const cost = parseFloat(purchaseCostInput.value) || 0;
@@ -225,6 +229,36 @@
             salvageValueInput.value = "";
             lifespanInput.value = "0";
             depreciationInput.value = "0";
+
+
+            // restricting users for inputting negatives
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+
+            numberInputs.forEach(input => {
+                // Prevent entering a minus sign or negative numbers
+                input.addEventListener('input', function() {
+                    if (parseFloat(this.value) < 0) {
+                        this.value = Math.abs(this.value); // Convert negative to positive
+                    }
+                });
+
+                // Prevent using minus sign directly
+                input.addEventListener('keypress', function(event) {
+                    if (event.key === '-' || event.key === '+') {
+                        event.preventDefault(); // Block the keypress
+                    }
+                });
+
+                // Prevent pasting negative values
+                input.addEventListener('paste', function(event) {
+                    const clipboardData = event.clipboardData || window.clipboardData;
+                    const pastedData = clipboardData.getData('text');
+
+                    if (pastedData.includes('-')) {
+                        event.preventDefault(); // Block the paste
+                    }
+                });
+            });
         });
     </script>
 

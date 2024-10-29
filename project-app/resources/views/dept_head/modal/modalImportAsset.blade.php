@@ -1,7 +1,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Import Modal -->
 <div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative"> <!-- Added relative for positioning -->
+    <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative">
 
         <!-- Close Icon at the top-right corner -->
         <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-2xl">
@@ -44,11 +44,11 @@
 
 <!-- Preview Modal (Increased Size) -->
 <div id="previewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-[80%] h-[80%] shadow-lg"> <!-- Increased size to 80% of the viewport -->
+    <div class="bg-white rounded-lg p-6 w-[80%] h-[80%] shadow-lg">
         <h3 class="text-lg font-semibold mb-4">Preview CSV Data</h3>
 
         <!-- Scrollable Table for CSV Data -->
-        <div class="tableContainer overflow-y-auto max-h-[60vh] border rounded-md"> <!-- Scrollable with a max height -->
+        <div class="tableContainer overflow-y-auto max-h-[60vh] border rounded-md">
             <table class="min-w-full bg-white">
                 <thead class="bg-gray-100">
                     <tr id="previewTableHeader">
@@ -85,8 +85,8 @@
         const previewTableBody = document.getElementById('previewTableBody');
         const selectedSummary = document.getElementById('selectedSummary');
         const uploadButton = document.getElementById('uploadButton');
+        const loadingScreen = document.getElementById('loadingScreen');
         const uploadError = document.getElementById('uploadError');
-        // Fetch CSRF token from the meta tag in the HTML head
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         let csvData = [];
@@ -115,9 +115,9 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const csvText = e.target.result;
-                    parseCSV(csvText); // Parse CSV and display in preview modal
+                    parseCSV(csvText);
                     openPreviewModal();
-                    closeModal('importModal'); // Close the upload modal
+                    closeModal('importModal');
                 };
                 reader.readAsText(file);
             }
@@ -128,10 +128,10 @@
             const rows = csvText
                 .split('\n')
                 .map(row => row.split(','))
-                .filter(row => row.some(cell => cell.trim() !== "")); // Filter out empty rows
+                .filter(row => row.some(cell => cell.trim() !== ""));
 
-            csvData = rows.slice(1); // Data rows (excluding header)
-            const headers = rows[0]; // CSV headers
+            csvData = rows.slice(1);
+            const headers = rows[0];
 
             // Build Table Header
             previewTableHeader.innerHTML = `<th><input type="checkbox" id="selectAllImport" checked></th>`;
@@ -151,17 +151,17 @@
 
             // Set default selected rows to all
             selectedRows = csvData.map((_, index) => index);
-            updateSelectedSummary(); // Update the checked summary
-            setupCheckboxListeners(); // Setup the checkbox interactions
+            updateSelectedSummary();
+            setupCheckboxListeners();
         }
 
         // Open and Close Modals
         function openPreviewModal() {
-            previewModal.classList.remove('hidden'); // Show the preview modal
+            previewModal.classList.remove('hidden');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden'); // Close the modal by adding the 'hidden' class
+            document.getElementById(modalId).classList.add('hidden');
         }
 
         // Checkbox Logic for Rows and "Select All"
@@ -170,16 +170,16 @@
             const selectAllCheckbox = document.getElementById('selectAllImport');
 
             // Handle "Select All" Checkbox
-            selectAllCheckbox.checked = true; // Set selectAll as checked by default
+            selectAllCheckbox.checked = true;
             selectAllCheckbox.addEventListener('change', function() {
                 const checked = selectAllCheckbox.checked;
-                selectedRows = []; // Reset selected rows
+                selectedRows = [];
 
                 rowCheckboxes.forEach(checkbox => {
                     checkbox.checked = checked;
                     const index = parseInt(checkbox.getAttribute('data-index'));
                     if (checked) {
-                        selectedRows.push(index); // Select all rows
+                        selectedRows.push(index);
                     }
                 });
                 updateSelectedSummary();
@@ -201,54 +201,74 @@
 
         // Update Selected Summary
         function updateSelectedSummary() {
-            const totalRows = csvData.length; // Only count data rows, not the header
+            const totalRows = csvData.length;
             selectedSummary.textContent = `${selectedRows.length} of ${totalRows} rows are checked`;
         }
 
-
-        // Upload Button Click Event
-        // Upload Button Click Event
         uploadButton.addEventListener('click', function() {
             if (selectedRows.length === 0) {
-                alert('At least 1 row must be checked.'); // Show alert if no rows are checked
+                showToast('At least 1 row must be checked.', 'error');
             } else {
-                const checkedRows = selectedRows.map(index => csvData[index]); // Get only the checked rows
-                const headers = Array.from(document.querySelectorAll('#previewTableHeader th')).slice(1).map(th => th.textContent.trim()); // Extract headers from the preview table
+                const checkedRows = selectedRows.map(index => csvData[index]);
+                const headers = Array.from(document.querySelectorAll('#previewTableHeader th')).slice(1).map(th => th.textContent.trim());
 
-                // Send the headers and checked rows to the server via AJAX
+                uploadButton.disabled = true;
+                loadingScreen.classList.remove('hidden');
+
                 fetch('{{ route("upload.csv") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken // Dynamically use the token
+                            'X-CSRF-TOKEN': csrfToken
                         },
                         body: JSON.stringify({
-                            headers: headers, // Include headers in the request
-                            rows: checkedRows // Include rows in the request
+                            headers: headers,
+                            rows: checkedRows
                         })
                     })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                        return response.json(); // Attempt to parse JSON response
+                        return response.json();
                     })
                     .then(data => {
                         if (data && data.success) {
-                            alert('Data uploaded successfully.');
+                            showToast('Data uploaded successfully.', 'success');
                             closeModal('previewModal');
                         } else {
-                            alert('Error: ' + (data.message || 'Unknown error occurred'));
+                            showToast(`Error: ${data.message || 'Unknown error occurred'}`, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error uploading data: ' + error.message);
+                        showToast(`Error uploading data: ${error.message}`, 'error');
+                    })
+                    .finally(() => {
+                        // Re-enable the button and hide the loading screen
+                        uploadButton.disabled = false;
+                        loadingScreen.classList.add('hidden');
                     });
             }
         });
 
-        // Close Buttons for Modals
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            toast.className = `px-4 py-2 rounded shadow-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+            toastContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
         closeModalBtn.addEventListener('click', function() {
             closeModal('importModal');
         });
@@ -257,8 +277,3 @@
         });
     });
 </script>
-
-
-
-
-

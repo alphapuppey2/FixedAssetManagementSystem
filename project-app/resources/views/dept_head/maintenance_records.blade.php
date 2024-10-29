@@ -14,21 +14,23 @@
         <!-- Search Bar -->
         <div class="w-full md:w-1/2 flex items-center">
             <form action="{{ route('maintenance.records.search') }}" method="GET" class="w-full">
-                <input type="text" name="query" placeholder="Search..." value="{{ $searchQuery }}"
-                    class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="text" name="query" value="{{ $searchQuery }}" placeholder="Search by Request ID, Asset Code, Description"
+                       class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="hidden" name="tab" value="{{ $tab }}"> <!-- Keep current tab -->
+                <input type="hidden" name="rows_per_page" value="{{ $perPage }}"> <!-- Keep rows per page -->
             </form>
         </div>
 
         <!-- Refresh Button -->
         <div class="w-full md:w-auto md:ml-auto flex justify-end md:justify-start">
-            <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                <input type="hidden" name="tab" value="{{ $tab }}">
-                <input type="hidden" name="query" value="{{ $searchQuery }}">
+            <form action="{{ route('maintenance.records') }}" method="GET">
+                <input type="hidden" name="tab" value="{{ request()->get('tab', $tab) }}"> <!-- Preserve current tab -->
+                <input type="hidden" name="rows_per_page" value="{{ request()->get('rows_per_page', $perPage) }}"> <!-- Preserve pagination settings -->
                 <button id="refreshButton" class="p-2 text-black">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-6">
+                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                     </svg>
                 </button>
             </form>
@@ -50,8 +52,24 @@
             </form>
         </div>
 
-        <div class="ml-auto pagination-container">
-            {{ $records->appends(['rows_per_page' => $perPage, 'tab' => $tab, 'query' => $searchQuery])->links() }} <!-- Pagination Links -->
+        <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+            <span class="text-gray-600 hidden md:block">
+                Showing {{ $records->firstItem() }} to {{ $records->lastItem() }} of {{ $records->total() }} records
+            </span>
+
+            <div class="text-sm md:text-base">
+                @if ($records->hasPages())
+                    <!-- Mobile Pagination -->
+                    <div class="md:hidden text-xs flex justify-center space-x-1 mt-2">
+                        {{ $records->appends(request()->except('page'))->links() }}
+                    </div>
+
+                    <!-- Desktop Pagination -->
+                    <div class="hidden md:block">
+                        {{ $records->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -59,14 +77,14 @@
     <div class="mb-4 flex justify-end">
         <ul class="flex border-b">
             <li class="mr-4">
-                <a href="{{ route('maintenance.records', ['tab' => 'completed']) }}"
-                    class="inline-block px-4 py-2 {{ $tab === 'completed' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                <a href="{{ route('maintenance.records', ['tab' => 'completed', 'query' => $searchQuery, 'rows_per_page' => $perPage]) }}"
+                   class="inline-block px-4 py-2 {{ $tab === 'completed' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Completed
                 </a>
             </li>
             <li class="mr-4">
-                <a href="{{ route('maintenance.records', ['tab' => 'cancelled']) }}"
-                    class="inline-block px-4 py-2 {{ $tab === 'cancelled' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
+                <a href="{{ route('maintenance.records', ['tab' => 'cancelled', 'query' => $searchQuery, 'rows_per_page' => $perPage]) }}"
+                   class="inline-block px-4 py-2 {{ $tab === 'cancelled' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Cancelled
                 </a>
             </li>

@@ -23,9 +23,11 @@
         <!-- Refresh Button -->
         <div class="w-full md:w-auto">
             <div class="flex items-center space-x-4">
-                <form action="{{ route(Route::currentRouteName()) }}" method="GET">
-                    <input type="hidden" name="tab" value="{{ $tab }}">
-                    <input type="hidden" name="query" value="{{ $searchQuery }}">
+                <form action="{{ route('adminMaintenance.records') }}" method="GET">
+                    <input type="hidden" name="tab" value="completed"> <!-- Default to 'completed' tab -->
+                    <input type="hidden" name="query" value=""> <!-- Clear the search query -->
+                    <input type="hidden" name="rows_per_page" value="10"> <!-- Default rows per page -->
+
                     <button id="refreshButton" class="p-2 text-black">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
@@ -64,8 +66,8 @@
             </span>
 
             <!-- Pagination Links -->
+<!-- Pagination Links -->
             <div class="w-full md:w-auto">
-                <!-- Use different pagination links based on screen size -->
                 <div class="hidden md:block">
                     {{ $records->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
                 </div>
@@ -78,16 +80,17 @@
     </div>
 
     <!-- Tabs Section -->
+<!-- Tabs Section -->
     <div class="mb-4 flex justify-end">
         <ul class="flex border-b">
             <li class="mr-4">
-                <a href="{{ route('adminMaintenance.records', ['tab' => 'completed']) }}"
+                <a href="{{ route('adminMaintenance.records', ['tab' => 'completed', 'query' => $searchQuery, 'rows_per_page' => $perPage]) }}"
                     class="inline-block px-4 py-2 {{ $tab === 'completed' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Completed
                 </a>
             </li>
             <li class="mr-4">
-                <a href="{{ route('adminMaintenance.records', ['tab' => 'cancelled']) }}"
+                <a href="{{ route('adminMaintenance.records', ['tab' => 'cancelled', 'query' => $searchQuery, 'rows_per_page' => $perPage]) }}"
                     class="inline-block px-4 py-2 {{ $tab === 'cancelled' ? 'text-blue-600 font-semibold border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600' }}">
                     Cancelled
                 </a>

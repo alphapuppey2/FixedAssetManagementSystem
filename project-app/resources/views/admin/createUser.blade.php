@@ -44,6 +44,14 @@
                         </div>
                     </div>
 
+                    <!-- Email Field TEMP ONLY-->
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email (TEMP ONLY) <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                        </div>
+                    </div>
+
                     <!-- User Type and Department -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
