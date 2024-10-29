@@ -389,7 +389,7 @@ class MaintenanceController extends Controller
         $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
         $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
 
-        $route = $userType === 'admin' ? 'admin.createMaintenance' : 'dept_head.createmaintenance';
+        $route = $userType === 'admin' ? 'admin.createMaintenance' : 'dept_head.createMaintenance';
 
         return view($route, compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
     }
