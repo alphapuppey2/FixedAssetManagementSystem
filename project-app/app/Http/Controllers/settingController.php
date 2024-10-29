@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\assetModel;
 use App\Models\category;
+use App\Models\ActivityLog;
 use App\Models\department;
 use Illuminate\Support\Facades\Auth;
 use App\Models\locationModel;
 use App\Models\Manufacturer;
+use App\Models\User;
 use App\Models\ModelAsset;
 use Illuminate\Http\Request;
 
@@ -85,7 +87,7 @@ class settingController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid tab' , 'tab' => $tab], 400);
     }
 
-    // Ensure the model exists
+    // Ensure the table exists
     if (!$table) {
         return response()->json(['success' => false, 'error' => 'Item not found'], 404);
     }
@@ -95,7 +97,9 @@ class settingController extends Controller
         $table->name = $validated['name'];
     }
     $table->save();
-    return response()->json(['success' => true, 'session' => 'Description updated successfully']);
+
+
+    return response()->json(['success' => true, 'session' => 'Setting is updated successfully']);
 }
 
     public function destroy($tab,$id){
@@ -146,14 +150,7 @@ class settingController extends Controller
             return redirect()->back()->withErrors('Failed to remove the item from the list.');
         }
 
-
-        if($tab !== 'customFields' && $deleteFrom !== null){
-            $deleteFrom->delete();
-            return redirect()->back()->with('Setting deleted successfully.');
-        }
-
-
-
+        return redirect()->back()->with('Setting deleted successfully.');
     }
     public function store(Request $request ,$tab){
 

@@ -36,7 +36,7 @@
     </div>
 
     {{-- Grid Layout --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 sm:gap-8 p-6">
         {{-- Asset Details Section --}}
         <div class="col-span-2 space-y-6">
             <div class="info flex items-center p-4">
@@ -215,10 +215,10 @@
         </div>
 
         {{-- Image Section --}}
-        <div class="col-span-1 space-y-8 lg:col-start-3">
-            <div class="imgContainer flex flex-col items-center space-y-4">
+        <div class="md:flex md:flex-col gap-3 min-[300px]:grid min-[300px]:grid-cols-2 md:col-start-3 min-[300px]:row-start-1">
+            <div class="imgContainer flex flex-col items-center space-y-4 shrink">
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">Asset Image</label>
-                <div class="imageField w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
+                <div class="imageField min-[400px]:w-40 min-[400px]:w-40 shrink border-2 border-gray-200 rounded-lg shadow-md overflow-hidden">
                     <img src="{{ asset($imagePath) }}" id="imagePreview" alt="Asset Image"
                         class="w-full h-full object-cover">
                 </div>
@@ -228,13 +228,13 @@
                 </label>
             </div>
 
-            <div class="qrContainer flex flex-col items-center space-y-4">
+            <div class="qrContainer flex flex-col items-center space-y-4 shrink">
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">QR Code</label>
                 @if ($data->qr_img)
                     <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}"
-                        class="block w-40 h-40">
+                        class="block min-[400px]:w-40 min-[400px]:w-40 shrink">
                         <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code"
-                            class="w-full h-full object-contain">
+                            class="w-full h-full object-contain shrink">
                     </a>
                 @else
                     <div class="QRBOX w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md">

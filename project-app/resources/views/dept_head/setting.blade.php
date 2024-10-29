@@ -68,7 +68,7 @@
                 <button onclick="openModal()"
                 {{-- class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center"> --}}
                 class="px-2 md:px-3 py-1 h-10 bg-blue-950 text-white rounded-md shadow hover:bg-blue-950/80 focus:outline-none flex items-center mt-2 md:mt-0">
-                New Setting</button>
+                New {{ $activeTab !== 'customFields' ? ucfirst($activeTab): ucfirst("custom fields") }}</button>
 
 
                 <!-- Include the Modal -->

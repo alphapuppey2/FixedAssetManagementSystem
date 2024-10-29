@@ -128,7 +128,7 @@
     </div>
     <div class="flex justify-between items-center mb-2">
         <!-- Multi-Delete Button -->
-        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" onclick="showModal()" id="multiDeleteButton">
+        <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" onclick="openDeleteModal()" id="multiDeleteButton">
             Delete Selected
         </button>
 
@@ -263,11 +263,11 @@
         const deleteForm = document.getElementById('confirmDeleteBtn');
         deleteForm.action = `/assets/multi-delete`;
         console.log(`Delete form action: ${deleteForm.action}`);
-        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deleteModal').classList.toggle('hidden');
     }
 
     document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').classList.toggle('hidden');
     });
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
@@ -334,7 +334,10 @@
         });
 
         document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            event.preventDefault(); // Prevent any unintended behavior
             deleteModal.classList.add('hidden');
+
+
         });
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
