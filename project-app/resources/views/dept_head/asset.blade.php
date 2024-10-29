@@ -101,8 +101,6 @@
         </form>
     </div>
 
-
-
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
         <span class="text-gray-600 hidden md:block">
@@ -138,8 +136,6 @@
     </div>
 
     <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
-        {{-- <div class="tableContainer overflow-auto rounded-md h-full w-full"> --}}
-
         <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
             <table class="w-full border border-gray-300 rounded-lg text-sm">
                 <thead class="bg-gray-100 border-b">
