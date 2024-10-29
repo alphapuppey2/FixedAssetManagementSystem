@@ -85,8 +85,8 @@
         const previewTableBody = document.getElementById('previewTableBody');
         const selectedSummary = document.getElementById('selectedSummary');
         const uploadButton = document.getElementById('uploadButton');
+        const loadingScreen = document.getElementById('loadingScreen');
         const uploadError = document.getElementById('uploadError');
-        // Fetch CSRF token from the meta tag in the HTML head
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         let csvData = [];
@@ -115,9 +115,9 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const csvText = e.target.result;
-                    parseCSV(csvText); // Parse CSV and display in preview modal
+                    parseCSV(csvText);
                     openPreviewModal();
-                    closeModal('importModal'); // Close the upload modal
+                    closeModal('importModal');
                 };
                 reader.readAsText(file);
             }
@@ -130,8 +130,8 @@
                 .map(row => row.split(','))
                 .filter(row => row.some(cell => cell.trim() !== "")); // Filter out empty rows
 
-            csvData = rows.slice(1); // Data rows (excluding header)
-            const headers = rows[0]; // CSV headers
+            csvData = rows.slice(1);
+            const headers = rows[0];
 
             // Build Table Header
             previewTableHeader.innerHTML = `<th><input type="checkbox" id="selectAllImport" checked></th>`;
@@ -205,48 +205,73 @@
             selectedSummary.textContent = `${selectedRows.length} of ${totalRows} rows are checked`;
         }
 
-
-        // Upload Button Click Event
-        // Upload Button Click Event
         uploadButton.addEventListener('click', function() {
             if (selectedRows.length === 0) {
-                alert('At least 1 row must be checked.'); // Show alert if no rows are checked
+                showToast('At least 1 row must be checked.', 'error');
             } else {
-                const checkedRows = selectedRows.map(index => csvData[index]); // Get only the checked rows
-                const headers = Array.from(document.querySelectorAll('#previewTableHeader th')).slice(1).map(th => th.textContent.trim()); // Extract headers from the preview table
+                const checkedRows = selectedRows.map(index => csvData[index]);
+                const headers = Array.from(document.querySelectorAll('#previewTableHeader th')).slice(1).map(th => th.textContent.trim());
 
-                // Send the headers and checked rows to the server via AJAX
+                uploadButton.disabled = true;
+                loadingScreen.classList.remove('hidden');
+
                 fetch('{{ route("upload.csv") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken // Dynamically use the token
+                            'X-CSRF-TOKEN': csrfToken
                         },
                         body: JSON.stringify({
-                            headers: headers, // Include headers in the request
-                            rows: checkedRows // Include rows in the request
+                            headers: headers,
+                            rows: checkedRows
                         })
                     })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                        return response.json(); // Attempt to parse JSON response
+                        return response.json();
                     })
                     .then(data => {
                         if (data && data.success) {
-                            alert('Data uploaded successfully.');
+                            showToast('Data uploaded successfully.', 'success');
                             closeModal('previewModal');
                         } else {
-                            alert('Error: ' + (data.message || 'Unknown error occurred'));
+                            showToast(`Error: ${data.message || 'Unknown error occurred'}`, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error uploading data: ' + error.message);
+                        showToast(`Error uploading data: ${error.message}`, 'error');
+                    })
+                    .finally(() => {
+                        // Re-enable the button and hide the loading screen
+                        uploadButton.disabled = false;
+                        loadingScreen.classList.add('hidden');
                     });
             }
         });
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            // Assign classes based on the type (success or error)
+            toast.className = `px-4 py-2 rounded shadow-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.textContent = message;
+
+            // Append the toast to the container
+            toastContainer.appendChild(toast);
+            toastContainer.classList.remove('hidden'); // Ensure the container is visible
+
+            // Automatically hide the toast after 3 seconds
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500); // Remove the toast after fade-out
+            }, 3000);
+        }
+
 
         // Close Buttons for Modals
         closeModalBtn.addEventListener('click', function() {
@@ -257,8 +282,3 @@
         });
     });
 </script>
-
-
-
-
-
