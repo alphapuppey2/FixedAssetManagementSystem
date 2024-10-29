@@ -663,6 +663,7 @@ class AsstController extends Controller
     {
         // Get the selected asset IDs from the request
         $assetIds = $request->input('asset_ids', []);
+        $routepath = Auth::user()->usertype ==='admin'?  'assetList' : 'asset' ;
 
         if (count($assetIds) > 0) {
             try {
@@ -671,14 +672,14 @@ class AsstController extends Controller
                     $this->delete($id);
                 }
 
-                return redirect()->route('asset')->with('success', 'Selected assets have been deleted.');
+                return redirect()->route($routepath)->with('success', 'Selected assets have been deleted.');
             } catch (Exception $e) {
                 // Handle the exception and redirect with error message
-                return redirect()->route('asset')->with('error', 'Failed to delete selected assets.');
+                return redirect()->route($routepath)->with('error', 'Failed to delete selected assets.');
             }
         }
 
-        return redirect()->route('asset')->with('error', 'No assets selected for deletion.');
+        return redirect()->route($routepath)->with('error', 'No assets selected for deletion.');
     }
 
     public function delete($id)

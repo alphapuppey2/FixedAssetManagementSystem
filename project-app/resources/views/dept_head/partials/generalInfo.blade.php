@@ -232,9 +232,9 @@
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">QR Code</label>
                 @if ($data->qr_img)
                     <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}"
-                        class="block min-[400px]:w-40 min-[400px]:w-40 shrink">
+                        class="block  shrink">
                         <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code"
-                            class="w-full h-full object-contain shrink">
+                            class="w-full h-full object-contain min-[400px]:w-40 min-[400px]:w-40 shrink">
                     </a>
                 @else
                     <div class="QRBOX w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md">
