@@ -211,10 +211,6 @@ class SearchController extends Controller
     }
 
 
-
-
-
-
     public function searchUser(Request $request)
     {
         $query = $request->input('query');
