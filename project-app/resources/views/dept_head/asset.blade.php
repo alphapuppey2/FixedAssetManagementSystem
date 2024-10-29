@@ -135,7 +135,7 @@
         @include('dept_head.modal.deleteAssetModal')
     </div>
 
-    <div class="ccAL relative flex flex-col bg-white border rounded-lg w-full h-full overflow-hidden p-[2px]">
+    <div class="ccAL relative flex flex-col rounded-lg w-full h-full overflow-hidden p-[2px]">
         <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
             <table class="w-full border border-gray-300 rounded-lg text-sm">
                 <thead class="bg-gray-100 border-b">
