@@ -313,6 +313,35 @@ function renderAddInfos(addInfos) {
         `;
         addInfoContainer.appendChild(field);
     });
+
+    //restricting users to input negative values
+    const numberInputs = document.querySelectorAll('input[type="number"]');
+
+    numberInputs.forEach(input => {
+        // Prevent entering a minus sign or negative numbers
+        input.addEventListener('input', function () {
+            if (parseFloat(this.value) < 0) {
+                this.value = Math.abs(this.value); // Convert negative to positive
+            }
+        });
+
+        // Prevent using minus sign directly
+        input.addEventListener('keypress', function (event) {
+            if (event.key === '-' || event.key === '+') {
+                event.preventDefault(); // Block the keypress
+            }
+        });
+
+        // Prevent pasting negative values
+        input.addEventListener('paste', function (event) {
+            const clipboardData = event.clipboardData || window.clipboardData;
+            const pastedData = clipboardData.getData('text');
+
+            if (pastedData.includes('-')) {
+                event.preventDefault(); // Block the paste
+            }
+        });
+    });
 }
 
 
