@@ -127,128 +127,140 @@
         Selected Assets: <span id="selectedCount">0</span>
     </div>
 
-    <div class="flex justify-between items-center mb-2">
-        <!-- Multi-Delete Button -->
-        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden"
-            id="multiDeleteButton">
-            Delete Selected
-        </button>
+        <div class="flex justify-between items-center mb-2">
+            <!-- Multi-Delete Button -->
+            <button type="button" onclick="openDeleteModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden"
+                id="multiDeleteButton">
+                Delete Selected
+            </button>
+
+            <input type="hidden" name="selected_ids" id="selectedIdsInput">
 
         @include('dept_head.modal.deleteAssetModal')
     </div>
 
-    <!-- Desktop Table Layout -->
-    <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
-        <table class="w-full border border-gray-300 rounded-lg text-sm">
-            <thead class="bg-gray-100 border-b">
-                <tr>
-                    <th class="w-12 py-3 text-xs font-medium text-gray-500 uppercase text-center">
-                        <input type="checkbox" id="selectAllDesktop" class="w-5 h-5">
-                    </th>
-                    <th>#</th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex  gap-1">
-                            Code
-                            <x-icons.sort-icon :direction="request('sort') === 'code' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        Image
-                    </th>
-                    {{-- Name --}}
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left w-40">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex gap-1">
-                            Name
-                            <x-icons.sort-icon :direction="request('sort') === 'name' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex gap-1">
-                            Category
-                            <x-icons.sort-icon :direction="request('sort') === 'category_name' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex gap-1">
-                            Purchase Date
-                            <x-icons.sort-icon :direction="request('sort') === 'purchase_date' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex gap-1">
-                            Depreciation
-                            <x-icons.sort-icon :direction="request('sort') === 'depreciation' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                        <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex gap-1">
-                            Status
-                            <x-icons.sort-icon :direction="request('sort') === 'status' ? request('direction') : null" />
-                        </a>
-                    </th>
-                    <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($assets as $asset)
-                <tr class="hover:bg-gray-100">
-                    <td class="text-center">
-                        <input type="checkbox" name="asset_ids[]" value="{{ $asset->id }}"
-                            class="assetCheckbox w-5 h-5">
-                    </td>
-                    <td class="align-middle font-bold text-left text-sm text-gray-900">
-                        {{ $loop->iteration }}
-                    </td>
-                    <td>{{ $asset->code ?? 'NONE' }}</td>
-                    <td>
-                        <img src="{{ isset($asset->asst_img ) ? asset('storage/'.$asset->asst_img) : asset('images/no-image.png') }}" class="w-12 h-12 shrink" alt="">
-                    </td>
-                    <td>{{ $asset->name }}</td>
-                    <td>{{ $asset->category_name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($asset->purchase_date)->format('F d, Y')  }}</td>
-                    <td>{{ $asset->depreciation ?? 0.00 }}</td>
-                    <td>@include('components.asset-status', ['status' => $asset->status])</td>
-                    <td class="flex justify-center">
+        <!-- Desktop Table Layout -->
+        <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
+            <table class="w-full border border-gray-300 rounded-lg text-sm">
+                <thead class="bg-gray-100 border-b">
+                    <tr>
+                        <th class="w-12 py-3 text-xs font-medium text-gray-500 uppercase text-center">
+                            <input type="checkbox" id="selectAllDesktop" class="w-5 h-5">
+                        </th>
+                        <th>#</th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'code', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex  gap-1">
+                                Code
+                                <x-icons.sort-icon :direction="request('sort') === 'code' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            Image
+                        </th>
+                        {{-- Name --}}
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left w-40">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex gap-1">
+                                Name
+                                <x-icons.sort-icon :direction="request('sort') === 'name' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex gap-1">
+                                Category
+                                <x-icons.sort-icon :direction="request('sort') === 'category_name' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex gap-1">
+                                Purchase Date
+                                <x-icons.sort-icon :direction="request('sort') === 'purchase_date' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex gap-1">
+                                Depreciation
+                                <x-icons.sort-icon :direction="request('sort') === 'depreciation' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                class="flex gap-1">
+                                Status
+                                <x-icons.sort-icon :direction="request('sort') === 'status' ? request('direction') : null" />
+                            </a>
+                        </th>
+                        <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($assets as $asset)
+                        <tr class="hover:bg-gray-100">
+                            <td class="text-center">
+                                <input type="checkbox" name="asset_ids[]" value="{{ $asset->id }}"
+                                    class="assetCheckbox w-5 h-5">
+                            </td>
+                            <td class="align-middle font-bold text-left text-sm text-gray-900">
+                                {{ $loop->iteration }}
+                            </td>
+                            <td>{{ $asset->code ?? 'NONE' }}</td>
+                            <td>
+                                <img src="{{ isset($asset->asst_img) ? asset('storage/' . $asset->asst_img) : asset('images/no-image.png') }}"
+                                    class="w-12 h-12 shrink" alt="">
+                            </td>
+                            <td>{{ $asset->name }}</td>
+                            <td>{{ $asset->category_name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($asset->purchase_date)->format('F d, Y') }}</td>
+                            <td>{{ $asset->depreciation ?? 0.0 }}</td>
+                            <td>@include('components.asset-status', ['status' => $asset->status])</td>
+                            <td class="flex justify-center">
+                                <a href="{{ route('assetDetails', $asset->code) }}" class="text-blue-900">
+                                    <x-icons.view-icon class="w-6 h-6" />
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10"
+                                class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">No
+                                Assets Found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card Layout -->
+        <div class="block md:hidden space-y-4">
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" id="selectAllMobile" class="w-5 h-5">
+                <span>Select All</span>
+            </div>
+            @foreach ($assets as $asset)
+                <div class="bg-white shadow-md rounded-lg flex gap-2 items-center p-4 contain-card">
+                    <input type="checkbox" name="asset_ids[]" value="{{ $asset->id }}"
+                        class="assetCheckbox w-5 h-5">
+                    <div class="containCard flex w-full justify-between">
+                        <div class="details">
+                            <p><strong>Code:</strong> {{ $asset->code ?? 'NONE' }}</p>
+                            <p><strong>Name:</strong> {{ $asset->name }}</p>
+                            <p><strong>Category:</strong> {{ $asset->category_name }}</p>
+                            <p><strong>Status:</strong>
+                                @include('components.asset-status', ['status' => $asset->status])
+                            </p>
+                        </div>
                         <a href="{{ route('assetDetails', $asset->code) }}" class="text-blue-900">
                             <x-icons.view-icon class="w-6 h-6" />
                         </a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10" class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">No Assets Found</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Mobile Card Layout -->
-    <div class="block md:hidden space-y-4">
-        <div class="flex items-center space-x-2">
-            <input type="checkbox" id="selectAllMobile" class="w-5 h-5">
-            <span>Select All</span>
-        </div>
-        @foreach ($assets as $asset)
-        <div class="bg-white shadow-md rounded-lg flex gap-2 items-center p-4">
-            <input type="checkbox" name="asset_ids[]" value="{{ $asset->id }}"
-                class="assetCheckbox w-5 h-5">
-            <div class="containCard flex w-full justify-between">
-                <div class="details">
-                    <p><strong>Code:</strong> {{ $asset->code ?? 'NONE' }}</p>
-                    <p><strong>Name:</strong> {{ $asset->name }}</p>
-                    <p><strong>Category:</strong> {{ $asset->category_name }}</p>
-                    <p><strong>Status:</strong>
-                        @include('components.asset-status', ['status' => $asset->status])
-                    </p>
+                    </div>
                 </div>
-                <a href="{{ route('assetDetails', $asset->code) }}" class="text-blue-900">
-                    <x-icons.view-icon class="w-6 h-6" />
-                </a>
-            </div>
+            @endforeach
         </div>
-        @endforeach
-    </div>
 
 
 </form>
@@ -304,6 +316,10 @@
         console.log(`Delete form action: ${deleteForm.action}`);
         document.getElementById('deleteModal').classList.remove('hidden');
     }
+        // Delete Modal Script
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
 
     document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
         document.getElementById('deleteModal').classList.add('hidden');
@@ -327,33 +343,75 @@
         document.getElementById(modalId).classList.add('hidden');
     }
 
-    //MULTI DELETE
-    document.addEventListener('DOMContentLoaded', function() {
-        const selectAllDesktop = document.getElementById('selectAllDesktop');
-        const selectAllMobile = document.getElementById('selectAllMobile');
-        const checkboxes = document.querySelectorAll('.assetCheckbox');
-        const multiDeleteButton = document.getElementById('multiDeleteButton');
-        const selectedCount = document.getElementById('selectedCount');
-        const selectedCountContainer = document.getElementById('selectedCountContainer');
+        // Multi-Delete and Sync Selection Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllDesktop = document.getElementById('selectAllDesktop');
+            const selectAllMobile = document.getElementById('selectAllMobile');
+            const checkboxes = document.querySelectorAll('.assetCheckbox');
+            const multiDeleteButton = document.getElementById('multiDeleteButton');
+            const selectedCount = document.getElementById('selectedCount');
+            const selectedIdsInput = document.getElementById('selectedIdsInput');
+            let selectedIds = new Set(); // Use a Set to avoid duplicate entries
 
-        function updateSelectedCount() {
-            const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
-            selectedCount.textContent = count;
-            selectedCountContainer.classList.toggle('hidden');
-            multiDeleteButton.classList.toggle('hidden', count === 0);
-        }
+            // Update selected count and toggle delete button visibility
+            // Update selected count and toggle delete button visibility
+            function updateSelectedCount() {
+                selectedCount.textContent = selectedIds.size; // Update displayed count
+                multiDeleteButton.classList.toggle('hidden', selectedIds.size === 0);
+                selectedIdsInput.value = JSON.stringify([...selectedIds]); // Convert Set to Array
 
-        function syncSelectAllState() {
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            selectAllDesktop.checked = allChecked;
-            selectAllMobile.checked = allChecked;
-        }
+                // Pass selected count to hidden input field
+                document.getElementById("assetCount").innerText = selectedIds.size;
+            }
 
-        // Handle "Select All" checkbox for both desktop and mobile
-        function handleSelectAllChange(checked) {
-            checkboxes.forEach(checkbox => checkbox.checked = checked);
-            updateSelectedCount();
-        }
+
+            // Sync the state of "Select All" checkboxes in both desktop and mobile
+            function syncSelectAllState() {
+                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                selectAllDesktop.checked = allChecked;
+                selectAllMobile.checked = allChecked;
+            }
+
+            // Sync individual checkbox state across both desktop and mobile
+            function syncCheckboxState(assetId, isChecked) {
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.value === assetId) {
+                        checkbox.checked = isChecked;
+                    }
+                });
+            }
+
+            // Handle individual checkbox selection
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const assetId = this.value;
+                    const isChecked = this.checked;
+
+                    if (isChecked) {
+                        selectedIds.add(parseInt(assetId));
+                    } else {
+                        selectedIds.delete(parseInt(assetId));
+                    }
+
+                    // Sync the state across all views
+                    syncCheckboxState(assetId, isChecked);
+                    updateSelectedCount();
+                    syncSelectAllState();
+                });
+            });
+
+            // Handle "Select All" change
+            function handleSelectAllChange(checked) {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = checked;
+                    if (checked) {
+                        selectedIds.add(parseInt(checkbox.value));
+                    } else {
+                        selectedIds.delete(parseInt(checkbox.value));
+                    }
+                });
+                updateSelectedCount();
+            }
 
         selectAllDesktop.addEventListener('change', function() {
             handleSelectAllChange(this.checked);
@@ -365,27 +423,21 @@
             selectAllDesktop.checked = this.checked;
         });
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                updateSelectedCount();
-                syncSelectAllState();
-            });
+            // Initialize the selected count on page load
+            updateSelectedCount();
+            syncSelectAllState();
         });
 
-        // Initialize the selected count and sync the state on page load
-        updateSelectedCount();
-        syncSelectAllState();
-    });
-
-    setTimeout(function() {
-        var toast = document.getElementById('toast');
-        if (toast) {
-            toast.style.transition = 'opacity 0.5s';
-            toast.style.opacity = '0';
-            setTimeout(function() {
-                toast.remove();
-            }, 500);
-        }
-    }, 3000);
-</script>
+        Toast Notification Script
+        setTimeout(function() {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 500);
+            }
+        }, 3000);
+    </script>
 @endsection
