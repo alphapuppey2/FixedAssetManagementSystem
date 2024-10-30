@@ -124,36 +124,36 @@ class AsstController extends Controller
         $endDate = $request->input('end_date');
 
         // Validate sorting field
-        $validSortFields = ['code', 'name', 'category_name', 'status'];
+        $validSortFields = ['code', 'name', 'category_name', 'status', 'depreciation', 'purchase_date'];
         if (!in_array($sortField, $validSortFields)) {
             $sortField = 'code';
         }
 
         // Build the query with filters
         $assets = DB::table('asset')
-            ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('category', 'asset.ctg_ID', '=', 'category.id')
-            ->where('asset.dept_ID', $userDept)
-            ->where('asset.isDeleted', 0)
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('asset.name', 'like', "%{$search}%")
-                        ->orWhere('asset.code', 'like', "%{$search}%");
-                });
-            })
-            ->when(!empty($statuses), function ($query) use ($statuses) {
-                return $query->whereIn('asset.status', $statuses);
-            })
-            ->when(!empty($categories), function ($query) use ($categories) {
-                return $query->whereIn('category.id', $categories);
-            })
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
-            })
-            ->select('asset.*', 'category.name as category_name', 'department.name as department')
-            ->orderBy($sortField, $sortDirection)
-            ->paginate($rowsPerPage) // Handle pagination
-            ->appends($request->except('page'));
+        ->join('department', 'asset.dept_ID', '=', 'department.id')
+        ->join('category', 'asset.ctg_ID', '=', 'category.id')
+        ->where('asset.dept_ID', $userDept)
+        ->where('asset.isDeleted', 0)
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('asset.name', 'like', "%{$search}%")
+                    ->orWhere('asset.code', 'like', "%{$search}%");
+            });
+        })
+        ->when(!empty($statuses), function ($query) use ($statuses) {
+            return $query->whereIn('asset.status', $statuses);
+        })
+        ->when(!empty($categories), function ($query) use ($categories) {
+            return $query->whereIn('category.id', $categories);
+        })
+        ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+            return $query->whereBetween('asset.created_at', [$startDate, $endDate]);
+        })
+        ->select('asset.*', 'category.name as category_name', 'department.name as department')
+        ->orderBy($sortField, $sortDirection)
+        ->paginate($rowsPerPage)
+        ->appends($request->except('page'));
 
         // Fetch all categories for the dropdown (filtered by department)
         $categoriesList = DB::table('category')->where('dept_ID', $userDept)->get();
