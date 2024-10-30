@@ -35,7 +35,7 @@ class UserSideController extends Controller
             ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->join('location', 'asset.loc_key', '=', 'location.id')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->leftjoin('users as authorizePersonel', 'maintenance.authorized_by', '=', 'authorizePersonel.id')
+            ->join('users as authorizePersonel', 'authorizePersonel.id', '=', 'maintenance.authorized_by')
             ->where('maintenance.requestor', $userId)
             ->when($search, function ($query, $search) {
                 return $query->where(function ($query) use ($search) {

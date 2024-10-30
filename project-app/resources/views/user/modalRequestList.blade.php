@@ -188,9 +188,9 @@
             document.getElementById('denialReasonContainer').classList.add('hidden');
         } else if (request.status === 'denied') {
             document.getElementById('authorizedByContainer').classList.remove('hidden');
-            document.getElementById('modalAuthorizedBy').innerText = request.authorized_personel_name ?? 'N/A';
+            document.getElementById('modalAuthorizedBy').innerText = request.reason ?? 'N/A';
             document.getElementById('denialReasonContainer').classList.remove('hidden');
-            document.getElementById('modalDenialReason').innerText = request.reason ??  'N/A';
+            document.getElementById('modalDenialReason').innerText = request.authorized_personel_name ??  'N/A';
         } else {
             document.getElementById('authorizedByContainer').classList.add('hidden');
             document.getElementById('denialReasonContainer').classList.add('hidden');
