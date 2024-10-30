@@ -253,8 +253,6 @@
 
 </form>
 
-
-
 @include('dept_head.modal.modalImportAsset')
 @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 
