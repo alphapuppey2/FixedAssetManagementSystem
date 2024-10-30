@@ -255,11 +255,11 @@
         <div class="flex justify-end space-x-4">
             <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 onclick="closeDisposeModal()">
-                Cancel
+                No
             </button>
             <button type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 onclick="confirmDisposal()">
-                Yes, Dispose
+                Yes
             </button>
         </div>
     </div>
@@ -289,27 +289,33 @@
 
     function confirmDisposal() {
         fetch(`/admin/asset/dispose/${assetId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Asset disposed successfully!');
-                    location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert('Failed to dispose of the asset.');
-                }
-            })
-            .catch(error => {
-                console.error('Error disposing asset:', error);
-            });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Reload the page on success to trigger the toast
+            } else {
+                alert('Failed to dispose of the asset.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred.');
+        });
 
         closeDisposeModal(); // Close the modal
     }
+
+    // Allow the edit form to submit normally without interception
+    document.getElementById('formEdit').addEventListener('submit', function (event) {
+        // No custom JavaScript handling, allow normal form submission.
+        // The backend will handle redirection and flash message (toast).
+    });
 </script>
 
 <script>

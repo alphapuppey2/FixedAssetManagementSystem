@@ -1,130 +1,131 @@
 @extends('layouts.app')
 
 @section('header')
-    <div class="header flex w-full justify-between pr-3 pl-3 items-center">
-        <div class="title">
-            <a href="{{ route('asset') }}">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
-            </a>
-        </div>
-
+<div class="header flex w-full justify-between pr-3 pl-3 items-center">
+    <div class="title">
+        <a href="{{ route('asset') }}">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Asset</h2>
+        </a>
     </div>
+
+</div>
 @endsection
 
 @section('content')
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden flex items-center justify-center z-50">
-        <span class="text-white text-lg font-bold">Uploading, please wait...</span>
-    </div>
+<!-- Loading Screen -->
+<div id="loadingScreen" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden flex flex-col items-center justify-center z-50">
+    <div class="loader mb-4"></div>
+    <span class="text-white text-lg font-bold">Uploading, please wait...</span>
+</div>
 
-    <div class="flex justify-between items-center mb-2">
-        <div class="relative searchBox w-full max-w-md ml-2">
-            <form action="{{ route('asset') }}" method="GET" id="searchForm" class="relative flex items-center">
-                <!-- Filter Button Inside Search Input -->
-                <button type="button" id="openFilterModalBtn"
-                    class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
-                    <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
-                </button>
-
-                <!-- Search Input Field -->
-                <x-text-input name="search" id="searchFilt" placeholder="Search by Code, Name"
-                    value="{{ request('search') }}"
-                    class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
-
-                <!-- Retain the filter values as hidden inputs -->
-                <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
-                <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
-                <input type="hidden" name="rows_per_page" value="{{ request('rows_per_page', 10) }}">
-
-                <!-- Handle status and category as arrays -->
-                @foreach ((array) request('status', []) as $status)
-                    <input type="hidden" name="status[]" value="{{ $status }}">
-                @endforeach
-
-                @foreach ((array) request('category', []) as $category)
-                    <input type="hidden" name="category[]" value="{{ $category }}">
-                @endforeach
-
-                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
-            </form>
-        </div>
-
-
-        <div class="header-R flex items-center space-x-0.5">
-            <!-- Refresh Button -->
-            <form action="{{ route('asset') }}" method="GET" class="flex">
-                <button type="submit" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
-                    <x-icons.refresh-icon class="w-5 h-5 text-gray-600" />
-                </button>
-            </form>
-
-            <!-- Import Button -->
-            <button id="openModalBtn" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
-                <x-icons.importIcon />
+<div class="flex justify-between items-center mb-2">
+    <div class="relative searchBox w-full max-w-md ml-2">
+        <form action="{{ route('asset') }}" method="GET" id="searchForm" class="relative flex items-center">
+            <!-- Filter Button Inside Search Input -->
+            <button type="button" id="openFilterModalBtn"
+                class="absolute inset-y-0 left-0 flex items-center pl-3 focus:outline-none">
+                <x-icons.filter-icon class="w-5 h-5 text-gray-600" />
             </button>
 
-        </div>
+            <!-- Search Input Field -->
+            <x-text-input name="search" id="searchFilt" placeholder="Search by Code, Name"
+                value="{{ request('search') }}"
+                class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
+
+            <!-- Retain the filter values as hidden inputs -->
+            <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
+            <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
+            <input type="hidden" name="rows_per_page" value="{{ request('rows_per_page', 10) }}">
+
+            <!-- Handle status and category as arrays -->
+            @foreach ((array) request('status', []) as $status)
+            <input type="hidden" name="status[]" value="{{ $status }}">
+            @endforeach
+
+            @foreach ((array) request('category', []) as $category)
+            <input type="hidden" name="category[]" value="{{ $category }}">
+            @endforeach
+
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+        </form>
     </div>
 
-    <div class="flex justify-between items-center mb-2">
-        <!-- Rows per page dropdown -->
-        <div class="flex items-center">
-            <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
-            <form action="{{ route('asset') }}" method="GET" id="rowsPerPageForm" class="flex items-center">
-                <input type="hidden" name="search" value="{{ request('search') }}">
-                <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
-                <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
 
-                <!-- Handle status and category as JSON -->
-                @foreach ((array) request('status', []) as $status)
-                    <input type="hidden" name="status[]" value="{{ $status }}">
-                @endforeach
+    <div class="header-R flex items-center space-x-0.5">
+        <!-- Refresh Button -->
+        <form action="{{ route('asset') }}" method="GET" class="flex">
+            <button type="submit" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+                <x-icons.refresh-icon class="w-5 h-5 text-gray-600" />
+            </button>
+        </form>
 
-                @foreach ((array) request('category', []) as $category)
-                    <input type="hidden" name="category[]" value="{{ $category }}">
-                @endforeach
+        <!-- Import Button -->
+        <button id="openModalBtn" class="p-0.5 rounded-md hover:bg-gray-100 focus:outline-none">
+            <x-icons.importIcon />
+        </button>
 
-                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+    </div>
+</div>
 
-                <select name="rows_per_page" id="rows_per_page"
-                    class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onchange="document.getElementById('rowsPerPageForm').submit()">
-                    <option value="5" {{ request('rows_per_page', 5) == 5 ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('rows_per_page', 10) == 10 ? 'selected' : '' }}>10</option>
-                    <option value="20" {{ request('rows_per_page') == 20 ? 'selected' : '' }}>20</option>
-                    <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
-                </select>
-            </form>
-        </div>
+<div class="flex justify-between items-center mb-2">
+    <!-- Rows per page dropdown -->
+    <div class="flex items-center">
+        <label for="rows_per_page" class="mr-2 text-gray-700">Rows per page:</label>
+        <form action="{{ route('asset') }}" method="GET" id="rowsPerPageForm" class="flex items-center">
+            <input type="hidden" name="search" value="{{ request('search') }}">
+            <input type="hidden" name="sort" value="{{ request('sort', 'code') }}">
+            <input type="hidden" name="direction" value="{{ request('direction', 'asc') }}">
 
-        <!-- Pagination -->
-        <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
-            <span class="text-gray-600 hidden md:block">
-                Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
-            </span>
-            <div class="text-sm md:text-base">
-                @if ($assets->hasPages())
-                    <div class="md:hidden text-xs flex justify-center space-x-1 mt-2">
-                        {{ $assets->appends(request()->except('page'))->links() }}
-                    </div>
-                    <div class="hidden md:block">
-                        {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
-                    </div>
-                @endif
+            <!-- Handle status and category as JSON -->
+            @foreach ((array) request('status', []) as $status)
+            <input type="hidden" name="status[]" value="{{ $status }}">
+            @endforeach
+
+            @foreach ((array) request('category', []) as $category)
+            <input type="hidden" name="category[]" value="{{ $category }}">
+            @endforeach
+
+            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+
+            <select name="rows_per_page" id="rows_per_page"
+                class="border rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onchange="document.getElementById('rowsPerPageForm').submit()">
+                <option value="5" {{ request('rows_per_page', 5) == 5 ? 'selected' : '' }}>5</option>
+                <option value="10" {{ request('rows_per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                <option value="20" {{ request('rows_per_page') == 20 ? 'selected' : '' }}>20</option>
+                <option value="50" {{ request('rows_per_page') == 50 ? 'selected' : '' }}>50</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
+        <span class="text-gray-600 hidden md:block">
+            Showing {{ $assets->firstItem() }} to {{ $assets->lastItem() }} of {{ $assets->total() }} assets
+        </span>
+        <div class="text-sm md:text-base">
+            @if ($assets->hasPages())
+            <div class="md:hidden text-xs flex justify-center space-x-1 mt-2">
+                {{ $assets->appends(request()->except('page'))->links() }}
             </div>
+            <div class="hidden md:block">
+                {{ $assets->appends(request()->except('page'))->links('vendor.pagination.tailwind') }}
+            </div>
+            @endif
         </div>
     </div>
+</div>
 
-    <form action="{{ route('asset.multiDelete') }}" method="POST" id="multiDeleteForm">
-        @csrf
-        @method('DELETE')
+<form action="{{ route('asset.multiDelete') }}" method="POST" id="multiDeleteForm">
+    @csrf
+    @method('DELETE')
 
-        <!-- Selected Count Display -->
-        <div class="mb-2 text-gray-600" id="selectedCountContainer">
-            Selected Assets: <span id="selectedCount">0</span>
-        </div>
+    <!-- Selected Count Display -->
+    <div class="mb-2 text-gray-600" id="selectedCountContainer">
+        Selected Assets: <span id="selectedCount">0</span>
+    </div>
 
         <div class="flex justify-between items-center mb-2">
             <!-- Multi-Delete Button -->
@@ -135,8 +136,8 @@
 
             <input type="hidden" name="selected_ids" id="selectedIdsInput">
 
-            @include('dept_head.modal.deleteAssetModal')
-        </div>
+        @include('dept_head.modal.deleteAssetModal')
+    </div>
 
         <!-- Desktop Table Layout -->
         <div class="hidden md:block tableContainer overflow-auto rounded-md h-full w-full">
@@ -262,79 +263,85 @@
         </div>
 
 
-    </form>
+</form>
 
+@include('dept_head.modal.modalImportAsset')
+@include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
 
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed bottom-5 right-5 space-y-2 z-50 hidden"></div>
 
-    @include('dept_head.modal.modalImportAsset')
-    @include('dept_head.modal.filterAssetTable', ['categoriesList' => $categoriesList])
+<style>
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 space-y-2 z-50 hidden"></div>
-
-    @if(session('success'))
-    <script>
-        window.addEventListener('load', function () {
-            setTimeout(() => {
-                showFlashMessage("{{ session('success') }}");
-            }, 500); // 500ms delay after the page loads
-        });
-
-        function showFlashMessage(message) {
-            const flashContainer = document.createElement('div');
-            flashContainer.className = 'flash-message';
-            flashContainer.innerText = message;
-            document.body.appendChild(flashContainer);
-
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                flashContainer.style.display = 'none';
-            }, 3000);
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
-    </script>
-@endif
 
-    <script>
-        document.getElementById('rows_per_page').addEventListener('change', function() {
-            const rowsPerPage = this.value;
-            console.log('Rows per page selected:', rowsPerPage);
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
 
-            const form = document.getElementById('rowsPerPageForm');
-            const formData = new FormData(form);
-            console.log('Form data:', Object.fromEntries(formData));
-        });
 
-        // Filter Modal Script
-        document.getElementById('openFilterModalBtn').addEventListener('click', function() {
-            document.getElementById('filterModal').classList.remove('hidden');
-        });
+<script>
+    document.getElementById('rows_per_page').addEventListener('change', function() {
+        const rowsPerPage = this.value;
+        console.log('Rows per page selected:', rowsPerPage);
 
+        const form = document.getElementById('rowsPerPageForm');
+        const formData = new FormData(form);
+        console.log('Form data:', Object.fromEntries(formData));
+
+    });
+
+    //Filter Modal Script
+    document.getElementById('openFilterModalBtn').addEventListener('click', function() {
+        document.getElementById('filterModal').classList.remove('hidden');
+    });
+
+    //Delete Modal Script
+    function openDeleteModal() {
+        const deleteForm = document.getElementById('confirmDeleteBtn');
+        deleteForm.action = `/assets/multi-delete`;
+        console.log(`Delete form action: ${deleteForm.action}`);
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
         // Delete Modal Script
         function openDeleteModal() {
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
-        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteModal').classList.add('hidden');
+    });
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            document.getElementById('deleteForm').submit();
-        });
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteForm').submit();
+    });
 
-        // Import Modal Script
-        document.addEventListener('DOMContentLoaded', function() {
-            const modalId = 'importModal';
-            document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
-        });
+    //Import Modal Script
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalId = 'importModal';
+        document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+    });
 
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        }
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
 
         // Multi-Delete and Sync Selection Logic
         document.addEventListener('DOMContentLoaded', function() {
@@ -406,31 +413,31 @@
                 updateSelectedCount();
             }
 
-            selectAllDesktop.addEventListener('change', function() {
-                handleSelectAllChange(this.checked);
-                selectAllMobile.checked = this.checked;
-            });
+        selectAllDesktop.addEventListener('change', function() {
+            handleSelectAllChange(this.checked);
+            selectAllMobile.checked = this.checked;
+        });
 
-            selectAllMobile.addEventListener('change', function() {
-                handleSelectAllChange(this.checked);
-                selectAllDesktop.checked = this.checked;
-            });
+        selectAllMobile.addEventListener('change', function() {
+            handleSelectAllChange(this.checked);
+            selectAllDesktop.checked = this.checked;
+        });
 
             // Initialize the selected count on page load
             updateSelectedCount();
             syncSelectAllState();
         });
 
-        // Toast Notification Script
-        // setTimeout(function() {
-        //     const toast = document.getElementById('toast');
-        //     if (toast) {
-        //         toast.style.transition = 'opacity 0.5s';
-        //         toast.style.opacity = '0';
-        //         setTimeout(function() {
-        //             toast.remove();
-        //         }, 500);
-        //     }
-        // }, 3000);
+        Toast Notification Script
+        setTimeout(function() {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 500);
+            }
+        }, 3000);
     </script>
 @endsection

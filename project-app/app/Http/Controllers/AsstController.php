@@ -603,14 +603,14 @@ class AsstController extends Controller
                 : 'assetDetails';
 
             return redirect()->route($route, ['id' => $asset->code])
-                ->with('success', 'Asset updated successfully!');
+                ->with('success', 'Asset updated successfully.');
         } else {
             $route = $userType === 'admin'
                 ? 'adminAssetDetails'
                 : 'assetDetails';
 
             return redirect()->route($route, ['id' => $asset->code])
-                ->with('failed', 'Asset update failed!');
+                ->with('failed', 'Asset update failed.');
         }
     }
 
@@ -1111,10 +1111,31 @@ class AsstController extends Controller
 
     public function dispose($id)
     {
-        $asset = assetModel::findOrFail($id);
-        $asset->status = 'disposed';
-        $asset->save();
+        try {
+            $user = Auth::user();
+            $asset = assetModel::findOrFail($id);
 
-        return response()->json(['success' => true, 'message' => 'Asset disposed successfully.']);
+            $asset->update([
+                'status' => 'disposed',
+                'updated_at' => now(),
+            ]);
+
+            ActivityLog::create([
+                'activity' => 'Dispose Asset',
+                'description' => "{$user->firstname} {$user->lastname} disposed asset '{$asset->name}' (Code: {$asset->code}).",
+                'userType' => $user->usertype,
+                'user_id' => $user->id,
+                'asset_id' => $id,
+            ]);
+
+            session()->flash('success', 'Asset disposed successfully.');
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            session()->flash('failed', 'Failed to dispose asset.');
+
+            return response()->json(['success' => false]);
+        }
     }
+
 }

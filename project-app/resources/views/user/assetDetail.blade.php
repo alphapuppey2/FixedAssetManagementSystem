@@ -15,7 +15,7 @@
                 <div class="flex space-x-8">
                     <!-- Asset Image -->
                     <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
-                        <img src="{{ asset('storage/' . $retrieveData->image ?? 'images/defaultQR.png') }}"
+                        <img src="{{ asset($retrieveData->image ? 'storage/' . $retrieveData->image : 'images/no-image.png') }}"
                              class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->
@@ -114,41 +114,26 @@
                 Request Maintenance
             </button>
         </div>
-
+     {{-- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative"> --}}
         <!-- Repair Request Modal (Initially Hidden) -->
-        <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50">
-            {{-- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative"> --}}
+        <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50" role="dialog" aria-hidden="true">
             <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative sm:max-w-md sm:p-6">
-                <!-- Close Button (Top-Right) -->
+                <!-- Close Button -->
                 <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
 
-                {{-- <h3 class="text-xl font-semibold mb-6 text-gray-800">Reason for Request</h3> --}}
                 <h3 class="text-xl font-semibold mb-6 text-gray-800 text-center sm:text-left">Reason for Request</h3>
 
-                <!-- Display Validation Errors -->
-                @if ($errors->any())
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <!-- Validation Errors -->
+                <div id="errorMessages" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
 
-                <!-- Display Success Message -->
-                @if (session('status'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                        {{ session('status') }}
-                    </div>
-                @endif
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"></div>
 
-                <!-- Repair Request Form -->
-                <form action="{{ route('maintenance.create') }}" method="POST">
+                <form id="repairRequestForm" action="{{ route('maintenance.create') }}" method="POST">
                     @csrf
                     <input type="hidden" name="asset_id" value="{{ $retrieveData->id }}">
 
@@ -169,7 +154,7 @@
                     <!-- Issue Description -->
                     <div class="mb-6">
                         <label for="issue_description" class="block text-sm font-medium text-gray-700 mb-2">Describe the issue</label>
-                        <textarea id="issue_description" name="issue_description" rows="4" class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter the issue details" required>{{ old('issue_description') }}</textarea>
+                        <textarea id="issue_description" name="issue_description" rows="4" class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter the issue details" required></textarea>
                     </div>
 
                     <!-- Submit Button -->
@@ -193,6 +178,56 @@
                 document.getElementById('repairRequestModal').classList.add('hidden');
                 document.getElementById('repairRequestModal').classList.remove('flex');
             }
+
+        document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('repairRequestForm');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the page from reloading
+
+            const formData = new FormData(form); // Collect form data
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.errors) {
+                    // If validation errors exist, display them inside the modal
+                    let errorList = '<ul class="list-disc pl-5 text-red-700">';
+                    Object.values(data.errors).forEach(error => {
+                        errorList += `<li>${error}</li>`;
+                    });
+                    errorList += '</ul>';
+                    displayMessage(errorList, 'error');
+                } else {
+                    // Display success message
+                    displayMessage('Maintenance request submitted successfully.', 'success');
+                    form.reset(); // Reset form after success
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function displayMessage(message, type) {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = type === 'error'
+                ? 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'
+                : 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4';
+            messageContainer.innerHTML = message;
+
+            // Remove any previous messages
+            const existingMessages = form.querySelectorAll('.bg-red-100, .bg-green-100');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Insert the new message at the top of the form
+            form.insertAdjacentElement('afterbegin', messageContainer);
+        }
+    });
         </script>
     </div>
 @endsection

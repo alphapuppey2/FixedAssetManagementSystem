@@ -194,12 +194,29 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('User reactivated successfully.');
-                    location.reload();
-                } else {
-                    alert('Failed to reactivate the user.');
+                    showToast('User reactivated successfully.', 'bg-green-500');
+                    closeModal();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
                 }
             })
             .catch(error => console.error('Error:', error));
     });
+
+    function showToast(message, bgColor) {
+        const toast = document.createElement('div');
+        toast.id = 'dynamicToast';
+        toast.className = `fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white ${bgColor}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(function() {
+            toast.style.transition = 'opacity 0.5s';
+            toast.style.opacity = '0';
+            setTimeout(function() {
+                toast.remove();
+            }, 500); // Wait for fade-out transition
+        }, 3000); // Display for 3 seconds
+    }
 </script>
