@@ -22,7 +22,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
 </style>
 
 <div class="flex bg-white items-center shadow-md justify-between p-2 fixed h-[60px]
-    z-10 md:left-[205px] md:w-[calc(100%_-_205px)]
+    z-2 md:left-[205px] md:w-[calc(100%_-_205px)]
     max-md:left-[50px] max-md:w-[calc(100%_-_50px)] w-full">
 
     <!-- Left Section: Logo and Search Bar -->

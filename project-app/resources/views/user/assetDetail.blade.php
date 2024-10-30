@@ -15,7 +15,7 @@
                 <div class="flex space-x-8">
                     <!-- Asset Image -->
                     <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
-                        <img src="{{ asset('storage/' . $retrieveData->image ?? 'images/defaultQR.png') }}"
+                        <img src="{{ asset($retrieveData->image ? 'storage/' . $retrieveData->image : 'images/no-image.png') }}"
                              class="w-full h-full object-cover" alt="Asset Image">
                     </div>
                     <!-- QR Code -->

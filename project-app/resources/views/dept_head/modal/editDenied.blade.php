@@ -1,5 +1,5 @@
 <!-- resources/views/dept_head/modal/editDenied.blade.php -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 z-3">
     <div class="bg-white rounded-lg w-full max-w-3xl md:max-w-2xl shadow-lg overflow-hidden">
         <div class="p-4 md:p-6 max-h-screen md:max-h-[90vh] overflow-y-auto">
             <h2 class="text-xl md:text-2xl font-semibold mb-4 text-center md:text-left">Edit Maintenance (Denied)</h2>
