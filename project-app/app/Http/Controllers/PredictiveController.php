@@ -45,7 +45,7 @@ class PredictiveController extends Controller
                     // Assuming time_between_repairs is decreasing (you can enhance this logic based on previous time intervals)
                     if ($data->time_between_repairs < 30) { //days
                         // Step 3: Send the data to Flask API for prediction
-                        $response = Http::post('http://127.0.0.1:5000/predict', [
+                        $response = Http::post('http://165.22.59.23:5000/predict', [
                             'repair_count' => $data->repair_count,
                             'average_cost' => $data->average_cost,
                             'time_between_repairs' => $data->time_between_repairs,
