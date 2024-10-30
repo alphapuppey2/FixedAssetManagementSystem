@@ -121,6 +121,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
 
+    Route::delete('admin/assets/multi-delete', [AsstController::class, 'multiDelete'])->name('adminasset.multiDelete');
+
     //DISPOSE
     Route::post('admin/asset/dispose/{id}', [AsstController::class, 'dispose'])->name('adminAsset.dispose');
 

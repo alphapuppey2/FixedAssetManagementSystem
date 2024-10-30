@@ -232,9 +232,9 @@
                 <label class="font-semibold text-xs sm:text-sm md:text-base text-gray-700">QR Code</label>
                 @if ($data->qr_img)
                     <a href="{{ asset('storage/' . $data->qr_img) }}" download="{{ $data->code }}"
-                        class="block min-[400px]:w-40 min-[400px]:w-40 shrink">
+                        class="block  shrink">
                         <img src="{{ asset('storage/' . $data->qr_img) }}" alt="QR Code"
-                            class="w-full h-full object-contain shrink">
+                            class="w-full h-full object-contain min-[400px]:w-40 min-[400px]:w-40 shrink">
                     </a>
                 @else
                     <div class="QRBOX w-40 h-40 border-2 border-gray-200 rounded-lg shadow-md">
@@ -255,16 +255,15 @@
         <div class="flex justify-end space-x-4">
             <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 onclick="closeDisposeModal()">
-                Cancel
+                No
             </button>
             <button type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 onclick="confirmDisposal()">
-                Yes, Dispose
+                Yes
             </button>
         </div>
     </div>
 </div>
-
 
 @if (session('success'))
     <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow">
@@ -279,7 +278,7 @@
 
 
 <script>
-    let assetId = {{ $data->id }}; // Store asset ID
+    let assetId = {{ $data->id }};
 
     function openDisposeModal() {
         document.getElementById('disposeModal').classList.remove('hidden');
@@ -291,27 +290,31 @@
 
     function confirmDisposal() {
         fetch(`/asset/dispose/${assetId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Asset disposed successfully!');
-                    location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert('Failed to dispose of the asset.');
-                }
-            })
-            .catch(error => {
-                console.error('Error disposing asset:', error);
-            });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to dispose of the asset.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred.');
+        });
 
-        closeDisposeModal(); // Close the modal
+        closeDisposeModal();
     }
+
+    document.getElementById('formEdit').addEventListener('submit', function (event) {
+    });
+
 </script>
 
 <script>

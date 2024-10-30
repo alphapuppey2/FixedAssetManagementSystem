@@ -389,7 +389,7 @@ class MaintenanceController extends Controller
         $models = ModelAsset::all(['id', 'name']); // No department link, fetching all
         $manufacturers = Manufacturer::all(['id', 'name']); // No department link, fetching all
 
-        $route = $userType === 'admin' ? 'admin.createMaintenance' : 'dept_head.createmaintenance';
+        $route = $userType === 'admin' ? 'admin.createMaintenance' : 'dept_head.createMaintenance';
 
         return view($route, compact('assets', 'categories', 'locations', 'models', 'manufacturers'));
     }
@@ -517,13 +517,13 @@ class MaintenanceController extends Controller
         ]);
 
         // Set session value for success notification
-        session()->flash('status', 'Maintenance schedule created successfully!');
+        session()->flash('status', 'Maintenance schedule created successfully.');
         // session()->flash('status_type', 'success'); // Set the status type for success
 
         // Set session value for success notification
         return redirect()->route($userType === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched', ['dropdown' => 'open'])
             ->with([
-                'status' => 'Maintenance schedule created successfully!',
+                'status' => 'Maintenance schedule created successfully.',
                 'status_type' => 'success'
             ]);
     }

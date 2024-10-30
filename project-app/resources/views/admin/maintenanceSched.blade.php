@@ -211,7 +211,10 @@
                                 @if ($tab === 'preventive')
                                     <td class="px-6 py-4">₱ {{ $record->cost }}</td>
                                     <td class="frequency px-6 py-4">Every {{ $record->frequency }} day/s</td>
-                                    <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">After {{ $record->ends }} occurrence/s</td>
+                                    {{-- <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">After {{ $record->ends }} occurrence/s</td> --}}
+                                    <td class="ends px-6 py-4" data-ends="{{ $record->ends }}">
+                                        {{ $record->ends == 0 ? 'Never' : 'After ' . $record->ends . ' occurrence/s' }}
+                                    </td>
                                     <td class="occurrences px-6 py-4">{{ $record->occurrences }}</td>
                                     <td class="status px-6 py-4">{{ ucfirst($record->status) }}</td>
                                     <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}">
@@ -616,9 +619,19 @@
         }
 
         const frequency = parseInt(frequencyMatch[0]);
-        const nextMaintenanceDate = new Date(Date.now() + frequency * 86400 * 1000); // Calculate next timestamp
 
-        console.log(`Resetting countdown for the next ${frequency} day(s).`);
+        //current code
+        // const nextMaintenanceDate = new Date(Date.now() + frequency * 86400 * 1000); // Calculate next timestamp
+
+        // console.log(`Resetting countdown for the next ${frequency} day(s).`);
+
+        //test code, Use test or actual logic based on environment
+        const isTesting = true;  // Set this to 'false' for actual environment
+        const nextMaintenanceDate = isTesting
+            ? new Date(Date.now() + frequency * 20 * 1000)  // Testing: 1 day = 20 seconds
+            : new Date(Date.now() + frequency * 86400 * 1000); // Actual: 1 day = 86400 seconds
+
+        console.log(`Resetting countdown for the next ${isTesting ? frequency * 20 : frequency * 86400} millisecond(s).`);
 
         // Update backend with the new timestamp
         fetch('{{ route("admin.reset-countdown") }}', {

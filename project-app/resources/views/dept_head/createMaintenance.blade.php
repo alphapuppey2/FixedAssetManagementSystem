@@ -8,12 +8,18 @@
 <div class="container mx-auto px-4 py-6 max-w-full">
 
     @if(session('status'))
-        <div id="toast" class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg
+    <div id="toast" class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg
                     {{ session('status_type') === 'error' ? 'bg-red-500' : 'bg-green-500' }}
                     text-white">
-            {{ session('status') }}
-        </div>
+        {{ session('status') }}
+    </div>
     @endif
+
+    <!-- Loading Screen -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex flex-col items-center justify-center hidden">
+        <div class="loader mb-4"></div>
+        <p class="text-white text-lg font-semibold">Creating maintenance schedule</p>
+    </div>
 
     <!-- Instructions Section -->
     <div class="mb-6 p-6 bg-blue-100 rounded-md shadow-md">
@@ -31,10 +37,10 @@
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                <!-- Legit nga Image -->
+            <!-- Legit nga Image -->
             <div class="col-span-1 grid grid-cols-1 gap-4">
                 <div class="col-span-1 flex items-center justify-center">
-                    <img id="assetImage"src="{{ asset('/images/no-image.png') }}"alt="Asset Image"class="rounded-md shadow-md"style="width: 200px; height: 200px; object-fit: cover;">
+                    <img id="assetImage" src="{{ asset('/images/no-image.png') }}" alt="Asset Image" class="rounded-md shadow-md" style="width: 200px; height: 200px; object-fit: cover;">
                 </div>
             </div>
 
@@ -86,31 +92,7 @@
                     <input type="text" name="manufacturer" id="manufacturer" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100" readonly>
                 </div>
             </div>
-
-            <!-- Image -->
-            {{-- <div class="col-span-1 grid grid-cols-1 gap-4">
-                <div class="col-span-1 flex items-center justify-center">
-                    <img
-                        id="assetImage"
-                        src="{{ asset('/images/no-image.png') }}"
-                        alt="Asset Image"
-                        class="rounded-md shadow-md"
-                        style="width: 200px; height: 200px; object-fit: cover;">
-                </div>
-            </div> --}}
-
         </div>
-
-        {{-- <div class="grid grid-cols-3 gap-6 mt-6">
-            <!-- Cost -->
-            <div class="col-span-2 grid grid-cols-1 gap-4">
-                <div>
-                    <label for="cost" class="block text-sm font-medium text-gray-700">Cost</label>
-                    <input type="number" step=".01" id="cost" name="cost" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" value="1">
-                </div>
-            </div>
-        </div> --}}
-
         <!-- Additional Details Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             <div>
@@ -212,6 +194,39 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 28px;
         /* Center the text vertically */
+    }
+
+    #loadingOverlay {
+        z-index: 9999;
+        /* Ensure the overlay covers everything */
+        position: fixed;
+        /* Ensure it stays in place */
+        inset: 0;
+        /* Cover the entire screen */
+    }
+
+    .select2-container {
+        z-index: 9998 !important;
+        /* Set below the overlay */
+    }
+
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -334,6 +349,9 @@
 
         // When the form is submitted, set the ends field value based on the custom selection
         $('#maintenanceForm').on('submit', function(event) {
+            $('#submitButton').prop('disabled', true);
+            $('#loadingOverlay').removeClass('hidden');
+
             var selectedFrequency = $('#frequency').val();
             var endsValue = 0; // Default to 0 (never)
 
