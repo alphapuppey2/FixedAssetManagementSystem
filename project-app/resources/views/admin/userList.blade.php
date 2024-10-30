@@ -195,7 +195,7 @@
 
 @if (session('success'))
 <div id="toast"
-    class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white 'bg-green-500'">
+    class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white bg-green-500">
     {{ session('success') }}
 </div>
 @endif
@@ -285,6 +285,19 @@
             modal.classList.add('hidden');
         }
     });
+
+    window.onload = function() {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            setTimeout(function() {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 500);
+            }, 3000);
+        }
+    };
 </script>
 
 @endsection
