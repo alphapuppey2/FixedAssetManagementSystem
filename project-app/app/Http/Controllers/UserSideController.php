@@ -107,36 +107,36 @@ class UserSideController extends Controller
     public function createRequest(Request $request)
     {
         // Validate the input from the form
-        $request->validate([
-            'asset_id' => 'required|exists:asset,id', // Ensure the asset exists
+        $validated = $request->validate([
+            'asset_id' => 'required|exists:asset,id',
             'issue_description' => 'required|string|max:1000',
-            'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration', // Validate the request type
+            'type' => 'required|in:repair,maintenance,upgrade,inspection,replacement,calibration',
         ]);
 
-        // Check if there is an existing active or pending request for the asset
-        $existingRequest = Maintenance::where('asset_key', $request->input('asset_id'))
-            ->whereIn('status', ['request', 'in_progress']) // Adjust status as needed
+        // Check if there’s an existing request
+        $existingRequest = Maintenance::where('asset_key', $request->asset_id)
+            ->whereIn('status', ['request', 'in_progress'])
             ->first();
 
         if ($existingRequest) {
-            // If a request already exists, redirect with an error message
-            return redirect()->back()->withErrors('A request for this asset is already in progress or pending.');
+            return response()->json([
+                'errors' => ['A request for this asset is already in progress or pending.']
+            ], 422); // 422 Unprocessable Entity
         }
 
-        // Create a new maintenance request with 'request' status
+        // Create new maintenance request
         $maintenance = Maintenance::create([
-            'description' => $request->input('issue_description'),
+            'description' => $request->issue_description,
             'status' => 'request',
-            'asset_key' => $request->input('asset_id'),
+            'asset_key' => $request->asset_id,
             'requestor' => Auth::id(),
-            'type' => $request->input('type'),
+            'type' => $request->type,
         ]);
 
-        // Retrieve the asset and the current user
-        $asset = assetModel::find($request->input('asset_id'));
+        // Log the activity
+        $asset = assetModel::find($request->asset_id);
         $user = Auth::user();
 
-        // Log the activity
         ActivityLog::create([
             'activity' => 'Create Maintenance Request',
             'description' => "User {$user->firstname} {$user->lastname} created a maintenance request for asset '{$asset->name}' (Code: {$asset->code}).",
@@ -146,7 +146,7 @@ class UserSideController extends Controller
             'request_id' => $maintenance->id,
         ]);
 
-        // Notify the relevant department head based on the asset's department
+        // Notify the department head
         $deptHead = User::where('usertype', 'dept_head')
             ->where('dept_id', $asset->dept_ID)
             ->first();
@@ -165,9 +165,13 @@ class UserSideController extends Controller
             $deptHead->notify(new SystemNotification($notificationData));
         }
 
-        // Redirect back with a success message
-        return redirect()->back()->with('status', 'Maintenance request submitted successfully.');
+        // Return success response
+        return response()->json([
+            'success' => true,
+            'message' => 'Maintenance request submitted successfully.'
+        ]);
     }
+
 
 
     public function cancelRequest($id)
