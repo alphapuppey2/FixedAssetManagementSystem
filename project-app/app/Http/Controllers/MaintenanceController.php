@@ -544,7 +544,6 @@ class MaintenanceController extends Controller
     public function updateApproved(Request $request, $id)
     {
         $request->validate([
-            // 'cost' => 'required|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
@@ -555,7 +554,10 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key); // Get associated asset
 
-        // Determine if the request is marked as completed
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Determine if the request is marked as completed or cancelled
         $isCompleted = $request->has('set_as_completed');
         $isCancelled = $request->has('set_as_cancelled');
 
@@ -571,7 +573,6 @@ class MaintenanceController extends Controller
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
-            // 'cost' => $request->cost,
             'cost' => $request->cost ?? 0, // Default to 0 if not provided
             'is_completed' => $isCompleted, // Boolean handling
             'status' => $status, // Only change status to 'cancelled' if applicable
@@ -585,23 +586,36 @@ class MaintenanceController extends Controller
             $asset->save();
         }
 
-        //trigger predictive maintenance when an approved request is set as completed (checkbox)
+        // Trigger predictive maintenance when the approved request is set as completed
         if ($isCompleted) {
-            // Trigger the predictive analysis directly by calling the analyze() method
             $predictiveController = new \App\Http\Controllers\PredictiveController();
             $predictiveController->analyze(); // Run the analysis directly
             \Log::info('Predictive analysis triggered directly after completion.');
         }
 
+        // Create the activity log
+        ActivityLog::create([
+            'activity' => 'Update Maintenance Request',
+            'description' => "User {$user->firstname} {$user->lastname} updated a maintenance request for asset '{$asset->name}' (Code: {$asset->code}).",
+            'userType' => $user->usertype,
+            'user_id' => $user->id,
+            'asset_id' => $asset->id,
+            'request_id' => $maintenance->id,
+        ]);
+
+        // Set the status message
         $statusMessage = $isCancelled
             ? 'Maintenance request cancelled successfully.'
             : 'Maintenance request updated successfully.';
 
-        // Redirect back with success message
+        // Determine the appropriate redirect route
         $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved' : 'maintenance.approved';
+
+        // Redirect back with success message
         return redirect()->route($routePath)
             ->with('status', $statusMessage);
     }
+
 
 
     public function editDenied($id)
@@ -623,40 +637,30 @@ class MaintenanceController extends Controller
 
         // Find the maintenance request by ID
         $maintenance = Maintenance::findOrFail($id);
-        $asset = assetModel::findOrFail($maintenance->asset_key); // Get associated asset
-        $deptHead = Auth::user(); // Get the department head (logged-in user)
 
-        // Track if there are changes for activity log
-        $statusChanged = $maintenance->status !== $request->status;
-        $reasonChanged = $maintenance->reason !== $request->reason;
+        // Get associated asset
+        $asset = assetModel::findOrFail($maintenance->asset_key);
+        // Get the department head (logged-in user)
+        $deptHead = Auth::user();
 
         // Update the status, authorized_at, and reason
         $maintenance->update([
             'status' => $request->status,
             'authorized_at' => now(),
-            'reason' => $request->reason,
+            'reason' => $request->reason, // Update the reason field
         ]);
 
-        // If the status is 'approved', update the asset status to 'under_maintenance'
+        // Check if the status is 'approved' and update the asset status to 'under_maintenance'
         if ($request->status === 'approved') {
-            $asset->update(['status' => 'under_maintenance']);
-        }
-
-        // Add activity log if status or reason changed
-        if ($statusChanged) {
-            ActivityLog::create([
-                'activity' => 'Update Maintenance Request',
-                'description' => "User {$deptHead->firstname} {$deptHead->lastname} updated the status of request #{$maintenance->id} from 'denied' to 'approved'.",
-                'userType' => $deptHead->usertype,
-                'user_id' => $deptHead->id,
-                'asset_id' => $asset->id,
-                'request_id' => $maintenance->id,
+            $asset->update([
+                'status' => 'under_maintenance',
             ]);
         }
 
-        // Notify the requestor if available
         $requestor = User::find($maintenance->requestor);
+
         if ($requestor) {
+            // Prepare notification data
             $notificationData = [
                 'title' => 'Maintenance Request Status Updated',
                 'message' => "Your maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been updated to '{$request->status}'.",
@@ -667,7 +671,7 @@ class MaintenanceController extends Controller
                 'action_url' => route('requests.list'), // URL to view the request list
             ];
 
-            // Send notification
+            // Send the notification
             $requestor->notify(new SystemNotification($notificationData));
             Log::info('Notification sent to user ID: ' . $requestor->id, ['notification_data' => $notificationData]);
         } else {
@@ -679,7 +683,6 @@ class MaintenanceController extends Controller
         return redirect()->route($routePath)
             ->with('status', 'Maintenance request status updated successfully.');
     }
-
 
     public function updateStatus(Request $request)
     {
