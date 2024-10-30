@@ -91,14 +91,14 @@
                             </div>
                             <div class="form-group">
                                 <x-input-label for='salvageValue' class="font-regular p-1">Salvage Value</x-input-label>
-                                <x-text-input id="salvageValue" type="number" name="salvageValue" step="0.01" min="0"
+                                <x-text-input id="salvageValue" name="salvageValue" step="0.01" min="0"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
                         </div>
 
                         <div class="form-group">
                             <x-input-label for='depreciation' class="font-regular p-1" >Depreciation (Per Year)</x-input-label>
-                            <x-text-input type="number" id="depreciation" value="0.00" name='depreciation' readonly
+                            <x-text-input type="text" id="depreciation" value="0.00" name='depreciation' readonly
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                         </div>
 
@@ -187,127 +187,162 @@
     </div>
            <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('pDate').value = today;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('pDate').value = today;
 
-    const imageInput = document.getElementById('image');
-    const imagePreview = document.getElementById('imagePreview');
+            const imageInput = document.getElementById('image');
+            const imagePreview = document.getElementById('imagePreview');
 
-    imageInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Depreciation Calculation
+            const depreciationInput = document.getElementById('depreciation');
+            const purchaseCostInput = document.getElementById('pCost');
+            const salvageValueInput = document.getElementById('salvageValue');
+            const lifespanInput = document.getElementById('lifespan');
+
+            // Error message element
+            const errorMessage = document.createElement('div');
+            errorMessage.style.color = 'red';
+            errorMessage.style.display = 'none'; // Initially hidden
+            errorMessage.innerHTML = "Salvage value cannot exceed the purchase cost.";
+            salvageValueInput.parentNode.appendChild(errorMessage); // Append the error message after the salvage value field
+
+            function calculateDepreciation() {
+                const cost = parseFloat(purchaseCostInput.value) || 0;
+                const salvageValue = parseFloat(salvageValueInput.value) || 0;
+                const lifespan = parseInt(lifespanInput.value) || 1;
+
+                // Check if Salvage Value is greater than Purchase Cost
+                if (salvageValue > cost) {
+                    salvageValueInput.classList.add('border-red-500');
+                    errorMessage.style.display = 'block'; // Show error message
+                    depreciationInput.value = "0.00"; // Prevent calculation
+                    return; // Stop further execution if invalid
+                } else {
+                    salvageValueInput.classList.remove('border-red-500');
+                    errorMessage.style.display = 'none'; // Hide error message
+                }
+
+                // Calculate depreciation if the lifespan is greater than 0
+                if (lifespan > 0) {
+                    const depreciation = (cost - salvageValue) / lifespan;
+                    depreciationInput.value = depreciation.toFixed(2);
+                } else {
+                    depreciationInput.value = "0.00";
+                }
+            }
+
+            // Add input event listeners to trigger depreciation calculation
+            purchaseCostInput.addEventListener('input', calculateDepreciation);
+            salvageValueInput.addEventListener('input', calculateDepreciation);
+            lifespanInput.addEventListener('input', calculateDepreciation);
+
+            // Initialize fields with default values
+            purchaseCostInput.value = "";
+            salvageValueInput.value = "";
+            lifespanInput.value = "0";
+            depreciationInput.value = "0";
+        });
+
+        async function fetchDepartmentData(departmentId) {
+    try {
+        const response = await fetch(`/fetch-department-data/${departmentId}`);
+        const data = await response.json();
+
+        updateSelectOptions('category', data.categories);
+        updateSelectOptions('loc', data.locations);
+        updateSelectOptions('mod', data.models);
+        updateSelectOptions('mcft', data.manufacturers);
+        renderAddInfos(data.addInfos); // Render additional fields dynamically
+    } catch (error) {
+        console.error('Error fetching department data:', error);
+    }
+}
+
+// Helper function to update select options
+function updateSelectOptions(selectId, options) {
+    const selectElement = document.getElementById(selectId);
+    selectElement.innerHTML = ''; // Clear existing options
+
+    if (options.length === 0) {
+        selectElement.disabled = true;
+        selectElement.innerHTML = `<option value="">No options available</option>`;
+    } else {
+        selectElement.disabled = false;
+        options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.id;
+            opt.textContent = option.name;
+            selectElement.appendChild(opt);
+        });
+    }
+}
+
+// Helper function to render additional information fields
+// Helper function to render additional information fields
+function renderAddInfos(addInfos) {
+    const addInfoContainer = document.querySelector('.addInfoContainer'); // Target the correct container
+    addInfoContainer.innerHTML = ''; // Clear previous content
+
+    // Check if addInfos is null or empty
+    if (!addInfos || addInfos.length === 0) {
+        addInfoContainer.innerHTML = `
+            <span class="text-slate-400">No additional information for this department</span>
+        `;
+        return;
+    }
+
+    // Render dynamic fields if addInfos is available
+    addInfos.forEach(info => {
+        const field = document.createElement('div');
+        field.classList.add('form-group', 'mt-2'); // Add margin for spacing
+        field.innerHTML = `
+            <x-input-label for="${info.name}" class="font-regular p-1">${info.name}</x-input-label>
+            <x-text-input name="field[${info.name}]" type="${info.type}"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        `;
+        addInfoContainer.appendChild(field);
     });
 
-    // Depreciation Calculation Inputs
-    const depreciationInput = document.getElementById('depreciation');
-    const purchaseCostInput = document.getElementById('pCost');
-    const salvageValueInput = document.getElementById('salvageValue');
-    const lifespanInput = document.getElementById('lifespan');
+    //restricting users to input negative values
+    const numberInputs = document.querySelectorAll('input[type="number"]');
 
-    // Helper function to create error elements for inputs
-    function createErrorElement(input) {
-        let errorElement = input.nextElementSibling;
-        if (!errorElement || !errorElement.classList.contains('error-message')) {
-            errorElement = document.createElement('div');
-            errorElement.className = 'error-message text-red-500 text-sm';
-            errorElement.style.display = 'none'; // Initially hidden
-            input.parentNode.appendChild(errorElement);
-        }
-        return errorElement;
-    }
-
-    const purchaseCostError = createErrorElement(purchaseCostInput);
-    const salvageValueError = createErrorElement(salvageValueInput);
-    const lifespanError = createErrorElement(lifespanInput);
-
-    // Display and clear error functions
-    function displayError(input, errorElement, message) {
-        input.classList.add('border-red-500');
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-    }
-
-    function clearError(input, errorElement) {
-        input.classList.remove('border-red-500');
-        errorElement.style.display = 'none';
-    }
-
-    // Validate input fields to prevent negative values
-    function validateInput(input, errorElement) {
-        if (parseFloat(input.value) < 0 || input.value.includes('-')) {
-            input.value = ''; // Clear invalid input
-            displayError(input, errorElement, 'Negative values are not allowed.');
-        } else {
-            clearError(input, errorElement); // Clear error if valid
-        }
-    }
-
-    // Add event listeners to restrict negative input
-    [purchaseCostInput, salvageValueInput, lifespanInput].forEach(input => {
-        const errorElement = createErrorElement(input);
-
-        input.addEventListener('keypress', function(event) {
-            if (event.key === '-' || event.key === '+') {
-                event.preventDefault(); // Block minus and plus signs
-                displayError(input, errorElement, 'Negative values are not allowed.');
+    numberInputs.forEach(input => {
+        // Prevent entering a minus sign or negative numbers
+        input.addEventListener('input', function () {
+            if (parseFloat(this.value) < 0) {
+                this.value = Math.abs(this.value); // Convert negative to positive
             }
         });
 
-        input.addEventListener('input', function() {
-            validateInput(input, errorElement);
+        // Prevent using minus sign directly
+        input.addEventListener('keypress', function (event) {
+            if (event.key === '-' || event.key === '+') {
+                event.preventDefault(); // Block the keypress
+            }
         });
 
-        input.addEventListener('paste', function(event) {
+        // Prevent pasting negative values
+        input.addEventListener('paste', function (event) {
             const clipboardData = event.clipboardData || window.clipboardData;
             const pastedData = clipboardData.getData('text');
 
-            if (pastedData.includes('-') || parseFloat(pastedData) < 0) {
-                event.preventDefault(); // Block paste event
-                displayError(input, errorElement, 'Negative values are not allowed.');
+            if (pastedData.includes('-')) {
+                event.preventDefault(); // Block the paste
             }
         });
     });
-
-    // Depreciation Calculation Logic
-    function calculateDepreciation() {
-        const cost = parseFloat(purchaseCostInput.value) || 0;
-        const salvageValue = parseFloat(salvageValueInput.value) || 0;
-        const lifespan = parseInt(lifespanInput.value) || 1;
-
-        if (salvageValue > cost) {
-            displayError(salvageValueInput, salvageValueError, 'Salvage value cannot exceed the purchase cost.');
-            depreciationInput.value = "0.00";
-            return;
-        } else {
-            clearError(salvageValueInput, salvageValueError);
-        }
-
-        if (lifespan > 0) {
-            const depreciation = (cost - salvageValue) / lifespan;
-            depreciationInput.value = depreciation.toFixed(2);
-        } else {
-            depreciationInput.value = "0.00";
-        }
-    }
-
-    // Attach event listeners for depreciation calculation
-    purchaseCostInput.addEventListener('input', calculateDepreciation);
-    salvageValueInput.addEventListener('input', calculateDepreciation);
-    lifespanInput.addEventListener('input', calculateDepreciation);
-
-    // Initialize input fields with default values
-    purchaseCostInput.value = "";
-    salvageValueInput.value = "";
-    lifespanInput.value = "";
-    depreciationInput.value = "";
-});
-
+}
 
 
 

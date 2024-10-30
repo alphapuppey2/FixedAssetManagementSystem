@@ -59,7 +59,7 @@
 
 <!-- Modal Structure -->
 <!-- Modal Structure -->
-<div id="settingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-3">
+<div id="settingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-1">
     <div class="bg-white p-6 rounded-md shadow-md md:w-1/4 sm:w-[80%]">
         <span class="close-button text-xl cursor-pointer" onclick="closeModal()">×</span>
         <h2 class="text-xl font-semibold mb-4">New {{ ucfirst($activeTab) }}</h2>

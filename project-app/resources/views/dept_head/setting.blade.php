@@ -113,21 +113,21 @@
                             @foreach ($data as $key => $dataItem)
                                 <tr class="" id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
-                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="name-text">{{ $dataItem->name }}</span>
-                                            <input type="text" class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
+                                            <input type="text" class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span
                                                 class="desc-text ">{{ $dataItem->description }}</span>
                                             <input type="text"
-                                                class="desc-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
+                                                class="desc-input px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer save-btn" data-row-id="{{ $dataItem->id }}"
@@ -144,13 +144,13 @@
                                             </form>
                                         </td>
                                     @else
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="name-text">{{ $dataItem->name }}</span>
                                             <input type="text" class="name-input" style="display: none"
                                                 value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left text-xs sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="px-2 py-3 text-left text-xs sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="type-text ">{{ $dataItem->type }}</span>
                                             <select name="type" class="type-input" style="display: none">
                                                 <option value="number">Number</option>
@@ -160,7 +160,7 @@
                                             {{-- <input type="text" class="type-input" style="display: none"
                                                 value="{{ $dataItem->type }}"> --}}
                                         </td>
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                             <span class="helper-text">{{ $dataItem->helptext }}</span>
 
                                             <input type="text" class="helper-input" style="display: none"

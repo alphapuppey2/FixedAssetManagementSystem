@@ -21,7 +21,6 @@
     </svg>
 </a>
 
-@if ($item->is_deleted == 0)
 <!-- DELETE USER -->
 <form action="{{ route('user.delete', ['id' => $item->id]) }}" method="POST"
     onsubmit="return confirm('Are you sure you want to deactivate this user?');" class="inline-block">
@@ -35,4 +34,3 @@
         </svg>
     </button>
 </form>
-@endif

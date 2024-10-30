@@ -1,5 +1,5 @@
 <!-- Filter Modal -->
-<div id="filterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 hidden z-3">
+<div id="filterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 hidden">
     <div class="bg-white rounded-lg w-full max-w-lg p-8 shadow-xl space-y-6">
         <h2 class="text-xl font-bold text-gray-700">Filter Maintenance Requests</h2>
         <form action="{{ route('maintenance.filter') }}" method="GET" class="space-y-4">

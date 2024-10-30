@@ -1,5 +1,5 @@
 <!-- resources/views/dept_head/modal/editApprove.blade.php -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 z-3">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
     <div class="bg-white rounded-md w-full max-w-3xl md:max-w-2xl shadow-md overflow-hidden">
         <div class="p-4 md:p-6 max-h-screen md:max-h-[90vh] overflow-y-auto">
             <h2 class="text-xl md:text-2xl font-semibold mb-4 text-center md:text-left">Edit Maintenance (Approved)</h2>

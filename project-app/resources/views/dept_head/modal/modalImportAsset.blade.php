@@ -1,6 +1,6 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <!-- Import Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-3">
+<div id="importModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg p-6 w-[350px] shadow-lg relative">
 
         <!-- Close Icon at the top-right corner -->
@@ -43,7 +43,7 @@
 
 
 <!-- Preview Modal (Increased Size) -->
-<div id="previewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-3">
+<div id="previewModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-lg p-6 w-[80%] h-[80%] shadow-lg">
         <h3 class="text-lg font-semibold mb-4">Preview CSV Data</h3>
 
@@ -71,27 +71,6 @@
         </div>
     </div>
 </div>
-@if(session('success'))
-    <script>
-        window.addEventListener('load', function () {
-            setTimeout(() => {
-                showFlashMessage("{{ session('success') }}");
-            }, 500); // 500ms delay after the page loads
-        });
-
-        function showFlashMessage(message) {
-            const flashContainer = document.createElement('div');
-            flashContainer.className = 'flash-message';
-            flashContainer.innerText = message;
-            document.body.appendChild(flashContainer);
-
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                flashContainer.style.display = 'none';
-            }, 3000);
-        }
-    </script>
-@endif
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -269,7 +248,6 @@
                         // Re-enable the button and hide the loading screen
                         uploadButton.disabled = false;
                         loadingScreen.classList.add('hidden');
-                        location.reload();
                     });
             }
         });

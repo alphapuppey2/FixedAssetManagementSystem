@@ -35,7 +35,6 @@ class UserSideController extends Controller
             ->join('manufacturer', 'asset.manufacturer_key', '=', 'manufacturer.id')
             ->join('location', 'asset.loc_key', '=', 'location.id')
             ->join('department', 'asset.dept_ID', '=', 'department.id')
-            ->join('users as authorizePersonel', 'authorizePersonel.id', '=', 'maintenance.authorized_by')
             ->where('maintenance.requestor', $userId)
             ->when($search, function ($query, $search) {
                 return $query->where(function ($query) use ($search) {
@@ -64,7 +63,6 @@ class UserSideController extends Controller
                 'asset.depreciation',
                 'asset.purchase_cost as cost',
                 'asset.custom_fields',
-                DB::raw("CONCAT(authorizePersonel.firstname, ' ', IFNULL(authorizePersonel.middlename, ''), ' ', authorizePersonel.lastname) as authorized_personel_name"),
                 'asset.salvage_value as salvageVal', // Use correct column name
                 'asset.usage_lifespan as usage_Lifespan', // Correct casing
                 'category.name as category',

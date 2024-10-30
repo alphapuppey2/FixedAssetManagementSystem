@@ -131,12 +131,12 @@
 
             <div class="flex justify-between items-center mb-2">
                 <!-- Multi-Delete Button -->
-                <button type="button" onclick="openDeleteModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden"
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden"
                     id="multiDeleteButton">
                     Delete Selected
                 </button>
-                <input type="hidden" name="selected_ids" id="selectedIdsInput">
-                @include('admin.modal.deleteAssetModal')
+
+                @include('dept_head.modal.deleteAssetModal')
             </div>
 
             <!-- Desktop Table Layout -->
@@ -362,89 +362,55 @@
                 document.getElementById('deleteForm').submit();
             });
 
-            // Multi-Delete and Sync Selection Logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAllDesktop = document.getElementById('selectAllDesktop');
-            const selectAllMobile = document.getElementById('selectAllMobile');
-            const checkboxes = document.querySelectorAll('.assetCheckbox');
-            const multiDeleteButton = document.getElementById('multiDeleteButton');
-            const selectedCount = document.getElementById('selectedCount');
-            const selectedIdsInput = document.getElementById('selectedIdsInput');
-            let selectedIds = new Set(); // Use a Set to avoid duplicate entries
-
-            // Update selected count and toggle delete button visibility
-            // Update selected count and toggle delete button visibility
-            function updateSelectedCount() {
-                selectedCount.textContent = selectedIds.size; // Update displayed count
-                multiDeleteButton.classList.toggle('hidden', selectedIds.size === 0);
-                selectedIdsInput.value = JSON.stringify([...selectedIds]); // Convert Set to Array
-
-                // Pass selected count to hidden input field
-                document.getElementById("assetCount").innerText = selectedIds.size;
-            }
+            document.addEventListener('DOMContentLoaded', function() {
+                const selectAllDesktop = document.getElementById('selectAllDesktop');
+                const selectAllMobile = document.getElementById('selectAllMobile');
+                const checkboxes = document.querySelectorAll('.assetCheckbox');
+                const multiDeleteButton = document.getElementById('multiDeleteButton');
+                const selectedCount = document.getElementById('selectedCount');
+                const selectedCountContainer = document.getElementById('selectedCountContainer');
 
 
-            // Sync the state of "Select All" checkboxes in both desktop and mobile
-            function syncSelectAllState() {
-                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-                selectAllDesktop.checked = allChecked;
-                selectAllMobile.checked = allChecked;
-            }
 
-            // Sync individual checkbox state across both desktop and mobile
-            function syncCheckboxState(assetId, isChecked) {
-                checkboxes.forEach(checkbox => {
-                    if (checkbox.value === assetId) {
-                        checkbox.checked = isChecked;
-                    }
-                });
-            }
+                function updateSelectedCount() {
+                    const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+                    selectedCount.textContent = count;
+                    selectedCountContainer.classList.toggle('hidden', count === 0);
+                    multiDeleteButton.classList.toggle('hidden', count === 0);
+                }
 
-            // Handle individual checkbox selection
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const assetId = this.value;
-                    const isChecked = this.checked;
+                function syncSelectAllState() {
+                    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                    selectAllDesktop.checked = allChecked;
+                    selectAllMobile.checked = allChecked;
+                }
 
-                    if (isChecked) {
-                        selectedIds.add(parseInt(assetId));
-                    } else {
-                        selectedIds.delete(parseInt(assetId));
-                    }
-
-                    // Sync the state across all views
-                    syncCheckboxState(assetId, isChecked);
+                // Handle "Select All" checkbox for both desktop and mobile
+                function handleSelectAllChange(checked) {
+                    checkboxes.forEach(checkbox => checkbox.checked = checked);
                     updateSelectedCount();
-                    syncSelectAllState();
-                });
-            });
+                }
 
-            // Handle "Select All" change
-            function handleSelectAllChange(checked) {
+                selectAllDesktop.addEventListener('change', function() {
+                    handleSelectAllChange(this.checked);
+                    selectAllMobile.checked = this.checked;
+                });
+
+                selectAllMobile.addEventListener('change', function() {
+                    handleSelectAllChange(this.checked);
+                    selectAllDesktop.checked = this.checked;
+                });
+
                 checkboxes.forEach(checkbox => {
-                    checkbox.checked = checked;
-                    if (checked) {
-                        selectedIds.add(parseInt(checkbox.value));
-                    } else {
-                        selectedIds.delete(parseInt(checkbox.value));
-                    }
+                    checkbox.addEventListener('change', function() {
+                        updateSelectedCount();
+                        syncSelectAllState();
+                    });
                 });
+
+                // Initialize the selected count and sync the state on page load
                 updateSelectedCount();
-            }
-
-            selectAllDesktop.addEventListener('change', function() {
-                handleSelectAllChange(this.checked);
-                selectAllMobile.checked = this.checked;
+                syncSelectAllState();
             });
-
-            selectAllMobile.addEventListener('change', function() {
-                handleSelectAllChange(this.checked);
-                selectAllDesktop.checked = this.checked;
-            });
-
-            // Initialize the selected count on page load
-            updateSelectedCount();
-            syncSelectAllState();
-        });
         </script>
     @endsection
