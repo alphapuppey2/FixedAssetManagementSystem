@@ -174,14 +174,14 @@
                             </a>
                         </th>
                         <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'purchase_date', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                 class="flex gap-1">
                                 Purchase Date
                                 <x-icons.sort-icon :direction="request('sort') === 'purchase_date' ? request('direction') : null" />
                             </a>
                         </th>
                         <th class="py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-left">
-                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'category_name', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                            <a href="{{ route('asset', array_merge(request()->except('sort', 'direction'), ['sort' => 'depreciation', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                 class="flex gap-1">
                                 Depreciation
                                 <x-icons.sort-icon :direction="request('sort') === 'depreciation' ? request('direction') : null" />
