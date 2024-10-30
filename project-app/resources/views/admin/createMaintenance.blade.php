@@ -226,123 +226,140 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-
-        // Initialize Select2 on all select elements with the class "select2"
-        $('.select2').select2({
-            placeholder: "Select an option", // Placeholder text
-            allowClear: true // Allow clearing the selection
-        });
-
-        var isUpdating = false; // Flag to prevent circular events
-
-        // Function to fetch asset details via AJAX
-        function fetchAssetDetails(assetId) {
-            if (isUpdating) return; // Prevent circular event triggering
-            isUpdating = true; // Set flag to indicate that updates are in progress
-
-            console.log('Fetching asset details for ID: ' + assetId);
-            $.ajax({
-                url: '/admin/mntc-asset-details/' + assetId,
-                method: 'GET',
-                success: function(response) {
-                    console.log('AJAX Success:', response);
-
-                    // Temporarily remove change event handlers to avoid circular triggering
-                    $('#asset_name').off('change');
-                    $('#asset_code').off('change');
-
-                    // Populate the asset name and code
-                    if (response.name) {
-                        console.log('Setting Asset Name to: ' + response.name);
-                        var assetNameOption = new Option(response.name, response.id, true, true); // Create a new option
-                        $('#asset_name').append(assetNameOption).trigger('change.select2'); // Add and trigger Select2 change
-                    }
-
-                    if (response.code) {
-                        console.log('Setting Asset Code to: ' + response.code);
-                        var assetCodeOption = new Option(response.code, response.id, true, true); // Create a new option
-                        $('#asset_code').append(assetCodeOption).trigger('change.select2'); // Add and trigger Select2 change
-                    }
-
-                    $('#model').val(response.model ? response.model.name : '').trigger('input');
-                    $('#category').val(response.category ? response.category.name : '').trigger('input');
-                    $('#location').val(response.location ? response.location.name : '').trigger('input');
-                    $('#manufacturer').val(response.manufacturer ? response.manufacturer.name : '').trigger('input');
-
-                    // Update the asset image
-                    var assetImage = response.image_url ? response.image_url : '/images/no-image.png';
-                    $('#assetImage').attr('src', assetImage);
-
-                    // Reattach event handlers after updates
-                    $('#asset_code').on('change', assetCodeChanged);
-                    $('#asset_name').on('change', assetNameChanged);
-
-                    isUpdating = false; // Reset flag
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', status, error); // Handle errors
-                    isUpdating = false; // Reset flag on error
-                }
-            });
-        }
-
-        // Event handler for asset code change
-        function assetCodeChanged() {
-            if (!isUpdating) {
-                var assetId = $(this).val();
-                if (assetId) {
-                    fetchAssetDetails(assetId);
-                }
-            }
-        }
-
-        // Event handler for asset name change
-        function assetNameChanged() {
-            if (!isUpdating) {
-                var assetId = $(this).val();
-                if (assetId) {
-                    fetchAssetDetails(assetId);
-                }
-            }
-        }
-
-        // Attach event handlers to the asset code and asset name fields
-        $('#asset_code').on('change', assetCodeChanged);
-        $('#asset_name').on('change', assetNameChanged);
-
-
-        // Show or hide custom frequency options based on the selection
-        $('#frequency').change(function() {
-            var selectedFrequency = $(this).val();
-
-            if (selectedFrequency === 'custom') {
-                $('#repeat_section').show();
-                $('#ends_section').show();
-            } else {
-                $('#repeat_section').hide();
-                $('#ends_section').hide();
-            }
-        });
-
-        // When the form is submitted, set the ends field value based on the custom selection
-        $('#maintenanceForm').on('submit', function(event) {
-            var selectedFrequency = $('#frequency').val();
-            var endsValue = 0; // Default to 0 (never)
-
-            if (selectedFrequency === 'custom') {
-                if ($('#after').is(':checked')) {
-                    endsValue = $('#occurrence').val(); // Set ends to the number of occurrences
-                }
-            }
-
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'ends',
-                value: endsValue
-            }).appendTo('#maintenanceForm');
-        });
+  $(document).ready(function () {
+    // Initialize Select2 on all select elements with the class "select2"
+    $('.select2').select2({
+        placeholder: "Select an option",
+        allowClear: true,
     });
+
+    // Error message handling for cost input
+    function createErrorElement(input) {
+        let errorElement = input.nextElementSibling;
+        if (!errorElement || !errorElement.classList.contains('error-message')) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'error-message text-red-500 text-sm mt-1';
+            errorElement.style.display = 'none'; // Initially hidden
+            input.parentNode.appendChild(errorElement);
+        }
+        return errorElement;
+    }
+
+    const costInput = document.getElementById('cost');
+    const costError = createErrorElement(costInput);
+
+    // Function to display error messages
+    function displayError(input, errorElement, message) {
+        input.classList.add('border-red-500');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+    // Function to clear error messages
+    function clearError(input, errorElement) {
+        input.classList.remove('border-red-500');
+        errorElement.style.display = 'none';
+    }
+
+    // Validate cost input for negative values
+    function validateCost() {
+        const value = parseFloat(costInput.value);
+
+        if (value < 0) {
+            costInput.value = ''; // Clear invalid input
+            displayError(costInput, costError, 'Negative values are not allowed.');
+        } else {
+            clearError(costInput, costError); // Clear error if valid
+        }
+    }
+
+    // Add event listeners to restrict negative input
+    costInput.addEventListener('keypress', function (event) {
+        if (event.key === '-' || event.key === '+') {
+            event.preventDefault(); // Block minus and plus signs
+        }
+    });
+
+    // Validate input on every change
+    costInput.addEventListener('input', validateCost);
+
+    // Prevent pasting negative values
+    costInput.addEventListener('paste', function (event) {
+        const clipboardData = event.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData('text');
+
+        if (pastedData.includes('-') || parseFloat(pastedData) < 0) {
+            event.preventDefault(); // Block paste event
+            displayError(costInput, costError, 'Negative values are not allowed.');
+        }
+    });
+
+    // Toast Notification fade-out
+    setTimeout(function () {
+        var toast = document.getElementById('toast');
+        if (toast) {
+            toast.style.transition = 'opacity 1s ease';
+            toast.style.opacity = '0';
+            setTimeout(function () {
+                toast.remove();
+            }, 1000); // Remove it after fading out
+        }
+    }, 3000);
+
+    // Function to fetch asset details via AJAX
+    function fetchAssetDetails(assetId) {
+        $.ajax({
+            url: '/admin/mntc-asset-details/' + assetId,
+            method: 'GET',
+            success: function (response) {
+                $('#model').val(response.model?.name || '').trigger('input');
+                $('#category').val(response.category?.name || '').trigger('input');
+                $('#location').val(response.location?.name || '').trigger('input');
+                $('#manufacturer').val(response.manufacturer?.name || '').trigger('input');
+                $('#assetImage').attr('src', response.image_url || '/images/no-image.png');
+            },
+        });
+    }
+
+    $('#asset_code').on('change', function () {
+        const assetId = $(this).val();
+        if (assetId) fetchAssetDetails(assetId);
+    });
+
+    $('#asset_name').on('change', function () {
+        const assetId = $(this).val();
+        if (assetId) fetchAssetDetails(assetId);
+    });
+
+    // Show or hide custom frequency options
+    $('#frequency').change(function () {
+        const selectedFrequency = $(this).val();
+        if (selectedFrequency === 'custom') {
+            $('#repeat_section').show();
+            $('#ends_section').show();
+        } else {
+            $('#repeat_section').hide();
+            $('#ends_section').hide();
+        }
+    });
+
+    $('#maintenanceForm').on('submit', function (event) {
+        const selectedFrequency = $('#frequency').val();
+        let endsValue = 0;
+
+        if (selectedFrequency === 'custom' && $('#after').is(':checked')) {
+            endsValue = $('#occurrence').val();
+        }
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'ends',
+            value: endsValue,
+        }).appendTo('#maintenanceForm');
+    });
+});
+
+
 </script>
 
 @endsection

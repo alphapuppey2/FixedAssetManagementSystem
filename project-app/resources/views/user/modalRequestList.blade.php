@@ -138,14 +138,14 @@
 <!-- JavaScript -->
 <script>
     function showModal(request) {
-        console.log("you clicked the modal" , request);
+        // console.log("you clicked the modal" , request);
 
         // Set modal content
         document.getElementById('modalAssetCode').innerText = request.asset_code;
         document.getElementById('modalAssetImage').src = request.asset_image ? `/storage/${request.asset_image}` :
             '/images/defaultICON.png';
         document.getElementById('modalAssetQr').src = request.qr_code ? `/storage/${request.qr_code}` : '/images/defaultQR.png';
-        document.getElementById('modalAssetName').innerText = request.name;
+        document.getElementById('modalAssetName').innerText = request.asset_name;
         document.getElementById('modalAssetCost').innerText = request.cost;
         document.getElementById('modalAssetDepreciation').innerText = request.depreciation;
         document.getElementById('modalAssetSalvage').innerText = request.salvageVal;
@@ -184,13 +184,13 @@
         // // Show or hide sections based on request status
         if (request.status === 'approved') {
             document.getElementById('authorizedByContainer').classList.remove('hidden');
-            document.getElementById('modalAuthorizedBy').innerText = request.authorized_by ?? 'N/A';
+            document.getElementById('modalAuthorizedBy').innerText = request.authorized_personel_name ?? 'N/A';
             document.getElementById('denialReasonContainer').classList.add('hidden');
         } else if (request.status === 'denied') {
             document.getElementById('authorizedByContainer').classList.remove('hidden');
             document.getElementById('modalAuthorizedBy').innerText = request.reason ?? 'N/A';
             document.getElementById('denialReasonContainer').classList.remove('hidden');
-            document.getElementById('modalDenialReason').innerText = request.authorized_by ??  'N/A';
+            document.getElementById('modalDenialReason').innerText = request.authorized_personel_name ??  'N/A';
         } else {
             document.getElementById('authorizedByContainer').classList.add('hidden');
             document.getElementById('denialReasonContainer').classList.add('hidden');
