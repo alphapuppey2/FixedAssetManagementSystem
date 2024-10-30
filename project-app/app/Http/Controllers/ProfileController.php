@@ -87,8 +87,10 @@ class ProfileController extends Controller
             }
 
             // Store the new profile photo
-            $path = $request->file('profile_photo')->store('profile_photos', 'public');
-            $user->userPicture = basename($path);
+            $file = $request->file('profile_photo');
+            $filename = 'profile_' . strtolower($user->lastname) . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+            $user->userPicture = $path;
         }
 
         // Save changes
