@@ -312,7 +312,7 @@
     // Confirm Delete Button - Trigger Form Submission
     document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
         isFormSubmitted = true; // Mark form as submitted
-        document.getElementById('deleteForm').submit(); // Submit the form
+        document.getElementById('multiDeleteForm').submit(); // Submit the form
     });
 
     // Cancel Button - Hide the Modal
