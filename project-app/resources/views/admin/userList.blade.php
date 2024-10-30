@@ -25,21 +25,20 @@
             id="searchFilt"
             placeholder="Search by name or email"
             value="{{ request('query') }}"
-            class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm"
-        />
+            class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 sm:text-sm" />
 
         <!-- Hidden Fields to Retain Filters -->
         <input type="hidden" name="perPage" value="{{ request('perPage', 10) }}">
         <input type="hidden" name="sort_by" value="{{ request('sort_by', 'id') }}">
         <input type="hidden" name="sort_order" value="{{ request('sort_order', 'asc') }}">
         @foreach (request('usertype', []) as $userType)
-            <input type="hidden" name="usertype[]" value="{{ $userType }}">
+        <input type="hidden" name="usertype[]" value="{{ $userType }}">
         @endforeach
         @foreach (request('department', []) as $department)
-            <input type="hidden" name="department[]" value="{{ $department }}">
+        <input type="hidden" name="department[]" value="{{ $department }}">
         @endforeach
         @foreach (request('status', []) as $status)
-            <input type="hidden" name="status[]" value="{{ $status }}">
+        <input type="hidden" name="status[]" value="{{ $status }}">
         @endforeach
     </form>
 </div>
@@ -52,13 +51,13 @@
         <input type="hidden" name="sort_order" value="{{ request('sort_order', 'asc') }}">
 
         @foreach (request('usertype', []) as $userType)
-            <input type="hidden" name="usertype[]" value="{{ $userType }}">
+        <input type="hidden" name="usertype[]" value="{{ $userType }}">
         @endforeach
         @foreach (request('department', []) as $department)
-            <input type="hidden" name="department[]" value="{{ $department }}">
+        <input type="hidden" name="department[]" value="{{ $department }}">
         @endforeach
         @foreach (request('status', []) as $status)
-            <input type="hidden" name="status[]" value="{{ $status }}">
+        <input type="hidden" name="status[]" value="{{ $status }}">
         @endforeach
 
         <label for="perPage">Rows per page: </label>
@@ -69,7 +68,6 @@
             <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
         </select>
     </form>
-
 
     <div class="flex items-center justify-between mt-4 flex-col md:flex-row space-x-4 md:space-y-0">
         <span class="text-gray-600 hidden md:block">
@@ -141,29 +139,29 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($userList as $item)
-                        <tr class="hover:bg-gray-50">
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->id }}</td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->employee_id }}</td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->firstname }}</td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->lastname }}</td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->email }}</td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">
-                                <x-department :deptId="$item->dept_id" />
-                            </td>
-                            <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->usertype }}</td>
-                            <td class="py-2 px-4 text-sm text-center">
-                                @include('components.user-status', ['is_deleted' => $item->is_deleted])
-                            </td>
-                            <td class="py-2 px-4 text-sm text-center">
-                                <div class="flex items-center justify-center space-x-2">
-                                    @include('components.user-list-actions', ['item' => $item])
-                                </div>
-                            </td>
-                        </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->id }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->employee_id }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->firstname }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->lastname }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->email }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">
+                            <x-department :deptId="$item->dept_id" />
+                        </td>
+                        <td class="py-2 px-4 text-sm text-gray-800 text-center">{{ $item->usertype }}</td>
+                        <td class="py-2 px-4 text-sm text-center">
+                            @include('components.user-status', ['is_deleted' => $item->is_deleted])
+                        </td>
+                        <td class="py-2 px-4 text-sm text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                @include('components.user-list-actions', ['item' => $item])
+                            </div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="9" class="py-4 px-4 text-center text-gray-500">No List</td>
-                        </tr>
+                    <tr>
+                        <td colspan="9" class="py-4 px-4 text-center text-gray-500">No List</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -171,30 +169,36 @@
     </div>
 </div>
 
-
 <!-- Card Layout for smaller screens -->
 <div class="block md:hidden w-full">
     @forelse($userList as $item)
-        <div class="bg-white shadow rounded-lg p-4 mb-4">
-            <p><strong>ID:</strong> {{ $item->id }}</p>
-            <p><strong>Employee ID:</strong> {{ $item->employee_id }}</p>
-            <p><strong>First Name:</strong> {{ $item->firstname }}</p>
-            <p><strong>Last Name:</strong> {{ $item->lastname }}</p>
-            <p><strong>Email:</strong> {{ $item->email }}</p>
-            <p><strong>Department:</strong> <x-department :deptId="$item->dept_id" /></p>
-            <p><strong>User Type:</strong> {{ $item->usertype }}</p>
-            <p><strong>Status:</strong>
-                @include('components.user-status', ['is_deleted' => $item->is_deleted])
-            </p>
+    <div class="bg-white shadow rounded-lg p-4 mb-4">
+        <p><strong>ID:</strong> {{ $item->id }}</p>
+        <p><strong>Employee ID:</strong> {{ $item->employee_id }}</p>
+        <p><strong>First Name:</strong> {{ $item->firstname }}</p>
+        <p><strong>Last Name:</strong> {{ $item->lastname }}</p>
+        <p><strong>Email:</strong> {{ $item->email }}</p>
+        <p><strong>Department:</strong> <x-department :deptId="$item->dept_id" /></p>
+        <p><strong>User Type:</strong> {{ $item->usertype }}</p>
+        <p><strong>Status:</strong>
+            @include('components.user-status', ['is_deleted' => $item->is_deleted])
+        </p>
 
-            <div class="flex justify-end mt-2 space-x-2">
-                @include('components.user-list-actions', ['item' => $item])
-            </div>
+        <div class="flex justify-end mt-2 space-x-2">
+            @include('components.user-list-actions', ['item' => $item])
         </div>
+    </div>
     @empty
-        <p class="text-center text-gray-800">No List</p>
+    <p class="text-center text-gray-800">No List</p>
     @endforelse
 </div>
+
+@if (session('success'))
+<div id="toast"
+    class="fixed bottom-5 right-5 px-4 py-2 rounded shadow-lg text-white bg-green-500">
+    {{ session('success') }}
+</div>
+@endif
 
 @include('admin.modal.editUser')
 @include('admin.modal.userFilterModal')
@@ -282,6 +286,18 @@
         }
     });
 
+    window.onload = function() {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            setTimeout(function() {
+                toast.style.transition = 'opacity 0.5s';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 500);
+            }, 3000);
+        }
+    };
 </script>
 
 @endsection
