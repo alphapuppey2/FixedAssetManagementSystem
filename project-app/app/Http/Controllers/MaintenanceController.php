@@ -544,7 +544,6 @@ class MaintenanceController extends Controller
     public function updateApproved(Request $request, $id)
     {
         $request->validate([
-            // 'cost' => 'required|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'type' => 'required|string',
             'start_date' => 'required|date',
@@ -555,7 +554,10 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::findOrFail($id);
         $asset = assetModel::findOrFail($maintenance->asset_key); // Get associated asset
 
-        // Determine if the request is marked as completed
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Determine if the request is marked as completed or cancelled
         $isCompleted = $request->has('set_as_completed');
         $isCancelled = $request->has('set_as_cancelled');
 
@@ -571,7 +573,6 @@ class MaintenanceController extends Controller
         $maintenance->update([
             'type' => $request->type,
             'start_date' => $request->start_date,
-            // 'cost' => $request->cost,
             'cost' => $request->cost ?? 0, // Default to 0 if not provided
             'is_completed' => $isCompleted, // Boolean handling
             'status' => $status, // Only change status to 'cancelled' if applicable
@@ -585,23 +586,36 @@ class MaintenanceController extends Controller
             $asset->save();
         }
 
-        //trigger predictive maintenance when an approved request is set as completed (checkbox)
+        // Trigger predictive maintenance when the approved request is set as completed
         if ($isCompleted) {
-            // Trigger the predictive analysis directly by calling the analyze() method
             $predictiveController = new \App\Http\Controllers\PredictiveController();
             $predictiveController->analyze(); // Run the analysis directly
             \Log::info('Predictive analysis triggered directly after completion.');
         }
 
+        // Create the activity log
+        ActivityLog::create([
+            'activity' => 'Update Maintenance Request',
+            'description' => "User {$user->firstname} {$user->lastname} updated a maintenance request for asset '{$asset->name}' (Code: {$asset->code}).",
+            'userType' => $user->usertype,
+            'user_id' => $user->id,
+            'asset_id' => $asset->id,
+            'request_id' => $maintenance->id,
+        ]);
+
+        // Set the status message
         $statusMessage = $isCancelled
             ? 'Maintenance request cancelled successfully.'
             : 'Maintenance request updated successfully.';
 
-        // Redirect back with success message
+        // Determine the appropriate redirect route
         $routePath = Auth::user()->usertype === 'admin' ? 'adminMaintenanceAproved' : 'maintenance.approved';
+
+        // Redirect back with success message
         return redirect()->route($routePath)
             ->with('status', $statusMessage);
     }
+
 
 
     public function editDenied($id)
