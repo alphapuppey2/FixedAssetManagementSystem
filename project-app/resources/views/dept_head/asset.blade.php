@@ -329,28 +329,6 @@
         document.getElementById(modalId).classList.add('hidden');
     }
 
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     const selectAll = document.getElementById('selectAll');
-    //     const checkboxes = document.querySelectorAll('.assetCheckbox');
-
-    //     // When "Select All" is checked or unchecked
-    //     selectAll.addEventListener('change', function() {
-    //         checkboxes.forEach(checkbox => {
-    //             checkbox.checked = this.checked;
-    //         });
-    //     });
-
-    //     // Ensure "Select All" reflects the state of individual checkboxes
-    //     checkboxes.forEach(checkbox => {
-    //         checkbox.addEventListener('change', function() {
-    //             if (!this.checked) {
-    //                 selectAll.checked = false;
-    //             } else if (Array.from(checkboxes).every(cb => cb.checked)) {
-    //                 selectAll.checked = true;
-    //             }
-    //         });
-    //     });
-    // });
     //MULTI DELETE
     document.addEventListener('DOMContentLoaded', function() {
         const selectAllDesktop = document.getElementById('selectAllDesktop');
@@ -359,8 +337,6 @@
         const multiDeleteButton = document.getElementById('multiDeleteButton');
         const selectedCount = document.getElementById('selectedCount');
         const selectedCountContainer = document.getElementById('selectedCountContainer');
-
-
 
         function updateSelectedCount() {
             const count = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
@@ -402,9 +378,6 @@
         updateSelectedCount();
         syncSelectAllState();
     });
-
-
-
 
     setTimeout(function() {
         var toast = document.getElementById('toast');
