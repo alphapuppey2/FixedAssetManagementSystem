@@ -61,7 +61,7 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">Reason</label>
-                    <textarea name="reason" rows="3" class="w-full border px-3 py-2 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">{{ $maintenance->reason }}</textarea>
+                    <textarea name="reason" rows="3" class="w-full border px-3 py-2 rounded-md shadow-sm bg-gray-200 text-sm" readonly>{{ $maintenance->reason }}</textarea>
                 </div>
 
                 <div class="mb-4">
@@ -72,10 +72,20 @@
                     </select>
                 </div>
 
-                <!-- Buttons -->
+                <!-- Save and Cancel Buttons -->
                 <div class="flex justify-end space-x-3">
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Save</button>
-                    <button type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" onclick="closeEditModal()">Cancel</button>
+                    <button
+                        id="saveButton"
+                        type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 hidden">
+                        Save
+                    </button>
+                    <button
+                        type="button"
+                        class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                        onclick="closeEditModal()">
+                        Cancel
+                    </button>
                 </div>
             </form>
         </div>
@@ -104,4 +114,22 @@
             });
         }
     });
+
+    $(document).ready(function () {
+    const statusSelect = $('select[name="status"]'); // Target the status dropdown
+    const saveButton = $('#saveButton'); // Save button element
+
+    // Store the initial status value
+    const initialStatus = statusSelect.val();
+
+    // Listen for changes in the status dropdown
+    statusSelect.on('change', function () {
+        if ($(this).val() !== initialStatus) {
+            saveButton.removeClass('hidden'); // Show the Save button if changed
+        } else {
+            saveButton.addClass('hidden'); // Hide the Save button if reverted
+        }
+    });
+});
+
 </script>
