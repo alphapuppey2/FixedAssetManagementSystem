@@ -43,15 +43,15 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Cost:</span>
-                        <span>${{ number_format($retrieveData->cost, 2) }}</span>
+                        <span>₱{{ number_format($retrieveData->cost, 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Depreciation:</span>
-                        <span>{{ $retrieveData->depreciation }}</span>
+                        <span>₱{{ $retrieveData->depreciation }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Salvage Value:</span>
-                        <span>${{ number_format($retrieveData->salvageVal, 2) }}</span>
+                        <span>₱{{ number_format($retrieveData->salvageVal, 2) }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Category:</span>
@@ -60,6 +60,14 @@
                     <div class="flex justify-between">
                         <span class="font-medium">Lifespan:</span>
                         <span>{{ $retrieveData->usage_Lifespan }} years</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Overall Maintenance Cost:</span>
+                        @if ($totalMaintenanceCost > 0)
+                            ₱{{ number_format($totalMaintenanceCost, 2) }}
+                        @else
+                            No maintenance history
+                        @endif
                     </div>
                 </div>
             </div>
@@ -82,11 +90,13 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Status:</span>
-                        <span class="capitalize">{{ $retrieveData->status }}</span>
+                        <span class="capitalize">
+                            {{ $retrieveData->status === 'under_maintenance' ? 'Under Maintenance' : ($retrieveData->status) }}
+                        </span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-medium">Last Used:</span>
-                        <span>{{ isset($retrieveData->lub_firstname) && $retrieveData->lub_middlename && $retrieveData->lub_lastname ? $retrieveData->lub_firstname." ".$retrieveData->lub_middlename." ".$retrieveData->lub_lastname :  'N/a'  }}</span>
+                        <span>{{ isset($retrieveData->lub_firstname) && $retrieveData->lub_middlename && $retrieveData->lub_lastname ? $retrieveData->lub_firstname." ".$retrieveData->lub_middlename." ".$retrieveData->lub_lastname :  'N/A'  }}</span>
                     </div>
                     <div class="flex flex-col justify-between">
                         <span class="font-medium">Custom Fields </span>
