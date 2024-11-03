@@ -239,17 +239,147 @@
     </style>
 
 
-    <script>
-        $(document).ready(function() {
 
-            // Initialize Select2 on all select elements with the class "select2"
-            $('.select2').select2({
-                placeholder: "Select an option",
-                allowClear: true
+
+<script>
+    // Toast Notification fade-out
+    setTimeout(function() {
+        var toast = document.getElementById('toast');
+        if (toast) {
+            toast.style.transition = 'opacity 1s ease';
+            toast.style.opacity = '0';
+            setTimeout(function() {
+                toast.remove();
+            }, 1000); // Remove it after fading out
+        }
+    }, 3000); // 3 seconds delay
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        // Initialize Select2 on all select elements with the class "select2"
+        $('.select2').select2({
+            placeholder: "Select an option", // Placeholder text
+            allowClear: true // Allow clearing the selection
+        });
+
+        var isUpdating = false; // Flag to prevent circular events
+
+        // Function to fetch asset details via AJAX
+        function fetchAssetDetails(assetId) {
+            if (isUpdating) return; // Prevent circular event triggering
+            isUpdating = true; // Set flag to indicate that updates are in progress
+
+            console.log('Fetching asset details for ID: ' + assetId);
+            $.ajax({
+                url: '/assets/details/' + assetId,
+                method: 'GET',
+                success: function(response) {
+                    console.log('AJAX Success:', response);
+
+                    // Temporarily remove change event handlers to avoid circular triggering
+                    $('#asset_name').off('change');
+                    $('#asset_code').off('change');
+
+                    // Populate the asset name and code
+                    if (response.name) {
+                        console.log('Setting Asset Name to: ' + response.name);
+                        var assetNameOption = new Option(response.name, response.id, true, true); // Create a new option
+                        $('#asset_name').append(assetNameOption).trigger('change.select2'); // Add and trigger Select2 change
+                    }
+
+                    if (response.code) {
+                        console.log('Setting Asset Code to: ' + response.code);
+                        var assetCodeOption = new Option(response.code, response.id, true, true); // Create a new option
+                        $('#asset_code').append(assetCodeOption).trigger('change.select2'); // Add and trigger Select2 change
+                    }
+
+                    //     $('#asset_name').val(response.name).trigger('change.select2');
+                    // $('#asset_code').val(response.code).trigger('change.select2');
+                    $('#model').val(response.model ? response.model.name : '').trigger('input');
+                    $('#category').val(response.category ? response.category.name : '').trigger('input');
+                    $('#location').val(response.location ? response.location.name : '').trigger('input');
+                    $('#manufacturer').val(response.manufacturer ? response.manufacturer.name : '').trigger('input');
+
+                    // Update the asset image
+                    var assetImage = response.image_url ? response.image_url : '/images/no-image.png';
+                    $('#assetImage').attr('src', assetImage);
+
+                    // Reattach event handlers after updates
+                    $('#asset_code').on('change', assetCodeChanged);
+                    $('#asset_name').on('change', assetNameChanged);
+
+                    isUpdating = false; // Reset flag
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error); // Handle errors
+                    isUpdating = false; // Reset flag on error
+                }
             });
+        }
 
-            // Error message handling for the cost input
-            function createErrorElement(input) {
+        // Event handler for asset code change
+        function assetCodeChanged() {
+            if (!isUpdating) {
+                var assetId = $(this).val();
+                if (assetId) {
+                    fetchAssetDetails(assetId);
+                }
+            }
+        }
+
+        // Event handler for asset name change
+        function assetNameChanged() {
+            if (!isUpdating) {
+                var assetId = $(this).val();
+                if (assetId) {
+                    fetchAssetDetails(assetId);
+                }
+            }
+        }
+
+        // Attach event handlers to the asset code and asset name fields
+        $('#asset_code').on('change', assetCodeChanged);
+        $('#asset_name').on('change', assetNameChanged);
+
+
+        // Show or hide custom frequency options based on the selection
+        $('#frequency').change(function() {
+            var selectedFrequency = $(this).val();
+
+            if (selectedFrequency === 'custom') {
+                $('#repeat_section').show();
+                $('#ends_section').show();
+            } else {
+                $('#repeat_section').hide();
+                $('#ends_section').hide();
+            }
+        });
+
+        // When the form is submitted, set the ends field value based on the custom selection
+        $('#maintenanceForm').on('submit', function(event) {
+            $('#submitButton').prop('disabled', true);
+            $('#loadingOverlay').removeClass('hidden');
+
+            var selectedFrequency = $('#frequency').val();
+            var endsValue = 0; // Default to 0 (never)
+
+            if (selectedFrequency === 'custom') {
+                if ($('#after').is(':checked')) {
+                    endsValue = $('#occurrence').val(); // Set ends to the number of occurrences
+                }
+            }
+
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'ends',
+                value: endsValue
+            }).appendTo('#maintenanceForm');
+        });
+
+        // Error message handling for the cost input
+        function createErrorElement(input) {
                 let errorElement = input.nextElementSibling;
                 if (!errorElement || !errorElement.classList.contains('error-message')) {
                     errorElement = document.createElement('div');
@@ -306,62 +436,6 @@
                     displayError(costInput, costError, 'Negative values are not allowed.');
                 }
             });
-
-            // AJAX Fetch Asset Details
-            function fetchAssetDetails(assetId) {
-                if (!assetId) return;
-
-                $.ajax({
-                    url: `/assets/details/${assetId}`,
-                    method: 'GET',
-                    success: function(response) {
-                        $('#model').val(response.model?.name || '').trigger('input');
-                        $('#category').val(response.category?.name || '').trigger('input');
-                        $('#location').val(response.location?.name || '').trigger('input');
-                        $('#manufacturer').val(response.manufacturer?.name || '').trigger('input');
-                        $('#assetImage').attr('src', response.image_url || '/images/no-image.png');
-                    }
-                });
-            }
-
-            // Attach event handlers to select fields
-            $('#asset_code').on('change', function() {
-                fetchAssetDetails($(this).val());
-            });
-
-            $('#asset_name').on('change', function() {
-                fetchAssetDetails($(this).val());
-            });
-
-            // Show/hide custom frequency options
-            $('#frequency').change(function() {
-                const selectedFrequency = $(this).val();
-                if (selectedFrequency === 'custom') {
-                    $('#repeat_section, #ends_section').show();
-                } else {
-                    $('#repeat_section, #ends_section').hide();
-                }
-            });
-
-            // Handle form submission
-            $('#maintenanceForm').on('submit', function(event) {
-                $('#loadingOverlay').removeClass('hidden');
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'ends',
-                    value: $('#after').is(':checked') ? $('#occurrence').val() : 0
-                }).appendTo('#maintenanceForm');
-            });
-
-            // Toast Notification fade-out
-            setTimeout(function() {
-                const toast = document.getElementById('toast');
-                if (toast) {
-                    toast.style.transition = 'opacity 1s ease';
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 1000);
-                }
-            }, 3000);
-        });
-    </script>
+    });
+</script>
 @endsection
