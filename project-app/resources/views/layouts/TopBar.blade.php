@@ -39,20 +39,22 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
 
         <!-- Search Bar: Larger on big screens -->
         {{-- <div class="w-full md:max-w-3xl lg:max-w-4xl mx-2"> --}}
-        <div class="flex-grow mx-2">
-            <form action="{{ route('search.global') }}" method="GET"
-                  onsubmit="return validateSearchInput();"
-                  class="flex items-center space-x-2">
-                <div class="relative w-full">
-                    <x-search-input
-                        placeholder="{{ Auth::user()->usertype == 'admin'
-                            ? 'Search for users, assets, or maintenance...'
-                            : 'Search for assets or maintenance...' }}"
-                        {{-- class="w-96" /> --}}
-                        class="w-full" />
-                </div>
-            </form>
-        </div>
+        @if (Auth::user()->usertype != 'user')
+            <div class="flex-grow mx-2">
+                <form action="{{ route('search.global') }}" method="GET"
+                    onsubmit="return validateSearchInput();"
+                    class="flex items-center space-x-2">
+                    <div class="relative w-full">
+                        <x-search-input
+                            placeholder="{{ Auth::user()->usertype == 'admin'
+                                ? 'Search for users, assets, or maintenance...'
+                                : 'Search for assets or maintenance...' }}"
+                            {{-- class="w-96" /> --}}
+                            class="w-full" />
+                    </div>
+                </form>
+            </div>
+        @endif
     </div>
 
     <!-- Navigation Section -->

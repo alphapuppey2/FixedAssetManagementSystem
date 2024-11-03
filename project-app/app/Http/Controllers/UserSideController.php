@@ -338,8 +338,13 @@ class UserSideController extends Controller
             ];
         }
 
+        // Calculate total maintenance cost for the asset
+        $totalMaintenanceCost = Maintenance::where('asset_key', $retrieveData->id)
+        ->where('is_completed', 1)
+        ->sum('cost');
+
         // Pass the asset data and updated custom fields to the view
-        return view('user.assetDetail', compact('retrieveData', 'updatedCustomFields'));
+        return view('user.assetDetail', compact('retrieveData', 'updatedCustomFields', 'totalMaintenanceCost'));
     }
 
 
