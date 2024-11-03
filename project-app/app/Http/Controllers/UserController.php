@@ -86,6 +86,9 @@ class UserController extends Controller
             $sortBy = 'id';
         }
 
+        // Get the ID of the currently logged-in admin
+        $loggedInAdminId = Auth::id();
+
         // Retrieve filter parameters from the request
         $userTypes = $request->input('usertype', []);
         $departments = $request->input('department', []);
@@ -95,6 +98,7 @@ class UserController extends Controller
         $userList = DB::table('users')
             ->leftJoin('department', 'users.dept_id', '=', 'department.id')
             ->select('users.*', 'department.name as department_name')
+            ->where('users.id', '!=', $loggedInAdminId) // Exclude the logged-in admin
             ->when($query, function ($q) use ($query) {
                 // Apply search filter
                 $q->where(function ($subquery) use ($query) {
