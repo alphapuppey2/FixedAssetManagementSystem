@@ -512,7 +512,7 @@ class AsstController extends Controller
         $userDept = $user->dept_id;
 
         $validatedData = $request->validate([
-            'asst_img' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'name' => 'sometimes|string',
             'category' => 'sometimes|exists:category,id',
             'usrAct' => 'nullable|exists:users,id',
@@ -530,6 +530,8 @@ class AsstController extends Controller
             'current_image' => 'nullable|string',
         ], ['salvageValue.lt' => "Salvage value must be less than the Purchased cost"]);
 
+        // dd($validatedData);
+
         // Retrieve department info and generate a new asset code if needed
         $department = DB::table('department')->where('id', $userDept)->first();
         $departmentCode = $department->name;
@@ -543,22 +545,14 @@ class AsstController extends Controller
             $request->input('field.value')
         );
 
-        // Handle image upload or retain the current image
-        $pathFile = $request->input('current_image');
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('asset_images', $filename, 'public');
-            $pathFile = $path;
-        }
         $validatedData['purchasedDate'] = Carbon::parse($validatedData['purchasedDate'])->format('Y-m-d');
 
-        // Update asset data in the database
-        $updatedRow = assetModel::findOrFail($id);
-        $oldLastUser = $updatedRow->last_used_by;
-        $updatedRow->update([
-            'asst_img' => $pathFile,
+         // Update asset data in the database
+         $updatedRow = assetModel::findOrFail($id);
+         $oldLastUser = $updatedRow->last_used_by;
+
+        // Prepare the data array for updating
+        $updateData = [
             'name' => $validatedData["name"],
             'ctg_ID' => $validatedData["category"],
             'manufacturer_key' => $validatedData['mcft'],
@@ -573,7 +567,28 @@ class AsstController extends Controller
             'status' => $validatedData["status"],
             'custom_fields' => $fieldUpdate,
             'updated_at' => now(),
-        ]);
+        ];
+
+        // Handle image upload or retain the current image
+        $pathFile = $request->input('current_image');
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = $code . '-' . time() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('asset_images', $filename, 'public');
+            if ($updatedRow->asst_img && Storage::disk('public')->exists($updatedRow->asst_img)) {
+                Storage::disk('public')->delete($updatedRow->asst_img);
+            }
+            $pathFile = $path;
+        }
+
+         // Only include 'asst_img' in the update if a new path is set
+        if (isset($pathFile)) {
+            $updateData['asst_img'] = $pathFile;
+        }
+
+        //Updating row
+        $updatedRow->update($updateData);
 
         // Log the asset update activity
         ActivityLog::create([

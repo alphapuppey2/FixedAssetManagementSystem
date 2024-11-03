@@ -224,7 +224,8 @@
                 </div>
                 <label for="image" class="text-blue-500 cursor-pointer hover:underline edit hidden">
                     Select New Image
-                    <x-text-input type="file" id="image" name="image" class="hidden" />
+                    <input type="file" id="image" name="image" accept="image/*" class="hidden" />
+
                 </label>
             </div>
 
