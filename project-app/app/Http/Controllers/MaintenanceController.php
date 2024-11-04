@@ -164,6 +164,14 @@ class MaintenanceController extends Controller
         $asset->status = 'under_maintenance';
         $asset->save();
 
+        // Reset the next maintenance timestamp for the associated preventive maintenance record
+        $preventive = Preventive::where('asset_key', $maintenance->asset_key)->first();
+        if ($preventive) {
+            // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+            $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
+            $preventive->save();
+        }
+
         // Set the authorized user details and timestamp
         $maintenance->authorized_by = $user->id;
         $maintenance->authorized_at = now(); // Set the authorized timestamp
@@ -234,6 +242,14 @@ class MaintenanceController extends Controller
         $maintenance->authorized_at = now();
         $maintenance->reason = $request->input('reason');
         $maintenance->save();
+
+        // Reset the next maintenance timestamp for the associated preventive maintenance record
+        $preventive = Preventive::where('asset_key', $maintenance->asset_key)->first();
+        if ($preventive) {
+            // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+            $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
+            $preventive->save();
+        }
 
         $actionUrl = route('requests.list'); // Generate the request list URL
 
