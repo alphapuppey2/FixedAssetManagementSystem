@@ -37,6 +37,12 @@ class MaintenanceSchedController extends Controller
 
         $this->calculateNextMaintenance($preventives);
 
+        // Calculate the remaining countdown time for each preventive record
+        foreach ($preventives as $preventive) {
+            $remainingTime = $preventive->next_maintenance_timestamp - now()->timestamp;
+            $preventive->remaining_time = max($remainingTime, 0); // Prevent negative countdowns
+        }
+
         $view = $userRole === 'admin' ? 'admin.maintenanceSched' : 'dept_head.maintenance_sched';
         return view($view, [
             'tab' => 'preventive',

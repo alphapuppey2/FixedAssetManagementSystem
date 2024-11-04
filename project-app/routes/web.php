@@ -53,6 +53,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/search', [SearchController::class, 'globalSearch'])->name('search.global');
 
+    // Preventive Maintenance Polling Route
+    Route::get('/check-overdue-maintenance', [PreventiveMaintenanceController::class, 'checkOverdueMaintenance'])
+    ->name('check.overdue.maintenance');
+
+
     // Route::get('/notification', function () {
     //     return view('layouts.notification');
     // })->name('notification');
@@ -92,7 +97,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     })->name('users.create');
     // USER FILTER LIST
     Route::get('/admin/users/filter', [FiltersController::class, 'filterUsers'])->name('filterUsers');
-    
+
     /*
     -------------------
         ASSETS
@@ -297,6 +302,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // PREVENTIVE
     Route::post('/run-maintenance-check', [PreventiveMaintenanceController::class, 'checkAndGenerate'])->name('run-maintenance-check');
     Route::post('/reset-countdown', [PreventiveMaintenanceController::class, 'resetCountdown'])->name('reset-countdown');
+
+
     Route::get('/preventive/{id}/edit', [PreventiveMaintenanceController::class, 'edit'])->name('preventive.edit');
     Route::put('/preventive/{id}', [PreventiveMaintenanceController::class, 'update'])->name('preventive.update');
     Route::get('/predictive/analyze', [PredictiveController::class, 'analyze']);
