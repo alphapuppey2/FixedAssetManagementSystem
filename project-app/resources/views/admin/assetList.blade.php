@@ -131,8 +131,8 @@
 
             <div class="flex justify-between items-center mb-2">
                 <!-- Multi-Delete Button -->
-                <button type="button" onclick="openDeleteModal()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden"
-                    id="multiDeleteButton">
+                <button type="button" onclick="openDeleteModal()"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md hidden" id="multiDeleteButton">
                     Delete Selected
                 </button>
                 <input type="hidden" name="selected_ids" id="selectedIdsInput">
@@ -230,10 +230,12 @@
                                 <td>{{ $asset->department }}</td>
                                 <td>{{ $asset->depreciation ?? 0.0 }}</td>
                                 <td>@include('components.asset-status', ['status' => $asset->status])</td>
-                                <td class="flex justify-center">
-                                    <a href="{{ route('adminAssetDetails', $asset->code) }}" class="text-blue-900">
-                                        <x-icons.view-icon class="w-6 h-6" />
-                                    </a>
+                                <td class="align-middle font-bold text-left text-sm text-gray-900">
+                                    <div class="deb flex justify-center">
+                                        <a href="{{ route('adminAssetDetails', $asset->code) }}" class="text-blue-900">
+                                            <x-icons.view-icon class="w-6 h-6" />
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -322,138 +324,138 @@
 
         <script>
             // Ensure all modals are hidden on page load
-    window.addEventListener('load', function () {
-        document.getElementById('deleteModal').classList.add('hidden'); // Reset delete modal
-        isFormSubmitted = false; // Reset form submission flag
-    });
-
-    let isFormSubmitted = false; // Track if the form has been submitted
-
-    // Prevent form submission or modal state on refresh
-    window.addEventListener('beforeunload', () => {
-        const deleteModal = document.getElementById('deleteModal');
-        deleteModal.classList.add('hidden'); // Hide the delete modal on page unload
-        isFormSubmitted = false; // Ensure no form submission happens
-    });
-
-    // Confirm Delete Button - Trigger Form Submission
-    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-        isFormSubmitted = true; // Mark form as submitted
-        document.getElementById('multiDeleteForm').submit(); // Submit the form
-    });
-
-    // Cancel Button - Hide the Modal
-    document.getElementById('cancelDeleteBtn').addEventListener('click', (event) => {
-        event.preventDefault();
-        document.getElementById('deleteModal').classList.add('hidden'); // Close the modal
-    });
-
-    // Open Delete Modal
-    function openDeleteModal() {
-        document.getElementById('deleteModal').classList.remove('hidden'); // Show the modal
-    }
-
-    // Filter Modal Script
-    document.getElementById('openFilterModalBtn').addEventListener('click', function () {
-        document.getElementById('filterModal').classList.remove('hidden');
-    });
-
-    // Import Modal Script
-    document.addEventListener('DOMContentLoaded', function () {
-        const modalId = 'importModal';
-        document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
-    });
-
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
-    // Rows per page selection logic
-    document.getElementById('rows_per_page').addEventListener('change', function () {
-        const rowsPerPage = this.value;
-        console.log('Rows per page selected:', rowsPerPage);
-
-        const form = document.getElementById('rowsPerPageForm');
-        const formData = new FormData(form);
-        console.log('Form data:', Object.fromEntries(formData));
-    });
-
-    // Multi-Delete and Sync Selection Logic
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAllDesktop = document.getElementById('selectAllDesktop');
-        const selectAllMobile = document.getElementById('selectAllMobile');
-        const checkboxes = document.querySelectorAll('.assetCheckbox');
-        const multiDeleteButton = document.getElementById('multiDeleteButton');
-        const selectedCount = document.getElementById('selectedCount');
-        const selectedIdsInput = document.getElementById('selectedIdsInput');
-        let selectedIds = new Set(); // Use Set to avoid duplicates
-
-        function updateSelectedCount() {
-            selectedCount.textContent = selectedIds.size; // Update count display
-            multiDeleteButton.classList.toggle('hidden', selectedIds.size === 0); // Show/hide delete button
-            selectedIdsInput.value = JSON.stringify([...selectedIds]); // Store selected IDs
-            document.getElementById('assetCount').innerText = selectedIds.size; // Update asset count
-        }
-
-        function syncSelectAllState() {
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            selectAllDesktop.checked = allChecked;
-            selectAllMobile.checked = allChecked;
-        }
-
-        function syncCheckboxState(assetId, isChecked) {
-            checkboxes.forEach(checkbox => {
-                if (checkbox.value === assetId) {
-                    checkbox.checked = isChecked;
-                }
+            window.addEventListener('load', function() {
+                document.getElementById('deleteModal').classList.add('hidden'); // Reset delete modal
+                isFormSubmitted = false; // Reset form submission flag
             });
-        }
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const assetId = this.value;
-                const isChecked = this.checked;
+            let isFormSubmitted = false; // Track if the form has been submitted
 
-                if (isChecked) {
-                    selectedIds.add(parseInt(assetId));
-                } else {
-                    selectedIds.delete(parseInt(assetId));
+            // Prevent form submission or modal state on refresh
+            window.addEventListener('beforeunload', () => {
+                const deleteModal = document.getElementById('deleteModal');
+                deleteModal.classList.add('hidden'); // Hide the delete modal on page unload
+                isFormSubmitted = false; // Ensure no form submission happens
+            });
+
+            // Confirm Delete Button - Trigger Form Submission
+            document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+                isFormSubmitted = true; // Mark form as submitted
+                document.getElementById('multiDeleteForm').submit(); // Submit the form
+            });
+
+            // Cancel Button - Hide the Modal
+            document.getElementById('cancelDeleteBtn').addEventListener('click', (event) => {
+                event.preventDefault();
+                document.getElementById('deleteModal').classList.add('hidden'); // Close the modal
+            });
+
+            // Open Delete Modal
+            function openDeleteModal() {
+                document.getElementById('deleteModal').classList.remove('hidden'); // Show the modal
+            }
+
+            // Filter Modal Script
+            document.getElementById('openFilterModalBtn').addEventListener('click', function() {
+                document.getElementById('filterModal').classList.remove('hidden');
+            });
+
+            // Import Modal Script
+            document.addEventListener('DOMContentLoaded', function() {
+                const modalId = 'importModal';
+                document.getElementById('openModalBtn').addEventListener('click', () => openModal(modalId));
+            });
+
+            function openModal(modalId) {
+                document.getElementById(modalId).classList.remove('hidden');
+            }
+
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
+
+            // Rows per page selection logic
+            document.getElementById('rows_per_page').addEventListener('change', function() {
+                const rowsPerPage = this.value;
+                console.log('Rows per page selected:', rowsPerPage);
+
+                const form = document.getElementById('rowsPerPageForm');
+                const formData = new FormData(form);
+                console.log('Form data:', Object.fromEntries(formData));
+            });
+
+            // Multi-Delete and Sync Selection Logic
+            document.addEventListener('DOMContentLoaded', function() {
+                const selectAllDesktop = document.getElementById('selectAllDesktop');
+                const selectAllMobile = document.getElementById('selectAllMobile');
+                const checkboxes = document.querySelectorAll('.assetCheckbox');
+                const multiDeleteButton = document.getElementById('multiDeleteButton');
+                const selectedCount = document.getElementById('selectedCount');
+                const selectedIdsInput = document.getElementById('selectedIdsInput');
+                let selectedIds = new Set(); // Use Set to avoid duplicates
+
+                function updateSelectedCount() {
+                    selectedCount.textContent = selectedIds.size; // Update count display
+                    multiDeleteButton.classList.toggle('hidden', selectedIds.size === 0); // Show/hide delete button
+                    selectedIdsInput.value = JSON.stringify([...selectedIds]); // Store selected IDs
+                    document.getElementById('assetCount').innerText = selectedIds.size; // Update asset count
                 }
 
-                syncCheckboxState(assetId, isChecked);
-                updateSelectedCount();
-                syncSelectAllState();
-            });
-        });
-
-        function handleSelectAllChange(checked) {
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = checked;
-                if (checked) {
-                    selectedIds.add(parseInt(checkbox.value));
-                } else {
-                    selectedIds.delete(parseInt(checkbox.value));
+                function syncSelectAllState() {
+                    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                    selectAllDesktop.checked = allChecked;
+                    selectAllMobile.checked = allChecked;
                 }
+
+                function syncCheckboxState(assetId, isChecked) {
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.value === assetId) {
+                            checkbox.checked = isChecked;
+                        }
+                    });
+                }
+
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const assetId = this.value;
+                        const isChecked = this.checked;
+
+                        if (isChecked) {
+                            selectedIds.add(parseInt(assetId));
+                        } else {
+                            selectedIds.delete(parseInt(assetId));
+                        }
+
+                        syncCheckboxState(assetId, isChecked);
+                        updateSelectedCount();
+                        syncSelectAllState();
+                    });
+                });
+
+                function handleSelectAllChange(checked) {
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = checked;
+                        if (checked) {
+                            selectedIds.add(parseInt(checkbox.value));
+                        } else {
+                            selectedIds.delete(parseInt(checkbox.value));
+                        }
+                    });
+                    updateSelectedCount();
+                }
+
+                selectAllDesktop.addEventListener('change', function() {
+                    handleSelectAllChange(this.checked);
+                    selectAllMobile.checked = this.checked;
+                });
+
+                selectAllMobile.addEventListener('change', function() {
+                    handleSelectAllChange(this.checked);
+                    selectAllDesktop.checked = this.checked;
+                });
+
+                updateSelectedCount(); // Initialize selected count on load
+                syncSelectAllState(); // Sync "Select All" state
             });
-            updateSelectedCount();
-        }
-
-        selectAllDesktop.addEventListener('change', function () {
-            handleSelectAllChange(this.checked);
-            selectAllMobile.checked = this.checked;
-        });
-
-        selectAllMobile.addEventListener('change', function () {
-            handleSelectAllChange(this.checked);
-            selectAllDesktop.checked = this.checked;
-        });
-
-        updateSelectedCount(); // Initialize selected count on load
-        syncSelectAllState();  // Sync "Select All" state
-    });
         </script>
     @endsection

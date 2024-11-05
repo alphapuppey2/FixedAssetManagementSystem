@@ -286,7 +286,7 @@
     purchaseCostInput.value = "";
     salvageValueInput.value = "";
     lifespanInput.value = "";
-    depreciationInput.value = "";
+    depreciationInput.value = "0";
 });
 
 

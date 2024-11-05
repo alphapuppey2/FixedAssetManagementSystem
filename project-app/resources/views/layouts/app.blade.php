@@ -63,6 +63,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
+    <script>
+        // Toast Notification fade-out
+        setTimeout(function() {
+            var toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.transition = 'opacity 1s ease';
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    toast.remove();
+                }, 1000); // Remove it after fading out
+            }
+        }, 3000); // 3 seconds delay
+    </script>
 
     <script>
         setInterval(function() {

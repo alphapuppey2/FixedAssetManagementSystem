@@ -218,10 +218,12 @@
                             <td>{{ \Carbon\Carbon::parse($asset->purchase_date)->format('F d, Y') }}</td>
                             <td>{{ $asset->depreciation ?? 0.0 }}</td>
                             <td>@include('components.asset-status', ['status' => $asset->status])</td>
-                            <td class="flex justify-center">
+                            <td class="align-middle font-bold text-left text-sm text-gray-900">
+                               <div class="deb flex justify-center">
                                 <a href="{{ route('assetDetails', $asset->code) }}" class="text-blue-900">
                                     <x-icons.view-icon class="w-6 h-6" />
                                 </a>
+                               </div>
                             </td>
                         </tr>
                     @empty

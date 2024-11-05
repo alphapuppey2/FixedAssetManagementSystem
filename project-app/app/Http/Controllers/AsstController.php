@@ -219,12 +219,13 @@ class AsstController extends Controller
         $manufacturer = ['mcft' => DB::table('manufacturer')->where('dept_ID', $usrDPT)->get()];
         $addInfos = json_decode($department->custom_fields);
 
-        // Check if any of the settings are empty
+        // Check if any of the settings are empty or the usertype is not Admin
         if (
-            $categories['ctglist']->isEmpty() ||
+            Auth::user()->usertype !== 'admin' &&
+           ( $categories['ctglist']->isEmpty() ||
             $location['locs']->isEmpty() ||
             $model['mod']->isEmpty() ||
-            $manufacturer['mcft']->isEmpty()
+            $manufacturer['mcft']->isEmpty())
         ) {
             return redirect()->back()->with('noSettings', 'Some settings are missing. Please set up your settings.');
         }
