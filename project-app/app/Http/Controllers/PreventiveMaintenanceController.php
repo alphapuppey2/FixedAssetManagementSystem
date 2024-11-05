@@ -43,8 +43,8 @@ class PreventiveMaintenanceController extends Controller
 
         if ($preventive->ends === 0 || $preventive->occurrences < $preventive->ends) {
             $preventive->occurrences = $newOccurrences;
-            // $preventive->next_maintenance_timestamp = now()->addSeconds(15)->timestamp; //test
-            $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+            // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+            $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
             $preventive->save();
 
             // Log the query for debugging
@@ -134,7 +134,8 @@ class PreventiveMaintenanceController extends Controller
 
         if ($preventive) {
 
-            $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
+            // $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
+            $nextMaintenanceDate = Carbon::now()->addSeconds($preventive->frequency * 20); // test
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
             $preventive->save();
 
@@ -180,6 +181,52 @@ class PreventiveMaintenanceController extends Controller
 
         // Return the data as JSON for the modal to populate
         return response()->json($preventive);
+    }
+
+    public function checkOverdueMaintenance()
+    {
+        $preventives = Preventive::where('status', 'active')
+            ->where('next_maintenance_timestamp', '<=', now()->timestamp)
+            ->get();
+
+            foreach ($preventives as $preventive) {
+                // Check if maintenance is already due and request hasn't been generated
+                if (!$this->maintenanceExists($preventive)) {
+                    $this->processMaintenance($preventive);
+                }
+            }
+
+        return response()->json(['message' => 'Checked overdue maintenance']);
+    }
+
+    private function maintenanceExists($preventive)
+    {
+        // Check if a maintenance request for this asset is already open
+        return Maintenance::where('asset_key', $preventive->asset_key)
+            ->where('status', 'request')  // Check only for open requests
+            ->exists();
+    }
+
+    private function processMaintenance($preventive)
+    {
+        // Increment occurrences
+        $preventive->occurrences += 1;
+
+        // Generate the maintenance request and update status
+        Maintenance::create([
+            'description' => "Scheduled preventive maintenance for asset {$preventive->asset->name}",
+            'status' => 'request',
+            'asset_key' => $preventive->asset_key,
+            'type' => 'maintenance',
+            'cost' => $preventive->cost,
+            'requested_at' => now(),
+        ]);
+
+        // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+        $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
+        $preventive->save();
+
+        // Additional notifications or status changes as needed
     }
 
 

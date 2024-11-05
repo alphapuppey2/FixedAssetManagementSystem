@@ -76,6 +76,21 @@
             }
         }, 3000); // 3 seconds delay
     </script>
+
+    <script>
+        setInterval(function() {
+            fetch('/check-overdue-maintenance', {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => console.log(data.message))
+            .catch(error => console.error('Error checking overdue maintenance:', error));
+        }, 5000); // Polling every 5 seconds
+    </script>
+
 </body>
 
 </html>
