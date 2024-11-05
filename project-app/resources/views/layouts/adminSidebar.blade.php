@@ -164,6 +164,13 @@
             </li>
 
             <li>
+                <x-nav-link :href="route('admin.setting')" :active="request()->routeIs('admin.setting')"
+                    class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
+                    <x-icons.gear-icon class="w-8 h-8 md:w-6 md:h-6" />
+                    <span class="hidden md:inline">Setting</span>
+                </x-nav-link>
+            </li>
+            <li>
                 <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.index')"
                     class="flex items-center p-2 space-x-2 sidebar-icon rounded-md transition-all">
                     <x-icons.bell-icon class="w-8 h-8 md:w-6 md:h-6" />

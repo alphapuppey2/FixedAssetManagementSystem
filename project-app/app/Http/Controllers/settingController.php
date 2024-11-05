@@ -18,36 +18,59 @@ class settingController extends Controller
     //
 
     public function showSettings(Request $request)
-    {
-        $activeTab = $request->input('tab', 'model');
-        $departmentID = Auth::user()->dept_id;
+{
+    $userRole = Auth::user()->usertype;
+    $activeTab = $request->input('tab', 'model');
+    $allDepartments = department::All();
 
-        $RetrieveData = NULL;
-        switch ($activeTab) {
-            case 'model':
-                $RetrieveData = ModelAsset::where('dept_ID',$departmentID)->get();
-                break;
-            case 'location':
-                $RetrieveData = locationModel::where('dept_ID',$departmentID)->get();
-                break;
-            case 'manufacturer':
-                $RetrieveData = Manufacturer::where('dept_ID',$departmentID)->get();
-                break;
-            case 'category':
-                $RetrieveData = category::where('dept_ID',$departmentID)->get();
-                break;
-            case 'customFields':
-                $fetch = department::where('id',Auth::user()->dept_id)->get();
-                $RetrieveData = json_decode($fetch[0]->custom_fields);
-                break;
+    if ($userRole === 'admin') {
+        $departmentID = $request->input('department_id');
+        if (!$departmentID) {
+            // If no department is selected, you can redirect back with an error or select a default department
+            $departmentID = $allDepartments->first()->id;
         }
+        $selectedDepartmentID = $departmentID;
+    } else {
+        $departmentID = Auth::user()->dept_id;
+        $selectedDepartmentID = $departmentID;
+    }
 
-        // dd($RetrieveData);
-        return view('dept_head.setting', [
+    $RetrieveData = NULL;
+    switch ($activeTab) {
+        case 'model':
+            $RetrieveData = ModelAsset::where('dept_ID', $departmentID)->get();
+            break;
+        case 'location':
+            $RetrieveData = locationModel::where('dept_ID', $departmentID)->get();
+            break;
+        case 'manufacturer':
+            $RetrieveData = Manufacturer::where('dept_ID', $departmentID)->get();
+            break;
+        case 'category':
+            $RetrieveData = category::where('dept_ID', $departmentID)->get();
+            break;
+        case 'customFields':
+            $fetch = department::where('id', $departmentID)->get();
+            $RetrieveData = json_decode($fetch[0]->custom_fields);
+            break;
+    }
+
+    $routePath = $userRole === 'admin' ? "admin.setting" : "dept_head.setting";
+    $retDatas = $userRole === 'admin' ?
+        [
             'activeTab' => $activeTab,
             'data' => $RetrieveData,
-        ]);
-    }
+            'allDepartments' => $allDepartments,
+            'selectedDepartmentID' => $selectedDepartmentID,
+        ]
+        :
+        [
+            'activeTab' => $activeTab,
+            'data' => $RetrieveData,
+        ];
+    return view($routePath, $retDatas);
+}
+
 
     public function UpdateSettings(Request $request,$tab ,$id){
 
@@ -150,19 +173,38 @@ class settingController extends Controller
             return redirect()->back()->withErrors('Failed to remove the item from the list.');
         }
 
-        return redirect()->back()->with('Setting deleted successfully.');
-    }
-    public function store(Request $request ,$tab){
 
-        $userDept = Auth::user()->dept_id;
+        if($tab !== 'customFields'){
+            if($deleteFrom->delete()){
+            return redirect()->back()->with('toast','Setting deleted successfully.');
+            }
+            else{
+                dd("pisti Error");
+            }
+        }
+    }
+    public function store(Request $request, $tab , $department_id = null)
+    {
+        // Check user role and determine department ID
+        $userRole = Auth::user()->usertype;
+        $userDept = $userRole === 'admin' ? $department_id  : Auth::user()->dept_id;
+
+        // Validation for department ID if user is admin
+        // dd($userRole === 'admin' , !$userDept , $request->input());
+        if ($userRole === 'admin' && !$userDept) {
+            return redirect()->back()->withErrors(['errors' => 'Department selection is required for admin.']);
+        }
+
+        // Validation for other fields
         $validation = $request->validate([
-            'nameSet' => 'required | string | max:20',
-            'description' => 'sometimes | string | max:255',
-            'type' => 'sometimes | string | max:255',
-            'helptxt' => 'sometimes | string | max:255'
+            'nameSet' => 'required|string|max:20',
+            'description' => 'sometimes|string|max:255',
+            'type' => 'sometimes|string|max:255',
+            'helptxt' => 'sometimes|string|max:255'
         ]);
 
-        switch($tab){
+        // Handle creation based on the active tab
+        switch ($tab) {
             case 'model':
                 if (ModelAsset::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
                     return redirect()->back()->withErrors(['errors' => 'The model name already exists.']);
@@ -173,6 +215,7 @@ class settingController extends Controller
                     'dept_ID' => $userDept
                 ]);
                 break;
+
             case 'manufacturer':
                 if (Manufacturer::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
                     return redirect()->back()->withErrors(['errors' => 'The manufacturer name already exists.']);
@@ -183,6 +226,7 @@ class settingController extends Controller
                     'dept_ID' => $userDept
                 ]);
                 break;
+
             case 'location':
                 if (locationModel::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
                     return redirect()->back()->withErrors(['errors' => 'The location name already exists.']);
@@ -193,6 +237,7 @@ class settingController extends Controller
                     'dept_ID' => $userDept
                 ]);
                 break;
+
             case 'category':
                 if (category::where('name', $validation['nameSet'])->where('dept_ID', $userDept)->exists()) {
                     return redirect()->back()->withErrors(['errors' => 'The category name already exists.']);
@@ -203,22 +248,21 @@ class settingController extends Controller
                     'description' => $validation['description'],
                 ]);
                 break;
-            case 'customFields':
-                // $department = department::where('id',$userDept)->get();
-                $department = department::where('id',$userDept)->first();
 
-                // Check if the department record exists
+            case 'customFields':
+                // Find department based on user's department ID or admin-selected department ID
+                $department = department::where('id', $userDept)->first();
+
+                // Check if the department exists
                 if (!$department) {
                     return redirect()->back()->withErrors(['errors' => 'Department not found.']);
                 }
 
-                // $customF = json_decode($department[0]->custom_fields);
-
-                    // Initialize $customF as an array if the custom_fields column is null
+                // Decode existing custom fields, or initialize as an empty array if null
                 $customF = json_decode($department->custom_fields) ?? [];
 
+                // Check if custom field name already exists
                 $exists = collect($customF)->contains('name', $validation['nameSet']);
-
                 if ($exists) {
                     return redirect()->back()->withErrors(['errors' => 'The custom field name already exists.']);
                 }
@@ -231,33 +275,9 @@ class settingController extends Controller
                 ]);
 
                 // Update the department with the new custom fields JSON
-                department::where('id', $userDept)->update(['custom_fields' => json_encode($customF)]);
+                $department->update(['custom_fields' => json_encode($customF)]);
                 break;
 
-                // if($customF === null){
-                //     $customF = [];
-                //     array_unshift($customF,["name" => $validation['nameSet'],
-                //                      "type" => $validation['type'],
-                //                      "helptext" => $validation['helptxt']]);
-                // }
-                // else{
-                //     $collect = collect($customF);
-                //     $column = $collect->contains('name' , $validation['nameSet']);
-
-
-
-                //     if($column !== false ){
-                //         return redirect()->back()->withErrors(['errors' =>'The Name already exists']);
-                //     }
-
-
-
-                //     array_unshift($customF,["name" => $validation['nameSet'],
-                //                      "type" => $validation['type'],
-                //                      "helptext" => $validation['helptxt']]);
-
-                // }
-                // department::where('id',$userDept)->update(['custom_fields' => json_encode($customF)]);
             default:
                 return redirect()->back()->withErrors(['errors' => 'Invalid tab selection.']);
         }
