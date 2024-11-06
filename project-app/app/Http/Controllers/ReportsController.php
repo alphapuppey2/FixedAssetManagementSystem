@@ -418,7 +418,13 @@ class ReportsController extends Controller
         // Paginate results
         $maintenanceRecords = $query->paginate(10)->appends($request->query());
 
-        return view('dept_head.reports.generatedMaintenanceReport', compact('maintenanceRecords', 'fields'));
+        // Calculate total cost if the "cost" field is selected
+        $totalCost = null;
+        if (in_array('cost', $fields)) {
+            $totalCost = $query->sum('maintenance.cost');
+        }
+
+        return view('dept_head.reports.generatedMaintenanceReport', compact('maintenanceRecords', 'fields', 'totalCost'));
     }
 
     public function downloadMaintenanceReport(Request $request)
@@ -438,7 +444,6 @@ class ReportsController extends Controller
         $authorizedBy = Arr::wrap($request->query('authorized_by', []));
         $requestor = Arr::wrap($request->query('requestor', []));
         $assetKey = Arr::wrap($request->query('asset_key', []));
-
         $isCompleted = $request->query('is_completed', null);
         $costMin = $request->query('cost_min', null);
         $costMax = $request->query('cost_max', null);
@@ -507,16 +512,26 @@ class ReportsController extends Controller
 
         Log::info('Maintenance records retrieved', ['record_count' => $records->count()]);
 
+        // Calculate the total cost if the "cost" field is selected
+        $totalCost = null;
+        if (in_array('cost', $fields)) {
+            $totalCost = $query->sum('maintenance.cost');
+        }
+
         // Handle CSV Download
         if ($type === 'csv') {
             Log::info('Generating CSV for maintenance report');
-            return $this->generateMaintenanceCSV($records, $fields);
+            return $this->generateMaintenanceCSV($records, $fields, $totalCost);
         }
 
         // Handle PDF Download
         if ($type === 'pdf') {
             Log::info('Generating PDF for maintenance report');
-            $pdf = Pdf::loadView('dept_head.pdf.maintenanceReportPDF', compact('records', 'fields'))
+
+            $currentUser = Auth::user();
+            $createdBy = $currentUser->firstname . ' ' . $currentUser->lastname;
+
+            $pdf = Pdf::loadView('dept_head.pdf.maintenanceReportPDF', compact('records', 'fields', 'totalCost', 'createdBy'))
                 ->setPaper('a2', 'landscape');
             return $pdf->download('maintenance_report.pdf');
         }
@@ -533,8 +548,25 @@ class ReportsController extends Controller
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function () use ($records, $fields) {
+        // Get the current date and user information
+        $currentDate = now()->format('Y-m-d H:i:s');
+        $currentUser = Auth::user();
+        $createdBy = $currentUser->firstname . ' ' . $currentUser->lastname;
+
+        // Calculate total cost if the "cost" field is included
+        $totalCost = null;
+        if (in_array('cost', $fields)) {
+            $totalCost = $records->sum('cost');
+        }
+
+        $callback = function () use ($records, $fields, $totalCost, $currentDate, $createdBy) {
             $file = fopen('php://output', 'w');
+
+            // Write report title and metadata
+            fputcsv($file, ['Maintenance Report']);
+            fputcsv($file, ['Generated on:', $currentDate]);
+            fputcsv($file, ['Created by:', $createdBy]);
+            fputcsv($file, []); // Add an empty row for spacing
 
             // Write header row based on selected fields
             fputcsv($file, array_map(function ($field) {
@@ -572,6 +604,13 @@ class ReportsController extends Controller
                 }
                 fputcsv($file, $row);
             }
+            // Add total cost row at the end if "cost" field is selected
+            if ($totalCost !== null) {
+                $totalRow = array_fill(0, count($fields), '');
+                $totalRow[array_search('cost', $fields)] = 'Total Cost: ' . number_format($totalCost, 2);
+                fputcsv($file, $totalRow);
+            }
+
             fclose($file);
         };
 

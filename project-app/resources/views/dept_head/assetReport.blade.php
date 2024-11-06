@@ -12,7 +12,7 @@
 
 @section('header')
 <h2 class="my-3 font-semibold text-2xl text-black-800 leading-tight text-center md:text-left"> 
-    Generate Custom Asset Report
+    Generate Asset Report
 </h2>
 @endsection
 
