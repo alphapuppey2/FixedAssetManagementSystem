@@ -8,103 +8,68 @@ use Carbon\Carbon;
 
 class MaintenanceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    // public function run(): void
-    // {
-    //     // Retrieve all assets from the asset table
-    //     $assets = DB::table('asset')->get();
-
-    //     foreach ($assets as $asset) {
-    //         // Create 5-10 maintenance records for each asset
-    //         for ($i = 0; $i < 3; $i++) {
-    //             // Generate dates logically: requested first, then start, then completion
-    //             $requestedAt = Carbon::now()->subDays(rand(30, 180)); // Random date in past 6 months
-    //             $startDate = Carbon::now()->subDays(rand(10, 20)); // Random start date after request
-    //             $completionDate = rand(0, 1) ? Carbon::now()->subDays(rand(1, 10)) : null; // Some may not be completed
-
-    //             // Decide if the maintenance is completed
-    //             $isCompleted = rand(0,1);
-
-    //             // Set the status based on completion
-    //             // $status = $isCompleted ? 'completed' : $this->getRandomStatus();
-
-    //             // Insert into maintenance table
-    //             DB::table('maintenance')->insert([
-    //                 'description' => 'Maintenance for ' . $asset->name, // Use asset name in description
-    //                 'type' => $this->getRandomMaintenanceType(),
-    //                 'cost' => rand(1000, 10000), // Random cost for the maintenance
-    //                 'requested_at' => $requestedAt,
-    //                 'authorized_at' => rand(0, 1) ? Carbon::now()->subDays(rand(5, 15)) : null, // Some may be authorized
-    //                 'start_date' => $startDate,
-    //                 'completion_date' => $completionDate,
-    //                 'is_completed' => $isCompleted, // 1 if completed, 0 otherwise
-    //                 'reason' => $isCompleted ? 'Routine check' : null, // Reason only if completed
-    //                 'status' => $this->getRandomStatus(),
-    //                 'created_at' => Carbon::now(),
-    //                 'updated_at' => Carbon::now(),
-    //                 'asset_key' => $asset->id, // Link to the asset's ID
-    //                 'authorized_by' => null, // Set to null
-    //                 'requestor' => null, // Set to null
-    //             ]);
-    //         }
-    //     }
-    // }
-
     public function run(): void
     {
-        // Retrieve all assets from the asset table
-        $assets = DB::table('asset')->get();
+        // Retrieve all assets in IT and Sales departments
+        $assets = DB::table('asset')
+            ->whereIn('dept_ID', [1, 2])
+            ->get();
 
         foreach ($assets as $asset) {
-            // Generate dates logically: requested first, then start, then completion
-            $requestedAt = Carbon::now()->subDays(rand(30, 180)); // Random date in past 6 months
-            $startDate = Carbon::now()->subDays(rand(10, 20)); // Random start date after request
-            $completionDate = rand(0, 1) ? Carbon::now()->subDays(rand(1, 10)) : null; // Some may not be completed
+            $initialMaintenanceCount = rand(5, 10); // Start with 5-10 maintenance records
+            $baseCost = rand(500, 2000);
+            $lastCompletionDate = Carbon::now()->subDays(rand(365, 1095)); // 1-3 years ago
 
-            // Decide if the maintenance is completed
-            $isCompleted = rand(0, 1);
+            for ($i = 0; $i < $initialMaintenanceCount; $i++) {
+                // Set time intervals progressively shorter, simulating degradation
+                $daysSinceLastMaintenance = rand(60, 180) - ($i * 10);
+                $requestedAt = $lastCompletionDate->copy()->addDays(rand(1, 10));
+                $startDate = $requestedAt->copy()->addDays(rand(1, 5));
 
-            // Set the status based on completion
-            // $status = $isCompleted ? 'completed' : $this->getRandomStatus();
+                // Ensure some maintenance records are explicitly labeled as "maintenance"
+                $isCompleted = $i < ($initialMaintenanceCount * 0.7) ? 1 : rand(0, 1);
+                $completionDate = $isCompleted ? $startDate->copy()->addDays(rand(1, 5)) : null;
 
-            // Insert into maintenance table
-            DB::table('maintenance')->insert([
-                'description' => 'Maintenance for ' . $asset->name, // Use asset name in description
-                'type' => $this->getRandomMaintenanceType(),
-                'cost' => rand(1000, 10000), // Random cost for the maintenance
-                'requested_at' => $requestedAt,
-                'authorized_at' => rand(0, 1) ? Carbon::now()->subDays(rand(5, 15)) : null, // Some may be authorized
-                'start_date' => $startDate,
-                'completion_date' => $completionDate,
-                'is_completed' => $isCompleted, // 1 if completed, 0 otherwise
-                'reason' => $isCompleted ? 'Routine check' : null, // Reason only if completed
-                'status' => $this->getRandomStatus(),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'asset_key' => $asset->id, // Link to the asset's ID
-                'authorized_by' => null, // Set to null
-                'requestor' => null, // Set to null
-            ]);
+                // Randomize type but ensure at least some are "maintenance"
+                $maintenanceType = $i < 2 ? 'maintenance' : $this->getRealisticMaintenanceType($i); // At least the first 2 are maintenance
+
+                // Alternate status between 'approved' and random for incomplete records
+                $status = $isCompleted ? 'approved' : $this->getRandomStatus();
+
+                DB::table('maintenance')->insert([
+                    'description' => 'Maintenance for ' . $asset->name,
+                    'type' => $maintenanceType,
+                    'cost' => $baseCost + ($i * rand(100, 500)),
+                    'requested_at' => $requestedAt,
+                    'authorized_at' => rand(0, 1) ? $requestedAt->copy()->addDays(rand(1, 3)) : null,
+                    'start_date' => $isCompleted ? $startDate : null,
+                    'completion_date' => $isCompleted ? $completionDate : null,
+                    'is_completed' => $isCompleted,
+                    'reason' => $isCompleted ? 'Routine or wear and tear' : null,
+                    'status' => $status,
+                    'created_at' => $requestedAt,
+                    'updated_at' => $completionDate ?? Carbon::now(),
+                    'asset_key' => $asset->id,
+                    'authorized_by' => null,
+                    'requestor' => null,
+                ]);
+
+                // Update the lastCompletionDate for the next iteration
+                $lastCompletionDate = $completionDate ? $completionDate->copy()->addDays($daysSinceLastMaintenance) : $lastCompletionDate;
+            }
         }
     }
 
-    /**
-     * Get a random maintenance status excluding 'completed' for incomplete entries.
-     */
+    private function getRealisticMaintenanceType($index)
+    {
+        // Ensure that maintenance types are realistically distributed
+        $types = ['inspection', 'repair', 'maintenance', 'upgrade', 'replacement', 'calibration'];
+        return $types[array_rand($types)];
+    }
+
     private function getRandomStatus()
     {
         $statuses = ['request', 'approved', 'denied', 'cancelled'];
         return $statuses[array_rand($statuses)];
-    }
-
-    /**
-     * Get a random maintenance type.
-     */
-    private function getRandomMaintenanceType()
-    {
-        $types = ['repair', 'maintenance', 'upgrade', 'inspection', 'replacement', 'calibration'];
-        return $types[array_rand($types)];
     }
 }
