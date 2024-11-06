@@ -37,6 +37,12 @@
             color: #4A90E2;
         }
 
+        .created-by {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4A90E2;
+        }
+
         /* Table Styles */
         table {
             width: 100%;
@@ -77,54 +83,70 @@
         <div class="generated-date">
             Generated on {{ now()->format('Y-m-d H:i:s') }}
         </div>
+        <div class="created-by">
+            Created by: {{ $createdBy }}
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
                 @foreach ($fields as $field)
-                <th>
-                    @switch($field)
-                    @case('asset_key')
-                    Asset Name
-                    @break
-                    @case('is_completed')
-                    Completed
-                    @break
-                    @default
-                    {{ ucfirst(str_replace('_', ' ', $field)) }}
-                    @endswitch
-                </th>
+                    <th>
+                        @switch($field)
+                            @case('asset_key')
+                                Asset Name
+                            @break
+
+                            @case('is_completed')
+                                Completed
+                            @break
+
+                            @default
+                                {{ ucfirst(str_replace('_', ' ', $field)) }}
+                        @endswitch
+                    </th>
                 @endforeach
             </tr>
         </thead>
         <tbody>
             @foreach ($records as $record)
-            <tr>
-                @foreach ($fields as $field)
-                <td>
-                    @switch($field)
-                    @case('authorized_by')
-                    {{ $record->authorized_by_name ?? 'N/A' }}
-                    @break
-                    @case('requestor')
-                    {{ $record->requestor_name ?? 'N/A' }}
-                    @break
-                    @case('asset_key')
-                    {{ $record->asset_name ?? 'N/A' }}
-                    @break
-                    @case('is_completed')
-                    {{ $record->is_completed ? 'Yes' : 'No' }}
-                    @break
-                    @default
-                    {{ $record->$field ?? 'N/A' }}
-                    @endswitch
-                </td>
-                @endforeach
-            </tr>
+                <tr>
+                    @foreach ($fields as $field)
+                        <td>
+                            @switch($field)
+                                @case('authorized_by')
+                                    {{ $record->authorized_by_name ?? 'N/A' }}
+                                @break
+
+                                @case('requestor')
+                                    {{ $record->requestor_name ?? 'N/A' }}
+                                @break
+
+                                @case('asset_key')
+                                    {{ $record->asset_name ?? 'N/A' }}
+                                @break
+
+                                @case('is_completed')
+                                    {{ $record->is_completed ? 'Yes' : 'No' }}
+                                @break
+
+                                @default
+                                    {{ $record->$field ?? 'N/A' }}
+                            @endswitch
+                        </td>
+                    @endforeach
+                </tr>
             @endforeach
         </tbody>
     </table>
+
+    <!-- Total Cost Section -->
+    @if ($totalCost !== null)
+        <div style="text-align: right; font-size: 18px; font-weight: bold; margin-top: 20px;">
+            Total Cost: <span style="color: #4A90E2;">{{ number_format($totalCost, 2) }}</span>
+        </div>
+    @endif
 </body>
 
 </html>
