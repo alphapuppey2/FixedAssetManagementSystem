@@ -119,11 +119,13 @@
         </div>
 
         <!-- Repair Request Button -->
+        @if ($retrieveData->status !== 'disposed')
         <div class="flex justify-end mb-12">
             <button id="requestRepairButton" class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
                 Request Maintenance
             </button>
         </div>
+         @endif
      {{-- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative"> --}}
         <!-- Repair Request Modal (Initially Hidden) -->
         <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50" role="dialog" aria-hidden="true">
