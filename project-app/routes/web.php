@@ -167,6 +167,13 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/create-maintenance', [MaintenanceController::class, 'create'])->name('adminFormMaintenance');
     Route::post('/admin/create-maintenance', [MaintenanceController::class, 'store'])->name('adminMaintenance.store');
 
+    // SETTINGS
+    Route::get('admin/setting', [settingController::class, 'showSettings'])->name('admin.setting');
+    Route::post('admin/setting/{tab}/{department_id?}', [settingController::class, 'store'])->name('admin.setting.create');
+    Route::delete('admin/setting/destroy/{tab}/{id}', [settingController::class, 'destroy'])->name('admin.setting.delete');
+    Route::put('admin/setting/update/{tab}/{id}', [settingController::class, 'updateSettings'])->name('admin.setting.edit');
+
+
     /*
     -------------------
         ACTIVITY LOGS
