@@ -8,20 +8,17 @@
 
 @section('content')
     <div class="container mx-auto p-8">
-        <!-- Image and QR Code Section -->
+
         <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-12 mb-12">
             <div class="w-full lg:w-1/2">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Asset Image & QR Code</h3>
                 <div class="flex space-x-8">
-                    <!-- Asset Image -->
                     <div class="imagepart relative w-48 h-48 border border-gray-300 rounded-lg overflow-hidden shadow-md">
                         <img src="{{ asset($retrieveData->image ? 'storage/' . $retrieveData->image : 'images/no-image.png') }}"
                              class="w-full h-full object-cover" alt="Asset Image">
                     </div>
-                    <!-- QR Code -->
                     <div class="qrContainer flex flex-col items-center">
                         <div class="QRBOX w-32 h-32 bg-gray-200 rounded-lg shadow-md flex items-center justify-center">
-                            <!-- Display QR code -->
                             <img src="{{ asset('storage/' . $retrieveData->qr) }}" class="w-full h-full object-cover" alt="QR Code">
                         </div>
                         <a href="{{ asset('storage/' . $retrieveData->qr) }}" target="_blank" class="text-blue-600 mt-4 hover:underline">
@@ -32,7 +29,6 @@
             </div>
         </div>
 
-        <!-- General Information Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div class="bg-gray-100 p-6 rounded-lg shadow-md">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">General Information</h3>
@@ -72,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Additional Information Section -->
             <div class="bg-gray-100 p-6 rounded-lg shadow-md">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Additional Information</h3>
                 <div class="space-y-4 text-gray-600">
@@ -118,17 +113,15 @@
             </div>
         </div>
 
-        <!-- Repair Request Button -->
+        @if ($retrieveData->status !== 'disposed')
         <div class="flex justify-end mb-12">
             <button id="requestRepairButton" class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
                 Request Maintenance
             </button>
         </div>
-     {{-- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative"> --}}
-        <!-- Repair Request Modal (Initially Hidden) -->
+         @endif
         <div id="repairRequestModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden justify-center items-center z-50" role="dialog" aria-hidden="true">
             <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto relative sm:max-w-md sm:p-6">
-                <!-- Close Button -->
                 <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -137,17 +130,13 @@
 
                 <h3 class="text-xl font-semibold mb-6 text-gray-800 text-center sm:text-left">Reason for Request</h3>
 
-                <!-- Validation Errors -->
                 <div id="errorMessages" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
 
-                <!-- Success Message -->
                 <div id="successMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"></div>
 
                 <form id="repairRequestForm" action="{{ route('maintenance.create') }}" method="POST">
                     @csrf
                     <input type="hidden" name="asset_id" value="{{ $retrieveData->id }}">
-
-                    <!-- Type of Request Dropdown -->
                     <div class="mb-6">
                         <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type of Request</label>
                         <select id="type" name="type" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" required>
@@ -177,7 +166,6 @@
             </div>
         </div>
 
-        <!-- JavaScript to Toggle Repair Request Modal -->
         <script>
             document.getElementById('requestRepairButton').addEventListener('click', function () {
                 document.getElementById('repairRequestModal').classList.remove('hidden');
@@ -193,9 +181,9 @@
         const form = document.getElementById('repairRequestForm');
 
         form.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the page from reloading
+            event.preventDefault();
 
-            const formData = new FormData(form); // Collect form data
+            const formData = new FormData(form);
 
             fetch(form.action, {
                 method: 'POST',
@@ -207,7 +195,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.errors) {
-                    // If validation errors exist, display them inside the modal
                     let errorList = '<ul class="list-disc pl-5 text-red-700">';
                     Object.values(data.errors).forEach(error => {
                         errorList += `<li>${error}</li>`;
@@ -215,9 +202,8 @@
                     errorList += '</ul>';
                     displayMessage(errorList, 'error');
                 } else {
-                    // Display success message
                     displayMessage('Maintenance request submitted successfully.', 'success');
-                    form.reset(); // Reset form after success
+                    form.reset();
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -230,11 +216,9 @@
                 : 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4';
             messageContainer.innerHTML = message;
 
-            // Remove any previous messages
             const existingMessages = form.querySelectorAll('.bg-red-100, .bg-green-100');
             existingMessages.forEach(msg => msg.remove());
 
-            // Insert the new message at the top of the form
             form.insertAdjacentElement('afterbegin', messageContainer);
         }
     });
