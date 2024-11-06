@@ -181,9 +181,9 @@
         const form = document.getElementById('repairRequestForm');
 
         form.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the page from reloading
+            event.preventDefault();
 
-            const formData = new FormData(form); // Collect form data
+            const formData = new FormData(form);
 
             fetch(form.action, {
                 method: 'POST',
@@ -216,11 +216,9 @@
                 : 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4';
             messageContainer.innerHTML = message;
 
-            // Remove any previous messages
             const existingMessages = form.querySelectorAll('.bg-red-100, .bg-green-100');
             existingMessages.forEach(msg => msg.remove());
 
-            // Insert the new message at the top of the form
             form.insertAdjacentElement('afterbegin', messageContainer);
         }
     });
