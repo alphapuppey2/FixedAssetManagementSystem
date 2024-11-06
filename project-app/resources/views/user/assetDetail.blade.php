@@ -166,7 +166,6 @@
             </div>
         </div>
 
-        <!-- JavaScript to Toggle Repair Request Modal -->
         <script>
             document.getElementById('requestRepairButton').addEventListener('click', function () {
                 document.getElementById('repairRequestModal').classList.remove('hidden');
@@ -196,7 +195,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.errors) {
-                    // If validation errors exist, display them inside the modal
                     let errorList = '<ul class="list-disc pl-5 text-red-700">';
                     Object.values(data.errors).forEach(error => {
                         errorList += `<li>${error}</li>`;
@@ -204,9 +202,8 @@
                     errorList += '</ul>';
                     displayMessage(errorList, 'error');
                 } else {
-                    // Display success message
                     displayMessage('Maintenance request submitted successfully.', 'success');
-                    form.reset(); // Reset form after success
+                    form.reset();
                 }
             })
             .catch(error => console.error('Error:', error));
