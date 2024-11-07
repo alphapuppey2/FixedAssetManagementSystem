@@ -178,7 +178,7 @@ public function UpdateSettings(Request $request, $tab, $id)
                 break;
             case 'customFields':
                 $department = department::findOrFail(Auth::user()->dept_id);
-                $deleterow = json_decode($department->custom_fields);
+                $deleterow = json_decode($department->custom_fields,true);
 
                 unset($deleterow[$id]);
 
