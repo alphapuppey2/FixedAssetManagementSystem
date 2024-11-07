@@ -193,7 +193,7 @@
                                                 value="{{ $dataItem["helptext"] }}">
                                         </td>
                                         <td
-                                            class="flex py-2 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider cursor-pointer">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn"
@@ -238,159 +238,147 @@
         });
 
         document.querySelectorAll('.edit-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab');
-                const rowId = this.getAttribute('data-row-id');
-                const row = document.getElementById('row-' + rowId);
+    button.addEventListener('click', function() {
+        const rowId = this.getAttribute('data-row-id');
+        const row = document.getElementById('row-' + rowId);
 
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeTab = urlParams.get('tab');
+
+        // Toggle inputs and hide/delete UI elements based on the tab
+        if (activeTab !== 'customFields') {
+            row.querySelector('.name-text').classList.add('hidden');
+            row.querySelector('.name-input').style.display = 'inline-block';
+
+            row.querySelector('.desc-text').classList.add('hidden');
+            row.querySelector('.desc-input').style.display = 'inline-block';
+        } else {
+            row.querySelector('.name-text').classList.add('hidden');
+            row.querySelector('.name-input').style.display = 'inline-block';
+
+            row.querySelector('.type-text').classList.add('hidden');
+            row.querySelector('.type-input').style.display = 'inline-block';
+
+            row.querySelector('.helper-text').classList.add('hidden');
+            row.querySelector('.helper-input').style.display = 'inline-block';
+        }
+
+        // Show save and cancel buttons, hide edit and delete buttons
+        row.querySelector('.save-btn').style.display = 'inline-block';
+        row.querySelector('.cancel-btn').style.display = 'inline-block';
+        row.querySelector('.delete-btn').classList.add('hidden'); // Hide delete button during editing
+        this.style.display = 'none'; // Hide edit button
+    });
+});
+
+document.querySelectorAll('.cancel-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const rowId = this.getAttribute('data-row-id');
+        const row = document.getElementById('row-' + rowId);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeTab = urlParams.get('tab');
+
+        if (activeTab !== 'customFields') {
+            row.querySelector('.name-text').classList.remove('hidden');
+            row.querySelector('.name-input').style.display = 'none';
+
+            row.querySelector('.desc-text').classList.remove('hidden');
+            row.querySelector('.desc-input').style.display = 'none';
+        } else {
+            row.querySelector('.name-text').classList.remove('hidden');
+            row.querySelector('.name-input').style.display = 'none';
+
+            row.querySelector('.type-text').classList.remove('hidden');
+            row.querySelector('.type-input').style.display = 'none';
+
+            row.querySelector('.helper-text').classList.remove('hidden');
+            row.querySelector('.helper-input').style.display = 'none';
+        }
+
+        // Show edit and delete buttons, hide save and cancel buttons
+        row.querySelector('.save-btn').style.display = 'none';
+        row.querySelector('.edit-btn').style.display = 'inline-block';
+        row.querySelector('.delete-btn').classList.remove('hidden'); // Show delete button again
+        this.style.display = 'none'; // Hide cancel button
+    });
+});
+
+document.querySelectorAll('.save-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const rowId = this.getAttribute('data-row-id');
+        const row = document.getElementById('row-' + rowId);
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeTab = urlParams.get('tab') || 'model';
+
+        const nameValue = row.querySelector('.name-input').value;
+        let loader;
+
+        if (activeTab !== 'customFields') {
+            const descValue = row.querySelector('.desc-input').value;
+            loader = {
+                name: nameValue,
+                description: descValue
+            };
+        } else {
+            const typeValue = row.querySelector('.type-input').value;
+            const helpValue = row.querySelector('.helper-input').value;
+            loader = {
+                name: nameValue,
+                type: typeValue,
+                helptext: helpValue
+            };
+        }
+
+        // AJAX call to save the updated data
+        fetch(`/admin/setting/update/${activeTab}/${rowId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(loader)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 if (activeTab !== 'customFields') {
-                    // Show and toggle name and description inputs for non-customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
-                    row.querySelector('.name-input').style.display = 'inline-block';
-
-                    row.querySelector('.desc-text').classList.toggle('hidden');
-                    row.querySelector('.desc-input').style.display = 'inline-block';
+                    row.querySelector('.name-text').textContent = nameValue;
+                    row.querySelector('.desc-text').textContent = loader.description;
                 } else {
-                    // Show and toggle name, type, and helper inputs for customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
-                    row.querySelector('.name-input').style.display = 'inline-block';
-
-                    row.querySelector('.type-text').classList.toggle('hidden');
-                    row.querySelector('.type-input').style.display = 'inline-block';
-
-                    row.querySelector('.helper-text').classList.toggle('hidden');
-                    row.querySelector('.helper-input').style.display = 'inline-block';
+                    row.querySelector('.name-text').textContent = loader.name;
+                    row.querySelector('.type-text').textContent = loader.type;
+                    row.querySelector('.helper-text').textContent = loader.helptext;
                 }
 
-                row.querySelector('.save-btn').style.display = 'inline-block';
-                row.querySelector('.cancel-btn').style.display = 'inline-block';
-                row.querySelector('.delete-btn').classList.toggle('hidden');
-                this.style.display = 'none';
-            });
-        });
-
-        document.querySelectorAll('.cancel-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const rowId = this.getAttribute('data-row-id');
-                const row = document.getElementById('row-' + rowId);
-
-                const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab');
+                // Toggle fields back to view mode
+                row.querySelector('.name-text').classList.remove('hidden');
+                row.querySelector('.name-input').style.display = 'none';
 
                 if (activeTab !== 'customFields') {
-                    // Hide name and description inputs for non-customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
-                    row.querySelector('.name-input').style.display = 'none';
-
-                    row.querySelector('.desc-text').classList.toggle('hidden');
+                    row.querySelector('.desc-text').classList.remove('hidden');
                     row.querySelector('.desc-input').style.display = 'none';
                 } else {
-                    // Hide name, type, and helper inputs for customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
-                    row.querySelector('.name-input').style.display = 'none';
-
-                    row.querySelector('.type-text').classList.toggle('hidden');
+                    row.querySelector('.type-text').classList.remove('hidden');
                     row.querySelector('.type-input').style.display = 'none';
-
-                    row.querySelector('.helper-text').classList.toggle('hidden');
+                    row.querySelector('.helper-text').classList.remove('hidden');
                     row.querySelector('.helper-input').style.display = 'none';
                 }
+
                 row.querySelector('.save-btn').style.display = 'none';
+                row.querySelector('.cancel-btn').style.display = 'none';
                 row.querySelector('.edit-btn').style.display = 'inline-block';
-                row.querySelector('.delete-btn').classList.toggle('hidden');
-                this.style.display = 'none';
-            });
+                row.querySelector('.delete-btn').classList.remove('hidden'); // Show delete button again
+            } else {
+                alert('Failed to update.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
         });
-
-        document.querySelectorAll('.save-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const rowId = this.getAttribute('data-row-id');
-                const row = document.getElementById('row-' + rowId);
-                const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab') ?? 'model';
-
-                const nameValue = row.querySelector('.name-input').value;
-                let loader;
-
-                if (activeTab !== 'customFields') {
-                    // Get name and description values for non-customFields
-                    const descValue = row.querySelector('.desc-input').value;
-                    loader = {
-                        name: nameValue,
-                        description: descValue
-                    };
-                } else {
-                    // Get name, type, and helper values for customFields
-                    const typeValue = row.querySelector('.type-input').value;
-                    const helpValue = row.querySelector('.helper-input').value;
-                    loader = {
-                        name: nameValue,
-                        type: typeValue,
-                        helptext: helpValue
-                    };
-                }
-
-                // AJAX call to save the updated data
-                fetch(`/admin/setting/update/${activeTab}/${rowId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        },
-                        body: JSON.stringify(loader)
-                    })
-                    .then(response => {
-                        const contentType = response.headers.get('content-type');
-                        if (contentType && contentType.includes('application/json')) {
-                            return response.json();
-                        } else {
-                            throw new Error('Server returned non-JSON response');
-                        }
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            if (activeTab !== 'customFields') {
-                                // Update text for non-customFields
-                                row.querySelector('.name-text').textContent = nameValue;
-                                row.querySelector('.desc-text').textContent = loader.description;
-                                row.querySelector('.desc-text').classList.toggle('hidden');
-                                row.querySelector('.name-text').classList.toggle('hidden');
-
-                                row.querySelector('.name-input').style.display = 'none';
-                                row.querySelector('.desc-input').style.display = 'none';
-                            } else {
-                                // Update text for customFields
-                                row.querySelector('.name-text').textContent = loader.name;
-                                row.querySelector('.type-text').textContent = loader.type;
-                                row.querySelector('.helper-text').textContent = loader.helptext;
-                                row.querySelector('.name-text').classList.toggle('hidden');
-                                row.querySelector('.type-text').classList.toggle('hidden');
-                                row.querySelector('.helper-text').classList.toggle('hidden');
-
-                                row.querySelector('.name-input').style.display = 'none';
-                                row.querySelector('.type-input').style.display = 'none';
-                                row.querySelector('.helper-input').style.display = 'none';
-                            }
-
-                            row.querySelector('.save-btn').style.display = 'none';
-                            row.querySelector('.cancel-btn').style.display = 'none';
-                            row.querySelector('.edit-btn').style.display = 'inline-block';
-                            row.querySelector('.delete-btn').style.display = 'inline-block';
-                            console.log(data)
-
-                        } else {
-                            alert('Failed to update.');
-                            console.log(data)
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
-            });
-        });
+    });
+});
     </script>
    </div>
 </div>

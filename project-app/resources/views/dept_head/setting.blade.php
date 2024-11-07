@@ -24,19 +24,20 @@
             </div>
         @endif
         @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="container relative h-full p-2 flex flex-col gap-2">
             {{-- <div class="flex justify-between"> --}}
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center"> <!-- Added flex-wrap -->
                 {{-- <ul class="flex border-b max-w-max border-gray-300 inline-block"> --}}
-                <ul class="flex flex-wrap border-b max-w-full md:max-w-max border-gray-300"> <!-- Adjusted for small screens -->
+                <ul class="flex flex-wrap border-b max-w-full md:max-w-max border-gray-300">
+                    <!-- Adjusted for small screens -->
                     <li class="mr-1">
                         {{-- <a class="inline-block py-2 px-4 {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}" --}}
                         <a class="inline-block py-2 px-4 text-sm {{ $activeTab === 'model' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500' }}"
@@ -74,10 +75,9 @@
                     </li>
                 </ul>
                 <!-- Button to Open the Modal -->
-                <button onclick="openModal()"
-                {{-- class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center"> --}}
-                class="px-2 md:px-3 py-1 h-10 bg-blue-950 text-white rounded-md shadow hover:bg-blue-950/80 focus:outline-none flex items-center mt-2 md:mt-0">
-                New {{ $activeTab !== 'customFields' ? ucfirst($activeTab): ucfirst("custom fields") }}</button>
+                <button onclick="openModal()" {{-- class="px-3 py-1 h-10 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none flex items-center"> --}}
+                    class="px-2 md:px-3 py-1 h-10 bg-blue-950 text-white rounded-md shadow hover:bg-blue-950/80 focus:outline-none flex items-center mt-2 md:mt-0">
+                    New {{ $activeTab !== 'customFields' ? ucfirst($activeTab) : ucfirst('custom fields') }}</button>
 
 
                 <!-- Include the Modal -->
@@ -86,33 +86,41 @@
 
 
             {{-- <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto"> --}}
-            <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto mt-2"> <!-- Added margin -->
+            <div class="tab-content relative h-full bg-white border border-white rounded-lg overflow-y-auto mt-2">
+                <!-- Added margin -->
 
                 <table class="w-full gap-2">
                     <thead class="bg-gray-100 ">
                         <tr>
                             @if ($activeTab !== 'customFields')
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Description</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Actions</td>
                             @else
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Name</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Type</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Helper Text</td>
                                 {{-- <td class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> --}}
-                                <td class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
+                                <td
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 uppercase tracking-wider">
                                     Action</td>
                             @endif
                         </tr>
@@ -122,25 +130,27 @@
                             @foreach ($data as $key => $dataItem)
                                 <tr class="" id="row-{{ $activeTab !== 'customFields' ? $dataItem->id : $key }}">
                                     @if ($activeTab !== 'customFields')
-                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span
-                                                class="name-text">{{ $dataItem->name }}</span>
-                                            <input type="text" class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
-                                                value="{{ $dataItem->name }}">
+                                        <td
+                                            class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <span class="name-text">{{ $dataItem->name }}</span>
+                                            <input type="text"
+                                                class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
+                                                style="display: none" value="{{ $dataItem->name }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span
-                                                class="desc-text ">{{ $dataItem->description }}</span>
+                                        <td
+                                            class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <span class="desc-text ">{{ $dataItem->description }}</span>
                                             <input type="text"
                                                 class="desc-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
                                                 style="display: none" value="{{ $dataItem->description }}">
                                         </td>
-                                        <td class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td
+                                            class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer edit-btn"
                                                 data-row-id="{{ $dataItem->id }}">Edit</a>
-                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer save-btn" data-row-id="{{ $dataItem->id }}"
-                                                style="display: none;">Save</a>
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer save-btn"
+                                                data-row-id="{{ $dataItem->id }}" style="display: none;">Save</a>
                                             <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer cancel-btn"
                                                 data-row-id="{{ $dataItem->id }}" style="display: none;">Cancel</a>
 
@@ -149,19 +159,25 @@
                                                 method="post" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
+                                                <button
+                                                    class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
                                             </form>
                                         </td>
                                     @else
-                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td
+                                            class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
                                             <span class="name-text">{{ $dataItem['name'] }}</span>
-                                            <input type="text" class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
-                                                value="{{ $dataItem['name'] }}">
+                                            <input type="text"
+                                                class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
+                                                style="display: none" value="{{ $dataItem['name'] }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="type-text ">{{ $dataItem["type"] }}</span>
-                                            <select name="type" class="type-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none">
+                                        <td
+                                            class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <span class="type-text ">{{ $dataItem['type'] }}</span>
+                                            <select name="type"
+                                                class="type-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
+                                                style="display: none">
                                                 <option value="number">Number</option>
                                                 <option value="text">Text</option>
                                                 <option value="date">Date</option>
@@ -169,28 +185,32 @@
                                             {{-- <input type="text" class="type-input" style="display: none"
                                                 value="{{ $dataItem->type }}"> --}}
                                         </td>
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td
+                                            class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
                                             <span class="helper-text">{{ $dataItem['helptext'] }}</span>
 
-                                            <input type="text" class="helper-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
-                                                value="{{ $dataItem['helptext'] }}">
+                                            <input type="text"
+                                                class="helper-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider"
+                                                style="display: none" value="{{ $dataItem['helptext'] }}">
                                         </td>
-                                        <td class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td
+                                            class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider cursor-pointer">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
-                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
-                                                style="display: none;">Save</a>
+                                            <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn"
+                                                data-row-id="{{ $key }}" style="display: none;">Save</a>
                                             <a class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 cancel-btn"
                                                 data-row-id="{{ $key }}" style="display: none;">Cancel</a>
 
                                             <div class="ml-1">
                                                 <form
-                                                action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $key]) }}"
-                                                method="post" >
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
-                                            </form>
+                                                    action="{{ route('setting.delete', ['tab' => $activeTab, 'id' => $key]) }}"
+                                                    method="post">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button
+                                                        class="bg-red-400 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 delete-btn">Delete</button>
+                                                </form>
                                             </div>
                                         </td>
                                     @endif
@@ -198,7 +218,9 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}" class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 text-center uppercase tracking-wider ">NO DATA FOUND</td>
+                                <td colspan="{{ $activeTab !== 'customFields' ? 3 : 4 }}"
+                                    class="px-2 md:px-6 py-2 md:py-3 text-left text-xs md:text-sm font-medium text-gray-500 text-center uppercase tracking-wider ">
+                                    NO DATA FOUND</td>
                             </tr>
                         @endif
                     </tbody>
@@ -213,37 +235,38 @@
     @endif
 
     <script>
-
         document.querySelectorAll('.edit-btn').forEach(function(button) {
             button.addEventListener('click', function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab');
                 const rowId = this.getAttribute('data-row-id');
                 const row = document.getElementById('row-' + rowId);
 
+                const urlParams = new URLSearchParams(window.location.search);
+                let activeTab = urlParams.get('tab');
+
+                // Toggle fields for edit mode
                 if (activeTab !== 'customFields') {
-                    // Show and toggle name and description inputs for non-customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
+                    row.querySelector('.name-text').classList.add('hidden');
                     row.querySelector('.name-input').style.display = 'inline-block';
 
-                    row.querySelector('.desc-text').classList.toggle('hidden');
+                    row.querySelector('.desc-text').classList.add('hidden');
                     row.querySelector('.desc-input').style.display = 'inline-block';
                 } else {
-                    // Show and toggle name, type, and helper inputs for customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
+                    row.querySelector('.name-text').classList.add('hidden');
                     row.querySelector('.name-input').style.display = 'inline-block';
 
-                    row.querySelector('.type-text').classList.toggle('hidden');
+                    row.querySelector('.type-text').classList.add('hidden');
                     row.querySelector('.type-input').style.display = 'inline-block';
 
-                    row.querySelector('.helper-text').classList.toggle('hidden');
+                    row.querySelector('.helper-text').classList.add('hidden');
                     row.querySelector('.helper-input').style.display = 'inline-block';
                 }
 
+                // Show save and cancel buttons, hide edit and delete buttons
                 row.querySelector('.save-btn').style.display = 'inline-block';
                 row.querySelector('.cancel-btn').style.display = 'inline-block';
-                row.querySelector('.delete-btn').classList.toggle('hidden');
-                this.style.display = 'none';
+                row.querySelector('.delete-btn').classList.add(
+                'hidden'); // Hide delete button during editing
+                this.style.display = 'none'; // Hide edit button
             });
         });
 
@@ -255,28 +278,29 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 let activeTab = urlParams.get('tab');
 
+                // Toggle fields back to view mode
                 if (activeTab !== 'customFields') {
-                    // Hide name and description inputs for non-customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
+                    row.querySelector('.name-text').classList.remove('hidden');
                     row.querySelector('.name-input').style.display = 'none';
 
-                    row.querySelector('.desc-text').classList.toggle('hidden');
+                    row.querySelector('.desc-text').classList.remove('hidden');
                     row.querySelector('.desc-input').style.display = 'none';
                 } else {
-                    // Hide name, type, and helper inputs for customFields
-                    row.querySelector('.name-text').classList.toggle('hidden');
+                    row.querySelector('.name-text').classList.remove('hidden');
                     row.querySelector('.name-input').style.display = 'none';
 
-                    row.querySelector('.type-text').classList.toggle('hidden');
+                    row.querySelector('.type-text').classList.remove('hidden');
                     row.querySelector('.type-input').style.display = 'none';
 
-                    row.querySelector('.helper-text').classList.toggle('hidden');
+                    row.querySelector('.helper-text').classList.remove('hidden');
                     row.querySelector('.helper-input').style.display = 'none';
                 }
+
+                // Show edit and delete buttons, hide save and cancel buttons
                 row.querySelector('.save-btn').style.display = 'none';
                 row.querySelector('.edit-btn').style.display = 'inline-block';
-                row.querySelector('.delete-btn').classList.toggle('hidden');
-                this.style.display = 'none';
+                row.querySelector('.delete-btn').classList.remove('hidden'); // Show delete button
+                this.style.display = 'none'; // Hide cancel button
             });
         });
 
@@ -285,20 +309,18 @@
                 const rowId = this.getAttribute('data-row-id');
                 const row = document.getElementById('row-' + rowId);
                 const urlParams = new URLSearchParams(window.location.search);
-                let activeTab = urlParams.get('tab') ?? 'model' ;
+                let activeTab = urlParams.get('tab') ?? 'model';
 
                 const nameValue = row.querySelector('.name-input').value;
                 let loader;
 
                 if (activeTab !== 'customFields') {
-                    // Get name and description values for non-customFields
                     const descValue = row.querySelector('.desc-input').value;
                     loader = {
                         name: nameValue,
                         description: descValue
                     };
                 } else {
-                    // Get name, type, and helper values for customFields
                     const typeValue = row.querySelector('.type-input').value;
                     const helpValue = row.querySelector('.helper-input').value;
                     loader = {
@@ -318,48 +340,41 @@
                         },
                         body: JSON.stringify(loader)
                     })
-                    .then(response => {
-                        const contentType = response.headers.get('content-type');
-                        if (contentType && contentType.includes('application/json')) {
-                            return response.json();
-                        } else {
-                            throw new Error('Server returned non-JSON response');
-                        }
-                    })
+                    .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            // Update the displayed text fields after save
                             if (activeTab !== 'customFields') {
-                                // Update text for non-customFields
                                 row.querySelector('.name-text').textContent = nameValue;
                                 row.querySelector('.desc-text').textContent = loader.description;
-                                row.querySelector('.desc-text').classList.toggle('hidden');
-                                row.querySelector('.name-text').classList.toggle('hidden');
+                            } else {
+                                row.querySelector('.name-text').textContent = loader.name;
+                                row.querySelector('.type-text').textContent = loader
+                                .type; // Update displayed type
+                                row.querySelector('.helper-text').textContent = loader.helptext;
+                            }
 
-                                row.querySelector('.name-input').style.display = 'none';
+                            // Toggle back to view mode
+                            row.querySelector('.name-text').classList.remove('hidden');
+                            row.querySelector('.name-input').style.display = 'none';
+
+                            if (activeTab !== 'customFields') {
+                                row.querySelector('.desc-text').classList.remove('hidden');
                                 row.querySelector('.desc-input').style.display = 'none';
                             } else {
-                                // Update text for customFields
-                                row.querySelector('.name-text').textContent = loader.name;
-                                row.querySelector('.type-text').textContent = loader.type;
-                                row.querySelector('.helper-text').textContent = loader.helptext;
-                                row.querySelector('.name-text').classList.toggle('hidden');
-                                row.querySelector('.type-text').classList.toggle('hidden');
-                                row.querySelector('.helper-text').classList.toggle('hidden');
-
-                                row.querySelector('.name-input').style.display = 'none';
+                                row.querySelector('.type-text').classList.remove('hidden');
                                 row.querySelector('.type-input').style.display = 'none';
+                                row.querySelector('.helper-text').classList.remove('hidden');
                                 row.querySelector('.helper-input').style.display = 'none';
                             }
 
                             row.querySelector('.save-btn').style.display = 'none';
                             row.querySelector('.cancel-btn').style.display = 'none';
                             row.querySelector('.edit-btn').style.display = 'inline-block';
-                            row.querySelector('.delete-btn').style.display = 'inline-block';
-                            console.log(data)
-
+                            row.querySelector('.delete-btn').classList.remove(
+                            'hidden'); // Show delete button
                         } else {
                             alert('Failed to update.');
-                            console.log(data)
                         }
                     })
                     .catch(error => {
@@ -368,7 +383,6 @@
                     });
             });
         });
-
     </script>
 
     </div>
