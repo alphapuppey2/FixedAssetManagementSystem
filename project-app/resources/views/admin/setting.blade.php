@@ -169,14 +169,14 @@
                                     @else
                                         <td
                                             class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="name-text">{{ $dataItem->name }}</span>
+                                            <span class="name-text">{{ $dataItem['name'] }}</span>
                                             <input type="text" class="name-input" style="display: none"
-                                                value="{{ $dataItem->name }}">
+                                                value="{{ $dataItem['name'] }}">
 
                                         </td>
                                         <td
                                             class="px-2 py-3 text-left text-xs sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="type-text ">{{ $dataItem->type }}</span>
+                                            <span class="type-text ">{{ $dataItem["type"] }}</span>
                                             <select name="type" class="type-input" style="display: none">
                                                 <option value="number">Number</option>
                                                 <option value="text">Text</option>
@@ -187,10 +187,10 @@
                                         </td>
                                         <td
                                             class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="helper-text">{{ $dataItem->helptext }}</span>
+                                            <span class="helper-text">{{ $dataItem["helptext"] }}</span>
 
                                             <input type="text" class="helper-input" style="display: none"
-                                                value="{{ $dataItem->helptext }}">
+                                                value="{{ $dataItem["helptext"] }}">
                                         </td>
                                         <td
                                             class="flex py-2 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
