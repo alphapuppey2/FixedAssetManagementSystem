@@ -191,6 +191,12 @@ public function UpdateSettings(Request $request, $tab, $id)
             return redirect()->back()->withErrors('Failed to remove the item from the list.');
         }
 
+        if($tab !== 'customFields'){
+            if($deleteFrom->delete()){
+               Log::Info("Successfully Deleted");
+            }
+        }
+
         return redirect()->back()->with('toast','Setting deleted successfully.');
 
     }
