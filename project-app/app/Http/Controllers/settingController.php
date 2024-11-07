@@ -7,6 +7,7 @@ use App\Models\category;
 use App\Models\ActivityLog;
 use App\Models\department;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\locationModel;
 use App\Models\Manufacturer;
 use App\Models\User;
@@ -50,8 +51,8 @@ class settingController extends Controller
             $RetrieveData = category::where('dept_ID', $departmentID)->get();
             break;
         case 'customFields':
-            $fetch = department::where('id', $departmentID)->get();
-            $RetrieveData = json_decode($fetch[0]->custom_fields);
+            $fetch = department::where('id', $departmentID)->first();
+            $RetrieveData = $fetch ? json_decode($fetch->custom_fields,true) : [];
             break;
     }
 
@@ -68,62 +69,79 @@ class settingController extends Controller
             'activeTab' => $activeTab,
             'data' => $RetrieveData,
         ];
+
+        // dd($RetrieveData);
     return view($routePath, $retDatas);
 }
 
 
-    public function UpdateSettings(Request $request,$tab ,$id){
-
+public function UpdateSettings(Request $request, $tab, $id)
+{
+    try {
         $validated = $request->validate([
-            'name' => 'required | string',
-            'description' => ' sometimes |string',
-            'helptext' => ' sometimes |string',
-            'type' => ' sometimes |string',
-
+            'name' => 'required|string',
+            'description' => 'sometimes|string',
+            'helptext' => 'sometimes|string',
+            'type' => 'sometimes|string',
         ]);
 
-    switch ($tab) {
-        case 'model':
-            $table = ModelAsset::find($id);
-            break;
-        case 'location':
-            $table = locationModel::find($id);
-            break;
-        case 'manufacturer':
-            $table = Manufacturer::find($id);
-            break;
-        case 'category':
-            $table = category::find($id);
-            break;
-        case 'customFields':
-            $table = department::find(Auth::user()->dept_id);
-            $customfields = json_decode($table->custom_fields);
+        switch ($tab) {
+            case 'model':
+                $table = ModelAsset::find($id);
+                break;
+            case 'location':
+                $table = locationModel::find($id);
+                break;
+            case 'manufacturer':
+                $table = Manufacturer::find($id);
+                break;
+            case 'category':
+                $table = category::find($id);
+                break;
+            case 'customFields':
+                $table = department::find(Auth::user()->dept_id);
+                if (!$table) {
+                    return response()->json(['success' => false, 'error' => 'Department not found'], 404);
+                }
 
-            $customfields[$id]->name = $validated['name'];
-            $customfields[$id]->type = $validated['type'];
-            $customfields[$id]->helptext = $validated['helptext'];
+                $customfields = json_decode($table->custom_fields, true); // Decode as an associative array
+                if (!isset($customfields[$id])) {
+                    return response()->json(['success' => false, 'error' => 'Custom field not found'], 404);
+                }
 
-            $table->custom_fields = json_encode($customfields);
+                // Update the specific custom field
+                $customfields[$id]['name'] = $validated['name'];
+                $customfields[$id]['type'] = $validated['type'];
+                $customfields[$id]['helptext'] = $validated['helptext'];
 
-            break;
-        default:
-            return response()->json(['success' => false, 'message' => 'Invalid tab' , 'tab' => $tab], 400);
+                // Encode the updated array back to JSON and save
+                $table->custom_fields = json_encode($customfields);
+                break;
+            default:
+                return response()->json(['success' => false, 'message' => 'Invalid tab', 'tab' => $tab], 400);
+        }
+
+        if (!$table) {
+            return response()->json(['success' => false, 'error' => 'Item not found'], 404);
+        }
+
+        if ($tab !== 'customFields') {
+            $table->description = $validated['description'] ?? $table->description;
+            $table->name = $validated['name'];
+        }
+
+        $table->save();
+
+        return response()->json(['success' => true, 'session' => 'Setting is updated successfully']);
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        Log::error("UpdateSettings Error: " . $e->getMessage());
+
+        // Return a JSON response with the error message
+        return response()->json(['success' => false, 'error' => 'An error occurred. ' . $e->getMessage()], 500);
     }
-
-    // Ensure the table exists
-    if (!$table) {
-        return response()->json(['success' => false, 'error' => 'Item not found'], 404);
-    }
-
-    if($tab !== 'customFields'){
-        $table->description = $validated['description'];
-        $table->name = $validated['name'];
-    }
-    $table->save();
-
-
-    return response()->json(['success' => true, 'session' => 'Setting is updated successfully']);
 }
+
 
     public function destroy($tab,$id){
 
@@ -173,21 +191,15 @@ class settingController extends Controller
             return redirect()->back()->withErrors('Failed to remove the item from the list.');
         }
 
+        return redirect()->back()->with('toast','Setting deleted successfully.');
 
-        if($tab !== 'customFields'){
-            if($deleteFrom->delete()){
-            return redirect()->back()->with('toast','Setting deleted successfully.');
-            }
-            else{
-                dd("pisti Error");
-            }
-        }
     }
     public function store(Request $request, $tab , $department_id = null)
     {
         // Check user role and determine department ID
         $userRole = Auth::user()->usertype;
         $userDept = $userRole === 'admin' ? $department_id  : Auth::user()->dept_id;
+
 
         // Validation for department ID if user is admin
         // dd($userRole === 'admin' , !$userDept , $request->input());
@@ -202,6 +214,8 @@ class settingController extends Controller
             'type' => 'sometimes|string|max:255',
             'helptxt' => 'sometimes|string|max:255'
         ]);
+
+        // dd($validation);
 
         // Handle creation based on the active tab
         switch ($tab) {
@@ -249,34 +263,53 @@ class settingController extends Controller
                 ]);
                 break;
 
-            case 'customFields':
-                // Find department based on user's department ID or admin-selected department ID
-                $department = department::where('id', $userDept)->first();
+                case 'customFields':
+                    // Find department based on user's department ID or admin-selected department ID
+                    $department = department::where('id', $userDept)->first();
 
-                // Check if the department exists
-                if (!$department) {
-                    return redirect()->back()->withErrors(['errors' => 'Department not found.']);
-                }
+                    if (!$department) {
+                        Log::error('Department not found.');
+                        return redirect()->back()->withErrors(['errors' => 'Department not found.']);
+                    }
 
-                // Decode existing custom fields, or initialize as an empty array if null
-                $customF = json_decode($department->custom_fields) ?? [];
+                    // Decode existing custom fields, or initialize as an empty array if null
+                    $customF = json_decode($department->custom_fields, true) ?? [];
 
-                // Check if custom field name already exists
-                $exists = collect($customF)->contains('name', $validation['nameSet']);
-                if ($exists) {
-                    return redirect()->back()->withErrors(['errors' => 'The custom field name already exists.']);
-                }
+                    // Check if custom field name already exists
+                    $exists = collect($customF)->contains('name', $validation['nameSet']);
+                    if ($exists) {
+                        Log::error('The custom field name already exists.');
+                        return redirect()->back()->withErrors(['errors' => 'The custom field name already exists.']);
+                    }
 
-                // Add the new custom field at the beginning of the array
-                array_unshift($customF, [
-                    'name' => $validation['nameSet'],
-                    'type' => $validation['type'],
-                    'helptext' => $validation['helptxt']
-                ]);
+                    // Add the new custom field at the beginning of the array
+                    array_unshift($customF, [
+                        'name' => $validation['nameSet'],
+                        'type' => $validation['type'],
+                        'helptext' => $validation['helptxt']
+                    ]);
 
-                // Update the department with the new custom fields JSON
-                $department->update(['custom_fields' => json_encode($customF)]);
-                break;
+                    // Encode the updated custom fields array as JSON
+                    $jsonCustomF = json_encode($customF);
+
+                    // Check JSON encoding output and handle empty array
+                    if ($jsonCustomF === false) {
+                        Log::error('Failed to encode custom fields to JSON.');
+                        return redirect()->back()->withErrors(['errors' => 'Failed to encode custom fields to JSON.']);
+                    }
+                    Log::info('JSON encoded custom fields:', ['jsonCustomF' => $jsonCustomF]);
+
+                    // Update the department with the new custom fields JSON using save() instead of update()
+                    $department->custom_fields = $jsonCustomF;
+                    $updateResult = $department->save();
+
+                    if ($updateResult) {
+                        Log::info('Updated department custom_fields:', ['custom_fields' => $department->custom_fields]);
+                    } else {
+                        Log::error('Failed to save custom fields.');
+                        return redirect()->back()->withErrors(['errors' => 'Failed to save custom fields.']);
+                    }
+                    break;
 
             default:
                 return redirect()->back()->withErrors(['errors' => 'Invalid tab selection.']);
@@ -284,7 +317,5 @@ class settingController extends Controller
 
         return redirect()->back()->with('session', 'Setting added successfully.');
     }
-
-
 }
 

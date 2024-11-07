@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('depreciation')->nullable();
             $table->enum('status', ['active', 'deployed', 'under_maintenance', 'disposed'])->default('active');
 
-            $table->binary('custom_fields')->nullable();
+            $table->text('custom_fields')->nullable();
 
             $table->unsignedBigInteger('ctg_ID');
             $table->unsignedBigInteger('dept_ID');
