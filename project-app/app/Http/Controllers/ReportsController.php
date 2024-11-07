@@ -71,7 +71,7 @@ class ReportsController extends Controller
             ->leftJoin('model', 'asset.model_key', '=', 'model.id')
             ->leftJoin('location', 'asset.loc_key', '=', 'location.id')
             ->where('asset.dept_ID', $userDepartmentId)
-            ->whereBetween('asset.created_at', [$startDate, $endDate]);
+            ->whereBetween(DB::raw('DATE(asset.created_at)'), [$startDate, $endDate]);
 
         // Apply filters if provided
         if (!empty($status)) {

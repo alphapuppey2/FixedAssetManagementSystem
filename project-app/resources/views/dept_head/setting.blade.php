@@ -23,6 +23,15 @@
                 </ul>
             </div>
         @endif
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
         <div class="container relative h-full p-2 flex flex-col gap-2">
             {{-- <div class="flex justify-between"> --}}
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center"> <!-- Added flex-wrap -->
@@ -144,15 +153,15 @@
                                             </form>
                                         </td>
                                     @else
-                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="name-text">{{ $dataItem->name }}</span>
-                                            <input type="text" class="name-input" style="display: none"
-                                                value="{{ $dataItem->name }}">
+                                        <td class="w-64 px-3 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <span class="name-text">{{ $dataItem['name'] }}</span>
+                                            <input type="text" class="name-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
+                                                value="{{ $dataItem['name'] }}">
 
                                         </td>
-                                        <td class="px-2 py-3 text-left text-xs sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="type-text ">{{ $dataItem->type }}</span>
-                                            <select name="type" class="type-input" style="display: none">
+                                        <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                            <span class="type-text ">{{ $dataItem["type"] }}</span>
+                                            <select name="type" class="type-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none">
                                                 <option value="number">Number</option>
                                                 <option value="text">Text</option>
                                                 <option value="date">Date</option>
@@ -161,12 +170,12 @@
                                                 value="{{ $dataItem->type }}"> --}}
                                         </td>
                                         <td class="px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
-                                            <span class="helper-text">{{ $dataItem->helptext }}</span>
+                                            <span class="helper-text">{{ $dataItem['helptext'] }}</span>
 
-                                            <input type="text" class="helper-input" style="display: none"
-                                                value="{{ $dataItem->helptext }}">
+                                            <input type="text" class="helper-input px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider" style="display: none"
+                                                value="{{ $dataItem['helptext'] }}">
                                         </td>
-                                        <td class="flex py-2 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
+                                        <td class="flex gap-1 px-2 py-3 text-left sm:text-xs md:text-md font-medium text-gray-500 tracking-wider">
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer edit-btn"
                                                 data-row-id="{{ $key }}">Edit</a>
                                             <a class="bg-blue-950 text-white px-3 py-2 rounded-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 save-btn" data-row-id="{{ $key }}"
@@ -197,6 +206,12 @@
             </div>
         </div>
     </div>
+    @if (session('session'))
+        <div id="toast" class="absolute bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+            {{ session('session') }}
+        </div>
+    @endif
+
     <script>
 
         document.querySelectorAll('.edit-btn').forEach(function(button) {
@@ -353,6 +368,7 @@
                     });
             });
         });
+
     </script>
 
     </div>
