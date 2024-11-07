@@ -202,7 +202,7 @@
 
                                 <div class="field-Info edit view-only">
                                     {{ empty($item['value']) ? 'N/a' : $item['value'] }}</div>
-                                <x-text-input class="edit hidden" name="field[value][]" aria-placeholder="Value"
+                                <input class="edit hidden" type="{{ $item['type'] }}"  name="field[value][]" aria-placeholder="Value"
                                     value="{{ empty($item['value']) ? '' : $item['value'] }} " />
                                 <x-text-input class="hidden" name="field[key][]" value="{{ $item['name'] }}" />
                             </div>
