@@ -184,6 +184,8 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
     Route::get('/admin/activity-logs/export', [ActivityLogController::class, 'export'])->name('activityLogs.export');
     Route::post('/admin/activity-logs/settings', [ActivityLogController::class, 'updateSettings'])->name('activityLogs.updateSettings');
+    Route::get('/admin/activity-logs/deletion-timer', [ActivityLogController::class, 'getNextDeletionTime'])->name('activityLogs.getNextDeletionTime');
+
 
     /*
     -------------------

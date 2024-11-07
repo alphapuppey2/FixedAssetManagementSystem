@@ -87,7 +87,8 @@ class ActivityLogController extends Controller
             $this->scheduleNextDeletion();
         } else {
             Log::info('Clearing next deletion timestamp because interval is set to "never".');
-            Cache::forget('next_deletion_time');
+            // Cache::forget('next_deletion_time');
+            Cache::forget('next_deletion_timestamp');
         }
 
         return redirect()->back()->with('status', 'Log deletion settings updated successfully!');
@@ -107,7 +108,8 @@ class ActivityLogController extends Controller
         }
 
         $nextDeletionTimestamp = Cache::get('next_deletion_timestamp', null);
-        $now = now()->timestamp * 1000;
+        // $now = now()->timestamp * 1000;
+        $now = now()->timestamp;
 
         Log::info('Checking if it\'s time to delete logs.', [
             'nextDeletionTimestamp' => $nextDeletionTimestamp,
@@ -153,10 +155,20 @@ class ActivityLogController extends Controller
 
         if ($nextDeletionTime) {
             // Store the next deletion time in both cache and as a UNIX timestamp
-            Cache::put('next_deletion_timestamp', $nextDeletionTime->timestamp * 1000);
-            Log::info('Next deletion scheduled at:', ['timestamp' => $nextDeletionTime->timestamp * 1000]);
+            // Cache::put('next_deletion_timestamp', $nextDeletionTime->timestamp * 1000);
+            // Log::info('Next deletion scheduled at:', ['timestamp' => $nextDeletionTime->timestamp * 1000]);
+            Cache::put('next_deletion_timestamp', $nextDeletionTime->timestamp);
+            Log::info('Next deletion scheduled at:', ['timestamp' => $nextDeletionTime->timestamp]);
         } else {
             Log::warning('No valid interval provided. Deletion not scheduled.');
         }
     }
+
+    public function getNextDeletionTime()
+    {
+        $nextDeletionTime = Cache::get('next_deletion_timestamp');
+        return response()->json(['nextDeletionTime' => $nextDeletionTime]);
+    }
+
+
 }

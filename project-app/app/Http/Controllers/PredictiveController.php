@@ -11,7 +11,9 @@ class PredictiveController extends Controller
 {
     public function analyze()
     {
-        // Step 1: Fetch relevant maintenance and asset data
+        \Log::info('Analyze method triggered');
+
+        // Step 1: Fetch all maintenance and asset data that we want to analyze
         $maintenanceData = DB::table('maintenance')
             ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
             ->select(
@@ -20,164 +22,137 @@ class PredictiveController extends Controller
                 DB::raw('AVG(maintenance.cost) as average_cost'),
                 DB::raw('DATEDIFF(MAX(maintenance.completion_date), MIN(maintenance.start_date)) as time_between_repairs'),
                 'asset.purchase_cost as asset_cost',
-                'asset.name as asset_name',  // Add this line
-                'asset.code as asset_code',  // Add this line
-                'asset.dept_ID as dept_ID'  // Include dept_ID here
+                'asset.usage_lifespan as lifespan_years',
+                'asset.salvage_value',
+                'asset.name as asset_name',
+                'asset.code as asset_code',
+                'asset.dept_ID as dept_ID'
             )
             ->where('maintenance.is_completed', 1) // Only completed repairs
             ->groupBy(
                 'maintenance.asset_key',
                 'asset.purchase_cost',
+                'asset.usage_lifespan',
+                'asset.salvage_value',
                 'asset.name',
                 'asset.code',
-                'asset.dept_ID'  // Add dept_ID to the GROUP BY clause
+                'asset.dept_ID'
             )
             ->get();
 
-        // Step 2: Loop through the data and apply the conditions
+        \Log::info('Maintenance Data Count:', ['count' => $maintenanceData->count()]);
+
+        // Step 2: Loop through the data and send it to the Flask API for predictions
         foreach ($maintenanceData as $data) {
-            // Condition 1: Repair count must be more than 4
-            if ($data->repair_count > 1) {
-                // Condition 2: Average cost must exceed 60% of the asset's purchase cost
-                $cost_threshold = $data->asset_cost * 0.40; // 60% of asset cost
-                if ($data->average_cost > $cost_threshold) {
-                    // Condition 3: Time between repairs must decrease by 20-30%
-                    // Assuming time_between_repairs is decreasing (you can enhance this logic based on previous time intervals)
-                    if ($data->time_between_repairs < 30) { //days
-                        // Step 3: Send the data to Flask API for prediction
-                        $response = Http::post('http://165.22.59.23:5000/predict', [
+            // Check if a prediction already exists
+            $existingPrediction = DB::table('predictive')
+                ->where('asset_key', $data->asset_key)
+                ->select('repair_count', 'average_cost') // Include relevant fields
+                ->first();
+
+            // Determine if prediction needs to be updated
+            $needsUpdate = false;
+
+            if ($existingPrediction) {
+                // Check if any relevant data has changed
+                if ($existingPrediction->repair_count != $data->repair_count ||
+                    $existingPrediction->average_cost != $data->average_cost) {
+                    $needsUpdate = true;
+                }
+            } else {
+                // If no prediction exists, we need to generate one
+                $needsUpdate = true;
+            }
+
+            // Proceed only if a new prediction is needed
+            if ($needsUpdate) {
+                // Calculate depreciation per year if lifespan is greater than 0
+                $depreciationPerYear = $data->lifespan_years > 0 ?
+                    ($data->asset_cost - $data->salvage_value) / $data->lifespan_years : 0;
+
+                \Log::info('Sending Maintenance Data to Flask API:', [
+                    'asset_key' => $data->asset_key,
+                    'repair_count' => $data->repair_count,
+                    'average_cost' => $data->average_cost,
+                    'time_between_repairs' => $data->time_between_repairs,
+                    'lifespan_years' => $data->lifespan_years,
+                    'asset_cost' => $data->asset_cost,
+                    'salvage_value' => $data->salvage_value,
+                    'depreciation_per_year' => $depreciationPerYear,
+                ]);
+
+                // Step 3: Send the data to Flask API for prediction
+                $response = Http::post('http://127.0.0.1:5000/predict', [
+                    'purchase_cost' => $data->asset_cost,
+                    'lifespan_years' => $data->lifespan_years,
+                    'salvage_value' => $data->salvage_value,
+                    'depreciation_per_year' => $depreciationPerYear, // Include the depreciation per year
+                    'repair_count' => $data->repair_count,
+                    'average_cost' => $data->average_cost,
+                    'time_between_repairs' => $data->time_between_repairs,
+                ]);
+
+                \Log::info('Flask API Response Status:', ['status' => $response->status()]);
+                \Log::info('Step 3: Flask API Response:', ['response' => $response->body()]);
+
+                // Step 4: Get the prediction from the API
+                if ($response->successful()) {
+                    $prediction = $response->json()['prediction'];
+
+                    \Log::info('Prediction received from API:', ['prediction' => $prediction]);
+
+                    // Step 5: Store the prediction in the predictive table
+                    DB::table('predictive')->updateOrInsert(
+                        ['asset_key' => $data->asset_key],
+                        [
                             'repair_count' => $data->repair_count,
                             'average_cost' => $data->average_cost,
-                            'time_between_repairs' => $data->time_between_repairs,
-                        ]);
+                            'recommendation' => $prediction,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]
+                    );
 
-                        // Step 4: Get the prediction from the API
-                        $prediction = $response->json()['prediction'];
+                    // Step 6: Send Notification
+                    $notificationData = [
+                        'title' => 'Predictive Maintenance Generated',
+                        'message' => "Predictive maintenance for asset '{$data->asset_name}' (Code: {$data->asset_code}) has been generated. Recommendation: {$prediction}.",
+                        'asset_name' => $data->asset_name,
+                        'asset_code' => $data->asset_code,
+                        'action_url' => route('maintenance_sched.predictive')
+                    ];
 
-                        // Step 5: Store the prediction in the predictive table
-                        DB::table('predictive')->updateOrInsert(
-                            ['asset_key' => $data->asset_key],
-                            [
-                                'repair_count' => $data->repair_count,
-                                'average_cost' => $data->average_cost,
-                                'recommendation' => $prediction,
-                                'created_at' => now(),
-                                'updated_at' => now()
-                            ]
-                        );
+                    // Log notification data for debugging
+                    \Log::info('Notification Data:', $notificationData);
 
-                        // Step 6: Send Notification
-                        $notificationData = [
-                            'title' => 'Predictive Maintenance Generated',
-                            'message' => "Predictive maintenance for asset '{$data->asset_name}' (Code: {$data->asset_code}) has been generated. Recommendation: {$prediction}.",
-                            'asset_name' => $data->asset_name,  // Ensure this is included
-                            'asset_code' => $data->asset_code,  // Ensure this is included
-                            'action_url' => route('maintenance_sched.predictive')
-                        ];
+                    $deptHead = \App\Models\User::where('usertype', 'dept_head')
+                        ->where('dept_id', $data->dept_ID)
+                        ->first();
 
-                        // Log notification data for debugging
-                        \Log::info('Notification Data:', $notificationData);
-
-                        $deptHead = \App\Models\User::where('usertype', 'dept_head')
-                            ->where('dept_id', $data->dept_ID)
-                            ->first();
-
-                        if ($deptHead) {
-                            $deptHead->notify(new \App\Notifications\SystemNotification($notificationData));
-                            \Log::info('Notification sent to dept head for predictive maintenance.', ['asset_key' => $data->asset_key]);
-                        } else {
-                            \Log::warning('No department head found to notify.');
-                        }
-
-                        // Step 7: Log the predictive maintenance generation
-                        ActivityLog::create([
-                            'activity' => 'Predictive Maintenance Generated',
-                            'description' => "Predictive maintenance generated for asset '{$data->asset_name}' (Code: {$data->asset_code}). Recommendation: {$prediction}.",
-                            'userType' => 'system', // System-generated action
-                            'user_id' => null, // No specific user responsible
-                            'asset_id' => $data->asset_key,
-                        ]);
+                    if ($deptHead) {
+                        $deptHead->notify(new \App\Notifications\SystemNotification($notificationData));
+                        \Log::info('Notification sent to dept head for predictive maintenance.', ['asset_key' => $data->asset_key]);
                     } else {
-                        \Log::error('Flask API error: ' . $response->body());
+                        \Log::warning('No department head found to notify.');
                     }
+
+                    // Step 7: Log the predictive maintenance generation
+                    ActivityLog::create([
+                        'activity' => 'Predictive Maintenance Generated',
+                        'description' => "Predictive maintenance generated for asset '{$data->asset_name}' (Code: {$data->asset_code}). Recommendation: {$prediction}.",
+                        'userType' => 'system', // System-generated action
+                        'user_id' => null, // No specific user responsible
+                        'asset_id' => $data->asset_key,
+                    ]);
+                } else {
+                    \Log::error('Flask API error: ' . $response->body());
                 }
+            } else {
+                \Log::info('No update needed for asset_key:', ['asset_key' => $data->asset_key]);
             }
         }
 
         return response()->json(['status' => 'Analysis Complete']);
     }
-
-    public function startAnalysis()
-    {
-        // Dispatch the job to run the analysis for the first time
-        // RunPredictiveAnalysis::dispatch()->delay(now()->addDay()); //for actual, daily analysis
-        RunPredictiveAnalysis::dispatch();
-    }
-    // deep logic for predictive, incase
-    // public function analyze()
-    // {
-    //     $maintenanceData = DB::table('maintenance')
-    //         ->join('asset', 'maintenance.asset_key', '=', 'asset.id')
-    //         ->select('maintenance.asset_key', 'asset.cost as asset_cost',
-    //             DB::raw('COUNT(maintenance.id) as repair_count'),
-    //             DB::raw('AVG(maintenance.cost) as average_cost'),
-    //             DB::raw('DATEDIFF(MAX(maintenance.completion_date), MIN(maintenance.start_date)) as total_time_between_repairs'))
-    //         ->where('maintenance.completed', 1)
-    //         ->groupBy('maintenance.asset_key', 'asset.cost')
-    //         ->get();
-
-    //     foreach ($maintenanceData as $data) {
-    //         if ($data->repair_count > 4) {
-    //             $cost_threshold = $data->asset_cost * 0.60; // 60% of asset cost
-
-    //             if ($data->average_cost > $cost_threshold) {
-    //                 // Get all time intervals between repairs for this asset
-    //                 $time_intervals = DB::table('maintenance')
-    //                     ->where('asset_key', $data->asset_key)
-    //                     ->orderBy('completion_date', 'asc')
-    //                     ->pluck(DB::raw('DATEDIFF(completion_date, start_date) as interval'));
-
-    //                 // Compare consecutive time intervals to calculate percentage decrease
-    //                 $total_decrease = 0;
-    //                 $previous_interval = null;
-    //                 foreach ($time_intervals as $index => $interval) {
-    //                     if ($previous_interval !== null) {
-    //                         $percentage_decrease = (($previous_interval - $interval) / $previous_interval) * 100;
-    //                         $total_decrease += $percentage_decrease;
-    //                     }
-    //                     $previous_interval = $interval;
-    //                 }
-
-    //                 $average_decrease = $total_decrease / (count($time_intervals) - 1); // Get the average percentage decrease
-
-    //                 // If the average percentage decrease is greater than 20%, flag for predictive maintenance
-    //                 if ($average_decrease > 20) {
-    //                     // Send data to Flask API for prediction
-    //                     $response = Http::post('http://127.0.0.1:5000/predict', [
-    //                         'repair_count' => $data->repair_count,
-    //                         'average_cost' => $data->average_cost,
-    //                         'time_between_repairs' => $data->total_time_between_repairs,
-    //                     ]);
-
-    //                     $prediction = $response->json()['prediction'];
-
-    //                     // Store the prediction in the predictive table
-    //                     DB::table('predictive')->updateOrInsert(
-    //                         ['asset_key' => $data->asset_key],
-    //                         [
-    //                             'repair_count' => $data->repair_count,
-    //                             'average_cost' => $data->average_cost,
-    //                             'recommendation' => $prediction,
-    //                             'created_at' => now(),
-    //                             'updated_at' => now()
-    //                         ]
-    //                     );
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return response()->json(['status' => 'Analysis Complete']);
-    // }
 
 }
