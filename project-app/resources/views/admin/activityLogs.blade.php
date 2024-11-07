@@ -164,7 +164,7 @@
 
     <!-- Settings Modal -->
     {{-- <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center"> --}}
-    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-4">
+    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-800 z-10 bg-opacity-50 flex items-center justify-center p-4">
         {{-- <div class="bg-white rounded-lg p-6 shadow-lg w-96"> --}}
         <div class="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
             {{-- <h2 class="text-xl font-bold mb-4">Log Deletion Settings</h2> --}}
@@ -174,8 +174,8 @@
                 @csrf
                 <label for="deletion_interval" class="block mb-2">Select Deletion Interval:</label>
                 <select name="deletion_interval" id="deletion_interval"
-                    class="w-full border-gray-300 rounded px-3 py-2 mb-4"
-                    onchange="updateWarningAndTimer()">
+                    class="w-full border-gray-300 rounded px-3 py-2 mb-4">
+                    {{-- onchange="updateWarningAndTimer()"> --}}
                     <option value="1_week" {{ $interval === '1_week' ? 'selected' : '' }}>Every 1 Week</option>
                     <option value="1_month" {{ $interval === '1_month' ? 'selected' : '' }}>Every 1 Month</option>
                     <option value="1_year" {{ $interval === '1_year' ? 'selected' : '' }}>Every 1 Year</option>
@@ -202,6 +202,7 @@
 <script>
     const nextDeletionTime = @json(Cache::get('next_deletion_timestamp', null));
     let timer = null;
+    let tempInterval = null;
 
     function toggleExportDropdown() {
         const dropdown = document.getElementById('exportDropdown');
@@ -219,7 +220,47 @@
     function toggleSettingsModal() {
         const modal = document.getElementById('settingsModal');
         modal.classList.toggle('hidden');
+        // Reset temporary interval to the current interval in the cache
+        tempInterval = document.getElementById('deletion_interval').value;
     }
+
+    document.getElementById('deletion_interval').addEventListener('change', function() {
+        tempInterval = this.value;
+        updateWarningMessage(tempInterval);
+    });
+
+    function updateWarningMessage(interval) {
+        const warningMessage = document.getElementById('warningMessage');
+
+        if (interval === 'never') {
+            warningMessage.textContent = 'Logs will be stored indefinitely.';
+        } else {
+            warningMessage.textContent = 'Consider exporting logs to prevent data loss.';
+        }
+    }
+
+    function applySettings() {
+        const interval = tempInterval;
+
+        if (interval === 'never') {
+            localStorage.removeItem('deletionEndTime');
+            document.getElementById('countdownTimer').textContent = 'No deletion scheduled.';
+        } else {
+            const countdownDuration = getCountdownDuration(interval);
+            const now = Date.now();
+            const endTime = now + countdownDuration;
+
+            localStorage.setItem('deletionEndTime', endTime);
+            localStorage.setItem('originalDuration', countdownDuration);
+            startCountdown(endTime);
+        }
+    }
+
+    document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        applySettings();
+        this.submit(); // Submit the form to save settings to the server
+    });
 
     function updateWarningAndTimer() {
         const interval = document.getElementById('deletion_interval').value;
@@ -275,15 +316,40 @@
     }
 
 
-    function initializeCountdown() {
-        // const endTime = nextDeletionTime;
-        const endTime = parseInt(localStorage.getItem('deletionEndTime'), 10);
-        if (endTime) {
-            startCountdown(endTime);
-        } else {
-            document.getElementById('countdownTimer').textContent = 'No deletion scheduled.';
-        }
+    // function initializeCountdown() {
+    //     // const endTime = nextDeletionTime;
+    //     const endTime = parseInt(localStorage.getItem('deletionEndTime'), 10);
+    //     if (endTime) {
+    //         startCountdown(endTime);
+    //     } else {
+    //         document.getElementById('countdownTimer').textContent = 'No deletion scheduled.';
+    //     }
+    // }
+
+    function fetchAndStartTimer() {
+        fetch("{{ route('activityLogs.getNextDeletionTime') }}")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Fetched deletion time:', data); // Debugging log
+                const countdownElement = document.getElementById('countdownTimer');
+                if (data.nextDeletionTime) {
+                    startCountdown(data.nextDeletionTime * 1000); // Convert to milliseconds
+                } else {
+                    countdownElement.textContent = 'No deletion scheduled.';
+                    countdownElement.style.color = 'black';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching deletion time:', error);
+                document.getElementById('countdownTimer').textContent = 'Error fetching deletion time.';
+            });
     }
+
 
     function startCountdown(endTime) {
         const countdownElement = document.getElementById('countdownTimer');
@@ -328,6 +394,6 @@
         updateTimer();
     }
 
-    document.addEventListener('DOMContentLoaded', initializeCountdown);
+    document.addEventListener('DOMContentLoaded', fetchAndStartTimer);
 </script>
 @endsection
