@@ -298,6 +298,8 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
 
     // PREVENTIVE-PREDICTIVE
     Route::get('/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('maintenance_sched');
+    Route::delete('/preventive/{id}', [PreventiveMaintenanceController::class, 'destroy'])->name('preventive.destroy');
+
     Route::get('/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('maintenance_sched.predictive');
 
     // CREATE

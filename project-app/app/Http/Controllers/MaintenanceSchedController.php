@@ -74,9 +74,9 @@ class MaintenanceSchedController extends Controller
 
              // Scale 1 day as 20 seconds for testing
              //first countdown, initial countdown ni
-            $nextMaintenanceDate = $lastMaintenance->addSeconds($preventive->frequency * 20); //test
+            // $nextMaintenanceDate = $lastMaintenance->addSeconds($preventive->frequency * 20); //test
 
-            // $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //actual
+            $nextMaintenanceDate = $lastMaintenance->addDays($preventive->frequency); //actual
 
             // Pass the next maintenance date as a timestamp for frontend countdown
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp ?? null;

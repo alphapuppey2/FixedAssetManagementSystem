@@ -22,8 +22,8 @@ class PreventiveMaintenanceController extends Controller
         $newOccurrences = $request->input('occurrences');
 
         $preventive = Preventive::where('asset_key', $assetKey)
-        ->where('status', 'active')
-        ->first();
+            ->where('status', 'active')
+            ->first();
 
         if (!$preventive) {
             return response()->json(['error' => 'Preventive record not found'], 404);
@@ -43,8 +43,8 @@ class PreventiveMaintenanceController extends Controller
 
         if ($preventive->ends === 0 || $preventive->occurrences < $preventive->ends) {
             $preventive->occurrences = $newOccurrences;
-            // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
-            $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
+            $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+            // $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
             $preventive->save();
 
             // Log the query for debugging
@@ -134,8 +134,8 @@ class PreventiveMaintenanceController extends Controller
 
         if ($preventive) {
 
-            // $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
-            $nextMaintenanceDate = Carbon::now()->addSeconds($preventive->frequency * 20); // test
+            $nextMaintenanceDate = Carbon::now()->addDays($preventive->frequency); // actual
+            // $nextMaintenanceDate = Carbon::now()->addSeconds($preventive->frequency * 20); // test
             $preventive->next_maintenance_timestamp = $nextMaintenanceDate->timestamp;
             $preventive->save();
 
@@ -150,28 +150,23 @@ class PreventiveMaintenanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userRole = Auth::user()->usertype;
         $preventive = Preventive::findOrFail($id);
 
-        // Update basic fields
-        // $preventive->cost = $request->input('cost');
-        // $preventive->frequency = $request->input('frequency');
-        // $preventive->ends = $request->input('ends');
-
-        // Handle status change
-        $preventive->status = $request->input('status');
-
-        // If the status is 'cancelled', store the cancellation reason
-        if ($request->input('status') == 'cancelled') {
-            $preventive->cancel_reason = $request->input('cancel_reason');
-        } else {
-            $preventive->cancel_reason = null; // Reset the reason if not cancelled
-        }
-
+        // Set the status to 'cancelled' and save the cancellation reason
+        $preventive->status = 'cancelled';
+        $preventive->cancel_reason = $request->input('cancel_reason');
         $preventive->save();
 
-        $routeTo = ($userRole === 'admin') ? "adminMaintenance_sched":"maintenance_sched";
-        return redirect()->route($routeTo)->with('status', 'Preventive maintenance updated successfully.');
+        // Redirect back with a success message
+        return redirect()->route('maintenance_sched')->with('status', 'Preventive maintenance cancelled successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $preventive = Preventive::findOrFail($id);
+        $preventive->delete(); // Hard delete the record
+
+        return response()->json(['success' => true]);
     }
 
     public function edit($id)
@@ -189,12 +184,12 @@ class PreventiveMaintenanceController extends Controller
             ->where('next_maintenance_timestamp', '<=', now()->timestamp)
             ->get();
 
-            foreach ($preventives as $preventive) {
-                // Check if maintenance is already due and request hasn't been generated
-                if (!$this->maintenanceExists($preventive)) {
-                    $this->processMaintenance($preventive);
-                }
+        foreach ($preventives as $preventive) {
+            // Check if maintenance is already due and request hasn't been generated
+            if (!$this->maintenanceExists($preventive)) {
+                $this->processMaintenance($preventive);
             }
+        }
 
         return response()->json(['message' => 'Checked overdue maintenance']);
     }
@@ -222,13 +217,10 @@ class PreventiveMaintenanceController extends Controller
             'requested_at' => now(),
         ]);
 
-        // $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
-        $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
+        $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp; //actual
+        // $preventive->next_maintenance_timestamp = now()->addSeconds($preventive->frequency * 20)->timestamp; //test
         $preventive->save();
 
         // Additional notifications or status changes as needed
     }
-
-
-
 }
