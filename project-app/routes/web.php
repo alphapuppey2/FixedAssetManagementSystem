@@ -153,6 +153,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     // MAINTENANCE PREVENTIVE-PREDICTIVE
     Route::get('/admin/maintenance_sched', [MaintenanceSchedController::class, 'showPreventive'])->name('adminMaintenance_sched');
     Route::get('/admin/maintenance_sched/predictive', [MaintenanceSchedController::class, 'showPredictive'])->name('adminMaintenance_sched.predictive');
+    Route::delete('/admin/preventive/{id}', [PreventiveMaintenanceController::class, 'destroy'])->name('admin.preventive.delete');
 
     // INITIAL
     // -----------
