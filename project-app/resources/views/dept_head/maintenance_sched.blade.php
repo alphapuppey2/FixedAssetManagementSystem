@@ -224,7 +224,6 @@
                                         <td class="next-maintenance px-6 py-4" id="next-maintenance-{{ $loop->index }}">
                                             Loading...
                                         </td>
-
                                         <td class="px-6 py-4">
                                             @if ($record->status === 'active')
                                                 <button class="px-4 py-2 text-blue-500 rounded-md"
@@ -268,12 +267,19 @@
                                 Loading...
                             </p>
                             <!-- Action Buttons -->
-                            <div class="flex justify-between mt-2">
-                                <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                    onclick="openEditModal({{ $record->id }})">
-                                    Edit
-                                </button>
-                            </div>
+                            <td class="px-6 py-4">
+                                @if ($record->status === 'active')
+                                    <button class="px-4 py-2 text-blue-500 rounded-md"
+                                        onclick="openCancelModal({{ $record->id }})">
+                                        <x-icons.cancel-icon />
+                                    </button>
+                                @elseif ($record->status === 'cancelled' || $record->status === 'completed')
+                                    <button class="px-4 py-2 text-red-500 rounded-md"
+                                        onclick="openDeleteModal({{ $record->id }}, '{{ $record->status }}', '{{ $record->cancel_reason }}')">
+                                        <x-icons.delete-icon />
+                                    </button>
+                                @endif
+                            </td>
                         @elseif ($tab === 'predictive')
                             <p><strong>Category:</strong> {{ $record->asset->category->name }}</p>
                             <p><strong>Average Cost:</strong> ₱ {{ $record->average_cost }}</p>

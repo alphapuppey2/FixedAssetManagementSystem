@@ -157,8 +157,10 @@ class PreventiveMaintenanceController extends Controller
         $preventive->cancel_reason = $request->input('cancel_reason');
         $preventive->save();
 
+        $route = auth()->user()->usertype === 'admin' ? 'adminMaintenance_sched' : 'maintenance_sched';
+
         // Redirect back with a success message
-        return redirect()->route('maintenance_sched')->with('status', 'Preventive maintenance cancelled successfully.');
+        return redirect()->route($route)->with('status', 'Preventive maintenance cancelled successfully.');
     }
 
     public function destroy($id)
