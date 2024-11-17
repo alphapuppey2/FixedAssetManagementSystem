@@ -20,8 +20,7 @@
     <!-- Notification List -->
     <ul class="divide-y divide-gray-300 max-h-[40rem] overflow-y-auto">
         @forelse ($notifications as $notification)
-            <li onclick="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
-                class="p-4 hover:bg-gray-100 cursor-pointer flex items-center space-x-4 relative">
+            <li class="p-4 hover:bg-gray-100 flex items-center space-x-4 relative">
 
                 <!-- Unread Indicator Circle, Centered Vertically -->
                 @if (is_null($notification->read_at))

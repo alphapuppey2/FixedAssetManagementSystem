@@ -112,9 +112,7 @@ $notifications = Auth::user()->unreadNotifications; // Fetch unread notification
                 <!-- Notification List -->
                 <ul class="divide-y divide-gray-200 max-h-56 overflow-y-auto">
                     @forelse ($notifications as $notification)
-                    <li
-                        @click="navigateTo('{{ $notification->data['action_url'] ?? '#' }}', '{{ $notification->id }}')"
-                        class="p-3 hover:bg-gray-100 cursor-pointer flex items-start space-x-4">
+                    <li class="p-3 hover:bg-gray-100 cursor-pointer flex items-start space-x-4">
 
                         <!-- Unread Indicator -->
                         <div class="w-3 h-3 {{ is_null($notification->read_at) ? 'bg-blue-500' : '' }} rounded-full"></div>
