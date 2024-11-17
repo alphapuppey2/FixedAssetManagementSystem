@@ -82,7 +82,7 @@ class PredictiveController extends Controller
                 ]);
 
                 // Step 3: Send the data to Flask API for prediction
-                $response = Http::post('http://127.0.0.1:5000/predict', [
+                $response = Http::post('http://165.22.59.23:5000/predict', [
                     'purchase_cost' => $data->asset_cost,
                     'lifespan_years' => $data->lifespan_years,
                     'salvage_value' => $data->salvage_value,
