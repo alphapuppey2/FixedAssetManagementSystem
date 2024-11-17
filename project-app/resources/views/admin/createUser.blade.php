@@ -1,5 +1,5 @@
 {{--
-    THIS IS THE CREATE USER PAGE.
+    KANI NA PAGE THE CREATE USER PAGE.
     ALLOWS ADMIN TO CREATE A NEW USER.
 --}}
 
@@ -16,10 +16,10 @@
     <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Form Section (Left Side) -->
+
             <div>
                 <div class="grid grid-cols-1 gap-6">
-                    <!-- Instructions Section -->
+
                     <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md mb-4">
                         <p class="font-medium">Instructions:</p>
                         <ul class="list-disc ml-4 text-sm">
@@ -28,7 +28,7 @@
                         </ul>
                     </div>
 
-                    <!-- Name Fields -->
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="firstname" class="block text-sm font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
@@ -44,15 +44,13 @@
                         </div>
                     </div>
 
-                    <!-- Email Field TEMP ONLY-->
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email (TEMP ONLY) <span class="text-red-500">*</span></label>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email<span class="text-red-500">*</span></label>
                             <input type="email" id="email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                         </div>
                     </div>
 
-                    <!-- User Type and Department -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="usertype" class="block text-sm font-medium text-gray-700">User Type <span class="text-red-500">*</span></label>
@@ -74,7 +72,6 @@
                         </div>
                     </div>
 
-                    <!-- Birthdate, Gender, and Contact -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="birthdate" class="block text-sm font-medium text-gray-700">Birthdate <span class="text-red-500">*</span></label>
@@ -93,7 +90,6 @@
                         </div>
                     </div>
 
-                    <!-- Address -->
                     <div>
                         <label for="address" class="block text-sm font-medium text-gray-700">Address <span class="text-red-500">*</span></label>
                         <textarea id="address" name="address" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
@@ -101,7 +97,6 @@
                 </div>
             </div>
 
-            <!-- Profile Photo Section with Submit Button (Right Side) -->
             <div class="flex flex-col items-center justify-between">
                 <div class="relative">
                     <div class="w-40 h-40 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-300 shadow-md">
@@ -128,7 +123,6 @@
 
 
 <script>
-    // Preview the selected profile photo
     document.getElementById('profile_photo').addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
