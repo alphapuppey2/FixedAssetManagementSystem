@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->timestamp('purchase_date')->useCurrent();
             $table->integer('usage_lifespan')->nullable();
-            $table->integer('salvage_value')->nullable();
-            $table->integer('purchase_cost')->nullable();
-            $table->integer('depreciation')->nullable();
+            $table->float('salvage_value')->nullable();
+            $table->float('purchase_cost')->nullable();
+            $table->float('depreciation')->nullable();
             $table->enum('status', ['active', 'deployed', 'under_maintenance', 'disposed'])->default('active');
 
             $table->text('custom_fields')->nullable();
