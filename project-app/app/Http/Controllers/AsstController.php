@@ -739,7 +739,9 @@ class AsstController extends Controller
     public function UsageHistory($id)
     {
         return AssignedToUser::with(['assetUserBy', 'assignedBy'])
-            ->where('asset_id', $id)->get();
+            ->where('asset_id', $id)
+            ->orderBy(DB::raw('DATE(Date_acquired)'), 'desc')
+            ->get();
     }
 
     public function showDetails($code)
@@ -799,6 +801,7 @@ class AsstController extends Controller
                 'asset.dept_ID',
                 'asset.created_at',
                 'asset.updated_at',
+                'users.id as user_id',
                 'users.firstname',
                 'users.lastname',
                 'users.middlename',
