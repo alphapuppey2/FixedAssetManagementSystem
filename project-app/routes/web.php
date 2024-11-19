@@ -220,6 +220,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
 
 // DeptHead Routes
 Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
+    Route::post('/save-new-manufacturers', [AsstController::class, 'saveNewManufacturers'])->name('save.new.manufacturers');
 
     /*
     -------------------
