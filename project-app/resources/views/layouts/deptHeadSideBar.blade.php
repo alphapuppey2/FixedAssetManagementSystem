@@ -1,8 +1,8 @@
 <aside id="sidebar" class="h-screen transition-all duration-300 ease-in-out max-md:w-[50px] md:w-[205px] overflow-hidden flex flex-col items-center p-2 fixed bg-blue-950 font-semibold text-white">
     <!-- Hamburger Button -->
-    <button id="hamburgerToggle" class="h-[30px] mb-4 max-md:block lg:hidden">
+    {{-- <button id="hamburgerToggle" class="h-[30px] mb-4 max-md:block lg:hidden">
         <x-icons.hamburger />
-    </button>
+    </button> --}}
 
     <!-- Profile Section -->
     <x-nav-link :href="route('profile')" class="mt-3 items-center justify-center">
