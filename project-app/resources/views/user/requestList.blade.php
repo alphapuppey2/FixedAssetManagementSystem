@@ -134,6 +134,7 @@
     @if ($requests->isEmpty())
         <div class="text-center text-gray-500">No requests found.</div>
     @else
+
         @foreach ($requests as $request)
             <div class="bg-white shadow-md rounded-md p-4">
                 <h3 class="font-bold text-lg">Request ID: {{ $request->id }}</h3>

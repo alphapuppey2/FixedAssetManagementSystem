@@ -39,6 +39,8 @@
                     <option value="maintenance" {{ request('type') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                     <option value="upgrade" {{ request('type') == 'upgrade' ? 'selected' : '' }}>Upgrade</option>
                     <option value="inspection" {{ request('type') == 'inspection' ? 'selected' : '' }}>Inspection</option>
+                    <option value="replacement" {{ request('type') == 'replacement' ? 'selected' : '' }}>Replacement</option>
+                    <option value="calibration" {{ request('type') == 'calibration' ? 'selected' : '' }}>Calibration</option>
                 </select>
             </div>
 
