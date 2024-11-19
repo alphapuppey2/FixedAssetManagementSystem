@@ -14,7 +14,6 @@
     <div class="divider mr-4">></div>
     <h2 class=" text-center">
         Maintenance History
-
     </h2>
 @endsection
 

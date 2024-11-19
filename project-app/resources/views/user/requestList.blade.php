@@ -83,6 +83,8 @@
                 <td colspan="7" class="py-4 text-center text-gray-500">No requests found.</td>
             </tr>
         @else
+
+
             @foreach ($requests as $request)
                 <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
                     <td class="py-2 px-3 text-center text-sm text-gray-800">{{ $request->id }}</td>
@@ -134,6 +136,30 @@
     @if ($requests->isEmpty())
         <div class="text-center text-gray-500">No requests found.</div>
     @else
+
+    <div class="mt-4 flex justify-center">
+        <div class="block md:hidden space-x-1">
+            <!-- Mobile Pagination -->
+            @if ($requests->currentPage() > 1)
+                <a href="{{ $requests->previousPageUrl() }}" class="bg-gray-300 px-3 py-2 rounded-md text-sm text-gray-600">
+                    Previous
+                </a>
+            @endif
+
+            <span class="px-3 py-2 text-sm">{{ $requests->currentPage() }} / {{ $requests->lastPage() }}</span>
+
+            @if ($requests->currentPage() < $requests->lastPage())
+                <a href="{{ $requests->nextPageUrl() }}" class="bg-gray-300 px-3 py-2 rounded-md text-sm text-gray-600">
+                    Next
+                </a>
+            @endif
+        </div>
+
+        <div class="hidden md:flex">
+            <!-- Default Pagination for larger screens -->
+            {{ $requests->appends(request()->query())->links('vendor.pagination.tailwind') }}
+        </div>
+    </div>
         @foreach ($requests as $request)
             <div class="bg-white shadow-md rounded-md p-4">
                 <h3 class="font-bold text-lg">Request ID: {{ $request->id }}</h3>

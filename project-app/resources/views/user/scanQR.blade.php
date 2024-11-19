@@ -46,7 +46,6 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- ZXing Library -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 
     <style>
