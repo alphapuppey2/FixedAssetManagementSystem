@@ -128,7 +128,8 @@
                 <label
                     class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Depreciation:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->depreciation }}</div>
+                    {{-- {{ $data->depreciation }}</div> --}}
+                    {{ number_format($data->depreciation ?? 0, 2) }}</div>
                 <x-text-input name="depreciation" id="depreciation" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->depreciation }}" readonly />
@@ -139,7 +140,8 @@
                     class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase
                     Cost:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->purchase_cost }}</div>
+                    {{-- {{ $data->purchase_cost }}</div> --}}
+                    {{ number_format($data->purchase_cost ?? 0, 2) }}</div>
                 <x-text-input name="purchaseCost" id="pCost" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base cursor-disabled"
                     value="{{ $data->purchase_cost }}" />
@@ -158,7 +160,8 @@
                 <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Salvage
                     Value:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->salvage_value }}</div>
+                    {{-- {{ $data->salvage_value }}</div> --}}
+                    {{ number_format($data->salvage_value ?? 0, 2) }}</div>
                 <x-text-input name="salvageValue" id="salvageValue" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->salvage_value }}" />

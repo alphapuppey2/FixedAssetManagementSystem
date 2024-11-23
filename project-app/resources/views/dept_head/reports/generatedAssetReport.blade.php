@@ -126,6 +126,11 @@
                             @case('isDeleted')
                             {{ $asset->isDeleted === 0 ? 'NO' : 'YES' }}
                             @break
+                            @case('salvage_value')
+                            @case('purchase_cost')
+                            @case('depreciation')
+                                {{ number_format($asset->$field ?? 0, 2) }}
+                                @break
                             @default
                             {{ $asset->$field ?? 'N/A' }}
                             @endswitch
