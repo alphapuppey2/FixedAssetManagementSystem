@@ -740,4 +740,80 @@ class MaintenanceController extends Controller
         // Optionally handle other cases or redirect if no valid user type is found
         return redirect()->route('home')->with('error', 'Invalid user type.');
     }
+
+    public function createMaintenanceRequest($assetId) //create maintenance from asset details page (general info)
+    {
+        try {
+            $user = Auth::user();
+
+            // Retrieve asset details
+            $asset = assetModel::findOrFail($assetId);
+
+            // Ensure the asset is not disposed
+            if ($asset->status === 'disposed') {
+                return redirect()->back()->withErrors('Cannot create maintenance for a disposed asset.');
+            }
+
+            // Create a new maintenance request
+            $maintenance = new Maintenance();
+            $maintenance->asset_key = $asset->id;
+            $maintenance->requestor = $user->id; // Optional: Set as system or dept head
+            $maintenance->description = "Maintenance generated directly from asset details page.";
+            $maintenance->status = 'approved';
+            $maintenance->authorized_by = $user->id;
+            $maintenance->authorized_at = now();
+            $maintenance->save();
+
+            // Update asset status
+            $asset->status = 'under_maintenance';
+            $asset->save();
+
+            // Handle preventive maintenance (if applicable)
+            $preventive = Preventive::where('asset_key', $asset->id)->first();
+            if ($preventive) {
+                // Adjust the next maintenance timestamp
+                $preventive->next_maintenance_timestamp = now()->addDays($preventive->frequency)->timestamp;
+                $preventive->save();
+            }
+
+            $notificationData = [
+                'title' => 'Maintenance Request Created',
+                'message' => "Maintenance request for asset '{$asset->name}' (Code: {$asset->code}) has been created and approved.",
+                'authorized_by' => $user->id,
+                'authorized_user_name' => "{$user->firstname} {$user->lastname}",
+                'asset_name' => $asset->name,
+                'asset_code' => $asset->code,
+                'action_url' => null,
+            ];
+
+            $admins = User::where('usertype', 'admin')->get();
+
+            if ($admins->isNotEmpty()) {
+                foreach ($admins as $admin) {
+                    $admin->notify(new SystemNotification($notificationData));
+                    Log::info('Notification sent successfully to admin ID: ' . $admin->id);
+                }
+            } else {
+                Log::error('No admin users found to notify.');
+            }
+
+            ActivityLog::create([
+                'activity' => 'Create Maintenance Request',
+                'description' => "Maintenance request for asset '{$asset->name}' (Code: {$asset->code}) was created directly from asset details by '{$user->firstname} {$user->lastname}'.",
+                'userType' => $user->usertype,
+                'user_id' => $user->id,
+                'asset_id' => $asset->id,
+                'request_id' => $maintenance->id,
+            ]);
+
+            session()->flash('success', "Maintenance for asset '{$asset->name}' (Code: {$asset->code}) created successfully.");
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error in createMaintenanceRequest: ' . $e->getMessage());
+            return redirect()->back()->withErrors('An error occurred while creating maintenance.');
+        }
+
+    }
+
 }

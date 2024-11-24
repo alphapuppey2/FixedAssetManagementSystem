@@ -120,6 +120,9 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/asset-details/{id}', [AsstController::class, 'showDetails'])->name('adminAssetDetails');
     Route::get('/admin/mntc-asset-details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('adminAssetsDetails.mntc');
 
+    //CREATE MAINTENANCE FROM ASSET DETAILS PAGE
+    Route::post('admin/asset-details/{id}/create-maintenance', [MaintenanceController::class, 'createMaintenanceRequest'])->name('createMaintenanceRequest');
+
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
 
@@ -284,6 +287,9 @@ Route::middleware(['deptHeadUserType', 'auth', 'verified'])->group(function () {
     // APPROVE-DENY
     Route::post('/maintenance/{id}/approve', [MaintenanceController::class, 'approve'])->name('maintenance.approve');
     Route::post('/maintenance/{id}/deny', [MaintenanceController::class, 'deny'])->name('maintenance.deny');
+
+    //CREATE MAINTENANCE FROM ASSET DETAILS PAGE
+    Route::post('/asset/{id}/create-maintenance', [MaintenanceController::class, 'createMaintenanceRequest'])->name('createMaintenanceRequest');
 
     // COMPLETED-CANCELLED
     Route::get('/maintenance/records', [MaintenanceController::class, 'showRecords'])->name('maintenance.records');

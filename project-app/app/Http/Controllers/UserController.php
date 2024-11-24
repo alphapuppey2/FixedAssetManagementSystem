@@ -250,17 +250,11 @@ class UserController extends Controller
             'address' => 'nullable|string',
             'contact' => 'nullable|string|max:255',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'email' => 'required|string|email|max:255|unique:users,email', //temp only
+            'email' => 'required|string|email|max:255|unique:users,email',
         ]);
 
-        // Generate email and password based on input
-
-        // $email = strtolower(substr($validated['firstname'], 0, 1) . $validated['lastname'] . '@virginiafood.com.ph');
-
-        // $email = strtolower(substr($validated['firstname'], 0, 1) .($validated['middlename'] ? substr($validated['middlename'], 0, 1) : '') .$validated['lastname'] .'@virginiafood.com.ph');
-
-        // $email = 'dain.potato09@gmail.com';         // FOR TESTING PURPOSES
-        $password = $validated['lastname'] . $validated['birthdate'];
+        // $password = $validated['lastname'] . $validated['birthdate'];
+        $password = Str::random(8);
         $hashedPassword = Hash::make($password);
 
         // Handle profile picture upload
@@ -277,7 +271,6 @@ class UserController extends Controller
             'firstname' => $validated['firstname'],
             'middlename' => $validated['middlename'] ?? null,
             'lastname' => $validated['lastname'],
-            // 'email' => $email,
             'email' => $validated['email'],
             'password' => $hashedPassword,
             'birthdate' => $validated['birthdate'],

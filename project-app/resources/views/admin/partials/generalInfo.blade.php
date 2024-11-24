@@ -6,6 +6,34 @@
     .info:nth-child(odd) {
         background-color: rgb(255, 255, 255);
     }
+
+    #loadingOverlay {
+            z-index: 9999;
+            /* Ensure the overlay covers everything */
+            position: fixed;
+            /* Ensure it stays in place */
+            inset: 0;
+            /* Cover the entire screen */
+    }
+
+    .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 
 <form id="formEdit" action="{{ route('adminAssetDetails.edit', $data->id) }}" method="POST" enctype="multipart/form-data">
@@ -13,6 +41,13 @@
     @method('PUT')
 
     <div class="flex justify-end space-x-4 mt-4">
+        @if ($data->status !== 'under_maintenance' && $data->status !== 'disposed')
+            <button id="createMaintenanceBTN" type="button"
+                class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all duration-300"
+                onclick="openCreateMaintenanceModal()">
+                CREATE MAINTENANCE
+            </button>
+        @endif
         <!-- Dispose Button -->
         @if ($data->status !== 'disposed')
             <button id="disposeBTN" type="button"
@@ -22,7 +57,8 @@
             </button>
         @endif
         <button id="editBTN" type="button"
-            class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-300">
+            class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-300
+            {{ $data->status === 'disposed' ? 'hidden' : '' }}">
             EDIT
         </button>
         <button id="saveBTN" type="submit" form="formEdit"
@@ -128,7 +164,8 @@
                 <label
                     class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Depreciation:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->depreciation }}</div>
+                    {{-- {{ $data->depreciation }}</div> --}}
+                    {{ number_format($data->depreciation ?? 0, 2) }}</div>
                 <x-text-input name="depreciation" id="depreciation" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->depreciation }}" readonly />
@@ -139,7 +176,8 @@
                     class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Purchase
                     Cost:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->purchase_cost }}</div>
+                    {{-- {{ $data->purchase_cost }}</div> --}}
+                    {{ number_format($data->purchase_cost ?? 0, 2) }}</div>
                 <x-text-input name="purchaseCost" id="pCost" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base cursor-disabled"
                     value="{{ $data->purchase_cost }}" />
@@ -158,7 +196,8 @@
                 <label class="field-label mr-4 w-32 text-xs sm:text-sm md:text-base text-gray-600 font-semibold">Salvage
                     Value:</label>
                 <div class="field-Info font-semibold view-only text-xs sm:text-sm md:text-base">
-                    {{ $data->salvage_value }}</div>
+                    {{-- {{ $data->salvage_value }}</div> --}}
+                    {{ number_format($data->salvage_value ?? 0, 2) }}</div>
                 <x-text-input name="salvageValue" id="salvageValue" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*"
                     class="edit hidden w-full border-gray-300 text-xs sm:text-sm md:text-base"
                     value="{{ $data->salvage_value }}" />
@@ -265,6 +304,31 @@
     </div>
 </div>
 
+<div id="createMaintenanceModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-left">Create Maintenance</h2>
+        <p class="text-base text-gray-700 mb-6">
+            Are you sure you want to create maintenance for asset <strong>{{ $data->name }}</strong>
+            (<strong>{{ $data->code }}</strong>)?
+        </p>
+        <div class="flex justify-end space-x-4">
+            <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                onclick="closeCreateMaintenanceModal()">
+                No
+            </button>
+            <button type="button" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                onclick="confirmCreateMaintenance()">
+                Yes
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="loadingOverlay" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex flex-col items-center justify-center hidden">
+    <div class="loader mb-4"></div>
+    <p class="text-white text-lg font-semibold">Creating maintenance</p>
+</div>
+
 @if (session('success'))
     <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow">
         {{ session('success') }}
@@ -287,6 +351,14 @@
         document.getElementById('disposeModal').classList.add('hidden');
     }
 
+    function openCreateMaintenanceModal() {
+        document.getElementById('createMaintenanceModal').classList.remove('hidden');
+    }
+
+    function closeCreateMaintenanceModal() {
+        document.getElementById('createMaintenanceModal').classList.add('hidden');
+    }
+
     function confirmDisposal() {
         fetch(`/admin/asset/dispose/${assetId}`, {
             method: 'POST',
@@ -298,6 +370,11 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                const editButton = document.getElementById('editBTN');
+                if (editButton) {
+                    editButton.classList.add('hidden');
+                }
+
                 location.reload(); // Reload the page on success to trigger the toast
             } else {
                 alert('Failed to dispose of the asset.');
@@ -309,6 +386,36 @@
         });
 
         closeDisposeModal(); // Close the modal
+    }
+
+    function confirmCreateMaintenance() {
+
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+        }
+
+        fetch(`/admin/asset-details/${assetId}/create-maintenance`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to create maintenance.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred.');
+        });
+
+        closeCreateMaintenanceModal();
     }
 
     // Allow the edit form to submit normally without interception
@@ -335,8 +442,11 @@
         const editButton = document.getElementById('editBTN');
         const saveButton = document.getElementById('saveBTN');
         const cancelButton = document.getElementById('cancelBTN');
+        const disposeButton = document.getElementById('disposeBTN');
+        const createMaintenanceButton = document.getElementById('createMaintenanceBTN');
         const editElements = document.querySelectorAll('.edit');
         const viewElements = document.querySelectorAll('.view-only');
+
 
         // Target the specific 'edit' div inside the status section
         const statusEditDiv = document.querySelector('.info .edit.field-Info');
@@ -378,7 +488,8 @@
             editButton.classList.add('hidden');
             saveButton.classList.remove('hidden');
             cancelButton.classList.remove('hidden');
-
+            if (disposeButton) disposeButton.classList.add('hidden');
+            if (createMaintenanceButton) createMaintenanceButton.classList.add('hidden');
             // Ensure the status edit div becomes visible in edit mode
             statusEditDiv.classList.remove('hidden');
         });
@@ -389,7 +500,8 @@
             editButton.classList.remove('hidden');
             saveButton.classList.add('hidden');
             cancelButton.classList.add('hidden');
-
+            if (disposeButton) disposeButton.classList.remove('hidden');
+            if (createMaintenanceButton) createMaintenanceButton.classList.remove('hidden');
             // Ensure the status edit div hides in cancel mode
             statusEditDiv.classList.add('hidden');
 

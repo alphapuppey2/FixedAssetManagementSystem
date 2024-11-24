@@ -228,7 +228,8 @@
                                 <td>{{ $asset->name }}</td>
                                 <td>{{ $asset->category }}</td>
                                 <td>{{ $asset->department }}</td>
-                                <td>{{ $asset->depreciation ?? 0.0 }}</td>
+                                {{-- <td>{{ $asset->depreciation ?? 0.0 }}</td> --}}
+                                <td>{{ number_format($asset->depreciation ?? 0, 2) }}</td>
                                 <td>@include('components.asset-status', ['status' => $asset->status])</td>
                                 <td class="align-middle font-bold text-left text-sm text-gray-900">
                                     <div class="deb flex justify-center">
