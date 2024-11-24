@@ -121,7 +121,7 @@ Route::middleware(['adminUserType', 'auth', 'verified'])->group(function () {
     Route::get('/admin/mntc-asset-details/{code}', [MaintenanceController::class, 'getAssetDetails'])->name('adminAssetsDetails.mntc');
 
     //CREATE MAINTENANCE FROM ASSET DETAILS PAGE
-    Route::post('admin/asset-details/{id}/create-maintenance', [MaintenanceController::class, 'createMaintenanceRequest'])->name('createMaintenanceRequest');
+    Route::post('admin/asset-details/{id}/create-maintenance', [MaintenanceController::class, 'createMaintenanceRequest'])->name('adminCreateMaintenanceRequest');
 
     // ASSET UPDATES
     Route::put('admin/asset/edit/{id}', [AsstController::class, 'update'])->name('adminAssetDetails.edit');
