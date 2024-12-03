@@ -222,10 +222,10 @@ class AsstController extends Controller
         // Check if any of the settings are empty or the usertype is not Admin
         if (
             Auth::user()->usertype !== 'admin' &&
-            ($categories['ctglist']->isEmpty() ||
-                $location['locs']->isEmpty() ||
-                $model['mod']->isEmpty() ||
-                $manufacturer['mcft']->isEmpty())
+           ( $categories['ctglist']->isEmpty() ||
+            $location['locs']->isEmpty() ||
+            $model['mod']->isEmpty() ||
+            $manufacturer['mcft']->isEmpty())
         ) {
             return redirect()->back()->with('noSettings', 'Some settings are missing. Please set up your settings.');
         }
@@ -548,9 +548,9 @@ class AsstController extends Controller
 
         $validatedData['purchasedDate'] = Carbon::parse($validatedData['purchasedDate'])->format('Y-m-d');
 
-        // Update asset data in the database
-        $updatedRow = assetModel::findOrFail($id);
-        $oldLastUser = $updatedRow->last_used_by;
+         // Update asset data in the database
+         $updatedRow = assetModel::findOrFail($id);
+         $oldLastUser = $updatedRow->last_used_by;
 
         // Prepare the data array for updating
         $updateData = [
@@ -583,7 +583,7 @@ class AsstController extends Controller
             $pathFile = $path;
         }
 
-        // Only include 'asst_img' in the update if a new path is set
+         // Only include 'asst_img' in the update if a new path is set
         if (isset($pathFile)) {
             $updateData['asst_img'] = $pathFile;
         }
@@ -680,7 +680,7 @@ class AsstController extends Controller
     {
         // Get the selected asset IDs from the request
         $assetIds = $request->input('asset_ids', []);
-        $routepath = Auth::user()->usertype === 'admin' ?  'assetList' : 'asset';
+        $routepath = Auth::user()->usertype ==='admin'?  'assetList' : 'asset' ;
 
         if (count($assetIds) > 0) {
             try {
@@ -941,26 +941,6 @@ class AsstController extends Controller
             ->header('Content-Disposition', 'attachment; filename="asset_template.csv"');
     }
 
-    public function saveNewManufacturers(Request $request)
-    {
-        $validated = $request->validate([
-            'manufacturers' => 'required|array',
-            'manufacturers.*.name' => 'required|string|max:255',
-            'manufacturers.*.description' => 'required|string|max:500',
-        ]);
-
-        foreach ($validated['manufacturers'] as $manufacturer) {
-            Manufacturer::create([
-                'name' => ucfirst(strtolower($manufacturer['name'])),
-                'description' => $manufacturer['description'],
-                'dept_ID' => Auth::user()->dept_id,
-            ]);
-        }
-
-        return response()->json(['success' => true, 'message' => 'Manufacturers added successfully.']);
-    }
-
-
     public function uploadCsv(Request $request)
     {
         try {
@@ -984,44 +964,6 @@ class AsstController extends Controller
             $deptHead = Auth::user();
             $department = DB::table('department')->where('id', $userDept)->first();
             Log::info('Authenticated user department ID: ' . $userDept);
-
-            // Array to store manufacturer names
-            $manufacturersFromCsv = [];
-            foreach ($rows as $row) {
-                $rowData = array_combine($headers, $row);
-                $manufacturerName = strtolower(trim($rowData['manufacturer'] ?? ''));
-                if ($manufacturerName) {
-                    $manufacturersFromCsv[] = $manufacturerName;
-                }
-            }
-            $manufacturersFromCsv = array_unique($manufacturersFromCsv);
-            Log::info('Manufacturers from CSV: ' . json_encode($manufacturersFromCsv));
-
-            if (empty($manufacturersFromCsv)) {
-                Log::warning('No manufacturers found in CSV.');
-                return response()->json(['success' => false, 'message' => 'No manufacturers found in CSV.'], 400);
-            }
-
-            try {
-                $allManufacturers = Manufacturer::pluck('name')->map(fn($name) => strtolower($name))->toArray();
-                $existingManufacturers = array_intersect($manufacturersFromCsv, $allManufacturers);
-                $newManufacturers = array_diff($manufacturersFromCsv, $allManufacturers);
-
-                Log::info('Manufacturers from CSV: ' . json_encode($manufacturersFromCsv));
-                Log::info('Existing manufacturers: ' . json_encode($existingManufacturers));
-                Log::info('New manufacturers found: ' . json_encode($newManufacturers));
-            } catch (\Exception $e) {
-                Log::error('Error querying manufacturers: ' . $e->getMessage());
-                return response()->json(['success' => false, 'message' => 'Error querying manufacturers.'], 500);
-            }
-
-            if (!empty($newManufacturers)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'New manufacturers found.',
-                    'newManufacturers' => array_values($newManufacturers), // Send new manufacturers to the frontend
-                ]);
-            }
 
             // Initialize the $assets array to collect asset names and codes
             $assets = [];
@@ -1212,4 +1154,5 @@ class AsstController extends Controller
             return response()->json(['success' => false]);
         }
     }
+
 }
